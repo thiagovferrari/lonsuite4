@@ -626,8 +626,10 @@ const App: React.FC = () => {
               const imgHeight = (imgProps.height / imgProps.width) * imgWidth;
               const clampedHeight = Math.min(imgHeight, 240);
               checkPage(clampedHeight + 20); // More margin for caption
+              // Detect format dynamically to prevent PDF corruption
               const formatMatch = imgData.match(/^data:image\/(.*?);/);
-              const format = formatMatch ? formatMatch[1].toUpperCase() : 'JPEG';
+              let format = formatMatch ? formatMatch[1].toUpperCase() : 'JPEG';
+              if (format === 'SVG+XML') format = 'PNG'; // SVG fallback
               doc.addImage(imgData, format, margin, y, imgWidth, clampedHeight);
               y += clampedHeight + 12; // Extra gap before caption
             } catch { /* skip broken images */ }
@@ -661,9 +663,10 @@ const App: React.FC = () => {
               const imgWidth = Math.min(contentWidth, 120);
               const imgHeight = (imgProps.height / imgProps.width) * imgWidth;
               checkPage(imgHeight + 10);
+              // Detect format dynamically to prevent PDF corruption
               const formatMatch = linkedAsset.thumbnail.match(/^data:image\/(.*?);/);
               let format = formatMatch ? formatMatch[1].toUpperCase() : 'JPEG';
-              if (format === 'SVG+XML') format = 'PNG';
+              if (format === 'SVG+XML') format = 'PNG'; // SVG fallback
               doc.addImage(linkedAsset.thumbnail, format, margin + (contentWidth - imgWidth) / 2, y, imgWidth, imgHeight);
               y += imgHeight + 8;
             } catch { /* erro silent */ }
