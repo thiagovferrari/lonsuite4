@@ -5,14 +5,17 @@ import AssetCard from './components/AssetCard';
 import AssetModal from './components/AssetModal';
 import { analyzeAsset, searchAssetsWithAI, generateSmartTags } from './services/geminiService';
 import { saveAttachmentData, deleteAttachmentData, getAttachmentData } from './services/storageService';
-import { supabase } from './services/supabase';
 import { Plus, Sparkles, FileText, Image as ImageIcon, Loader2, ChevronLeft, Trash2, Type as TypeIcon, Search, LayoutGrid, List, RotateCcw, Clock, ChevronRight, Briefcase, X, AlertCircle, ExternalLink, Share2, Stethoscope, Activity, ArrowRight, Layers, Download, Home } from 'lucide-react';
 
 const App: React.FC = () => {
   // Core State
   const [view, setView] = useState<ViewState>(ViewState.HOME);
-  const [assets, setAssets] = useState<Asset[]>([]);
-  const [isRefreshing, setIsRefreshing] = useState(true);
+  const [assets, setAssets] = useState<Asset[]>(() => {
+    try {
+      const stored = localStorage.getItem('lon_suite_assets');
+      return stored ? JSON.parse(stored) : MOCK_ASSETS;
+    } catch { return MOCK_ASSETS; }
+  });
 
 
 
@@ -72,80 +75,46 @@ const App: React.FC = () => {
     }
   };
 
-  // Initial Load from Supabase
+  // Persist to localStorage — exclui thumbnails/base64 grandes para evitar limite de 5MB
   useEffect(() => {
-    const fetchInitialData = async () => {
-      setIsRefreshing(true);
+    try {
+      const toSave = assets.map(a => ({
+        ...a,
+        // Remove thumbnail grande (fica só em IndexedDB via saveAttachmentData)
+        // Mas mantemos thumbnails pequenos (caso criados pelo MOCK com string curta)
+        thumbnail: a.thumbnail && a.thumbnail.length > 50000 ? undefined : a.thumbnail,
+        // Attachments: remove o campo 'data' pesado, mantém apenas metadados
+        attachments: a.attachments?.map(att => ({ id: att.id, name: att.name, type: att.type, size: att.size }))
+      }));
+      localStorage.setItem('lon_suite_assets', JSON.stringify(toSave));
+    } catch (err) {
+      console.warn('localStorage save failed (quota exceeded?), trying without thumbnails:', err);
       try {
-        const { data: assetsData, error: assetsError } = await supabase
-          .from('assets')
-          .select('*')
-          .order('created_at', { ascending: false });
+        const slim = assets.map(a => ({ ...a, thumbnail: undefined, attachments: a.attachments?.map(att => ({ id: att.id, name: att.name, type: att.type, size: att.size })) }));
+        localStorage.setItem('lon_suite_assets', JSON.stringify(slim));
+      } catch { /* silent */ }
+    }
+  }, [assets]);
 
-        const { data: casesData, error: casesError } = await supabase
-          .from('cases')
-          .select('*')
-          .order('created_at', { ascending: false });
 
-        if (assetsError || casesError) throw assetsError || casesError;
 
-        // Map database schema back to app types
-        const mappedAssets: Asset[] = [
-          ...(assetsData || []).map(a => ({
-            ...a,
-            scientificContext: a.scientific_context,
-            createdAt: a.created_at
-          })),
-          ...(casesData || []).map(c => ({
-            ...c,
-            type: 'case',
-            caseStatus: c.status,
-            createdAt: c.created_at
-          }))
-        ];
-
-        setAssets(mappedAssets.length > 0 ? mappedAssets : MOCK_ASSETS);
-      } catch (err) {
-        console.error('Falha ao carregar dados do Supabase:', err);
-        setAssets(MOCK_ASSETS);
-      } finally {
-        setIsRefreshing(false);
+  // On mount: reload thumbnails from IndexedDB for assets saved without thumbnail in localStorage
+  useEffect(() => {
+    const reloadThumbnails = async () => {
+      const missing = assets.filter(a => !a.thumbnail && !a.isDeleted && a.type !== 'case');
+      if (missing.length === 0) return;
+      const updates: Record<string, string> = {};
+      await Promise.all(missing.map(async a => {
+        const data = await getAttachmentData(a.id);
+        if (data) updates[a.id] = data;
+      }));
+      if (Object.keys(updates).length > 0) {
+        setAssets(prev => prev.map(a => updates[a.id] ? { ...a, thumbnail: updates[a.id] } : a));
       }
     };
-
-    fetchInitialData();
+    reloadThumbnails();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // Sync assets to cloud on change
-  const syncToCloud = async (asset: Asset) => {
-    try {
-      if (asset.type === 'case') {
-        await supabase.from('cases').upsert({
-          id: asset.id,
-          title: asset.title,
-          description: asset.description,
-          blocks: asset.blocks,
-          tags: asset.tags,
-          status: asset.caseStatus,
-          created_at: asset.createdAt
-        });
-      } else {
-        await supabase.from('assets').upsert({
-          id: asset.id,
-          title: asset.title,
-          type: asset.type,
-          content: asset.content,
-          thumbnail: asset.thumbnail,
-          summary: asset.summary,
-          scientific_context: asset.scientificContext,
-          tags: asset.tags,
-          created_at: asset.createdAt
-        });
-      }
-    } catch (err) {
-      console.error('Erro de sincronização na nuvem:', err);
-    }
-  };
 
   // Load Smart Tags
   useEffect(() => {
@@ -337,21 +306,21 @@ const App: React.FC = () => {
           }
         }
 
-        // Create attachments metadata and save large data to Supabase Storage
+        // Create attachments metadata and save large data to IndexedDB
         const attachments: Attachment[] = [];
         for (let i = 0; i < pendingUpload.files.length; i++) {
           const file = pendingUpload.files[i];
           const base64 = pendingUpload.base64s[i];
           const attId = crypto.randomUUID();
 
-          // Save to Supabase Storage and get URL
-          const publicUrl = await saveAttachmentData(attId, base64);
+          // Save to IndexedDB (asynchronous)
+          await saveAttachmentData(attId, base64);
 
           attachments.push({
             id: attId,
             name: file.name,
             type: file.type,
-            data: publicUrl, // Now data is the cloud URL
+            // DO NOT include 'data: base64' here to keep state light
             size: file.size
           });
         }
@@ -361,13 +330,12 @@ const App: React.FC = () => {
           ...assetData,
           type: 'image',
           date: new Date().toISOString(),
-          thumbnail: attachments[0]?.data || firstBase64, // Use URL as thumbnail
+          thumbnail: firstBase64, // Keep thumbnail in state for quick viewing
           attachments,
           createdAt: new Date().toISOString()
         };
 
         setAssets(prev => [groupAsset, ...prev]);
-        syncToCloud(groupAsset);
         setPendingUpload(null);
         setIsProcessing(false);
         return;
@@ -406,88 +374,63 @@ const App: React.FC = () => {
         const assetType: AssetType = file.type.includes('pdf') ? 'pdf' : 'image';
         const assetId = crypto.randomUUID();
 
-        // Save to Supabase Storage and get URL
-        const publicUrl = await saveAttachmentData(assetId, base64);
+        // For individual files, we also save the data to IndexedDB for consistency
+        await saveAttachmentData(assetId, base64);
 
-        const newAsset: Asset = {
+        newAssets.push({
           id: assetId,
           ...assetData,
           type: assetType,
           date: new Date().toISOString(),
-          thumbnail: publicUrl, // URL 
-          content: publicUrl, // URL
+          thumbnail: base64, // Still keep thumbnail for cards
           createdAt: new Date().toISOString()
-        };
-
-        newAssets.push(newAsset);
-        await syncToCloud(newAsset);
+        });
       }
 
       setAssets(prev => [...newAssets, ...prev]);
     } catch (criticalError) {
       console.error('Critical error in processUpload:', criticalError);
-      alert('Houve um erro crítico ao processar seus arquivos na nuvem.');
+      alert('Houve um erro crítico ao processar seus arquivos. Por favor, tente novamente.');
     } finally {
       setPendingUpload(null);
       setIsProcessing(false);
-      setUploadMode('single');
+      setUploadMode('single'); // Reset upload mode for next upload
     }
   };
-
 
   // Soft delete - move to trash
   const handleDeleteAsset = async (id: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
 
-    setAssets(prev => {
-      const updated = prev.map(a =>
-        a.id === id ? { ...a, isDeleted: true, deletedAt: new Date().toISOString() } : a
-      );
-      const asset = updated.find(a => a.id === id);
-      if (asset) syncToCloud(asset);
-      return updated;
-    });
+    // Find the asset to clean up its IndexedDB entries
+    const assetToRemove = assets.find(a => a.id === id);
+    if (assetToRemove) {
+      if (assetToRemove.attachments) {
+        for (const att of assetToRemove.attachments) {
+          await deleteAttachmentData(att.id);
+        }
+      }
+      // Also delete the main asset data from IndexedDB if it was an individual file
+      await deleteAttachmentData(assetToRemove.id);
+    }
 
+    setAssets(prev => prev.map(a =>
+      a.id === id ? { ...a, isDeleted: true, deletedAt: new Date().toISOString() } : a
+    ));
     if (selectedAsset?.id === id) setSelectedAsset(null);
   };
 
-
   // Permanent delete
-  const handlePermanentDelete = async (id: string) => {
-    try {
-      const assetToRemove = assets.find(a => a.id === id);
-      if (assetToRemove) {
-        // Delete from Storage
-        if (assetToRemove.attachments) {
-          for (const att of assetToRemove.attachments) {
-            await deleteAttachmentData(att.id);
-          }
-        }
-        await deleteAttachmentData(id);
-
-        // Delete from Database
-        const table = assetToRemove.type === 'case' ? 'cases' : 'assets';
-        await supabase.from(table).delete().eq('id', id);
-      }
-      setAssets(prev => prev.filter(a => a.id !== id));
-    } catch (err) {
-      console.error('Erro ao deletar permanente:', err);
-    }
+  const handlePermanentDelete = (id: string) => {
+    setAssets(prev => prev.filter(a => a.id !== id));
   };
-
 
   // Restore from trash
   const handleRestoreAsset = (id: string) => {
-    setAssets(prev => {
-      const updated = prev.map(a =>
-        a.id === id ? { ...a, isDeleted: false, deletedAt: undefined } : a
-      );
-      const asset = updated.find(a => a.id === id);
-      if (asset) syncToCloud(asset);
-      return updated;
-    });
+    setAssets(prev => prev.map(a =>
+      a.id === id ? { ...a, isDeleted: false, deletedAt: undefined } : a
+    ));
   };
-
 
   // Empty trash
   const handleEmptyTrash = () => {
@@ -532,11 +475,7 @@ const App: React.FC = () => {
     const withTimestamp = { ...updated, updatedAt: new Date().toISOString() };
     setEditingCase(withTimestamp);
     setAssets(prev => prev.map(a => a.id === updated.id ? withTimestamp : a));
-    
-    // Sync to Supabase
-    syncToCloud(withTimestamp);
   };
-
 
   const addBlock = (type: 'title' | 'text' | 'image' | 'asset', assetId?: string) => {
     if (!editingCase) return;
@@ -687,11 +626,7 @@ const App: React.FC = () => {
               const imgHeight = (imgProps.height / imgProps.width) * imgWidth;
               const clampedHeight = Math.min(imgHeight, 240);
               checkPage(clampedHeight + 20); // More margin for caption
-              // Detect format dynamically to prevent PDF corruption
-              const formatMatch = imgData.match(/^data:image\/(.*?);/);
-              let format = formatMatch ? formatMatch[1].toUpperCase() : 'JPEG';
-              if (format === 'SVG+XML') format = 'PNG'; // SVG fallback
-              doc.addImage(imgData, format, margin, y, imgWidth, clampedHeight);
+              doc.addImage(imgData, 'JPEG', margin, y, imgWidth, clampedHeight);
               y += clampedHeight + 12; // Extra gap before caption
             } catch { /* skip broken images */ }
           }
@@ -724,11 +659,7 @@ const App: React.FC = () => {
               const imgWidth = Math.min(contentWidth, 120);
               const imgHeight = (imgProps.height / imgProps.width) * imgWidth;
               checkPage(imgHeight + 10);
-              // Detect format dynamically to prevent PDF corruption
-              const formatMatch = linkedAsset.thumbnail.match(/^data:image\/(.*?);/);
-              let format = formatMatch ? formatMatch[1].toUpperCase() : 'JPEG';
-              if (format === 'SVG+XML') format = 'PNG'; // SVG fallback
-              doc.addImage(linkedAsset.thumbnail, format, margin + (contentWidth - imgWidth) / 2, y, imgWidth, imgHeight);
+              doc.addImage(linkedAsset.thumbnail, 'JPEG', margin + (contentWidth - imgWidth) / 2, y, imgWidth, imgHeight);
               y += imgHeight + 8;
             } catch { /* erro silent */ }
           }
@@ -757,8 +688,7 @@ const App: React.FC = () => {
       doc.text(`Lon Suite · ${editingCase.title} · Página ${i}/${pageCount}`, margin, 290, { align: 'left' });
     }
 
-    const safeTitle = (editingCase.title || 'Caso_Clinico').replace(/[\s/?*><|:"\\]+/g, '_');
-    doc.save(`${safeTitle}.pdf`);
+    doc.save(`${editingCase.title.replace(/\s+/g, '_')}.pdf`);
   };
 
   const renderCaseEditor = () => {

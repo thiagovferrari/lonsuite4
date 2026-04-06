@@ -44,6 +44,7 @@ export interface Asset {
   publicationYear?: string;
   keyFindings?: string;
   content?: string;
+  description?: string;
   caseStatus?: CaseStatus;
   createdAt?: string;
   updatedAt?: string;
