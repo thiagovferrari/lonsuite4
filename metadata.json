@@ -1,0 +1,7 @@
+{
+  "name": "A5",
+  "description": "A minimalist Scientific Intelligence Operating System for Medical KOLs, featuring semantic search, asset management, and AI integration.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
