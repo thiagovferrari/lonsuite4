@@ -626,7 +626,9 @@ const App: React.FC = () => {
               const imgHeight = (imgProps.height / imgProps.width) * imgWidth;
               const clampedHeight = Math.min(imgHeight, 240);
               checkPage(clampedHeight + 20); // More margin for caption
-              doc.addImage(imgData, 'JPEG', margin, y, imgWidth, clampedHeight);
+              const formatMatch = imgData.match(/^data:image\/(.*?);/);
+              const format = formatMatch ? formatMatch[1].toUpperCase() : 'JPEG';
+              doc.addImage(imgData, format, margin, y, imgWidth, clampedHeight);
               y += clampedHeight + 12; // Extra gap before caption
             } catch { /* skip broken images */ }
           }
@@ -659,7 +661,10 @@ const App: React.FC = () => {
               const imgWidth = Math.min(contentWidth, 120);
               const imgHeight = (imgProps.height / imgProps.width) * imgWidth;
               checkPage(imgHeight + 10);
-              doc.addImage(linkedAsset.thumbnail, 'JPEG', margin + (contentWidth - imgWidth) / 2, y, imgWidth, imgHeight);
+              const formatMatch = linkedAsset.thumbnail.match(/^data:image\/(.*?);/);
+              let format = formatMatch ? formatMatch[1].toUpperCase() : 'JPEG';
+              if (format === 'SVG+XML') format = 'PNG';
+              doc.addImage(linkedAsset.thumbnail, format, margin + (contentWidth - imgWidth) / 2, y, imgWidth, imgHeight);
               y += imgHeight + 8;
             } catch { /* erro silent */ }
           }
@@ -688,7 +693,8 @@ const App: React.FC = () => {
       doc.text(`Lon Suite · ${editingCase.title} · Página ${i}/${pageCount}`, margin, 290, { align: 'left' });
     }
 
-    doc.save(`${editingCase.title.replace(/\s+/g, '_')}.pdf`);
+    const safeTitle = (editingCase.title || 'Caso_Clinico').replace(/[\s/?*><|:"\\]+/g, '_');
+    doc.save(`${safeTitle}.pdf`);
   };
 
   const renderCaseEditor = () => {
