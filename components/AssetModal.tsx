@@ -27,6 +27,7 @@ const AssetModal: React.FC<AssetModalProps> = ({
     const [isEditingContent, setIsEditingContent] = useState(false);
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
+    const [pdfLoading, setPdfLoading] = useState(false);
     const [deleteConfirm, setDeleteConfirm] = useState(false);
     const [isProcessingManual, setIsProcessingManual] = useState(false);
     const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
@@ -62,11 +63,21 @@ const AssetModal: React.FC<AssetModalProps> = ({
         setCurrentSlideIndex(0);
     }, [asset]);
 
-    const base64ToBlobAsync = async (base64: string, fallbackMime = 'application/pdf'): Promise<Blob | null> => {
+    /**
+     * Converts a data source (base64 data URL, raw base64, or HTTPS URL) to a Blob.
+     * – HTTPS/blob URLs  → fetch directly
+     * – data: URLs       → fetch the data URI
+     * – raw base64       → prepend data-uri header, then fetch
+     */
+    const dataToBlob = async (src: string, fallbackMime = 'application/octet-stream'): Promise<Blob | null> => {
         try {
-            let dataUrl = base64;
+            if (src.startsWith('http') || src.startsWith('blob:')) {
+                const res = await fetch(src);
+                return await res.blob();
+            }
+            let dataUrl = src;
             if (!dataUrl.startsWith('data:')) {
-                dataUrl = `data:${fallbackMime};base64,${base64}`;
+                dataUrl = `data:${fallbackMime};base64,${src}`;
             }
             const res = await fetch(dataUrl);
             return await res.blob();
@@ -80,20 +91,19 @@ const AssetModal: React.FC<AssetModalProps> = ({
         let url: string | null = null;
         let cancelled = false;
         const load = async () => {
-            if (typeof asset.thumbnail === 'string' && asset.thumbnail.startsWith('data:application/pdf')) {
-                const blob = await base64ToBlobAsync(asset.thumbnail, 'application/pdf');
-                if (blob && !cancelled) { url = URL.createObjectURL(blob); setPdfBlobUrl(url); }
-            } else if (asset.type === 'pdf') {
-                const data = await getAttachmentData(asset.id);
-                if (data && !cancelled) {
-                    if (data.startsWith('http')) {
-                        setPdfBlobUrl(data);
-                    } else {
-                        const blob = await base64ToBlobAsync(data, 'application/pdf');
-                        if (blob && !cancelled) { url = URL.createObjectURL(blob); setPdfBlobUrl(url); }
-                    }
-                }
+            if (asset.type !== 'pdf') return;
+            setPdfLoading(true);
+            // Use thumbnail if already a URL/data-URI, otherwise fetch from storage
+            const src = asset.thumbnail || await getAttachmentData(asset.id);
+            if (!src || cancelled) { setPdfLoading(false); return; }
+            // Always convert to a local blob URL so the iframe is never blocked
+            // by X-Frame-Options from Supabase Storage headers.
+            const blob = await dataToBlob(src, 'application/pdf');
+            if (blob && !cancelled) {
+                url = URL.createObjectURL(blob);
+                setPdfBlobUrl(url);
             }
+            if (!cancelled) setPdfLoading(false);
         };
         load();
         return () => { cancelled = true; if (url) URL.revokeObjectURL(url); };
@@ -103,27 +113,35 @@ const AssetModal: React.FC<AssetModalProps> = ({
     const [activeSlideBlobUrl, setActiveSlideBlobUrl] = useState<string | null>(null);
 
     useEffect(() => {
-        let url: string | null = null;
+        let blobUrl: string | null = null;
         let cancelled = false;
+        setActiveSlideBlobUrl(null);
+
         const load = async () => {
             if (!activeAttachment) return;
-            if (activeAttachment.data) {
-                const blob = await base64ToBlobAsync(activeAttachment.data, activeAttachment.type || 'application/octet-stream');
-                if (blob && !cancelled) { url = URL.createObjectURL(blob); setActiveSlideBlobUrl(url); }
-            } else {
-                const data = await getAttachmentData(activeAttachment.id);
-                if (data && !cancelled) {
-                    if (data.startsWith('http')) {
-                        setActiveSlideBlobUrl(data);
-                    } else {
-                        const blob = await base64ToBlobAsync(data, activeAttachment.type || 'application/octet-stream');
-                        if (blob && !cancelled) { url = URL.createObjectURL(blob); setActiveSlideBlobUrl(url); }
-                    }
+
+            // Prefer the stored src (URL or data-URI)
+            const src = activeAttachment.data || await getAttachmentData(activeAttachment.id);
+            if (!src || cancelled) return;
+
+            // HTTPS / data URLs can be used directly as <img> / <iframe> src.
+            // For PDFs inside a group we still create a blob URL to avoid
+            // X-Frame-Options restrictions from Supabase Storage.
+            const isPdf = typeof activeAttachment.type === 'string' && activeAttachment.type.includes('pdf');
+            if (isPdf) {
+                const blob = await dataToBlob(src, 'application/pdf');
+                if (blob && !cancelled) {
+                    blobUrl = URL.createObjectURL(blob);
+                    setActiveSlideBlobUrl(blobUrl);
                 }
+            } else {
+                // Images, docs, etc. — use the URL / data-URI directly
+                if (!cancelled) setActiveSlideBlobUrl(src);
             }
         };
+
         load();
-        return () => { cancelled = true; if (url) URL.revokeObjectURL(url); };
+        return () => { cancelled = true; if (blobUrl) URL.revokeObjectURL(blobUrl); };
     }, [currentSlideIndex, asset.id, activeAttachment]);
 
     const handleNextSlide = () => { if (editedAsset.attachments) setCurrentSlideIndex(p => (p + 1) % editedAsset.attachments!.length); };
@@ -173,31 +191,24 @@ const AssetModal: React.FC<AssetModalProps> = ({
     const handleShareLink = () => {
         const shareUrl = `${window.location.origin}?share=${asset.id}&type=${asset.type === 'case' ? 'case' : 'asset'}`;
         navigator.clipboard.writeText(shareUrl);
-        setCopyFeedback(true);
-        setTimeout(() => setCopyFeedback(false), 2000);
-        // Mostrar alerta simpes
         alert('Link de compartilhamento copiado!');
     };
 
     const handleDownload = async () => {
-        const isGroup = (asset.attachments?.length ?? 0) > 1;
+        const hasMultiple = (asset.attachments?.length ?? 0) > 1;
 
-        if (isGroup && asset.attachments) {
+        if (hasMultiple && asset.attachments) {
             // ZIP download for grouped assets
             const JSZip = (await import('jszip')).default;
             const zip = new JSZip();
             for (const att of asset.attachments) {
-                const data = att.data || (await getAttachmentData(att.id));
-                if (data) {
-                    // Convert base64 to binary
-                    const base64Content = data.split(',')[1];
-                    if (base64Content) {
-                        zip.file(att.name, base64Content, { base64: true });
-                    }
-                }
+                const src = att.data || (await getAttachmentData(att.id));
+                if (!src) continue;
+                const blob = await dataToBlob(src, att.type || 'application/octet-stream');
+                if (blob) zip.file(att.name, blob);
             }
-            const blob = await zip.generateAsync({ type: 'blob' });
-            const url = URL.createObjectURL(blob);
+            const zipBlob = await zip.generateAsync({ type: 'blob' });
+            const url = URL.createObjectURL(zipBlob);
             const link = document.createElement('a');
             link.href = url;
             link.download = `${(asset.title || 'arquivo').replace(/\s+/g, '_')}.zip`;
@@ -205,22 +216,31 @@ const AssetModal: React.FC<AssetModalProps> = ({
             setTimeout(() => URL.revokeObjectURL(url), 100);
         } else {
             // Single file download
-            const link = document.createElement('a');
             let blob: Blob | null = null;
             let fileName = (asset.title || 'arquivo').replace(/\s+/g, '_');
+
             if (asset.type === 'document' && asset.content) {
-                blob = new Blob([asset.content], { type: 'text/html' });
+                // For document assets the content is HTML text
+                const isUrl = typeof asset.content === 'string' && asset.content.startsWith('http');
+                if (isUrl) {
+                    blob = await dataToBlob(asset.content, 'text/html');
+                } else {
+                    blob = new Blob([asset.content], { type: 'text/html' });
+                }
                 fileName += '.html';
             } else {
-                if (typeof asset.thumbnail === 'string' && asset.thumbnail.startsWith('data:')) { blob = await base64ToBlobAsync(asset.thumbnail, 'application/octet-stream'); }
-                else {
-                    const data = await getAttachmentData(asset.id);
-                    if (data) blob = await base64ToBlobAsync(data, 'application/octet-stream');
+                // For all other types (image, pdf…) use thumbnail or stored data
+                const src = asset.thumbnail || await getAttachmentData(asset.id);
+                if (src) blob = await dataToBlob(src, 'application/octet-stream');
+                if (blob) {
+                    const ext = blob.type ? blob.type.split('/')[1]?.replace(/[^a-z0-9]/gi, '') : '';
+                    if (ext) fileName += `.${ext}`;
                 }
-                if (blob) fileName += `.${blob.type.split('/')[1] || 'bin'}`;
             }
+
             if (blob) {
                 const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
                 link.href = url; link.download = fileName;
                 document.body.appendChild(link); link.click(); document.body.removeChild(link);
                 setTimeout(() => URL.revokeObjectURL(url), 100);
@@ -229,17 +249,15 @@ const AssetModal: React.FC<AssetModalProps> = ({
     };
 
     const handleAttachmentDownload = async (att: Attachment) => {
-        let data = att.data || (await getAttachmentData(att.id)) || undefined;
-        if (data) {
-            const blob = await base64ToBlobAsync(data, att.type || 'application/octet-stream');
-            if (blob) {
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url; link.download = att.name;
-                document.body.appendChild(link); link.click(); document.body.removeChild(link);
-                setTimeout(() => URL.revokeObjectURL(url), 100);
-                return;
-            }
+        const src = att.data || (await getAttachmentData(att.id));
+        if (!src) return;
+        const blob = await dataToBlob(src, att.type || 'application/octet-stream');
+        if (blob) {
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url; link.download = att.name;
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+            setTimeout(() => URL.revokeObjectURL(url), 100);
         }
     };
 
@@ -319,18 +337,27 @@ const AssetModal: React.FC<AssetModalProps> = ({
             );
         }
 
-        if (editedAsset.type === 'image' && editedAsset.attachments && editedAsset.attachments.length > 0) {
+        if (editedAsset.attachments && editedAsset.attachments.length > 0) {
             return (
                 <div className="w-full h-full bg-[#f5f5f7] flex flex-col relative overflow-hidden">
                     <div className="flex-1 relative flex items-center justify-center p-6 min-h-[400px]">
                         {activeSlideBlobUrl && typeof activeAttachment?.type === 'string' && activeAttachment.type.includes('image') ? (
-                            <img src={activeSlideBlobUrl} alt="" className="max-w-full max-h-full object-contain rounded-apple-lg shadow-apple bg-white" />
+                            <img src={activeSlideBlobUrl} alt={activeAttachment.name} className="max-w-full max-h-full object-contain rounded-apple-lg shadow-apple bg-white" />
                         ) : activeSlideBlobUrl && typeof activeAttachment?.type === 'string' && activeAttachment.type.includes('pdf') ? (
-                            <iframe src={activeSlideBlobUrl} className="w-full h-full rounded-apple-lg shadow-apple bg-white border-none" />
+                            <iframe src={activeSlideBlobUrl} title={activeAttachment.name} className="w-full h-full rounded-apple-lg border-none" style={{ minHeight: 420 }} />
+                        ) : !activeSlideBlobUrl && activeAttachment ? (
+                            <div className="flex flex-col items-center justify-center text-[#86868b] gap-3">
+                                <div className="w-8 h-8 border-2 border-[#86868b]/30 border-t-[#4285F4] rounded-full animate-spin" />
+                                <p className="text-sm font-medium">Carregando...</p>
+                            </div>
                         ) : (
                             <div className="flex flex-col items-center justify-center text-[#86868b] gap-3">
                                 <FileText size={48} strokeWidth={1} />
                                 <p className="text-sm font-medium">Visualização não disponível</p>
+                                <button onClick={activeAttachment ? () => handleAttachmentDownload(activeAttachment) : undefined}
+                                    className="text-[#4285F4] text-xs font-semibold hover:underline">
+                                    Baixar arquivo
+                                </button>
                             </div>
                         )}
                         {editedAsset.attachments.length > 1 && (
@@ -359,10 +386,13 @@ const AssetModal: React.FC<AssetModalProps> = ({
                             <div key={att.id} onClick={() => setCurrentSlideIndex(idx)}
                                 className={`w-[60px] h-[60px] rounded-apple overflow-hidden cursor-pointer transition-all border-2 relative shrink-0 group/thumb ${currentSlideIndex === idx ? 'border-[#4285F4] shadow-apple' : 'border-transparent opacity-50 hover:opacity-80'}`}>
                                 {typeof att.type === 'string' && att.type.includes('image') ? (
-                                    <img src={thumbUrls[att.id] || att.data} className="w-full h-full object-cover bg-[#f5f5f7]" />
+                                    <img src={thumbUrls[att.id] || att.data || undefined} alt={att.name} className="w-full h-full object-cover bg-[#f5f5f7]" />
                                 ) : (
-                                    <div className="w-full h-full bg-[#f5f5f7] flex items-center justify-center">
-                                        <FileText size={18} className="text-[#86868b]" />
+                                    <div className="w-full h-full bg-[#f5f5f7] flex flex-col items-center justify-center gap-1">
+                                        <FileText size={16} className="text-[#86868b]" />
+                                        <span className="text-[8px] text-[#86868b] font-medium uppercase px-1 truncate max-w-full">
+                                            {att.name.split('.').pop()}
+                                        </span>
                                     </div>
                                 )}
                                 {!isTrashMode && (
@@ -388,10 +418,19 @@ const AssetModal: React.FC<AssetModalProps> = ({
                 <div className="w-full h-full space-y-0 bg-[#f5f5f7] flex flex-col relative z-0">
                     {pdfBlobUrl ? (
                         <iframe src={pdfBlobUrl} className="w-full h-full border-none flex-1" title="PDF Viewer" style={{ minHeight: '100%' }} />
+                    ) : pdfLoading ? (
+                        <div className="flex-1 flex flex-col items-center justify-center gap-3 text-[#86868b]">
+                            <div className="w-8 h-8 border-2 border-[#86868b]/30 border-t-[#4285F4] rounded-full animate-spin" />
+                            <p className="text-sm font-medium">Carregando PDF...</p>
+                        </div>
                     ) : (
                         <div className="flex-1 flex flex-col items-center justify-center gap-3 text-[#86868b]">
                             <FileText size={40} strokeWidth={1} />
-                            <p className="text-sm font-medium">Carregando PDF...</p>
+                            <p className="text-sm font-medium">Não foi possível carregar o PDF.</p>
+                            <button onClick={handleDownload}
+                                className="text-[#4285F4] text-xs font-semibold hover:underline flex items-center gap-1">
+                                <Download size={12} /> Baixar PDF
+                            </button>
                         </div>
                     )}
                     {pdfBlobUrl && (
