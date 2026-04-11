@@ -13,7 +13,7 @@ export type EvidenceLevel = 'Alto' | 'Moderado' | 'Baixo';
 
 export interface CaseBlock {
   id: string;
-  type: 'text' | 'image' | 'title' | 'asset';
+  type: 'text' | 'image' | 'title' | 'subtitle' | 'reference' | 'asset';
   content: string;
   assetId?: string;  // referência ao ativo quando type === 'asset'
 }
@@ -27,6 +27,7 @@ export interface Attachment {
 }
 
 export type CaseStatus = 'em_andamento' | 'completo' | 'arquivado';
+export type CaseVisibility = 'private' | 'shared' | 'public';
 export type DemandPriority = 'alta' | 'media' | 'baixa';
 
 export interface Asset {
@@ -46,6 +47,11 @@ export interface Asset {
   content?: string;
   description?: string;
   caseStatus?: CaseStatus;
+  visibility?: CaseVisibility;
+  ownerId?: string;
+  ownerName?: string;
+  accessCount?: number;
+  sharedWith?: string[];
   createdAt?: string;
   updatedAt?: string;
   isDeleted?: boolean;

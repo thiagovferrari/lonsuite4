@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Project, ProjectLink, ProjectScheduleItem, Attachment, Demand } from '../types';
 import { chatWithProjectAI, summarizeProjectDemands } from '../services/geminiService';
-import { Plus, ChevronLeft, Send, Sparkles, Folder, Calendar, Link as LinkIcon, FileText, Clock, CheckCircle2, Circle, MoreVertical, Trash2, Type as TypeIcon, Bot, CheckSquare, Edit2, User, Loader2, Upload, Table } from 'lucide-react';
+import { Plus, ChevronLeft, Send, Brain, Folder, Calendar, Link as LinkIcon, FileText, Clock, CheckCircle2, Circle, MoreVertical, Trash2, Type as TypeIcon, Bot, CheckSquare, Edit2, User, Loader2, Upload, Table } from 'lucide-react';
 
 interface ProjectsViewProps {
   projects: Project[];
@@ -446,7 +446,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, setProject
         <div className="h-[72px] shrink-0 border-b border-black/5 flex items-center justify-between px-6 bg-gradient-to-r from-blue-50/50 to-indigo-50/50">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
-              <Sparkles size={18} />
+              <Brain size={18} />
             </div>
             <div>
               <h3 className="font-semibold text-slate-900 leading-tight">Copiloto do Projeto</h3>

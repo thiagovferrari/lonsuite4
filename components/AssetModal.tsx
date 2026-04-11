@@ -4,7 +4,7 @@ import { Asset, Attachment } from '../types';
 import {
     X, Save, Trash2, ExternalLink, Download, FileText, MonitorPlay,
     Share2, PenLine, Activity, RotateCcw, Paperclip, Plus, Check,
-    Sparkles, AlertTriangle, Instagram, Copy, ChevronLeft, ChevronRight, Briefcase
+    Brain, AlertTriangle, Instagram, Copy, ChevronLeft, ChevronRight, Briefcase
 } from 'lucide-react';
 import { analyzeAsset, generateInstagramContent, InstagramPostResult } from '../services/geminiService';
 import { getAttachmentData, saveAttachmentData, deleteAttachmentData } from '../services/storageService';
@@ -90,8 +90,12 @@ const AssetModal: React.FC<AssetModalProps> = ({
             } else if (asset.type === 'pdf') {
                 const data = await getAttachmentData(asset.id);
                 if (data && !cancelled) {
-                    const blob = await base64ToBlobAsync(data, 'application/pdf');
-                    if (blob && !cancelled) { url = URL.createObjectURL(blob); setPdfBlobUrl(url); }
+                    if (data.startsWith('http')) {
+                        setPdfBlobUrl(data);
+                    } else {
+                        const blob = await base64ToBlobAsync(data, 'application/pdf');
+                        if (blob && !cancelled) { url = URL.createObjectURL(blob); setPdfBlobUrl(url); }
+                    }
                 }
             }
         };
@@ -113,8 +117,12 @@ const AssetModal: React.FC<AssetModalProps> = ({
             } else {
                 const data = await getAttachmentData(activeAttachment.id);
                 if (data && !cancelled) {
-                    const blob = await base64ToBlobAsync(data, activeAttachment.type || 'application/octet-stream');
-                    if (blob && !cancelled) { url = URL.createObjectURL(blob); setActiveSlideBlobUrl(url); }
+                    if (data.startsWith('http')) {
+                        setActiveSlideBlobUrl(data);
+                    } else {
+                        const blob = await base64ToBlobAsync(data, activeAttachment.type || 'application/octet-stream');
+                        if (blob && !cancelled) { url = URL.createObjectURL(blob); setActiveSlideBlobUrl(url); }
+                    }
                 }
             }
         };
@@ -510,7 +518,7 @@ const AssetModal: React.FC<AssetModalProps> = ({
                         {editedAsset.tags?.length === 0 && !isTrashMode && (
                             <button onClick={handleProcessWithAI} disabled={isProcessingManual}
                                 className="w-full py-2.5 btn-ai rounded-apple font-semibold text-[11px] disabled:opacity-50">
-                                {isProcessingManual ? <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Sparkles size={13} className="text-blue-300" />}
+                                {isProcessingManual ? <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Brain size={13} className="text-blue-300" />}
                                 {isProcessingManual ? 'Analisando...' : 'Processar com IA'}
                             </button>
                         )}

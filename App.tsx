@@ -1,12 +1,13 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { ViewState, Asset, MOCK_ASSETS, EvidenceLevel, AssetType, CaseBlock, CaseStatus, Attachment } from './types';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { ViewState, Asset, MOCK_ASSETS, EvidenceLevel, AssetType, CaseBlock, CaseStatus, CaseVisibility, Attachment } from './types';
+import { MOCK_CASES } from './mockCases';
 import Sidebar from './components/Sidebar';
 import AssetCard from './components/AssetCard';
 import AssetModal from './components/AssetModal';
-import { analyzeAsset, searchAssetsWithAI, generateSmartTags } from './services/geminiService';
+import { analyzeAsset, searchAssetsWithAI, generateSmartTags, searchCasesWithAI, generateCaseSemanticTags } from './services/geminiService';
 import { saveAttachmentData, deleteAttachmentData, getAttachmentData } from './services/storageService';
 import { supabase } from './services/supabase';
-import { Plus, Sparkles, FileText, Image as ImageIcon, Loader2, ChevronLeft, Trash2, Type as TypeIcon, Search, LayoutGrid, List, RotateCcw, Clock, ChevronRight, Briefcase, X, AlertCircle, ExternalLink, Share2, Stethoscope, Activity, ArrowRight, Layers, Download, Home } from 'lucide-react';
+import { Plus, Brain, FileText, Image as ImageIcon, Loader2, ChevronLeft, Trash2, Type as TypeIcon, Search, LayoutGrid, List, RotateCcw, Clock, ChevronRight, Briefcase, X, AlertCircle, ExternalLink, Share2, Stethoscope, Activity, ArrowRight, Layers, Download, Home, BookOpen, Heading2, Eye, EyeOff, Globe, Lock, Link2 } from 'lucide-react';
 
 const App: React.FC = () => {
   // Core State
@@ -26,9 +27,9 @@ const App: React.FC = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   // AI & Behavior State
-  const [aiTags, setAiTags] = useState<string[]>(['Recentes']);
   const [aiSearchResults, setAiSearchResults] = useState<string[] | null>(null);
   const [isAiSearching, setIsAiSearching] = useState(false);
+  const [dateFilter, setDateFilter] = useState<{ month: string; year: string }>({ month: '', year: '' });
   const [recentAccesses, setRecentAccesses] = useState<Asset[]>(() => {
     try {
       const stored = localStorage.getItem('lon_suite_recent');
@@ -62,7 +63,25 @@ const App: React.FC = () => {
     onConfirm: () => void;
   } | null>(null);
 
+  // Owner Identity (persisted in localStorage)
+  const [ownerId] = useState<string>(() => {
+    let id = localStorage.getItem('lon_suite_owner_id');
+    if (!id) { id = crypto.randomUUID(); localStorage.setItem('lon_suite_owner_id', id); }
+    return id;
+  });
+  const [ownerName, setOwnerName] = useState<string>(() => localStorage.getItem('lon_suite_owner_name') || '');
+  const [showNamePrompt, setShowNamePrompt] = useState(!localStorage.getItem('lon_suite_owner_name'));
+  const [nameInput, setNameInput] = useState('');
+
+  // Homepage Search State
+  const [homeSearchQuery, setHomeSearchQuery] = useState('');
+  const [homeSearchResults, setHomeSearchResults] = useState<Asset[]>([]);
+  const [homeSearchLoading, setHomeSearchLoading] = useState(false);
+  const [homeHasSearched, setHomeHasSearched] = useState(false);
+  const [viewingPublicCase, setViewingPublicCase] = useState<Asset | null>(null);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const homeScrollRef = useRef<HTMLDivElement>(null);
 
   // Helper para auto-ajuste de altura em textareas
   const autoResizeTextarea = (element: HTMLTextAreaElement | null) => {
@@ -100,14 +119,20 @@ const App: React.FC = () => {
             ...c,
             type: 'case',
             caseStatus: c.status,
+            visibility: c.visibility || 'private',
+            ownerId: c.owner_id,
+            ownerName: c.owner_name,
+            accessCount: c.access_count || 0,
+            sharedWith: c.shared_with || [],
             createdAt: c.created_at
           }))
         ];
 
-        setAssets(mappedAssets.length > 0 ? mappedAssets : MOCK_ASSETS);
+        const combinedFallback = [...MOCK_ASSETS, ...MOCK_CASES];
+        setAssets(mappedAssets.length > 0 ? [...mappedAssets, ...MOCK_CASES] : combinedFallback);
       } catch (err) {
         console.error('Falha ao carregar dados do Supabase:', err);
-        setAssets(MOCK_ASSETS);
+        setAssets([...MOCK_ASSETS, ...MOCK_CASES]);
       } finally {
         setIsRefreshing(false);
       }
@@ -127,6 +152,11 @@ const App: React.FC = () => {
           blocks: asset.blocks,
           tags: asset.tags,
           status: asset.caseStatus,
+          visibility: asset.visibility || 'private',
+          owner_id: asset.ownerId,
+          owner_name: asset.ownerName,
+          access_count: asset.accessCount || 0,
+          shared_with: asset.sharedWith || [],
           created_at: asset.createdAt
         });
       } else {
@@ -233,9 +263,20 @@ const App: React.FC = () => {
   const activeAssets = useMemo(() => assets.filter(a => !a.isDeleted), [assets]);
   const trashedAssets = useMemo(() => assets.filter(a => a.isDeleted), [assets]);
 
+  // Date-filtered helpers
+  const applyDateFilter = useCallback((items: Asset[]) => {
+    if (!dateFilter.month && !dateFilter.year) return items;
+    return items.filter(a => {
+      const d = new Date(a.createdAt || a.date);
+      if (dateFilter.year && d.getFullYear() !== parseInt(dateFilter.year)) return false;
+      if (dateFilter.month && (d.getMonth() + 1) !== parseInt(dateFilter.month)) return false;
+      return true;
+    });
+  }, [dateFilter]);
+
   // --- SEMANTIC SEARCH LOGIC FOR ASSETS ---
   const filteredAssets = useMemo(() => {
-    const assetsOnly = activeAssets.filter(a => a.type !== 'case');
+    const assetsOnly = applyDateFilter(activeAssets.filter(a => a.type !== 'case'));
     
     // IF AI search is active and returned results, filter by those IDs
     if (aiSearchResults !== null) {
@@ -253,13 +294,15 @@ const App: React.FC = () => {
       .filter(asset => {
         const title = (asset.title || '').toLowerCase();
         const tags = (asset.tags || []).map(t => t.toLowerCase());
-        return title.includes(query) || tags.some(t => t.includes(query));
+        const matchesText = title.includes(query) || tags.some(t => t.includes(query));
+        if (!matchesText) return false;
+        return true;
       });
-  }, [activeAssets, searchQuery, aiSearchResults]);
+  }, [activeAssets, searchQuery, aiSearchResults, applyDateFilter]);
 
   // --- SEMANTIC SEARCH LOGIC FOR CASES ---
   const filteredCases = useMemo(() => {
-    const casesOnly = activeAssets.filter(a => a.type === 'case');
+    const casesOnly = applyDateFilter(activeAssets.filter(a => a.type === 'case'));
     if (!searchQuery.trim()) return casesOnly;
 
     const query = searchQuery.toLowerCase().trim();
@@ -279,7 +322,7 @@ const App: React.FC = () => {
       .filter(item => item.score > 0)
       .sort((a, b) => b.score - a.score)
       .map(item => item.caseItem);
-  }, [activeAssets, searchQuery]);
+  }, [activeAssets, searchQuery, applyDateFilter]);
 
   // filteredCases already handles all case filtering
 
@@ -356,10 +399,12 @@ const App: React.FC = () => {
           });
         }
 
+        const assetType = firstFile.type.includes('pdf') ? 'pdf' : (firstFile.type.includes('powerpoint') || firstFile.type.includes('presentation') || firstFile.name.endsWith('.ppt') || firstFile.name.endsWith('.pptx')) ? 'document' : 'image';
+
         const groupAsset: Asset = {
           id: crypto.randomUUID(),
           ...assetData,
-          type: 'image',
+          type: assetType,
           date: new Date().toISOString(),
           thumbnail: attachments[0]?.data || firstBase64, // Use URL as thumbnail
           attachments,
@@ -403,7 +448,7 @@ const App: React.FC = () => {
           }
         }
 
-        const assetType: AssetType = file.type.includes('pdf') ? 'pdf' : 'image';
+        const assetType: AssetType = file.type.includes('pdf') ? 'pdf' : (file.type.includes('powerpoint') || file.type.includes('presentation') || file.name.endsWith('.ppt') || file.name.endsWith('.pptx')) ? 'document' : 'image';
         const assetId = crypto.randomUUID();
 
         // Save to Supabase Storage and get URL
@@ -516,6 +561,10 @@ const App: React.FC = () => {
       tags: ['Caso'],
       date: now,
       caseStatus: 'em_andamento',
+      visibility: 'private',
+      ownerId: ownerId,
+      ownerName: ownerName,
+      accessCount: 0,
       blocks: [
         { id: titleBlockId, type: 'title', content: '' }
       ],
@@ -537,8 +586,37 @@ const App: React.FC = () => {
     syncToCloud(withTimestamp);
   };
 
+  // Close editor and auto-generate semantic tags in background
+  const handleCloseCase = () => {
+    if (editingCase) {
+      const caseToTag = { ...editingCase };
+      setEditingCase(null);
 
-  const addBlock = (type: 'title' | 'text' | 'image' | 'asset', assetId?: string) => {
+      // Fire-and-forget: generate semantic tags
+      const blocksText = (caseToTag.blocks || [])
+        .filter(b => typeof b.content === 'string' && b.content.trim())
+        .map(b => b.content)
+        .join('\n');
+      const title = caseToTag.title || '';
+
+      if ((title + blocksText).length > 10) {
+        generateCaseSemanticTags(title, blocksText).then(tags => {
+          if (tags.length > 0) {
+            const existingManual = (caseToTag.tags || []).filter(t => t === 'Caso');
+            const merged = [...new Set([...existingManual, ...tags])];
+            const updated = { ...caseToTag, tags: merged, updatedAt: new Date().toISOString() };
+            setAssets(prev => prev.map(a => a.id === updated.id ? updated : a));
+            syncToCloud(updated);
+          }
+        }).catch(() => { /* silent */ });
+      }
+    } else {
+      setEditingCase(null);
+    }
+  };
+
+
+  const addBlock = (type: 'title' | 'subtitle' | 'text' | 'reference' | 'image' | 'asset', assetId?: string) => {
     if (!editingCase) return;
     const newId = crypto.randomUUID();
     const newBlock: CaseBlock = { id: newId, type, content: '', assetId };
@@ -665,6 +743,26 @@ const App: React.FC = () => {
         const lines = doc.splitTextToSize(block.content || '', contentWidth);
         doc.text(lines, margin, y, { align: 'left' });
         y += lines.length * 7 + 6;
+      } else if (block.type === 'subtitle') {
+        checkPage(10);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.setTextColor(50, 50, 55);
+        const lines = doc.splitTextToSize(block.content || '', contentWidth);
+        doc.text(lines, margin, y, { align: 'left' });
+        y += lines.length * 6 + 5;
+      } else if (block.type === 'reference') {
+        checkPage(10);
+        doc.setFont('helvetica', 'italic');
+        doc.setFontSize(9);
+        doc.setTextColor(134, 134, 139);
+        const refText = block.content || '';
+        const lines = doc.splitTextToSize(refText, contentWidth - 6);
+        // Draw left border line
+        doc.setDrawColor(200, 200, 200);
+        doc.line(margin, y - 2, margin, y + lines.length * 4 + 2);
+        doc.text(lines, margin + 6, y, { align: 'left' });
+        y += lines.length * 4 + 6;
       } else if (block.type === 'text') {
         checkPage(10);
         doc.setFont('helvetica', 'normal');
@@ -679,19 +777,33 @@ const App: React.FC = () => {
         for (const entry of entries) {
           const [imgData, caption] = entry.split('###');
           
-          // Render image
-          if (imgData && imgData.startsWith('data:image')) {
+          let finalImgData = imgData;
+          // Se for URL puro, converte em base64 localmente
+          if (finalImgData && finalImgData.startsWith('http')) {
             try {
-              const imgProps = doc.getImageProperties(imgData);
+              const res = await fetch(finalImgData);
+              const blob = await res.blob();
+              finalImgData = await new Promise<string>((resolve) => {
+                  const reader = new FileReader();
+                  reader.onloadend = () => resolve(reader.result as string);
+                  reader.readAsDataURL(blob);
+              });
+            } catch { /* ignore fetch errors safely */ }
+          }
+
+          // Render image
+          if (finalImgData && finalImgData.startsWith('data:image')) {
+            try {
+              const imgProps = doc.getImageProperties(finalImgData);
               const imgWidth = contentWidth;
               const imgHeight = (imgProps.height / imgProps.width) * imgWidth;
               const clampedHeight = Math.min(imgHeight, 240);
               checkPage(clampedHeight + 20); // More margin for caption
               // Detect format dynamically to prevent PDF corruption
-              const formatMatch = imgData.match(/^data:image\/(.*?);/);
+              const formatMatch = finalImgData.match(/^data:image\/(.*?);/);
               let format = formatMatch ? formatMatch[1].toUpperCase() : 'JPEG';
               if (format === 'SVG+XML') format = 'PNG'; // SVG fallback
-              doc.addImage(imgData, format, margin, y, imgWidth, clampedHeight);
+              doc.addImage(finalImgData, format, margin, y, imgWidth, clampedHeight);
               y += clampedHeight + 12; // Extra gap before caption
             } catch { /* skip broken images */ }
           }
@@ -710,39 +822,75 @@ const App: React.FC = () => {
       } else if (block.type === 'asset' && block.assetId) {
         const linkedAsset = activeAssets.find(a => a.id === block.assetId);
         if (linkedAsset) {
-          checkPage(15);
+          // Draw a subtle box around asset reference
+          checkPage(20);
+          
+          // Asset title with blue accent
           doc.setFont('helvetica', 'bold');
           doc.setFontSize(12);
           doc.setTextColor(66, 133, 244);
-          const assetTitleLines = doc.splitTextToSize(`[Ativo] ${linkedAsset.title}`, contentWidth);
+          const assetTitle = `▸ ${linkedAsset.title}`;
+          const assetTitleLines = doc.splitTextToSize(assetTitle, contentWidth);
           doc.text(assetTitleLines, margin, y, { align: 'left' });
-          y += assetTitleLines.length * 5 + 4;
+          y += assetTitleLines.length * 5 + 3;
 
-          if (linkedAsset.thumbnail && linkedAsset.type === 'image') {
-            try {
-              const imgProps = doc.getImageProperties(linkedAsset.thumbnail);
-              const imgWidth = Math.min(contentWidth, 120);
-              const imgHeight = (imgProps.height / imgProps.width) * imgWidth;
-              checkPage(imgHeight + 10);
-              // Detect format dynamically to prevent PDF corruption
-              const formatMatch = linkedAsset.thumbnail.match(/^data:image\/(.*?);/);
-              let format = formatMatch ? formatMatch[1].toUpperCase() : 'JPEG';
-              if (format === 'SVG+XML') format = 'PNG'; // SVG fallback
-              doc.addImage(linkedAsset.thumbnail, format, margin + (contentWidth - imgWidth) / 2, y, imgWidth, imgHeight);
-              y += imgHeight + 8;
-            } catch { /* erro silent */ }
+          // Tags
+          if (linkedAsset.tags && linkedAsset.tags.length > 0) {
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(8);
+            doc.setTextColor(134, 134, 139);
+            const tagText = linkedAsset.tags.join(' · ');
+            doc.text(tagText, margin, y);
+            y += 5;
           }
 
+          // Thumbnail image if available
+          if (linkedAsset.thumbnail && linkedAsset.thumbnail.startsWith('data:image')) {
+            try {
+              const imgProps = doc.getImageProperties(linkedAsset.thumbnail);
+              const imgWidth = Math.min(contentWidth, 140);
+              const imgHeight = (imgProps.height / imgProps.width) * imgWidth;
+              const clampedH = Math.min(imgHeight, 180);
+              checkPage(clampedH + 12);
+              const formatMatch = linkedAsset.thumbnail.match(/^data:image\/(.*?);/);
+              let format = formatMatch ? formatMatch[1].toUpperCase() : 'JPEG';
+              if (format === 'SVG+XML') format = 'PNG';
+              doc.addImage(linkedAsset.thumbnail, format, margin + (contentWidth - imgWidth) / 2, y, imgWidth, clampedH);
+              y += clampedH + 8;
+            } catch { /* skip broken images */ }
+          } else if (linkedAsset.thumbnail && linkedAsset.thumbnail.startsWith('http')) {
+            // URL-based thumbnail - show as link reference
+            doc.setFont('helvetica', 'italic');
+            doc.setFontSize(8);
+            doc.setTextColor(66, 133, 244);
+            doc.textWithLink('[Ver imagem do ativo]', margin, y, { url: linkedAsset.thumbnail });
+            y += 6;
+          }
+
+          // Summary/Description
           if (linkedAsset.summary || linkedAsset.scientificContext) {
             checkPage(10);
             doc.setFont('helvetica', 'italic');
             doc.setFontSize(10);
             doc.setTextColor(100, 100, 105);
-            const refText = linkedAsset.scientificContext || linkedAsset.summary || '';
+            const refText = linkedAsset.summary || linkedAsset.scientificContext || '';
             const summaryLines = doc.splitTextToSize(`"${refText}"`, contentWidth);
             doc.text(summaryLines, margin, y, { align: 'justify', maxWidth: contentWidth });
-            y += summaryLines.length * 4.5 + 8;
+            y += summaryLines.length * 4.5 + 4;
           }
+
+          // Scientific Context (if different from summary)
+          if (linkedAsset.scientificContext && linkedAsset.summary && linkedAsset.scientificContext !== linkedAsset.summary) {
+            checkPage(10);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(9);
+            doc.setTextColor(120, 120, 125);
+            const ctxLines = doc.splitTextToSize(linkedAsset.scientificContext, contentWidth);
+            doc.text(ctxLines, margin, y, { align: 'justify', maxWidth: contentWidth });
+            y += ctxLines.length * 4 + 4;
+          }
+
+          y += 6; // Extra spacing after asset block
         }
       }
     }
@@ -780,7 +928,7 @@ const App: React.FC = () => {
         {/* Main Editor */}
         <div className="flex-1 overflow-y-auto no-scrollbar pb-40 md:pb-60">
           <div className="max-w-[1000px] mx-auto pt-6 md:pt-16 px-4 sm:px-6 md:px-8">
-            <button onClick={() => setEditingCase(null)} className="mb-4 md:mb-12 flex items-center gap-2 text-slate-400 hover:text-slate-900 transition-all text-[10px] font-bold uppercase tracking-[0.3em] group">
+            <button onClick={() => handleCloseCase()} className="mb-4 md:mb-12 flex items-center gap-2 text-slate-400 hover:text-slate-900 transition-all text-[10px] font-bold uppercase tracking-[0.3em] group">
               <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Voltar aos Cases
             </button>
 
@@ -827,6 +975,51 @@ const App: React.FC = () => {
                     placeholder="Digite o título do caso..."
                     className="w-full bg-transparent text-3xl md:text-5xl font-extralight tracking-tight text-slate-900 outline-none placeholder:text-slate-200 transition-colors focus:placeholder:text-slate-300"
                   />
+                ) : block.type === 'subtitle' ? (
+                  <input
+                    value={block.content}
+                    onChange={e => {
+                      const nb = editingCase.blocks?.map(b => b.id === block.id ? { ...b, content: e.target.value } : b);
+                      syncCase({ ...editingCase, blocks: nb });
+                    }}
+                    placeholder="Subtítulo da seção..."
+                    className="w-full bg-transparent text-xl md:text-2xl font-semibold tracking-tight text-slate-800 outline-none placeholder:text-slate-200 transition-colors focus:placeholder:text-slate-300"
+                  />
+                ) : block.type === 'reference' ? (
+                  <div className="border-l-2 border-slate-200 pl-5 py-2">
+                    <div className="flex items-center gap-2 mb-2">
+                      <BookOpen size={14} className="text-slate-400" />
+                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Referência Bibliográfica</span>
+                    </div>
+                    <textarea
+                      ref={(el) => autoResizeTextarea(el)}
+                      value={block.content}
+                      onChange={e => {
+                        const nb = editingCase.blocks?.map(b => b.id === block.id ? { ...b, content: e.target.value } : b);
+                        syncCase({ ...editingCase, blocks: nb });
+                      }}
+                      onInput={(e: any) => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; }}
+                      placeholder="Ex: SMITH, J. et al. Título do artigo. Revista, v.1, p.1-10, 2024. https://doi.org/..."
+                      className="w-full bg-transparent text-sm md:text-base italic font-light leading-relaxed text-slate-500 outline-none resize-none placeholder:text-slate-200 overflow-hidden transition-colors focus:placeholder:text-slate-300"
+                      rows={1}
+                    />
+                    {/* Render detected links below */}
+                    {block.content && (() => {
+                      const urlRegex = /(https?:\/\/[^\s]+)/g;
+                      const urls = block.content.match(urlRegex);
+                      if (!urls || urls.length === 0) return null;
+                      return (
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {urls.map((url, i) => (
+                            <a key={i} href={url} target="_blank" rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-[10px] font-medium text-[#4285F4] hover:underline">
+                              <Link2 size={10} />{url.length > 50 ? url.substring(0, 50) + '...' : url}
+                            </a>
+                          ))}
+                        </div>
+                      );
+                    })()}
+                  </div>
                 ) : block.type === 'text' ? (
                   <textarea
                     ref={(el) => autoResizeTextarea(el)}
@@ -990,6 +1183,9 @@ const App: React.FC = () => {
             <button onClick={() => addBlock('title')} className="p-3 md:p-4 hover:bg-slate-100 rounded-full text-slate-500 hover:text-slate-900 transition-all" title="Adicionar título">
               <TypeIcon size={18} />
             </button>
+            <button onClick={() => addBlock('subtitle')} className="p-3 md:p-4 hover:bg-slate-100 rounded-full text-slate-500 hover:text-slate-900 transition-all" title="Adicionar subtítulo (H2)">
+              <Heading2 size={18} />
+            </button>
             <button onClick={() => addBlock('text')} className="p-3 md:p-4 hover:bg-slate-100 rounded-full text-slate-500 hover:text-slate-900 transition-all" title="Adicionar texto">
               <FileText size={18} />
             </button>
@@ -999,9 +1195,12 @@ const App: React.FC = () => {
             <button onClick={() => setShowAssetPicker(true)} className="p-3 md:p-4 hover:bg-blue-50 rounded-full text-blue-500 hover:text-blue-700 transition-all" title="Adicionar ativo">
               <LayoutGrid size={18} />
             </button>
+            <button onClick={() => addBlock('reference')} className="p-3 md:p-4 hover:bg-amber-50 rounded-full text-amber-600 hover:text-amber-800 transition-all" title="Referência bibliográfica">
+              <BookOpen size={18} />
+            </button>
             <div className="w-px h-6 md:h-8 bg-slate-200 mx-1 md:mx-2"></div>
 
-            <button onClick={() => setEditingCase(null)} className="hidden sm:block px-6 py-3 bg-slate-100 text-slate-600 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-slate-200 transition-all" title="Fechar editor">
+            <button onClick={() => handleCloseCase()} className="hidden sm:block px-6 py-3 bg-slate-100 text-slate-600 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-slate-200 transition-all" title="Fechar editor">
               Fechar
             </button>
           </div>
@@ -1112,12 +1311,28 @@ const App: React.FC = () => {
             <div className="divider" />
 
             <div>
-              <h3 className="text-[10px] font-bold text-[#86868b] uppercase tracking-widest mb-3">Tags</h3>
-              <div className="flex flex-wrap gap-1.5">
-                {editingCase.tags?.map((tag, idx) => (
-                  <span key={idx} className="px-2.5 py-1 rounded-full bg-white text-[#424245] text-[10px] font-medium border border-black/6 shadow-apple">
-                    {tag}
-                  </span>
+              <h3 className="text-[10px] font-bold text-[#86868b] uppercase tracking-widest mb-3">Visibilidade</h3>
+              <div className="space-y-1.5">
+                {([
+                  { value: 'private' as CaseVisibility, label: 'Privado', desc: 'Só você', icon: Lock, color: 'bg-slate-500' },
+                  { value: 'public' as CaseVisibility, label: 'Público', desc: 'Todos da plataforma', icon: Globe, color: 'bg-emerald-500' },
+                ]).map(opt => (
+                  <button
+                    key={opt.value}
+                    onClick={() => syncCase({ ...editingCase, visibility: opt.value })}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-apple-lg text-[12px] font-medium transition-all ${
+                      (editingCase.visibility || 'private') === opt.value
+                        ? 'bg-white shadow-apple border border-black/6 text-[#1d1d1f]'
+                        : 'text-[#86868b] hover:bg-white/80 hover:text-[#1d1d1f]'
+                    }`}
+                  >
+                    <div className={`w-2 h-2 rounded-full ${opt.color}`} />
+                    <div className="flex-1 text-left">
+                      <span>{opt.label}</span>
+                      <span className="text-[9px] text-[#aeaeb2] ml-1.5">· {opt.desc}</span>
+                    </div>
+                    <opt.icon size={12} className="text-[#aeaeb2]" />
+                  </button>
                 ))}
               </div>
             </div>
@@ -1188,6 +1403,19 @@ const App: React.FC = () => {
         </div>
       );
     }
+
+    // Check visibility for cases
+    if (sharedAsset.type === 'case' && sharedAsset.visibility === 'private' && sharedAsset.ownerId !== ownerId) {
+      return (
+        <div className="min-h-screen bg-[#f5f5f7] flex items-center justify-center p-4">
+          <div className="bg-white p-10 rounded-apple-xl shadow-apple-md text-center">
+            <Lock size={32} className="mx-auto mb-3 text-[#86868b]" />
+            <h1 className="text-xl font-bold text-slate-900 mb-2">Case Privado</h1>
+            <p className="text-slate-500">Este case é privado e não pode ser acessado.</p>
+          </div>
+        </div>
+      );
+    }
     
     // Simplistic Public Share View
     return (
@@ -1208,7 +1436,19 @@ const App: React.FC = () => {
                  {sharedAsset.blocks.map(block => (
                    <div key={block.id}>
                      {block.type === 'title' && <h2 className="text-2xl font-bold mb-2 text-[#1d1d1f]">{block.content}</h2>}
+                     {block.type === 'subtitle' && <h3 className="text-xl font-semibold mb-2 text-[#424245]">{block.content}</h3>}
                      {block.type === 'text' && <p className="text-lg font-light leading-relaxed text-[#424245] whitespace-pre-wrap">{block.content}</p>}
+                     {block.type === 'reference' && (
+                       <div className="border-l-2 border-slate-200 pl-5 py-2">
+                         <p className="text-sm italic font-light text-[#86868b]">
+                           {block.content.split(/(https?:\/\/[^\s]+)/g).map((part, i) =>
+                             /^https?:\/\//.test(part)
+                               ? <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-[#4285F4] hover:underline">{part}</a>
+                               : part
+                           )}
+                         </p>
+                       </div>
+                     )}
                      {block.type === 'image' && block.content && (
                        <div className="my-6">
                          <img src={(block.content.split('|||')[0] || "###").split('###')[0]} className="w-full rounded-apple-lg border border-black/6 shadow-sm bg-[#f5f5f7] object-contain max-h-[60vh]" />
@@ -1254,15 +1494,58 @@ const App: React.FC = () => {
     <div className="min-h-screen bg-[#f5f5f7] text-[#1d1d1f] font-sans pb-20 md:pb-0 md:pl-[84px] transition-all duration-300">
       <Sidebar currentView={view} setView={setView} trashCount={trashedAssets.length} />
 
+      {/* Name Prompt Modal — first time only */}
+      {showNamePrompt && (
+        <div className="fixed inset-0 z-[700] bg-black/25 backdrop-blur-md flex items-center justify-center animate-fade-in p-4">
+          <div className="bg-white rounded-apple-2xl p-10 max-w-sm w-full shadow-apple-xl text-center animate-scale-in">
+            <div className="w-16 h-16 bg-[#1d1d1f] text-white rounded-apple-lg flex items-center justify-center mx-auto mb-6 shadow-apple-md">
+              <Stethoscope size={28} />
+            </div>
+            <h2 className="text-2xl font-semibold tracking-tight mb-2">Bem-vindo ao Lon Suite</h2>
+            <p className="text-[#86868b] text-[13px] mb-6 leading-relaxed">
+              Como você deseja ser identificado nos cases públicos?
+            </p>
+            <input
+              type="text"
+              placeholder="Seu nome profissional..."
+              value={nameInput}
+              onChange={e => setNameInput(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && nameInput.trim()) {
+                  localStorage.setItem('lon_suite_owner_name', nameInput.trim());
+                  setOwnerName(nameInput.trim());
+                  setShowNamePrompt(false);
+                }
+              }}
+              className="w-full px-4 py-3 bg-[#f5f5f7] border border-black/8 rounded-apple-lg text-[14px] outline-none focus:border-[#4285F4]/30 focus:shadow-[0_0_0_3px_rgba(0,113,227,0.08)] transition-all placeholder:text-[#aeaeb2] mb-4"
+              autoFocus
+            />
+            <button
+              onClick={() => {
+                if (nameInput.trim()) {
+                  localStorage.setItem('lon_suite_owner_name', nameInput.trim());
+                  setOwnerName(nameInput.trim());
+                  setShowNamePrompt(false);
+                }
+              }}
+              disabled={!nameInput.trim()}
+              className="w-full py-3.5 bg-[#1d1d1f] text-white rounded-apple-lg font-semibold text-[13px] hover:bg-[#333] transition-all disabled:opacity-30 shadow-apple"
+            >
+              Continuar
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Hidden file input */}
-      <input ref={fileInputRef} type="file" multiple accept="image/*,.pdf" className="hidden" onChange={handleFilesSelected} />
+      <input ref={fileInputRef} type="file" multiple accept="image/*,.pdf,.pptx,.ppt,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation" className="hidden" onChange={handleFilesSelected} />
 
       {/* Pending Upload Modal */}
       {pendingUpload && (
         <div className="fixed inset-0 z-[500] bg-black/25 backdrop-blur-md flex items-center justify-center animate-fade-in p-4">
           <div className="bg-white rounded-apple-2xl p-10 max-w-sm w-full shadow-apple-xl text-center animate-scale-in">
             <div className="w-16 h-16 bg-[#1d1d1f] text-white rounded-apple-lg flex items-center justify-center mx-auto mb-6 shadow-apple-md">
-              <Sparkles size={28} />
+              <Brain size={28} />
             </div>
             <h2 className="text-2xl font-semibold tracking-tight mb-2">Novo Ativo</h2>
             <p className="text-[#86868b] text-[13px] mb-8 leading-relaxed">
@@ -1272,7 +1555,7 @@ const App: React.FC = () => {
             <div className="flex flex-col gap-2.5">
               <button onClick={() => processUpload(true)} disabled={isProcessing}
                 className="btn-ai w-full py-3.5 rounded-apple-lg font-semibold text-[13px] shadow-apple flex items-center justify-center gap-2.5 disabled:opacity-50">
-                {isProcessing ? <Loader2 size={15} className="animate-spin" /> : <Sparkles size={15} />}
+                {isProcessing ? <Loader2 size={15} className="animate-spin" /> : <Brain size={15} />}
                 {isProcessing ? 'Processando...' : 'Indexar com IA'}
               </button>
               <button onClick={() => processUpload(false)} disabled={isProcessing}
@@ -1301,46 +1584,267 @@ const App: React.FC = () => {
           const totalAssets = activeAssets.filter(a => a.type !== 'case').length;
           const totalCases = activeAssets.filter(a => a.type === 'case').length;
 
-          return (
-            <div className="flex flex-col items-center justify-center min-h-[85vh] px-6 animate-fade-in relative w-full h-full">
-              {/* Massive Apple/Google-like branding */}
-              <div className="mb-20 flex flex-col items-center">
-                <div className="w-16 h-16 rounded-full border border-black/30 flex items-center justify-center mb-6 bg-transparent">
-                   <Home size={24} className="text-[#1d1d1f]" strokeWidth={1.5} />
+          const handleHomeSearch = async () => {
+            if (!homeSearchQuery.trim() || homeSearchQuery.trim().length < 2) return;
+            setHomeHasSearched(true);
+
+            // All cases searchable: user's own (including legacy without ownerId) + public from others
+            const searchableCases = activeAssets.filter(a =>
+              a.type === 'case' && (!a.isDeleted) && (
+                !a.ownerId || a.ownerId === ownerId || a.visibility === 'public'
+              )
+            );
+
+            // INSTANT: Local text search first (no AI, no latency)
+            const query = homeSearchQuery.toLowerCase().trim();
+            const localResults = searchableCases
+              .map(c => {
+                let score = 0;
+                const title = (c.title || '').toLowerCase();
+                const tags = (c.tags || []).map(t => t.toLowerCase());
+                const blocksText = (c.blocks || []).map(b => typeof b.content === 'string' ? b.content : '').join(' ').toLowerCase();
+                if (title.includes(query)) score += 10;
+                if (tags.some(t => t.includes(query))) score += 8;
+                if (blocksText.includes(query)) score += 5;
+                // Prioritize own cases
+                const isOwn = !c.ownerId || c.ownerId === ownerId;
+                if (isOwn && score > 0) score += 100;
+                // Boost by access count
+                score += (c.accessCount || 0) * 0.1;
+                return { caseItem: c, score };
+              })
+              .filter(item => item.score > 0)
+              .sort((a, b) => b.score - a.score)
+              .map(item => item.caseItem);
+
+            setHomeSearchResults(localResults);
+
+            // ASYNC: Try AI enhanced search in background (non-blocking)
+            if (searchableCases.length > 0) {
+              setHomeSearchLoading(true);
+              try {
+                const resultIds = await searchCasesWithAI(homeSearchQuery, searchableCases, ownerId);
+                if (resultIds.length > 0) {
+                  const aiResults = resultIds
+                    .map(id => searchableCases.find(c => c.id === id))
+                    .filter(Boolean) as Asset[];
+                  if (aiResults.length > 0) setHomeSearchResults(aiResults);
+                }
+              } catch { /* keep local results */ }
+              setHomeSearchLoading(false);
+            }
+          };
+
+          const handleHomeKeyDown = (e: React.KeyboardEvent) => {
+            if (e.key === 'Enter') handleHomeSearch();
+          };
+
+          // Read-only case viewer for public cases (state is at component top level)
+
+          if (viewingPublicCase) {
+            return (
+              <div className="min-h-screen animate-fade-in">
+                <div className="max-w-[900px] mx-auto pt-8 md:pt-16 px-4 sm:px-6 md:px-8 pb-20">
+                  <button onClick={() => setViewingPublicCase(null)} className="mb-8 flex items-center gap-2 text-slate-400 hover:text-slate-900 transition-all text-[10px] font-bold uppercase tracking-[0.3em] group">
+                    <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Voltar à pesquisa
+                  </button>
+
+                  {/* Creator info */}
+                  {viewingPublicCase.ownerName && viewingPublicCase.ownerId !== ownerId && (
+                    <div className="flex items-center gap-3 mb-8 px-4 py-3 bg-white rounded-apple-lg border border-black/6 shadow-apple">
+                      <div className="w-8 h-8 rounded-full bg-[#1d1d1f] flex items-center justify-center text-white text-[11px] font-bold">
+                        {viewingPublicCase.ownerName.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="text-[12px] font-semibold text-[#1d1d1f]">{viewingPublicCase.ownerName}</p>
+                        <p className="text-[10px] text-[#86868b]">Autor do case · Somente leitura</p>
+                      </div>
+                      <Eye size={14} className="ml-auto text-[#aeaeb2]" />
+                    </div>
+                  )}
+
+                  <div className="space-y-8">
+                    {viewingPublicCase.blocks?.map(block => (
+                      <div key={block.id}>
+                        {block.type === 'title' && <h1 className="text-3xl md:text-5xl font-extralight tracking-tight text-slate-900">{block.content}</h1>}
+                        {block.type === 'subtitle' && <h2 className="text-xl md:text-2xl font-semibold tracking-tight text-slate-800">{block.content}</h2>}
+                        {block.type === 'text' && <p className="text-base md:text-xl font-light leading-relaxed text-justify text-slate-600 whitespace-pre-wrap">{block.content}</p>}
+                        {block.type === 'reference' && (
+                          <div className="border-l-2 border-slate-200 pl-5 py-2">
+                            <div className="flex items-center gap-2 mb-1">
+                              <BookOpen size={12} className="text-slate-400" />
+                              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Referência</span>
+                            </div>
+                            <p className="text-sm italic font-light text-slate-500">
+                              {block.content.split(/(https?:\/\/[^\s]+)/g).map((part, i) =>
+                                /^https?:\/\//.test(part)
+                                  ? <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-[#4285F4] hover:underline">{part}</a>
+                                  : part
+                              )}
+                            </p>
+                          </div>
+                        )}
+                        {block.type === 'image' && block.content && (
+                          <div className="my-6">
+                            <img src={(block.content.split('|||')[0] || "###").split('###')[0]} className="w-full rounded-apple-lg border border-black/6 shadow-sm bg-[#f5f5f7] object-contain max-h-[60vh]" />
+                            {block.content.split('###')[1] && <p className="text-sm text-[#86868b] mt-3 italic text-center">{block.content.split('###')[1]}</p>}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <h1 className="text-5xl sm:text-7xl font-light tracking-tight text-[#1d1d1f] flex flex-col sm:flex-row items-center justify-center gap-3 w-full text-center">
+              </div>
+            );
+          }
+
+          return (
+            <div className="flex flex-col items-center min-h-[85vh] px-6 animate-fade-in relative w-full">
+              {/* Branding — top */}
+              <div className="mt-16 mb-8 flex flex-col items-center">
+                <h1 className="text-4xl sm:text-6xl font-light tracking-tight text-[#1d1d1f] flex flex-col sm:flex-row items-center justify-center gap-2 w-full text-center">
                   <span className="font-semibold">Lon</span> Suite
                 </h1>
-                <p className="text-xs sm:text-[13px] text-[#1d1d1f] tracking-[0.3em] uppercase mt-4 font-semibold opacity-60">Ativos Científicos</p>
+                <p className="text-[11px] sm:text-[12px] text-[#1d1d1f] tracking-[0.3em] uppercase mt-3 font-semibold opacity-50">Ativos Científicos</p>
               </div>
 
-              {/* Minimalist shortcut icons below */}
-              <div className="flex items-center gap-9 sm:gap-14 mt-6">
-                <button onClick={() => setView(ViewState.ATIVOS)} className="flex flex-col items-center gap-4 group">
-                  <div className="w-[72px] h-[72px] sm:w-[84px] sm:h-[84px] rounded-full bg-transparent border border-black/10 flex items-center justify-center group-hover:border-[#1d1d1f] group-hover:bg-[#1d1d1f] transition-all duration-300">
-                    <LayoutGrid size={26} strokeWidth={1} className="text-[#86868b] group-hover:text-white transition-colors" />
+              {/* Search Bar — Google style */}
+              <div className="w-full max-w-xl mb-8">
+                <div className="relative group">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                    {homeSearchLoading ? (
+                      <Loader2 size={18} className="text-[#4285F4] animate-spin" />
+                    ) : (
+                      <Search size={18} className="text-[#aeaeb2] group-focus-within:text-[#4285F4] transition-colors" />
+                    )}
                   </div>
-                  <span className="text-[11px] font-semibold text-[#86868b] group-hover:text-[#1d1d1f] transition-colors uppercase tracking-widest">Ativos</span>
+                  <input
+                    type="text"
+                    placeholder="Pesquisar cases clínicos..."
+                    value={homeSearchQuery}
+                    onChange={e => setHomeSearchQuery(e.target.value)}
+                    onKeyDown={handleHomeKeyDown}
+                    className="w-full pl-12 pr-14 py-4 bg-white border border-black/8 rounded-full text-[15px] outline-none focus:border-[#4285F4]/30 focus:shadow-[0_0_0_4px_rgba(0,113,227,0.08)] transition-all placeholder:text-[#aeaeb2] shadow-apple-md"
+                  />
+                  <button
+                    onClick={handleHomeSearch}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-[#f5f5f7] hover:bg-[#1d1d1f] text-[#86868b] hover:text-white transition-all"
+                  >
+                    <Brain size={16} />
+                  </button>
+                </div>
+                <p className="text-center text-[10px] text-[#aeaeb2] mt-2.5 font-medium tracking-wider">
+                  {totalAssets} Ativos · {totalCases} Cases · Busca semântica com IA
+                </p>
+              </div>
+
+              {/* Shortcut icons — below search */}
+              <div className="flex items-center gap-9 sm:gap-14 mb-10">
+                <button onClick={() => setView(ViewState.ATIVOS)} className="flex flex-col items-center gap-3 group">
+                  <div className="w-[56px] h-[56px] sm:w-[64px] sm:h-[64px] rounded-full bg-transparent border border-black/10 flex items-center justify-center group-hover:border-[#1d1d1f] group-hover:bg-[#1d1d1f] transition-all duration-300">
+                    <LayoutGrid size={22} strokeWidth={1} className="text-[#86868b] group-hover:text-white transition-colors" />
+                  </div>
+                  <span className="text-[10px] font-semibold text-[#86868b] group-hover:text-[#1d1d1f] transition-colors uppercase tracking-widest">Ativos</span>
                 </button>
 
-                <button onClick={() => setView(ViewState.CASES)} className="flex flex-col items-center gap-4 group">
-                  <div className="w-[72px] h-[72px] sm:w-[84px] sm:h-[84px] rounded-full bg-transparent border border-black/10 flex items-center justify-center group-hover:border-[#1d1d1f] group-hover:bg-[#1d1d1f] transition-all duration-300">
-                    <Stethoscope size={26} strokeWidth={1} className="text-[#86868b] group-hover:text-white transition-colors" />
+                <button onClick={() => setView(ViewState.CASES)} className="flex flex-col items-center gap-3 group">
+                  <div className="w-[56px] h-[56px] sm:w-[64px] sm:h-[64px] rounded-full bg-transparent border border-black/10 flex items-center justify-center group-hover:border-[#1d1d1f] group-hover:bg-[#1d1d1f] transition-all duration-300">
+                    <Stethoscope size={22} strokeWidth={1} className="text-[#86868b] group-hover:text-white transition-colors" />
                   </div>
-                  <span className="text-[11px] font-semibold text-[#86868b] group-hover:text-[#1d1d1f] transition-colors uppercase tracking-widest">Cases</span>
+                  <span className="text-[10px] font-semibold text-[#86868b] group-hover:text-[#1d1d1f] transition-colors uppercase tracking-widest">Cases</span>
                 </button>
                 
-                <button onClick={() => { setView(ViewState.ATIVOS); setShowUploadModal(true); }} className="flex flex-col items-center gap-4 group">
-                  <div className="w-[72px] h-[72px] sm:w-[84px] sm:h-[84px] rounded-full bg-transparent border border-black/10 flex items-center justify-center group-hover:border-[#1d1d1f] group-hover:bg-[#1d1d1f] transition-all duration-300 relative">
-                    <Plus size={26} strokeWidth={1} className="text-[#86868b] group-hover:text-white transition-colors" />
+                <button onClick={() => { setView(ViewState.ATIVOS); setShowUploadModal(true); }} className="flex flex-col items-center gap-3 group">
+                  <div className="w-[56px] h-[56px] sm:w-[64px] sm:h-[64px] rounded-full bg-transparent border border-black/10 flex items-center justify-center group-hover:border-[#1d1d1f] group-hover:bg-[#1d1d1f] transition-all duration-300">
+                    <Plus size={22} strokeWidth={1} className="text-[#86868b] group-hover:text-white transition-colors" />
                   </div>
-                  <span className="text-[11px] font-semibold text-[#86868b] group-hover:text-[#1d1d1f] transition-colors uppercase tracking-widest">Uploads</span>
+                  <span className="text-[10px] font-semibold text-[#86868b] group-hover:text-[#1d1d1f] transition-colors uppercase tracking-widest">Uploads</span>
                 </button>
               </div>
 
-              <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-[10px] text-[#aeaeb2] font-semibold tracking-wider uppercase opacity-60">
-                {totalAssets} Ativos · {totalCases} Cases
-              </div>
+              {/* Search Results */}
+              {homeHasSearched && (
+                <div ref={homeScrollRef} className="w-full max-w-5xl animate-fade-in pb-20">
+                  {homeSearchLoading && homeSearchResults.length === 0 ? (
+                    <div className="flex flex-col items-center py-16">
+                      <Loader2 size={28} className="text-[#4285F4] animate-spin mb-4" />
+                      <p className="text-[12px] text-[#86868b] font-medium">Analisando termos médicos...</p>
+                    </div>
+                  ) : homeSearchResults.length > 0 ? (
+                    <>
+                      <div className="flex items-center gap-2 mb-5">
+                        <p className="text-[11px] text-[#86868b] font-medium">
+                          {homeSearchResults.length} {homeSearchResults.length === 1 ? 'resultado' : 'resultados'} para "{homeSearchQuery}"
+                        </p>
+                        {homeSearchLoading && <Loader2 size={12} className="text-[#4285F4] animate-spin" />}
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                        {homeSearchResults.map(caseItem => {
+                          const thumbnail = getCaseThumbnail(caseItem);
+                          const isOwn = !caseItem.ownerId || caseItem.ownerId === ownerId;
+                          return (
+                            <div
+                              key={caseItem.id}
+                              onClick={() => {
+                                if (isOwn) {
+                                  setEditingCase(caseItem);
+                                  setView(ViewState.CASES);
+                                } else {
+                                  // Increment access count
+                                  const updated = { ...caseItem, accessCount: (caseItem.accessCount || 0) + 1 };
+                                  setAssets(prev => prev.map(a => a.id === caseItem.id ? updated : a));
+                                  syncToCloud(updated);
+                                  setViewingPublicCase(caseItem);
+                                }
+                              }}
+                              className="group cursor-pointer bg-white rounded-apple-xl border border-black/6 shadow-apple overflow-hidden hover:shadow-apple-md hover:-translate-y-1 transition-all duration-300"
+                              style={{ width: '100%', minHeight: '250px' }}
+                            >
+                              {/* Thumbnail */}
+                              <div className="w-full h-[140px] bg-[#f5f5f7] overflow-hidden flex items-center justify-center">
+                                {thumbnail ? (
+                                  <img src={thumbnail} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="" />
+                                ) : (
+                                  <Stethoscope size={28} className="text-[#aeaeb2] opacity-40" />
+                                )}
+                              </div>
+                              {/* Info */}
+                              <div className="p-3.5">
+                                <p className="text-[12px] font-semibold text-[#1d1d1f] line-clamp-2 leading-tight mb-1.5 group-hover:text-[#4285F4] transition-colors">
+                                  {caseItem.title || 'Caso Clínico'}
+                                </p>
+                                <p className="text-[10px] text-[#aeaeb2] line-clamp-1 mb-2">
+                                  {getCasePreview(caseItem)}
+                                </p>
+                                <div className="flex items-center justify-between">
+                                  {isOwn ? (
+                                    <span className="text-[8px] font-bold text-[#4285F4] uppercase tracking-widest">Seu case</span>
+                                  ) : caseItem.ownerName ? (
+                                    <span className="text-[8px] font-medium text-[#86868b] truncate max-w-[100px]">{caseItem.ownerName}</span>
+                                  ) : (
+                                    <span className="text-[8px] text-[#aeaeb2]">Anônimo</span>
+                                  )}
+                                  {(caseItem.accessCount || 0) > 0 && (
+                                    <span className="text-[8px] text-[#aeaeb2] flex items-center gap-0.5">
+                                      <Eye size={8} />{caseItem.accessCount}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-center py-16">
+                      <Search size={32} className="mx-auto mb-3 text-[#aeaeb2] opacity-30" />
+                      <p className="text-[13px] text-[#86868b] font-medium">Nenhum case encontrado para "{homeSearchQuery}"</p>
+                      <p className="text-[11px] text-[#aeaeb2] mt-1">Tente outros termos médicos ou sinônimos</p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           );
         })()}
@@ -1372,21 +1876,43 @@ const App: React.FC = () => {
                       ) : (
                         <Search size={15} className="text-[#86868b] group-focus-within:text-[#4285F4] transition-colors" />
                       )}
-                      <Sparkles size={12} className="text-[#4285F4] opacity-0 group-focus-within:opacity-100 transition-opacity" />
+                      <Brain size={12} className="text-[#4285F4] opacity-0 group-focus-within:opacity-100 transition-opacity" />
                     </div>
                     <input type="text" placeholder="Busca com IA..."
                       value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
                       className="w-full pl-10 pr-4 py-2.5 bg-white border border-black/8 rounded-apple-lg text-[13px] outline-none focus:border-[#4285F4]/30 focus:shadow-[0_0_0_3px_rgba(0,113,227,0.08)] transition-all placeholder:text-[#aeaeb2] shadow-apple" />
                   </div>
 
-                  {/* Chip filters */}
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {Array.from(new Set(assets.flatMap(a => a.tags || []))).filter(t => typeof t === 'string' && t.trim() !== '').slice(0, 10).map(tag => (
-                      <button key={tag} onClick={() => setSearchQuery(tag)}
-                        className={`px-3.5 py-2 rounded-apple text-[12px] font-medium transition-all bg-white text-[#86868b] border border-black/8 hover:border-[#4285F4] hover:text-[#4285F4] shadow-sm`}>
-                        {tag}
+                  {/* Date filters */}
+                  <div className="flex items-center gap-2">
+                    <select
+                      value={dateFilter.month}
+                      onChange={e => setDateFilter(p => ({ ...p, month: e.target.value }))}
+                      className="px-3 py-2.5 bg-white border border-black/8 rounded-apple-lg text-[12px] font-medium text-[#1d1d1f] outline-none focus:border-[#4285F4]/30 shadow-apple appearance-none cursor-pointer"
+                    >
+                      <option value="">Mês</option>
+                      {['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'].map((m, i) => (
+                        <option key={i} value={String(i + 1)}>{m}</option>
+                      ))}
+                    </select>
+                    <select
+                      value={dateFilter.year}
+                      onChange={e => setDateFilter(p => ({ ...p, year: e.target.value }))}
+                      className="px-3 py-2.5 bg-white border border-black/8 rounded-apple-lg text-[12px] font-medium text-[#1d1d1f] outline-none focus:border-[#4285F4]/30 shadow-apple appearance-none cursor-pointer"
+                    >
+                      <option value="">Ano</option>
+                      {Array.from(new Set(assets.map(a => new Date(a.createdAt || a.date).getFullYear()))).sort((a, b) => b - a).map(y => (
+                        <option key={y} value={String(y)}>{y}</option>
+                      ))}
+                    </select>
+                    {(dateFilter.month || dateFilter.year) && (
+                      <button
+                        onClick={() => setDateFilter({ month: '', year: '' })}
+                        className="px-2.5 py-2.5 text-[10px] font-bold text-[#86868b] hover:text-red-500 transition-colors uppercase tracking-widest"
+                      >
+                        Limpar
                       </button>
-                    ))}
+                    )}
                   </div>
                 </div>
               </header>
@@ -1444,15 +1970,45 @@ const App: React.FC = () => {
                   </button>
                 </div>
 
-                {/* Search */}
-                <div className="max-w-xl group">
-                  <div className="relative">
+                {/* Search + Date Filter */}
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                  <div className="relative flex-1 max-w-xl group">
                     <div className="absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
                       <Search size={15} className="text-[#86868b] group-focus-within:text-[#4285F4] transition-colors" />
                     </div>
                     <input type="text" placeholder="Localizar case por título, tag ou conteúdo..."
                       value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
                       className="w-full pl-10 pr-4 py-2.5 bg-white border border-black/8 rounded-apple-lg text-[13px] outline-none focus:border-[#4285F4]/30 focus:shadow-[0_0_0_3px_rgba(0,113,227,0.08)] transition-all placeholder:text-[#aeaeb2] shadow-apple" />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <select
+                      value={dateFilter.month}
+                      onChange={e => setDateFilter(p => ({ ...p, month: e.target.value }))}
+                      className="px-3 py-2.5 bg-white border border-black/8 rounded-apple-lg text-[12px] font-medium text-[#1d1d1f] outline-none focus:border-[#4285F4]/30 shadow-apple appearance-none cursor-pointer"
+                    >
+                      <option value="">Mês</option>
+                      {['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'].map((m, i) => (
+                        <option key={i} value={String(i + 1)}>{m}</option>
+                      ))}
+                    </select>
+                    <select
+                      value={dateFilter.year}
+                      onChange={e => setDateFilter(p => ({ ...p, year: e.target.value }))}
+                      className="px-3 py-2.5 bg-white border border-black/8 rounded-apple-lg text-[12px] font-medium text-[#1d1d1f] outline-none focus:border-[#4285F4]/30 shadow-apple appearance-none cursor-pointer"
+                    >
+                      <option value="">Ano</option>
+                      {Array.from(new Set(activeAssets.filter(a => a.type === 'case').map(a => new Date(a.createdAt || a.date).getFullYear()))).sort((a, b) => b - a).map(y => (
+                        <option key={y} value={String(y)}>{y}</option>
+                      ))}
+                    </select>
+                    {(dateFilter.month || dateFilter.year) && (
+                      <button
+                        onClick={() => setDateFilter({ month: '', year: '' })}
+                        className="px-2.5 py-2.5 text-[10px] font-bold text-[#86868b] hover:text-red-500 transition-colors uppercase tracking-widest"
+                      >
+                        Limpar
+                      </button>
+                    )}
                   </div>
                 </div>
               </header>

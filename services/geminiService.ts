@@ -166,7 +166,7 @@ REGRAS DE BUSCA SEMÂNTICA MÉDICA:
 Aqui estão os arquivos disponíveis:
 ${JSON.stringify(slimAssets)}
 
-Retorne APENAS um array JSON com os IDs dos arquivos que melhor correspondem semanticamente à busca, ordenados por relevância. Seja generoso na correspondência — é melhor retornar resultados a mais do que perder resultados relevantes.`,
+Retorne APENAS um array JSON com os IDs dos arquivos que são ESTREITAMENTE RELEVANTES à busca médica, ordenados por relevância. SEJA RESTRITO: se o arquivo não tratar especificamente do tema, da área ou intenção solicitada, não o inclua. Se não houver nada útil, retorne um array vazio ([]).`,
       config: {
         responseMimeType: 'application/json',
         responseSchema: {
@@ -340,5 +340,108 @@ Se algo não estiver nas informações acima, seja honesto e diga que não encon
   } catch (error) {
     console.error("Gemini Project Chat Error:", error);
     return "Ocorreu um erro ao comunicar com a IA do projeto.";
+  }
+};
+
+export const searchCasesWithAI = async (
+  query: string,
+  cases: any[],
+  currentUserId?: string
+): Promise<string[]> => {
+  try {
+    const ai = getClient();
+    if (!ai || cases.length === 0) return [];
+
+    const slimCases = cases.map(c => ({
+      id: c.id,
+      title: c.title,
+      tags: c.tags,
+      blocks: (c.blocks || [])
+        .filter((b: any) => b.type === 'text' || b.type === 'title' || b.type === 'subtitle' || b.type === 'reference')
+        .map((b: any) => b.content?.substring(0, 150))
+        .join(' '),
+      ownerId: c.ownerId,
+      accessCount: c.accessCount || 0,
+    }));
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: `Você é um motor de busca semântica ultra-especializado em medicina. O médico pesquisou: "${query}".
+
+REGRAS DE BUSCA SEMÂNTICA MÉDICA:
+- Considere sinônimos médicos (ex: "coração" = cardiologia, cardíaco, cardiovascular, miocárdio)
+- Considere nomes comerciais vs genéricos de medicamentos
+- Considere abreviações médicas (ex: HAS = hipertensão, DM = diabetes)
+- Considere termos relacionados (ex: "pele" encontra dermatologia, melanoma, lesão cutânea)
+- Considere a intenção do médico, não apenas o termo exato
+- Busque correspondências em título, tags e conteúdo dos blocos
+
+REGRA DE PRIORIZAÇÃO:
+${currentUserId ? `1. PRIMEIRO: Cases do ownerId "${currentUserId}" que são relevantes à busca (SEMPRE no topo)` : ''}
+2. DEPOIS: Demais cases ordenados por accessCount (mais acessos = mais relevante)
+3. Dentro de cada grupo, ordene por relevância semântica
+
+Cases disponíveis:
+${JSON.stringify(slimCases)}
+
+Retorne APENAS um array JSON com os IDs dos cases que são ESTREITAMENTE RELEVANTES à busca, já na ordem correta de priorização. SEJA RESTRITO: se o case não tratar diretamente dos termos ou intenção clínica da pesquisa, NÃO o inclua. Se não houver nada útil, retorne um array vazio ([]).`,
+      config: {
+        responseMimeType: 'application/json',
+        responseSchema: {
+          type: Type.ARRAY,
+          items: { type: Type.STRING }
+        }
+      }
+    });
+
+    const parsed = safeJsonParse(response.text || '[]');
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error) {
+    console.error("AI Case Search Error:", error);
+    return [];
+  }
+};
+
+export const generateCaseSemanticTags = async (
+  title: string,
+  blocksText: string
+): Promise<string[]> => {
+  try {
+    const ai = getClient();
+    if (!ai) return [];
+    const content = `${title}\n\n${blocksText}`.trim();
+    if (content.length < 10) return [];
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: `Você é um especialista em taxonomia médica. Analise o conteúdo clínico abaixo e gere tags semânticas que ajudem na busca.
+
+REGRAS:
+- Gere entre 5 a 15 tags
+- Inclua: especialidade médica, órgãos/sistemas afetados, sintomas, diagnósticos, termos técnicos
+- Inclua SINÔNIMOS médicos (ex: se fala de "útero", inclua "uterino", "endometrial", "ginecologia", "aparelho reprodutor")
+- Inclua ABREVIAÇÕES comuns (ex: HAS, DM, ICC, DPOC)
+- Inclua termos que um médico pensaria ao buscar este caso, mesmo que não estejam no texto
+- Português do Brasil
+- Apenas tags curtas (1-3 palavras cada)
+
+CONTEÚDO:
+${content.substring(0, 2000)}
+
+Retorne APENAS um array JSON de strings.`,
+      config: {
+        responseMimeType: 'application/json',
+        responseSchema: {
+          type: Type.ARRAY,
+          items: { type: Type.STRING }
+        }
+      }
+    });
+
+    const parsed = safeJsonParse(response.text || '[]');
+    return Array.isArray(parsed) ? parsed.slice(0, 15) : [];
+  } catch (error) {
+    console.error("Semantic Tag Generation Error:", error);
+    return [];
   }
 };

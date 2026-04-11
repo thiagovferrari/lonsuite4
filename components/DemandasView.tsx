@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Demand, Project } from '../types';
 import { matchDemandToProject } from '../services/geminiService';
-import { Circle, Loader2, Sparkles, Folder, Calendar as CalendarIcon, Plus, Check } from 'lucide-react';
+import { Circle, Loader2, Brain, Folder, Calendar as CalendarIcon, Plus, Check } from 'lucide-react';
 
 interface DemandasViewProps {
   demands: Demand[];
@@ -176,7 +176,7 @@ export const DemandasView = ({ demands, setDemands, projects }: DemandasViewProp
               disabled={isLoading || !description.trim()}
               className="px-4 py-2 btn-ai rounded-apple text-[11px] font-semibold disabled:opacity-50 flex items-center gap-1.5 shrink-0"
             >
-              {isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles size={12} />}
+              {isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Brain size={12} />}
               Registrar
             </button>
           </div>
