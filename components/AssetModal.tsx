@@ -3,10 +3,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Asset, Attachment } from '../types';
 import {
     X, Save, Trash2, ExternalLink, Download, FileText, MonitorPlay,
-    Share2, PenLine, Activity, RotateCcw, Paperclip, Plus, Check,
-    Brain, AlertTriangle, Instagram, Copy, ChevronLeft, ChevronRight, Briefcase
+    PenLine, Activity, RotateCcw, Paperclip, Plus,
+    Brain, AlertTriangle, ChevronLeft, ChevronRight, Briefcase
 } from 'lucide-react';
-import { analyzeAsset, generateInstagramContent, InstagramPostResult } from '../services/geminiService';
+import { analyzeAsset } from '../services/geminiService';
 import { getAttachmentData, saveAttachmentData, deleteAttachmentData } from '../services/storageService';
 
 interface AssetModalProps {
@@ -30,9 +30,6 @@ const AssetModal: React.FC<AssetModalProps> = ({
     const [deleteConfirm, setDeleteConfirm] = useState(false);
     const [isProcessingManual, setIsProcessingManual] = useState(false);
     const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
-    const [isGeneratingPost, setIsGeneratingPost] = useState(false);
-    const [generatedPost, setGeneratedPost] = useState<InstagramPostResult | null>(null);
-    const [copyFeedback, setCopyFeedback] = useState(false);
     const [tagInput, setTagInput] = useState('');
     const [saveStatus, setSaveStatus] = useState<'' | 'salvando' | 'salvo'>('');
     const contentRef = useRef<HTMLDivElement>(null);
@@ -62,7 +59,6 @@ const AssetModal: React.FC<AssetModalProps> = ({
         setIsEditingMetadata(false);
         setIsEditingContent(false);
         setIsEditingTitle(false);
-        setGeneratedPost(null);
         setCurrentSlideIndex(0);
     }, [asset]);
 
@@ -288,20 +284,6 @@ const AssetModal: React.FC<AssetModalProps> = ({
             setEditedAsset(prev => ({ ...prev, ...analysis }));
         } catch { /* silent */ }
         finally { setIsProcessingManual(false); }
-    };
-
-    const handleGeneratePost = async () => {
-        setIsGeneratingPost(true);
-        const result = await generateInstagramContent(editedAsset);
-        setGeneratedPost(result);
-        setIsGeneratingPost(false);
-    };
-
-    const handleCopyPost = () => {
-        if (!generatedPost) return;
-        navigator.clipboard.writeText(`${generatedPost.headline}\n\n${generatedPost.caption}\n\n${generatedPost.hashtags.join(' ')}`);
-        setCopyFeedback(true);
-        setTimeout(() => setCopyFeedback(false), 2000);
     };
 
     const renderPreview = () => {

@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { ViewState, Asset, MOCK_ASSETS, EvidenceLevel, AssetType, CaseBlock, CaseStatus, CaseVisibility, Attachment } from './types';
-import { MOCK_CASES } from './mockCases';
+import { ViewState, Asset, EvidenceLevel, AssetType, CaseBlock, CaseStatus, CaseVisibility, Attachment } from './types';
 import Sidebar from './components/Sidebar';
 import AssetCard from './components/AssetCard';
 import AssetModal from './components/AssetModal';
-import { analyzeAsset, searchAssetsWithAI, generateSmartTags, searchCasesWithAI, generateCaseSemanticTags } from './services/geminiService';
+import { analyzeAsset, searchAssetsWithAI, searchCasesWithAI, generateCaseSemanticTags } from './services/geminiService';
 import { saveAttachmentData, deleteAttachmentData, getAttachmentData } from './services/storageService';
 import { supabase } from './services/supabase';
 import { Plus, Brain, FileText, Image as ImageIcon, Loader2, ChevronLeft, Trash2, Type as TypeIcon, Search, LayoutGrid, List, RotateCcw, Clock, ChevronRight, Briefcase, X, AlertCircle, ExternalLink, Share2, Stethoscope, Activity, ArrowRight, Layers, Download, Home, BookOpen, Heading2, Eye, EyeOff, Globe, Lock, Link2 } from 'lucide-react';
@@ -128,11 +127,10 @@ const App: React.FC = () => {
           }))
         ];
 
-        const combinedFallback = [...MOCK_ASSETS, ...MOCK_CASES];
-        setAssets(mappedAssets.length > 0 ? [...mappedAssets, ...MOCK_CASES] : combinedFallback);
+        setAssets(mappedAssets);
       } catch (err) {
         console.error('Falha ao carregar dados do Supabase:', err);
-        setAssets([...MOCK_ASSETS, ...MOCK_CASES]);
+        setAssets([]);
       } finally {
         setIsRefreshing(false);
       }
@@ -176,15 +174,6 @@ const App: React.FC = () => {
       console.error('Erro de sincronização na nuvem:', err);
     }
   };
-
-  // Load Smart Tags
-  useEffect(() => {
-    const fetchTags = async () => {
-      const tags = await generateSmartTags(recentAccesses);
-      setAiTags(tags);
-    };
-    fetchTags();
-  }, [recentAccesses]);
 
   // AI Search Debounce Effect
   useEffect(() => {
