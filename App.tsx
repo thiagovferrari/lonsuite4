@@ -3,7 +3,7 @@ import { ViewState, Asset, EvidenceLevel, AssetType, CaseBlock, CaseStatus, Case
 import Sidebar from './components/Sidebar';
 import AssetCard from './components/AssetCard';
 import AssetModal from './components/AssetModal';
-import { analyzeAsset, searchAssetsWithAI, searchCasesWithAI, generateCaseSemanticTags } from './services/geminiService';
+import { analyzeAsset, searchAssetsWithAI, searchCasesWithAI, generateCaseSemanticTags, getAIUsage } from './services/geminiService';
 import { saveAttachmentData, deleteAttachmentData, getAttachmentData } from './services/storageService';
 import { supabase } from './services/supabase';
 import { Plus, Brain, FileText, Image as ImageIcon, Loader2, ChevronLeft, Trash2, Type as TypeIcon, Search, LayoutGrid, List, RotateCcw, Clock, ChevronRight, Briefcase, X, AlertCircle, ExternalLink, Share2, Stethoscope, Activity, ArrowRight, Layers, Download, Home, BookOpen, Heading2, Eye, EyeOff, Globe, Lock, Link2 } from 'lucide-react';
@@ -53,6 +53,8 @@ const App: React.FC = () => {
   // Upload Mode State
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [uploadMode, setUploadMode] = useState<'single' | 'multiple' | 'group'>('single');
+  // ID of most recently uploaded asset (triggers field-hint in modal)
+  const [newAssetId, setNewAssetId] = useState<string | null>(null);
 
   // Confirmation Dialog State
   const [confirmDialog, setConfirmDialog] = useState<{
@@ -337,6 +339,7 @@ const App: React.FC = () => {
   const processUpload = async (useAI: boolean) => {
     if (!pendingUpload) return;
     setIsProcessing(true);
+    let firstNewAsset: Asset | null = null;
 
     try {
       // GROUP MODE: Create single asset with attachments saved in IndexedDB
@@ -402,62 +405,61 @@ const App: React.FC = () => {
 
         setAssets(prev => [groupAsset, ...prev]);
         syncToCloud(groupAsset);
-        setPendingUpload(null);
-        setIsProcessing(false);
-        return;
-      }
+        firstNewAsset = groupAsset;
 
-      // INDIVIDUAL MODE: Each file becomes separate asset
-      const newAssets: Asset[] = [];
+      } else {
+        // INDIVIDUAL MODE: Each file becomes a separate asset
+        const newAssets: Asset[] = [];
 
-      for (let i = 0; i < pendingUpload.files.length; i++) {
-        const file = pendingUpload.files[i];
-        const base64 = pendingUpload.base64s[i];
+        for (let i = 0; i < pendingUpload.files.length; i++) {
+          const file = pendingUpload.files[i];
+          const base64 = pendingUpload.base64s[i];
 
-        let assetData = {
-          title: file.name.replace(/\.[^/.]+$/, ''),
-          tags: ['Manual'],
-          summary: 'Indexado manualmente.',
-          scientificContext: 'Anotação criada no Lon Suite.',
-          evidenceLevel: 'Baixo' as EvidenceLevel
-        };
+          let assetData = {
+            title: file.name.replace(/\.[^/.]+$/, ''),
+            tags: ['Manual'],
+            summary: 'Indexado manualmente.',
+            scientificContext: 'Anotação criada no Lon Suite.',
+            evidenceLevel: 'Baixo' as EvidenceLevel
+          };
 
-        if (useAI) {
-          try {
-            const analysis = await analyzeAsset(base64.split(',')[1], file.type, 'Medicina');
-            assetData = {
-              title: analysis.title || assetData.title,
-              tags: Array.isArray(analysis.tags) ? analysis.tags : ['IA'],
-              summary: analysis.summary || assetData.summary,
-              scientificContext: analysis.scientificContext || assetData.scientificContext,
-              evidenceLevel: analysis.evidenceLevel || 'Baixo'
-            };
-          } catch (e) {
-            console.error('AI analysis failed for individual file:', e);
+          if (useAI) {
+            try {
+              const analysis = await analyzeAsset(base64.split(',')[1], file.type, 'Medicina');
+              assetData = {
+                title: analysis.title || assetData.title,
+                tags: Array.isArray(analysis.tags) ? analysis.tags : ['IA'],
+                summary: analysis.summary || assetData.summary,
+                scientificContext: analysis.scientificContext || assetData.scientificContext,
+                evidenceLevel: analysis.evidenceLevel || 'Baixo'
+              };
+            } catch (e) {
+              console.error('AI analysis failed for individual file:', e);
+            }
           }
+
+          const assetType: AssetType = file.type.includes('pdf') ? 'pdf' : (file.type.includes('powerpoint') || file.type.includes('presentation') || file.name.endsWith('.ppt') || file.name.endsWith('.pptx')) ? 'document' : 'image';
+          const assetId = crypto.randomUUID();
+
+          const publicUrl = await saveAttachmentData(assetId, base64);
+
+          const newAsset: Asset = {
+            id: assetId,
+            ...assetData,
+            type: assetType,
+            date: new Date().toISOString(),
+            thumbnail: publicUrl,
+            content: publicUrl,
+            createdAt: new Date().toISOString()
+          };
+
+          newAssets.push(newAsset);
+          await syncToCloud(newAsset);
         }
 
-        const assetType: AssetType = file.type.includes('pdf') ? 'pdf' : (file.type.includes('powerpoint') || file.type.includes('presentation') || file.name.endsWith('.ppt') || file.name.endsWith('.pptx')) ? 'document' : 'image';
-        const assetId = crypto.randomUUID();
-
-        // Save to Supabase Storage and get URL
-        const publicUrl = await saveAttachmentData(assetId, base64);
-
-        const newAsset: Asset = {
-          id: assetId,
-          ...assetData,
-          type: assetType,
-          date: new Date().toISOString(),
-          thumbnail: publicUrl, // URL 
-          content: publicUrl, // URL
-          createdAt: new Date().toISOString()
-        };
-
-        newAssets.push(newAsset);
-        await syncToCloud(newAsset);
+        setAssets(prev => [...newAssets, ...prev]);
+        if (newAssets.length > 0) firstNewAsset = newAssets[0];
       }
-
-      setAssets(prev => [...newAssets, ...prev]);
     } catch (criticalError) {
       console.error('Critical error in processUpload:', criticalError);
       alert('Houve um erro crítico ao processar seus arquivos na nuvem.');
@@ -465,6 +467,11 @@ const App: React.FC = () => {
       setPendingUpload(null);
       setIsProcessing(false);
       setUploadMode('single');
+      // Auto-open modal for manual uploads so user fills in details
+      if (firstNewAsset && !useAI) {
+        setNewAssetId(firstNewAsset.id);
+        setSelectedAsset(firstNewAsset);
+      }
     }
   };
 
@@ -1626,6 +1633,16 @@ const App: React.FC = () => {
 
           const handleHomeKeyDown = (e: React.KeyboardEvent) => {
             if (e.key === 'Enter') handleHomeSearch();
+            if (e.key === 'Escape') {
+              setHomeSearchQuery('');
+              setHomeHasSearched(false);
+              setHomeSearchResults([]);
+            }
+          };
+          const clearHomeSearch = () => {
+            setHomeSearchQuery('');
+            setHomeHasSearched(false);
+            setHomeSearchResults([]);
           };
 
           // Read-only case viewer for public cases (state is at component top level)
@@ -1700,7 +1717,7 @@ const App: React.FC = () => {
               {/* Search Bar — Google style */}
               <div className="w-full max-w-xl mb-8">
                 <div className="relative group">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
                     {homeSearchLoading ? (
                       <Loader2 size={18} className="text-[#4285F4] animate-spin" />
                     ) : (
@@ -1711,16 +1728,29 @@ const App: React.FC = () => {
                     type="text"
                     placeholder="Pesquisar cases clínicos..."
                     value={homeSearchQuery}
-                    onChange={e => setHomeSearchQuery(e.target.value)}
+                    onChange={e => {
+                      const v = e.target.value;
+                      setHomeSearchQuery(v);
+                      // Auto-clear results when user empties the field
+                      if (!v.trim()) { setHomeHasSearched(false); setHomeSearchResults([]); }
+                    }}
                     onKeyDown={handleHomeKeyDown}
                     className="w-full pl-12 pr-14 py-4 bg-white border border-black/8 rounded-full text-[15px] outline-none focus:border-[#4285F4]/30 focus:shadow-[0_0_0_4px_rgba(0,113,227,0.08)] transition-all placeholder:text-[#aeaeb2] shadow-apple-md"
                   />
-                  <button
-                    onClick={handleHomeSearch}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-[#f5f5f7] hover:bg-[#1d1d1f] text-[#86868b] hover:text-white transition-all"
-                  >
-                    <Brain size={16} />
-                  </button>
+                  {/* Right action: clear (X) when active, AI brain when idle */}
+                  {(homeSearchQuery || homeHasSearched) ? (
+                    <button onClick={clearHomeSearch}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-[#f5f5f7] hover:bg-red-50 text-[#aeaeb2] hover:text-red-500 transition-all"
+                      title="Limpar pesquisa (Esc)">
+                      <X size={16} />
+                    </button>
+                  ) : (
+                    <button onClick={handleHomeSearch}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-[#f5f5f7] hover:bg-[#1d1d1f] text-[#86868b] hover:text-white transition-all"
+                      title="Busca semântica com IA">
+                      <Brain size={16} />
+                    </button>
+                  )}
                 </div>
                 <p className="text-center text-[10px] text-[#aeaeb2] mt-2.5 font-medium tracking-wider">
                   {totalAssets} Ativos · {totalCases} Cases · Busca semântica com IA
@@ -1761,11 +1791,15 @@ const App: React.FC = () => {
                     </div>
                   ) : homeSearchResults.length > 0 ? (
                     <>
-                      <div className="flex items-center gap-2 mb-5">
-                        <p className="text-[11px] text-[#86868b] font-medium">
-                          {homeSearchResults.length} {homeSearchResults.length === 1 ? 'resultado' : 'resultados'} para "{homeSearchQuery}"
+                      <div className="flex items-center justify-between gap-2 mb-5">
+                        <p className="text-[11px] text-[#86868b] font-medium flex items-center gap-2">
+                          {homeSearchResults.length} {homeSearchResults.length === 1 ? 'resultado' : 'resultados'} para &ldquo;{homeSearchQuery}&rdquo;
+                          {homeSearchLoading && <Loader2 size={12} className="text-[#4285F4] animate-spin" />}
                         </p>
-                        {homeSearchLoading && <Loader2 size={12} className="text-[#4285F4] animate-spin" />}
+                        <button onClick={clearHomeSearch}
+                          className="flex items-center gap-1.5 text-[10px] font-semibold text-[#aeaeb2] hover:text-[#1d1d1f] transition-colors uppercase tracking-widest">
+                          <X size={11} /> Limpar
+                        </button>
                       </div>
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                         {homeSearchResults.map(caseItem => {
@@ -1859,17 +1893,27 @@ const App: React.FC = () => {
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                   {/* Search */}
                   <div className="relative flex-1 min-w-0 group">
-                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
                       {isAiSearching ? (
                         <Loader2 size={15} className="text-[#4285F4] animate-spin" />
                       ) : (
                         <Search size={15} className="text-[#86868b] group-focus-within:text-[#4285F4] transition-colors" />
                       )}
-                      <Brain size={12} className="text-[#4285F4] opacity-0 group-focus-within:opacity-100 transition-opacity" />
                     </div>
-                    <input type="text" placeholder="Busca com IA..."
+                    <input type="text" placeholder="Busca semântica com IA..."
                       value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2.5 bg-white border border-black/8 rounded-apple-lg text-[13px] outline-none focus:border-[#4285F4]/30 focus:shadow-[0_0_0_3px_rgba(0,113,227,0.08)] transition-all placeholder:text-[#aeaeb2] shadow-apple" />
+                      className="w-full pl-10 pr-10 py-2.5 bg-white border border-black/8 rounded-apple-lg text-[13px] outline-none focus:border-[#4285F4]/30 focus:shadow-[0_0_0_3px_rgba(0,113,227,0.08)] transition-all placeholder:text-[#aeaeb2] shadow-apple" />
+                    {/* Clear / AI badge on right */}
+                    {searchQuery ? (
+                      <button onClick={() => { setSearchQuery(''); setAiSearchResults(null); }}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-black/6 text-[#aeaeb2] hover:text-[#1d1d1f] transition-colors">
+                        <X size={13} />
+                      </button>
+                    ) : (
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-focus-within:opacity-100 transition-opacity pointer-events-none">
+                        <Brain size={13} className="text-[#4285F4]" />
+                      </div>
+                    )}
                   </div>
 
                   {/* Date filters */}
@@ -2150,29 +2194,174 @@ const App: React.FC = () => {
         )}
 
         {/* SETTINGS */}
-        {view === ViewState.SETTINGS && (
-          <div className="px-5 sm:px-10 md:px-12 pt-8 md:pt-10 pb-10 animate-fade-in max-w-2xl">
-            <h1 className="text-3xl sm:text-4xl font-extralight tracking-tight text-[#1d1d1f] mb-1.5">Ajustes</h1>
-            <p className="text-[11px] font-medium text-[#86868b] mb-8">Configurações do sistema</p>
+        {view === ViewState.SETTINGS && (() => {
+          const settingsTotalAssets = activeAssets.filter(a => a.type !== 'case').length;
+          const settingsTotalCases  = activeAssets.filter(a => a.type === 'case').length;
 
-            <div className="space-y-3">
-              <div className="bg-white rounded-apple-xl p-5 border border-black/6 shadow-apple">
-                <h3 className="text-[14px] font-semibold text-[#1d1d1f] mb-1">Sobre o Lon Suite</h3>
-                <p className="text-[13px] text-[#86868b]">Versão 3.0.0</p>
-                <p className="text-[12px] text-[#aeaeb2] mt-1.5 leading-relaxed">Sistema de gestão de patrimônio científico com inteligência artificial integrada.</p>
+          // Storage estimate: sum of attachment sizes + 500 KB per asset without attachments
+          const storageBytes = activeAssets.reduce((acc, a) => {
+            const attBytes = (a.attachments || []).reduce((s, att) => s + (att.size || 512_000), 0);
+            return acc + (attBytes || 512_000);
+          }, 0);
+          const storageGB    = storageBytes / 1_073_741_824;   // bytes → GB
+          const storageLimitGB = 10;
+          const storagePct   = Math.min(100, (storageGB / storageLimitGB) * 100);
+
+          // AI usage (tracked in localStorage)
+          const aiCalls = getAIUsage();
+          const aiLimit = 500;
+          const aiPct   = Math.min(100, (aiCalls / aiLimit) * 100);
+
+          // SVG ring constants (r=28, C≈175.9)
+          const R = 28, C = 2 * Math.PI * R;
+          const storageDash = (storagePct / 100) * C;
+          const storageColor = storagePct >= 90 ? '#ff3b30' : storagePct >= 70 ? '#ff9f0a' : '#3a7bd5';
+
+          const aiDash  = (aiPct / 100) * C;
+          const aiColor = aiPct >= 90 ? '#ff3b30' : aiPct >= 70 ? '#ff9f0a' : '#34c759';
+
+          const SectionLabel = ({ children }: { children: React.ReactNode }) => (
+            <p className="text-[9px] font-bold text-[#aeaeb2] uppercase tracking-[0.25em] mb-3 px-1">{children}</p>
+          );
+
+          const RingMeter = ({ pct, dash, color, label, sublabel }: { pct: number; dash: number; color: string; label: string; sublabel: string }) => (
+            <div className="flex items-center gap-5">
+              <div className="relative shrink-0">
+                <svg width="72" height="72" viewBox="0 0 72 72">
+                  <circle cx="36" cy="36" r={R} fill="none" stroke="#f5f5f7" strokeWidth="5"/>
+                  <circle cx="36" cy="36" r={R} fill="none" stroke={color} strokeWidth="5"
+                    strokeDasharray={`${dash} ${C}`} strokeLinecap="round"
+                    transform="rotate(-90 36 36)" style={{ transition: 'stroke-dasharray 0.8s ease' }}/>
+                </svg>
+                <span className="absolute inset-0 flex items-center justify-center text-[12px] font-bold text-[#1d1d1f]">
+                  {pct.toFixed(0)}%
+                </span>
               </div>
-
-              <div className="bg-white rounded-apple-xl p-5 border border-black/6 shadow-apple">
-                <h3 className="text-[14px] font-semibold text-[#1d1d1f] mb-1">Armazenamento</h3>
-                <p className="text-[12px] text-[#86868b] mb-4">Os dados são armazenados localmente no seu navegador.</p>
-                <button onClick={() => openConfirmDialog({ title: 'Limpar todos os dados?', message: 'Esta ação removerá todos os ativos, cases e configurações permanentemente.', onConfirm: () => { localStorage.clear(); window.location.reload(); } })}
-                  className="px-4 py-2 bg-red-50 text-red-600 rounded-apple text-[12px] font-semibold hover:bg-red-100 transition-colors">
-                  Limpar Todos os Dados
-                </button>
+              <div className="flex-1 min-w-0">
+                <p className="text-[14px] font-semibold text-[#1d1d1f] mb-0.5">{label}</p>
+                <p className="text-[11px] text-[#86868b]">{sublabel}</p>
+                <div className="mt-2.5 h-1 bg-[#f5f5f7] rounded-full overflow-hidden">
+                  <div className="h-full rounded-full transition-all duration-700"
+                    style={{ width: `${pct}%`, backgroundColor: color }} />
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          );
+
+          return (
+            <div className="px-5 sm:px-10 md:px-12 pt-8 md:pt-10 pb-16 animate-fade-in">
+              <div className="max-w-xl">
+                {/* Header */}
+                <h1 className="text-3xl sm:text-4xl font-extralight tracking-tight text-[#1d1d1f] mb-1">Ajustes</h1>
+                <p className="text-[11px] font-medium text-[#86868b] mb-8 tracking-wider">Lon Suite 3.0.0 · Longecta</p>
+
+                {/* Identity */}
+                {ownerName && (
+                  <div className="mb-3">
+                    <SectionLabel>Identificação</SectionLabel>
+                    <div className="bg-white rounded-apple-xl p-5 border border-black/6 shadow-apple flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-full bg-[#1d1d1f] flex items-center justify-center text-white text-[14px] font-bold shrink-0">
+                        {ownerName.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[14px] font-semibold text-[#1d1d1f] truncate">{ownerName}</p>
+                        <p className="text-[10px] text-[#aeaeb2] mt-0.5 font-mono">ID {ownerId.slice(0, 12)}…</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Acervo stats */}
+                <div className="mb-3">
+                  <SectionLabel>Seu Acervo</SectionLabel>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-white rounded-apple-xl p-5 border border-black/6 shadow-apple">
+                      <div className="flex items-center gap-2 mb-3">
+                        <LayoutGrid size={13} className="text-[#4285F4]" strokeWidth={1.5} />
+                        <span className="text-[9px] font-bold text-[#aeaeb2] uppercase tracking-widest">Ativos</span>
+                      </div>
+                      <p className="text-4xl font-extralight text-[#1d1d1f] tracking-tight leading-none">{settingsTotalAssets}</p>
+                      <p className="text-[10px] text-[#aeaeb2] mt-2">científicos</p>
+                    </div>
+                    <div className="bg-white rounded-apple-xl p-5 border border-black/6 shadow-apple">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Stethoscope size={13} className="text-[#4285F4]" strokeWidth={1.5} />
+                        <span className="text-[9px] font-bold text-[#aeaeb2] uppercase tracking-widest">Cases</span>
+                      </div>
+                      <p className="text-4xl font-extralight text-[#1d1d1f] tracking-tight leading-none">{settingsTotalCases}</p>
+                      <p className="text-[10px] text-[#aeaeb2] mt-2">documentados</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Storage meter */}
+                <div className="mb-3">
+                  <SectionLabel>Armazenamento</SectionLabel>
+                  <div className="bg-white rounded-apple-xl p-5 border border-black/6 shadow-apple space-y-4">
+                    <RingMeter
+                      pct={storagePct}
+                      dash={storageDash}
+                      color={storageColor}
+                      label={`${storageGB < 0.01 ? '< 0.01' : storageGB.toFixed(2)} GB utilizados`}
+                      sublabel={`de ${storageLimitGB} GB disponíveis`}
+                    />
+                    {storagePct >= 90 && (
+                      <div className="flex items-start gap-3 bg-red-50 rounded-apple p-3 border border-red-100">
+                        <AlertCircle size={14} className="text-red-500 shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-[11px] font-semibold text-red-700 mb-0.5">Armazenamento quase cheio</p>
+                          <p className="text-[10px] text-red-500">Entre em contato com o suporte para ampliar seu plano.</p>
+                          <a href="mailto:suporte@longecta.com.br"
+                            className="text-[10px] font-bold text-red-600 hover:underline mt-1 inline-block">
+                            suporte@longecta.com.br →
+                          </a>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* AI usage meter */}
+                <div className="mb-3">
+                  <SectionLabel>Inteligência Artificial</SectionLabel>
+                  <div className="bg-white rounded-apple-xl p-5 border border-black/6 shadow-apple space-y-4">
+                    <RingMeter
+                      pct={aiPct}
+                      dash={aiDash}
+                      color={aiColor}
+                      label={`${aiCalls} chamadas realizadas`}
+                      sublabel={`${Math.max(0, aiLimit - aiCalls)} restantes · limite ${aiLimit}/mês`}
+                    />
+                    {aiPct >= 90 && (
+                      <p className="text-[10px] text-[#aeaeb2] bg-[#f5f5f7] rounded-apple px-3 py-2">
+                        Limite de IA próximo. Contate o suporte para um plano sem limitações.
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Danger zone */}
+                <div className="mb-3">
+                  <SectionLabel>Dados</SectionLabel>
+                  <div className="bg-white rounded-apple-xl p-5 border border-black/6 shadow-apple">
+                    <p className="text-[12px] text-[#86868b] mb-4 leading-relaxed">
+                      Os dados são sincronizados na nuvem via Supabase. A limpeza local remove os dados deste dispositivo.
+                    </p>
+                    <button onClick={() => openConfirmDialog({
+                      title: 'Limpar todos os dados?',
+                      message: 'Esta ação removerá todos os ativos, cases e configurações permanentemente. Não pode ser desfeita.',
+                      onConfirm: () => { localStorage.clear(); window.location.reload(); }
+                    })}
+                      className="px-4 py-2 bg-red-50 text-red-600 rounded-apple text-[12px] font-semibold hover:bg-red-100 transition-colors border border-red-100/50">
+                      Limpar Todos os Dados
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          );
+        })()}
       </main>
 
       {/* Upload Type Selection Modal */}
@@ -2249,10 +2438,11 @@ const App: React.FC = () => {
       {selectedAsset && (
         <AssetModal
           asset={selectedAsset}
-          onClose={() => setSelectedAsset(null)}
+          onClose={() => { setSelectedAsset(null); setNewAssetId(null); }}
           onSave={handleSaveAsset}
           onDelete={handleDeleteAsset}
           onConfirmDialog={openConfirmDialog}
+          showFieldHint={selectedAsset.id === newAssetId}
         />
       )}
 

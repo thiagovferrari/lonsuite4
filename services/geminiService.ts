@@ -28,6 +28,19 @@ const safeJsonParse = <T = unknown>(text: string): T | null => {
 
 const MODEL = 'gemini-1.5-flash';
 
+// ─── AI usage tracking (persisted in localStorage) ───────────────────────────
+const AI_USAGE_KEY = 'lon_suite_ai_calls';
+export const incrementAIUsage = (): void => {
+  try {
+    const n = parseInt(localStorage.getItem(AI_USAGE_KEY) || '0', 10);
+    localStorage.setItem(AI_USAGE_KEY, String(n + 1));
+  } catch { /* silent */ }
+};
+export const getAIUsage = (): number => {
+  try { return parseInt(localStorage.getItem(AI_USAGE_KEY) || '0', 10); }
+  catch { return 0; }
+};
+
 export interface AssetAnalysis {
   title: string;
   tags: string[];
@@ -54,6 +67,7 @@ export const analyzeAsset = async (
   try {
     const ai = getClient();
     if (!ai) return fallback;
+    incrementAIUsage();
 
     const response = await ai.models.generateContent({
       model: MODEL,
@@ -119,6 +133,7 @@ export const searchAssetsWithAI = async (query: string, assets: Asset[]): Promis
   try {
     const ai = getClient();
     if (!ai || assets.length === 0) return [];
+    incrementAIUsage();
 
     const slim = assets.map((a) => ({
       id: a.id,
@@ -168,6 +183,7 @@ export const searchCasesWithAI = async (
   try {
     const ai = getClient();
     if (!ai || cases.length === 0) return [];
+    incrementAIUsage();
 
     const slim = cases.map((c) => ({
       id: c.id,
@@ -220,6 +236,7 @@ export const generateCaseSemanticTags = async (
   try {
     const ai = getClient();
     if (!ai) return [];
+    incrementAIUsage();
 
     const content = `${title}\n\n${blocksText}`.trim();
     if (content.length < 10) return [];

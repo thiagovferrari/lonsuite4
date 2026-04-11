@@ -17,10 +17,12 @@ interface AssetModalProps {
     isTrashMode?: boolean;
     onRestore?: () => void;
     onConfirmDialog?: (opts: { title: string; message: string; onConfirm: () => void }) => void;
+    /** When true the editable fields pulse red on mount, guiding manual fill-in */
+    showFieldHint?: boolean;
 }
 
 const AssetModal: React.FC<AssetModalProps> = ({
-    asset, onClose, onSave, onDelete, isTrashMode = false, onRestore, onConfirmDialog
+    asset, onClose, onSave, onDelete, isTrashMode = false, onRestore, onConfirmDialog, showFieldHint = false
 }) => {
     const [editedAsset, setEditedAsset] = useState<Asset>(asset);
     const [isEditingMetadata, setIsEditingMetadata] = useState(false);
@@ -28,6 +30,10 @@ const AssetModal: React.FC<AssetModalProps> = ({
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
     const [pdfLoading, setPdfLoading] = useState(false);
+    // Field hint: brief red pulse on editable fields for new manual uploads
+    const [fieldHint, setFieldHint] = useState(showFieldHint);
+    // Save toast: visible momentarily after auto-save
+    const [showSaveToast, setShowSaveToast] = useState(false);
     const [deleteConfirm, setDeleteConfirm] = useState(false);
     const [isProcessingManual, setIsProcessingManual] = useState(false);
     const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
@@ -62,6 +68,13 @@ const AssetModal: React.FC<AssetModalProps> = ({
         setIsEditingTitle(false);
         setCurrentSlideIndex(0);
     }, [asset]);
+
+    // Remove field hint after the animation finishes (1.6s + 400ms buffer)
+    useEffect(() => {
+        if (!fieldHint) return;
+        const t = setTimeout(() => setFieldHint(false), 2200);
+        return () => clearTimeout(t);
+    }, [fieldHint]);
 
     /**
      * Converts a data source (base64 data URL, raw base64, or HTTPS URL) to a Blob.
@@ -155,7 +168,10 @@ const AssetModal: React.FC<AssetModalProps> = ({
             onSave(final);
             setEditedAsset(final);
             setSaveStatus('salvo');
-            setTimeout(() => setSaveStatus(''), 2000);
+            // Show floating save toast
+            setShowSaveToast(false);
+            requestAnimationFrame(() => setShowSaveToast(true));
+            setTimeout(() => { setSaveStatus(''); setShowSaveToast(false); }, 2200);
         }, 400);
     };
 
@@ -485,7 +501,7 @@ const AssetModal: React.FC<AssetModalProps> = ({
                 </div>
 
                 {/* Metadata panel (right) */}
-                <div className="w-full md:w-[380px] shrink-0 bg-white flex flex-col h-[50vh] md:h-full border-l border-black/6 z-20">
+                <div className="w-full md:w-[380px] shrink-0 bg-white flex flex-col h-[50vh] md:h-full border-l border-black/6 z-20 relative">
                     {/* Header */}
                     <div className="px-6 py-5 border-b border-black/6 flex justify-between items-start shrink-0">
                         <div className="flex-1 min-w-0 mr-3">
@@ -495,7 +511,8 @@ const AssetModal: React.FC<AssetModalProps> = ({
                                         value={editedAsset.title}
                                         onChange={e => setEditedAsset({ ...editedAsset, title: e.target.value })}
                                         onBlur={handleSaveAll}
-                                        className="text-[17px] font-semibold text-[#1d1d1f] bg-transparent hover:bg-black/5 focus:bg-white border hover:border-black/10 border-transparent focus:border-[#4285F4]/40 focus:outline-none w-full px-1.5 py-0.5 rounded transition-all leading-snug"
+                                        className={`text-[17px] font-semibold text-[#1d1d1f] bg-transparent hover:bg-black/5 focus:bg-white border hover:border-black/10 border-transparent focus:border-[#4285F4]/40 focus:outline-none w-full px-1.5 py-0.5 rounded leading-snug ${fieldHint ? 'animate-field-hint' : 'transition-all'}`}
+                                        style={fieldHint ? { animationDelay: '600ms' } : undefined}
                                         placeholder="Título do Ativo"
                                     />
                                     <PenLine size={13} className="text-[#86868b] opacity-0 group-hover/title:opacity-100 transition-opacity absolute right-2 pointer-events-none" />
@@ -513,10 +530,8 @@ const AssetModal: React.FC<AssetModalProps> = ({
                             </p>
                         </div>
                         <div className="flex items-center gap-3 shrink-0">
-                            {saveStatus && (
-                                <span className={`text-[10px] font-bold tracking-wide uppercase ${saveStatus === 'salvo' ? 'text-emerald-500' : 'text-[#86868b] animate-pulse'}`}>
-                                    {saveStatus === 'salvo' ? 'Salvo' : 'Salvando...'}
-                                </span>
+                            {saveStatus === 'salvando' && (
+                                <div className="w-3.5 h-3.5 border-2 border-[#86868b]/25 border-t-[#86868b] rounded-full animate-spin" />
                             )}
                             <button onClick={onClose} className="hidden md:flex p-2 hover:bg-black/5 rounded-full text-[#86868b] hover:text-[#1d1d1f] transition-colors shrink-0">
                                 <X size={20} />
@@ -583,7 +598,8 @@ const AssetModal: React.FC<AssetModalProps> = ({
                                     onChange={e => setEditedAsset({ ...editedAsset, scientificContext: e.target.value })}
                                     onBlur={handleSaveAll}
                                     placeholder="Adicione referências científicas aqui..."
-                                    className="w-full text-[12px] text-[#424245] leading-relaxed bg-transparent hover:bg-white p-2 -ml-2 rounded border border-transparent hover:border-blue-200 focus:bg-white focus:outline-none focus:border-[#4285F4]/40 resize-none transition-all text-justify"
+                                    className={`w-full text-[12px] text-[#424245] leading-relaxed bg-transparent hover:bg-white p-2 -ml-2 rounded border hover:border-blue-200 focus:bg-white focus:outline-none focus:border-[#4285F4]/40 resize-none text-justify ${fieldHint ? 'animate-field-hint border-transparent' : 'transition-all border-transparent'}`}
+                                    style={fieldHint ? { animationDelay: '400ms' } : undefined}
                                     rows={3} />
                             ) : (
                                 <p className="text-[12px] text-[#424245] italic leading-relaxed text-justify">
@@ -625,7 +641,8 @@ const AssetModal: React.FC<AssetModalProps> = ({
                                     onChange={e => setEditedAsset({ ...editedAsset, summary: e.target.value })}
                                     onBlur={handleSaveAll}
                                     placeholder="Descreva visualmente o ativo..."
-                                    className="w-full text-[12px] text-[#424245] leading-relaxed bg-transparent hover:bg-[#f5f5f7] p-2 -ml-2 rounded border border-transparent hover:border-black/10 focus:bg-[#f5f5f7] focus:outline-none focus:border-[#4285F4]/40 resize-none transition-all"
+                                    className={`w-full text-[12px] text-[#424245] leading-relaxed bg-transparent hover:bg-[#f5f5f7] p-2 -ml-2 rounded border hover:border-black/10 focus:bg-[#f5f5f7] focus:outline-none focus:border-[#4285F4]/40 resize-none ${fieldHint ? 'animate-field-hint border-transparent' : 'transition-all border-transparent'}`}
+                                    style={fieldHint ? { animationDelay: '200ms' } : undefined}
                                     rows={2} />
                             ) : (
                                 <p className="text-[12px] text-[#424245] leading-relaxed font-light">{asset.summary || 'Sem descrição.'}</p>
@@ -652,18 +669,32 @@ const AssetModal: React.FC<AssetModalProps> = ({
                             </div>
                             {!isTrashMode && (
                                 <div className="relative group/tag">
-                                    <input 
+                                    <input
                                         type="text" value={tagInput}
                                         onChange={e => setTagInput(e.target.value)}
                                         onKeyDown={handleAddTag}
                                         placeholder="Adicionar nova tag..."
-                                        className="w-full px-2.5 py-2 text-[11px] bg-transparent hover:bg-[#f5f5f7] border hover:border-black/10 border-transparent focus:border-[#4285F4]/40 focus:bg-white rounded outline-none transition-all"
+                                        className={`w-full px-2.5 py-2 text-[11px] bg-transparent hover:bg-[#f5f5f7] border hover:border-black/10 focus:border-[#4285F4]/40 focus:bg-white rounded outline-none ${fieldHint ? 'animate-field-hint border-transparent' : 'transition-all border-transparent'}`}
+                                        style={fieldHint ? { animationDelay: '0ms' } : undefined}
                                     />
                                     <Plus size={11} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#86868b] opacity-0 group-focus-within/tag:opacity-50 pointer-events-none" />
                                 </div>
                             )}
                         </div>
                     </div>
+
+                    {/* ── Save toast ──────────────────────────────────────── */}
+                    {showSaveToast && (
+                        <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-30 animate-save-toast">
+                            <div className="flex items-center gap-2 px-4 py-2 bg-[#1d1d1f] text-white rounded-full shadow-apple-lg text-[11px] font-semibold">
+                                <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                                    <circle cx="6.5" cy="6.5" r="6.5" fill="#34c759" />
+                                    <path d="M3.5 6.5L5.5 8.5L9.5 4.5" stroke="white" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                                Alterações salvas
+                            </div>
+                        </div>
+                    )}
 
                     {/* Footer */}
                     <div className="px-5 py-4 border-t border-black/6 flex gap-2.5 shrink-0">
