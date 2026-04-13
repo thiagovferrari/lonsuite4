@@ -67,10 +67,10 @@ const AssetCard: React.FC<AssetCardProps> = ({ asset, onClick }) => {
       onKeyDown={(e) => e.key === 'Enter' && onClick(asset)}
       aria-label={asset.title}
     >
-      <div className="relative bg-white rounded-apple-lg overflow-hidden border border-black/[0.06] hover:border-black/[0.12] hover:shadow-apple-md transition-all duration-300 hover:-translate-y-0.5 card-press flex flex-col">
+      <div className="relative bg-white rounded-apple-lg overflow-hidden border border-black/[0.04] hover:border-black/[0.08] hover:shadow-apple-md transition-all duration-300 hover:-translate-y-0.5 card-press flex flex-col">
 
         {/* Thumbnail — aspect ratio 4:5 */}
-        <div className="aspect-[4/5] w-full relative overflow-hidden bg-[#f5f5f7]">
+        <div className="aspect-[4/5] w-full relative overflow-hidden bg-[#f2f3f5]">
           {displayThumb ? (
             <img
               src={displayThumb}
@@ -120,7 +120,7 @@ const AssetCard: React.FC<AssetCardProps> = ({ asset, onClick }) => {
             {displayTags.map((tag, idx) => (
               <span
                 key={`${tag}-${idx}`}
-                className="inline-block self-start px-1.5 py-0.5 rounded-md bg-[#f5f5f7] text-[#86868b] text-[9px] font-medium truncate max-w-[70%]"
+                className="inline-block self-start px-1.5 py-0.5 rounded-md bg-[#f2f3f5] text-[#86868b] text-[9px] font-medium truncate max-w-[70%]"
               >
                 {tag}
               </span>

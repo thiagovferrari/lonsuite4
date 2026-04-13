@@ -345,7 +345,7 @@ const AssetModal: React.FC<AssetModalProps> = ({
                                 <h2 className="text-3xl font-semibold mb-8 text-[#1d1d1f] tracking-tight leading-tight">{editedAsset.title}</h2>
                             )}
                             <div ref={contentRef} contentEditable={isEditingContent} suppressContentEditableWarning
-                                className={`prose prose-slate text-base leading-loose text-[#424245] outline-none ${isEditingContent ? 'ring-2 ring-[#4285F4]/20 rounded-xl p-4 bg-[#f5f5f7]/50' : ''}`}
+                                className={`prose prose-slate text-base leading-loose text-[#424245] outline-none ${isEditingContent ? 'ring-2 ring-[#4285F4]/20 rounded-xl p-4 bg-[#f2f3f5]/50' : ''}`}
                                 dangerouslySetInnerHTML={{ __html: editedAsset.content || 'Sem conteúdo.' }} />
                         </div>
                     </div>
@@ -355,7 +355,7 @@ const AssetModal: React.FC<AssetModalProps> = ({
 
         if (editedAsset.attachments && editedAsset.attachments.length > 0) {
             return (
-                <div className="w-full h-full bg-[#f5f5f7] flex flex-col relative overflow-hidden">
+                <div className="w-full h-full bg-[#f2f3f5] flex flex-col relative overflow-hidden">
                     <div className="flex-1 relative flex items-center justify-center p-6 min-h-[400px]">
                         {activeSlideBlobUrl && typeof activeAttachment?.type === 'string' && activeAttachment.type.includes('image') ? (
                             <img src={activeSlideBlobUrl} alt={activeAttachment.name} className="max-w-full max-h-full object-contain rounded-apple-lg shadow-apple bg-white" />
@@ -402,9 +402,9 @@ const AssetModal: React.FC<AssetModalProps> = ({
                             <div key={att.id} onClick={() => setCurrentSlideIndex(idx)}
                                 className={`w-[60px] h-[60px] rounded-apple overflow-hidden cursor-pointer transition-all border-2 relative shrink-0 group/thumb ${currentSlideIndex === idx ? 'border-[#4285F4] shadow-apple' : 'border-transparent opacity-50 hover:opacity-80'}`}>
                                 {typeof att.type === 'string' && att.type.includes('image') ? (
-                                    <img src={thumbUrls[att.id] || att.data || undefined} alt={att.name} className="w-full h-full object-cover bg-[#f5f5f7]" />
+                                    <img src={thumbUrls[att.id] || att.data || undefined} alt={att.name} className="w-full h-full object-cover bg-[#f2f3f5]" />
                                 ) : (
-                                    <div className="w-full h-full bg-[#f5f5f7] flex flex-col items-center justify-center gap-1">
+                                    <div className="w-full h-full bg-[#f2f3f5] flex flex-col items-center justify-center gap-1">
                                         <FileText size={16} className="text-[#86868b]" />
                                         <span className="text-[8px] text-[#86868b] font-medium uppercase px-1 truncate max-w-full">
                                             {att.name.split('.').pop()}
@@ -420,7 +420,7 @@ const AssetModal: React.FC<AssetModalProps> = ({
                             </div>
                         ))}
                         {/* Count indicator */}
-                        <div className="ml-auto shrink-0 text-[10px] font-semibold text-[#86868b] bg-[#f5f5f7] px-2.5 py-1 rounded-full">
+                        <div className="ml-auto shrink-0 text-[10px] font-semibold text-[#86868b] bg-[#f2f3f5] px-2.5 py-1 rounded-full">
                             {currentSlideIndex + 1} / {editedAsset.attachments.length}
                         </div>
                     </div>
@@ -431,7 +431,7 @@ const AssetModal: React.FC<AssetModalProps> = ({
         const isPdfType = asset.type === 'pdf' || (typeof asset.thumbnail === 'string' && asset.thumbnail.startsWith('data:application/pdf')) || (typeof asset.title === 'string' && asset.title.toLowerCase().endsWith('.pdf'));
         if (isPdfType) {
             return (
-                <div className="w-full h-full space-y-0 bg-[#f5f5f7] flex flex-col relative z-0">
+                <div className="w-full h-full space-y-0 bg-[#f2f3f5] flex flex-col relative z-0">
                     {pdfBlobUrl ? (
                         <iframe src={pdfBlobUrl} className="w-full h-full border-none flex-1" title="PDF Viewer" style={{ minHeight: '100%' }} />
                     ) : pdfLoading ? (
@@ -462,11 +462,11 @@ const AssetModal: React.FC<AssetModalProps> = ({
         }
 
         if (asset.thumbnail) {
-            return <img src={asset.thumbnail} alt="Preview" className="w-full h-full object-contain bg-[#f5f5f7]" />;
+            return <img src={asset.thumbnail} alt="Preview" className="w-full h-full object-contain bg-[#f2f3f5]" />;
         }
 
         return (
-            <div className="w-full h-full flex flex-col items-center justify-center text-[#86868b] gap-4 bg-[#f5f5f7]">
+            <div className="w-full h-full flex flex-col items-center justify-center text-[#86868b] gap-4 bg-[#f2f3f5]">
                 <MonitorPlay size={40} strokeWidth={1} className="opacity-40" />
                 <p className="text-sm font-light">Visualização não disponível</p>
                 <button onClick={handleDownload} className="text-[#4285F4] text-xs font-semibold hover:underline">Baixar Arquivo</button>
@@ -478,7 +478,7 @@ const AssetModal: React.FC<AssetModalProps> = ({
         const map: Record<string, string> = {
             'Alto': 'bg-emerald-100 text-emerald-700',
             'Moderado': 'bg-amber-100 text-amber-700',
-            'Baixo': 'bg-[#f5f5f7] text-[#86868b]',
+            'Baixo': 'bg-[#f2f3f5] text-[#86868b]',
         };
         return map[level || 'Baixo'] || map['Baixo'];
     };
@@ -487,11 +487,11 @@ const AssetModal: React.FC<AssetModalProps> = ({
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center sm:p-2 md:p-6 animate-fade-in">
-            <div className="absolute inset-0 bg-black/40 backdrop-blur-md" onClick={onClose} />
-            <div className={`relative w-full ${isContainerPdf ? 'md:max-w-7xl md:h-[96vh]' : 'md:max-w-5xl md:h-[88vh]'} h-[100dvh] bg-white md:rounded-apple-2xl shadow-apple-xl flex flex-col md:flex-row ring-1 ring-white/20 animate-scale-in overflow-hidden`}>
+            <div className="absolute inset-0 bg-black/30 backdrop-blur-md" onClick={onClose} />
+            <div className={`relative w-full ${isContainerPdf ? 'md:max-w-7xl md:h-[96vh]' : 'md:max-w-5xl md:h-[88vh]'} h-[100dvh] bg-white md:rounded-apple-xl shadow-apple-xl flex flex-col md:flex-row ring-1 ring-black/[0.04] animate-scale-in overflow-hidden`}>
 
                 {/* Preview (left) */}
-                <div className="flex-1 relative flex items-center justify-center h-[50vh] md:h-full order-last md:order-first bg-[#f5f5f7]">
+                <div className="flex-1 relative flex items-center justify-center h-[50vh] md:h-full order-last md:order-first bg-[#f2f3f5]">
                     {renderPreview()}
                     <div className="md:hidden absolute top-4 left-4 z-10 pointer-events-none">
                         <button onClick={onClose} className="pointer-events-auto p-2 bg-white/25 backdrop-blur rounded-full text-white active:scale-95">
@@ -544,7 +544,7 @@ const AssetModal: React.FC<AssetModalProps> = ({
                         {/* Action buttons */}
                         <div className="flex gap-2.5">
                             <button onClick={handleDownload}
-                                className="w-full py-2.5 rounded-apple bg-[#f5f5f7] text-[#1d1d1f] text-[11px] font-semibold hover:bg-black/8 transition-colors flex items-center justify-center gap-1.5">
+                                className="w-full py-2.5 rounded-apple bg-[#f2f3f5] text-[#1d1d1f] text-[11px] font-semibold hover:bg-black/8 transition-colors flex items-center justify-center gap-1.5">
                                 <Download size={13} /> Baixar Ativo
                             </button>
                         </div>
@@ -563,7 +563,7 @@ const AssetModal: React.FC<AssetModalProps> = ({
 
                         {/* Evidence panel */}
                         <div className="bg-white border border-black/6 rounded-apple-lg overflow-hidden shadow-apple">
-                            <div className="px-4 py-3 border-b border-black/6 flex items-center gap-2 bg-[#f5f5f7]/60">
+                            <div className="px-4 py-3 border-b border-black/6 flex items-center gap-2 bg-[#f2f3f5]/60">
                                 <Activity size={13} className="text-[#86868b]" />
                                 <span className="text-[10px] font-semibold text-[#86868b] uppercase tracking-widest">Painel de Evidências</span>
                             </div>
@@ -580,7 +580,7 @@ const AssetModal: React.FC<AssetModalProps> = ({
                                 </div>
                                 <div>
                                     <span className="text-[11px] text-[#86868b] font-medium block mb-1.5">Achados Principais</span>
-                                    <p className="text-[11px] text-[#424245] leading-relaxed bg-[#f5f5f7] p-2.5 rounded-apple">{editedAsset.keyFindings || asset.keyFindings || 'Nenhum dado extraído ainda.'}</p>
+                                    <p className="text-[11px] text-[#424245] leading-relaxed bg-[#f2f3f5] p-2.5 rounded-apple">{editedAsset.keyFindings || asset.keyFindings || 'Nenhum dado extraído ainda.'}</p>
                                 </div>
                             </div>
                         </div>
@@ -641,7 +641,7 @@ const AssetModal: React.FC<AssetModalProps> = ({
                                     onChange={e => setEditedAsset({ ...editedAsset, summary: e.target.value })}
                                     onBlur={handleSaveAll}
                                     placeholder="Descreva visualmente o ativo..."
-                                    className={`w-full text-[12px] text-[#424245] leading-relaxed bg-transparent hover:bg-[#f5f5f7] p-2 -ml-2 rounded border hover:border-black/10 focus:bg-[#f5f5f7] focus:outline-none focus:border-[#4285F4]/40 resize-none ${fieldHint ? 'animate-field-hint border-transparent' : 'transition-all border-transparent'}`}
+                                    className={`w-full text-[12px] text-[#424245] leading-relaxed bg-transparent hover:bg-[#f2f3f5] p-2 -ml-2 rounded border hover:border-black/10 focus:bg-[#f2f3f5] focus:outline-none focus:border-[#4285F4]/40 resize-none ${fieldHint ? 'animate-field-hint border-transparent' : 'transition-all border-transparent'}`}
                                     style={fieldHint ? { animationDelay: '200ms' } : undefined}
                                     rows={2} />
                             ) : (
@@ -674,7 +674,7 @@ const AssetModal: React.FC<AssetModalProps> = ({
                                         onChange={e => setTagInput(e.target.value)}
                                         onKeyDown={handleAddTag}
                                         placeholder="Adicionar nova tag..."
-                                        className={`w-full px-2.5 py-2 text-[11px] bg-transparent hover:bg-[#f5f5f7] border hover:border-black/10 focus:border-[#4285F4]/40 focus:bg-white rounded outline-none ${fieldHint ? 'animate-field-hint border-transparent' : 'transition-all border-transparent'}`}
+                                        className={`w-full px-2.5 py-2 text-[11px] bg-transparent hover:bg-[#f2f3f5] border hover:border-black/10 focus:border-[#4285F4]/40 focus:bg-white rounded outline-none ${fieldHint ? 'animate-field-hint border-transparent' : 'transition-all border-transparent'}`}
                                         style={fieldHint ? { animationDelay: '0ms' } : undefined}
                                     />
                                     <Plus size={11} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#86868b] opacity-0 group-focus-within/tag:opacity-50 pointer-events-none" />
@@ -717,7 +717,7 @@ const AssetModal: React.FC<AssetModalProps> = ({
                             </button>
                         ) : (
                             <button onClick={handleDeleteClick}
-                                className={`w-full py-2.5 rounded-apple font-semibold text-[11px] transition-all flex items-center justify-center gap-1.5 ${deleteConfirm ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-[#f5f5f7] text-[#86868b] border border-black/6 hover:border-red-200 hover:text-red-500'}`}>
+                                className={`w-full py-2.5 rounded-apple font-semibold text-[11px] transition-all flex items-center justify-center gap-1.5 ${deleteConfirm ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-[#f2f3f5] text-[#86868b] border border-black/6 hover:border-red-200 hover:text-red-500'}`}>
                                 {deleteConfirm ? <><AlertTriangle size={13} /> Clique para confirmar</> : <><Trash2 size={13} /> Remover do Vault</>}
                             </button>
                         )}

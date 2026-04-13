@@ -1159,7 +1159,7 @@ const App: React.FC = () => {
           </div>
 
           {/* Floating toolbar */}
-          <div className="fixed bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 md:gap-4 bg-white px-4 md:px-6 py-3 md:py-4 rounded-full shadow-2xl border border-slate-100 z-[9999] max-w-[95vw]">
+          <div className="fixed bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 md:gap-4 bg-white px-4 md:px-6 py-3 md:py-3.5 rounded-apple-xl shadow-apple-lg border border-black/[0.04] z-[9999] max-w-[95vw]">
             {/* Auto-save indicator */}
             <div className="hidden sm:flex w-32 items-center justify-center">
               {saveStatus === 'saving' && (
@@ -1176,27 +1176,27 @@ const App: React.FC = () => {
               )}
             </div>
 
-            <button onClick={() => addBlock('title')} className="p-3 md:p-4 hover:bg-slate-100 rounded-full text-slate-500 hover:text-slate-900 transition-all" title="Adicionar título">
-              <TypeIcon size={18} />
+            <button onClick={() => addBlock('title')} className="p-2.5 md:p-3 hover:bg-[#f2f3f5] rounded-[10px] text-[#8e8e93] hover:text-[#1d1d1f] transition-all" title="Adicionar título">
+              <TypeIcon size={17} />
             </button>
-            <button onClick={() => addBlock('subtitle')} className="p-3 md:p-4 hover:bg-slate-100 rounded-full text-slate-500 hover:text-slate-900 transition-all" title="Adicionar subtítulo (H2)">
-              <Heading2 size={18} />
+            <button onClick={() => addBlock('subtitle')} className="p-2.5 md:p-3 hover:bg-[#f2f3f5] rounded-[10px] text-[#8e8e93] hover:text-[#1d1d1f] transition-all" title="Adicionar subtítulo (H2)">
+              <Heading2 size={17} />
             </button>
-            <button onClick={() => addBlock('text')} className="p-3 md:p-4 hover:bg-slate-100 rounded-full text-slate-500 hover:text-slate-900 transition-all" title="Adicionar texto">
-              <FileText size={18} />
+            <button onClick={() => addBlock('text')} className="p-2.5 md:p-3 hover:bg-[#f2f3f5] rounded-[10px] text-[#8e8e93] hover:text-[#1d1d1f] transition-all" title="Adicionar texto">
+              <FileText size={17} />
             </button>
-            <button onClick={() => addBlock('image')} className="p-3 md:p-4 hover:bg-slate-100 rounded-full text-slate-500 hover:text-slate-900 transition-all" title="Adicionar evidência">
-              <ImageIcon size={18} />
+            <button onClick={() => addBlock('image')} className="p-2.5 md:p-3 hover:bg-[#f2f3f5] rounded-[10px] text-[#8e8e93] hover:text-[#1d1d1f] transition-all" title="Adicionar evidência">
+              <ImageIcon size={17} />
             </button>
-            <button onClick={() => setShowAssetPicker(true)} className="p-3 md:p-4 hover:bg-blue-50 rounded-full text-blue-500 hover:text-blue-700 transition-all" title="Adicionar ativo">
-              <LayoutGrid size={18} />
+            <button onClick={() => setShowAssetPicker(true)} className="p-2.5 md:p-3 hover:bg-blue-50 rounded-[10px] text-[#4285F4] hover:text-blue-700 transition-all" title="Adicionar ativo">
+              <LayoutGrid size={17} />
             </button>
-            <button onClick={() => addBlock('reference')} className="p-3 md:p-4 hover:bg-amber-50 rounded-full text-amber-600 hover:text-amber-800 transition-all" title="Referência bibliográfica">
-              <BookOpen size={18} />
+            <button onClick={() => addBlock('reference')} className="p-2.5 md:p-3 hover:bg-[#f2f3f5] rounded-[10px] text-[#8e8e93] hover:text-[#1d1d1f] transition-all" title="Referência bibliográfica">
+              <BookOpen size={17} />
             </button>
             <div className="w-px h-6 md:h-8 bg-slate-200 mx-1 md:mx-2"></div>
 
-            <button onClick={() => handleCloseCase()} className="hidden sm:block px-6 py-3 bg-slate-100 text-slate-600 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-slate-200 transition-all" title="Fechar editor">
+            <button onClick={() => handleCloseCase()} className="hidden sm:block px-5 py-2.5 bg-[#f2f3f5] text-[#8e8e93] rounded-apple text-[10px] font-bold uppercase tracking-widest hover:bg-[#e8e9eb] hover:text-[#1d1d1f] transition-all" title="Fechar editor">
               Fechar
             </button>
           </div>
@@ -1391,7 +1391,7 @@ const App: React.FC = () => {
     const sharedAsset = assets.find(a => a.id === shareId);
     if (!sharedAsset) {
       return (
-        <div className="min-h-screen bg-[#f5f5f7] flex items-center justify-center p-4">
+        <div className="min-h-screen bg-[#f2f3f5] flex items-center justify-center p-4">
           <div className="bg-white p-10 rounded-apple-xl shadow-apple-md text-center">
             <h1 className="text-xl font-bold text-slate-900 mb-2">Ativo Não Encontrado</h1>
             <p className="text-slate-500">O link pode ter expirado ou estar incorreto.</p>
@@ -1403,7 +1403,7 @@ const App: React.FC = () => {
     // Check visibility for cases
     if (sharedAsset.type === 'case' && sharedAsset.visibility === 'private' && sharedAsset.ownerId !== ownerId) {
       return (
-        <div className="min-h-screen bg-[#f5f5f7] flex items-center justify-center p-4">
+        <div className="min-h-screen bg-[#f2f3f5] flex items-center justify-center p-4">
           <div className="bg-white p-10 rounded-apple-xl shadow-apple-md text-center">
             <Lock size={32} className="mx-auto mb-3 text-[#86868b]" />
             <h1 className="text-xl font-bold text-slate-900 mb-2">Case Privado</h1>
@@ -1415,14 +1415,14 @@ const App: React.FC = () => {
     
     // Simplistic Public Share View
     return (
-      <div className="min-h-screen bg-[#f5f5f7] flex flex-col items-center py-10 px-4 animate-fade-in">
+      <div className="min-h-screen bg-[#f2f3f5] flex flex-col items-center py-10 px-4 animate-fade-in">
         <div className="w-full max-w-4xl bg-white rounded-apple-2xl shadow-apple-xl overflow-hidden min-h-[80vh]">
           <div className="p-8 border-b border-black/6 bg-white sticky top-0 z-10 flex justify-between items-center">
             <div>
               <h1 className="text-3xl font-semibold text-[#1d1d1f] tracking-tight">{sharedAsset.title || 'Sem título'}</h1>
               <p className="text-xs font-semibold uppercase tracking-widest text-[#86868b] mt-2">{sharedAsset.type}</p>
             </div>
-            <div className="px-4 py-2 bg-[#f5f5f7] text-[#86868b] text-[10px] font-bold uppercase tracking-widest rounded-full">
+            <div className="px-4 py-2 bg-[#f2f3f5] text-[#86868b] text-[10px] font-bold uppercase tracking-widest rounded-full">
               Lon Suite Share
             </div>
           </div>
@@ -1447,7 +1447,7 @@ const App: React.FC = () => {
                      )}
                      {block.type === 'image' && block.content && (
                        <div className="my-6">
-                         <img src={(block.content.split('|||')[0] || "###").split('###')[0]} className="w-full rounded-apple-lg border border-black/6 shadow-sm bg-[#f5f5f7] object-contain max-h-[60vh]" />
+                         <img src={(block.content.split('|||')[0] || "###").split('###')[0]} className="w-full rounded-apple-lg border border-black/6 shadow-sm bg-[#f2f3f5] object-contain max-h-[60vh]" />
                          {block.content.split('###')[1] && <p className="text-sm text-[#86868b] mt-3 italic text-center text-pretty">{block.content.split('###')[1]}</p>}
                        </div>
                      )}
@@ -1456,7 +1456,7 @@ const App: React.FC = () => {
                </div>
             ) : (
                <div className="flex flex-col gap-8 items-center max-w-2xl mx-auto">
-                 {sharedAsset.thumbnail && <img src={sharedAsset.thumbnail} className="max-h-[60vh] object-contain rounded-apple-lg border border-black/6 shadow-sm bg-[#f5f5f7] w-full" />}
+                 {sharedAsset.thumbnail && <img src={sharedAsset.thumbnail} className="max-h-[60vh] object-contain rounded-apple-lg border border-black/6 shadow-sm bg-[#f2f3f5] w-full" />}
                  <div className="w-full space-y-6">
                    {sharedAsset.tags && sharedAsset.tags.length > 0 && (
                      <div className="flex flex-wrap gap-2 justify-center">
@@ -1466,7 +1466,7 @@ const App: React.FC = () => {
                      </div>
                    )}
                    {sharedAsset.summary && (
-                     <div className="bg-[#f5f5f7] p-6 rounded-apple-xl">
+                     <div className="bg-[#f2f3f5] p-6 rounded-apple-xl">
                        <h3 className="text-[10px] font-bold uppercase tracking-widest text-[#86868b] mb-3">Resumo</h3>
                        <p className="text-base text-[#424245] leading-relaxed">{sharedAsset.summary}</p>
                      </div>
@@ -1487,7 +1487,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] text-[#1d1d1f] font-sans pb-20 md:pb-0 md:pl-[84px] transition-all duration-300">
+    <div className="min-h-screen bg-[#fafbfc] text-[#1d1d1f] font-sans pb-20 md:pb-0 md:pl-[80px] transition-all duration-300">
       <Sidebar currentView={view} setView={setView} trashCount={trashedAssets.length} />
 
       {/* Name Prompt Modal — first time only */}
@@ -1513,7 +1513,7 @@ const App: React.FC = () => {
                   setShowNamePrompt(false);
                 }
               }}
-              className="w-full px-4 py-3 bg-[#f5f5f7] border border-black/8 rounded-apple-lg text-[14px] outline-none focus:border-[#4285F4]/30 focus:shadow-[0_0_0_3px_rgba(0,113,227,0.08)] transition-all placeholder:text-[#aeaeb2] mb-4"
+              className="w-full px-4 py-3 bg-[#f2f3f5] border border-black/8 rounded-apple-lg text-[14px] outline-none focus:border-[#4285F4]/30 focus:shadow-[0_0_0_3px_rgba(0,113,227,0.08)] transition-all placeholder:text-[#aeaeb2] mb-4"
               autoFocus
             />
             <button
@@ -1555,7 +1555,7 @@ const App: React.FC = () => {
                 {isProcessing ? 'Processando...' : 'Indexar com IA'}
               </button>
               <button onClick={() => processUpload(false)} disabled={isProcessing}
-                className="w-full py-3.5 bg-[#f5f5f7] text-[#1d1d1f] rounded-apple-lg font-semibold text-[13px] hover:bg-black/8 transition-all disabled:opacity-50">
+                className="w-full py-3.5 bg-[#f2f3f5] text-[#1d1d1f] rounded-apple-lg font-semibold text-[13px] hover:bg-black/8 transition-all disabled:opacity-50">
                 Indexação Manual
               </button>
               <button onClick={() => setPendingUpload(null)} disabled={isProcessing}
@@ -1692,7 +1692,7 @@ const App: React.FC = () => {
                         )}
                         {block.type === 'image' && block.content && (
                           <div className="my-6">
-                            <img src={(block.content.split('|||')[0] || "###").split('###')[0]} className="w-full rounded-apple-lg border border-black/6 shadow-sm bg-[#f5f5f7] object-contain max-h-[60vh]" />
+                            <img src={(block.content.split('|||')[0] || "###").split('###')[0]} className="w-full rounded-apple-lg border border-black/6 shadow-sm bg-[#f2f3f5] object-contain max-h-[60vh]" />
                             {block.content.split('###')[1] && <p className="text-sm text-[#86868b] mt-3 italic text-center">{block.content.split('###')[1]}</p>}
                           </div>
                         )}
@@ -1740,13 +1740,13 @@ const App: React.FC = () => {
                   {/* Right action: clear (X) when active, AI brain when idle */}
                   {(homeSearchQuery || homeHasSearched) ? (
                     <button onClick={clearHomeSearch}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-[#f5f5f7] hover:bg-red-50 text-[#aeaeb2] hover:text-red-500 transition-all"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-[#f2f3f5] hover:bg-red-50 text-[#aeaeb2] hover:text-red-500 transition-all"
                       title="Limpar pesquisa (Esc)">
                       <X size={16} />
                     </button>
                   ) : (
                     <button onClick={handleHomeSearch}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-[#f5f5f7] hover:bg-[#1d1d1f] text-[#86868b] hover:text-white transition-all"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-[#f2f3f5] hover:bg-[#1d1d1f] text-[#86868b] hover:text-white transition-all"
                       title="Busca semântica com IA">
                       <Brain size={16} />
                     </button>
@@ -1760,24 +1760,24 @@ const App: React.FC = () => {
               {/* Shortcut icons — below search */}
               <div className="flex items-center gap-9 sm:gap-14 mb-10">
                 <button onClick={() => setView(ViewState.ATIVOS)} className="flex flex-col items-center gap-3 group">
-                  <div className="w-[56px] h-[56px] sm:w-[64px] sm:h-[64px] rounded-full bg-transparent border border-black/10 flex items-center justify-center group-hover:border-[#1d1d1f] group-hover:bg-[#1d1d1f] transition-all duration-300">
-                    <LayoutGrid size={22} strokeWidth={1} className="text-[#86868b] group-hover:text-white transition-colors" />
+                  <div className="w-[52px] h-[52px] sm:w-[60px] sm:h-[60px] rounded-[16px] bg-transparent border border-black/[0.06] flex items-center justify-center group-hover:border-[#1d1d1f] group-hover:bg-[#1d1d1f] transition-all duration-300">
+                    <LayoutGrid size={21} strokeWidth={1} className="text-[#8e8e93] group-hover:text-white transition-colors" />
                   </div>
-                  <span className="text-[10px] font-semibold text-[#86868b] group-hover:text-[#1d1d1f] transition-colors uppercase tracking-widest">Ativos</span>
+                  <span className="text-[10px] font-medium text-[#8e8e93] group-hover:text-[#1d1d1f] transition-colors uppercase tracking-widest">Ativos</span>
                 </button>
 
                 <button onClick={() => setView(ViewState.CASES)} className="flex flex-col items-center gap-3 group">
-                  <div className="w-[56px] h-[56px] sm:w-[64px] sm:h-[64px] rounded-full bg-transparent border border-black/10 flex items-center justify-center group-hover:border-[#1d1d1f] group-hover:bg-[#1d1d1f] transition-all duration-300">
-                    <Stethoscope size={22} strokeWidth={1} className="text-[#86868b] group-hover:text-white transition-colors" />
+                  <div className="w-[52px] h-[52px] sm:w-[60px] sm:h-[60px] rounded-[16px] bg-transparent border border-black/[0.06] flex items-center justify-center group-hover:border-[#1d1d1f] group-hover:bg-[#1d1d1f] transition-all duration-300">
+                    <Stethoscope size={21} strokeWidth={1} className="text-[#8e8e93] group-hover:text-white transition-colors" />
                   </div>
-                  <span className="text-[10px] font-semibold text-[#86868b] group-hover:text-[#1d1d1f] transition-colors uppercase tracking-widest">Cases</span>
+                  <span className="text-[10px] font-medium text-[#8e8e93] group-hover:text-[#1d1d1f] transition-colors uppercase tracking-widest">Cases</span>
                 </button>
-                
+
                 <button onClick={() => { setView(ViewState.ATIVOS); setShowUploadModal(true); }} className="flex flex-col items-center gap-3 group">
-                  <div className="w-[56px] h-[56px] sm:w-[64px] sm:h-[64px] rounded-full bg-transparent border border-black/10 flex items-center justify-center group-hover:border-[#1d1d1f] group-hover:bg-[#1d1d1f] transition-all duration-300">
-                    <Plus size={22} strokeWidth={1} className="text-[#86868b] group-hover:text-white transition-colors" />
+                  <div className="w-[52px] h-[52px] sm:w-[60px] sm:h-[60px] rounded-[16px] bg-transparent border border-black/[0.06] flex items-center justify-center group-hover:border-[#1d1d1f] group-hover:bg-[#1d1d1f] transition-all duration-300">
+                    <Plus size={21} strokeWidth={1} className="text-[#8e8e93] group-hover:text-white transition-colors" />
                   </div>
-                  <span className="text-[10px] font-semibold text-[#86868b] group-hover:text-[#1d1d1f] transition-colors uppercase tracking-widest">Uploads</span>
+                  <span className="text-[10px] font-medium text-[#8e8e93] group-hover:text-[#1d1d1f] transition-colors uppercase tracking-widest">Uploads</span>
                 </button>
               </div>
 
@@ -1824,7 +1824,7 @@ const App: React.FC = () => {
                               style={{ width: '100%', minHeight: '250px' }}
                             >
                               {/* Thumbnail */}
-                              <div className="w-full h-[140px] bg-[#f5f5f7] overflow-hidden flex items-center justify-center">
+                              <div className="w-full h-[140px] bg-[#f2f3f5] overflow-hidden flex items-center justify-center">
                                 {thumbnail ? (
                                   <img src={thumbnail} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="" />
                                 ) : (
@@ -2046,9 +2046,9 @@ const App: React.FC = () => {
                 </div>
               </header>
 
-              {/* Cases List — Gmail-style rows */}
+              {/* Cases List — Clean minimal rows */}
               {filteredCases.length > 0 ? (
-                <div className="bg-white rounded-apple-xl border border-black/6 shadow-apple overflow-hidden">
+                <div>
                   {filteredCases.map((caseItem, idx) => {
                     const thumbnail = getCaseThumbnail(caseItem);
                     const status = statusConfig[caseItem.caseStatus || 'em_andamento'] || statusConfig.em_andamento;
@@ -2056,59 +2056,59 @@ const App: React.FC = () => {
                     return (
                       <div key={caseItem.id}
                         onClick={() => { setEditingCase(caseItem); setView(ViewState.CASES); }}
-                        className={`group flex items-center gap-4 px-5 py-3.5 hover:bg-[#f5f5f7] transition-all cursor-pointer ${idx < filteredCases.length - 1 ? 'border-b border-black/5' : ''}`}
+                        className={`group flex items-center gap-4 px-3 py-3.5 hover:bg-white/70 rounded-[10px] transition-all cursor-pointer ${idx < filteredCases.length - 1 ? 'border-b border-black/[0.04]' : ''}`}
                       >
                         {/* Thumbnail */}
-                        <div className="w-11 h-11 rounded-apple bg-[#f5f5f7] overflow-hidden shrink-0 border border-black/6 flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-[10px] bg-[#f2f3f5] overflow-hidden shrink-0 flex items-center justify-center">
                           {thumbnail ? (
                             <img src={thumbnail} className="w-full h-full object-cover" alt="" />
                           ) : (
-                            <Stethoscope size={16} className="text-[#aeaeb2]" />
+                            <Stethoscope size={15} className="text-[#c7c7cc]" />
                           )}
                         </div>
 
                         {/* Title + Preview */}
                         <div className="flex-1 min-w-0">
-                          <p className={`text-[13px] font-semibold truncate transition-colors ${caseItem.title ? 'text-[#1d1d1f] group-hover:text-[#4285F4]' : 'text-[#86868b] italic'}`}>
+                          <p className={`text-[13px] font-medium truncate transition-colors ${caseItem.title ? 'text-[#1d1d1f] group-hover:text-[#4285F4]' : 'text-[#86868b] italic'}`}>
                             {caseItem.title || 'Novo Caso Clínico'}
                           </p>
-                          <p className="text-[11px] text-[#aeaeb2] truncate mt-0.5">{getCasePreview(caseItem)}</p>
+                          <p className="text-[11px] text-[#c7c7cc] truncate mt-0.5">{getCasePreview(caseItem)}</p>
                         </div>
 
                         {/* Tags */}
                         <div className="hidden sm:flex items-center gap-1.5 shrink-0">
                           {caseItem.tags?.slice(0, 2).map((tag, i) => (
-                            <span key={i} className="px-2 py-0.5 rounded-md bg-[#f5f5f7] text-[#86868b] text-[9px] font-medium">{tag}</span>
+                            <span key={i} className="px-2 py-0.5 rounded-[6px] bg-[#f2f3f5] text-[#8e8e93] text-[9px] font-medium">{tag}</span>
                           ))}
                         </div>
 
                         {/* Status */}
-                        <div className={`hidden md:flex items-center gap-1.5 shrink-0 px-2 py-1 rounded-full ${status.bg}`}>
+                        <div className="hidden md:flex items-center gap-1.5 shrink-0">
                           <div className={`w-1.5 h-1.5 rounded-full ${status.dot}`} />
-                          <span className={`text-[9px] font-bold uppercase tracking-wider ${status.color}`}>{status.label}</span>
+                          <span className={`text-[9px] font-semibold uppercase tracking-wider ${status.color}`}>{status.label}</span>
                         </div>
 
                         {/* Date */}
-                        <span className="text-[10px] text-[#aeaeb2] font-medium shrink-0 w-16 text-right">
+                        <span className="text-[10px] text-[#c7c7cc] font-medium shrink-0 w-16 text-right">
                           {new Date(caseItem.updatedAt || caseItem.createdAt || caseItem.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
                         </span>
 
                         {/* Actions on hover */}
-                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                        <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                           <button onClick={e => { e.stopPropagation();
                             const shareUrl = `${window.location.origin}?share=${caseItem.id}&type=case`;
                             navigator.clipboard.writeText(shareUrl);
                             alert('Link do caso copiado!');
-                          }} className="p-1.5 text-[#86868b] hover:text-[#4285F4] transition-colors rounded-lg hover:bg-black/5">
+                          }} className="p-1.5 text-[#c7c7cc] hover:text-[#4285F4] transition-colors rounded-[8px] hover:bg-black/[0.03]">
                             <Share2 size={13} />
                           </button>
                           <button onClick={e => { e.stopPropagation(); handleDeleteAsset(caseItem.id); }}
-                            className="p-1.5 text-[#86868b] hover:text-red-500 transition-colors rounded-lg hover:bg-black/5">
+                            className="p-1.5 text-[#c7c7cc] hover:text-red-500 transition-colors rounded-[8px] hover:bg-black/[0.03]">
                             <Trash2 size={13} />
                           </button>
                         </div>
 
-                        <ChevronRight size={14} className="text-[#aeaeb2] group-hover:text-[#4285F4] group-hover:translate-x-0.5 transition-all shrink-0" />
+                        <ChevronRight size={13} className="text-[#d1d1d6] group-hover:text-[#4285F4] group-hover:translate-x-0.5 transition-all shrink-0" />
                       </div>
                     );
                   })}
@@ -2159,7 +2159,7 @@ const App: React.FC = () => {
                   <div key={asset.id}
                     className={`flex items-center gap-4 px-5 py-4 ${idx < trashedAssets.length - 1 ? 'border-b border-black/5' : ''
                       }`}>
-                    <div className="w-11 h-11 rounded-apple bg-[#f5f5f7] overflow-hidden shrink-0 border border-black/6 opacity-50">
+                    <div className="w-11 h-11 rounded-apple bg-[#f2f3f5] overflow-hidden shrink-0 border border-black/6 opacity-50">
                       {asset.thumbnail
                         ? <img src={asset.thumbnail} alt="" className="w-full h-full object-cover" />
                         : <div className="w-full h-full flex items-center justify-center text-[#86868b]">{asset.type === 'case' ? <Briefcase size={18} /> : <ImageIcon size={18} />}</div>
@@ -2173,7 +2173,7 @@ const App: React.FC = () => {
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       <button onClick={e => { e.stopPropagation(); handleRestoreAsset(asset.id); }}
-                        className="px-3.5 py-2 bg-[#f5f5f7] text-[#1d1d1f] rounded-apple text-[11px] font-semibold hover:bg-black/8 transition-all flex items-center gap-1.5">
+                        className="px-3.5 py-2 bg-[#f2f3f5] text-[#1d1d1f] rounded-apple text-[11px] font-semibold hover:bg-black/8 transition-all flex items-center gap-1.5">
                         <RotateCcw size={12} /> Restaurar
                       </button>
                       <button onClick={e => { e.stopPropagation(); openConfirmDialog({ title: 'Excluir Permanentemente?', message: 'Este item será permanentemente removido e não poderá ser recuperado.', onConfirm: () => handlePermanentDelete(asset.id) }); }}
@@ -2240,7 +2240,7 @@ const App: React.FC = () => {
               <div className="flex-1 min-w-0">
                 <p className="text-[14px] font-semibold text-[#1d1d1f] mb-0.5">{label}</p>
                 <p className="text-[11px] text-[#86868b]">{sublabel}</p>
-                <div className="mt-2.5 h-1 bg-[#f5f5f7] rounded-full overflow-hidden">
+                <div className="mt-2.5 h-1 bg-[#f2f3f5] rounded-full overflow-hidden">
                   <div className="h-full rounded-full transition-all duration-700"
                     style={{ width: `${pct}%`, backgroundColor: color }} />
                 </div>
@@ -2333,7 +2333,7 @@ const App: React.FC = () => {
                       sublabel={`${Math.max(0, aiLimit - aiCalls)} restantes · limite ${aiLimit}/mês`}
                     />
                     {aiPct >= 90 && (
-                      <p className="text-[10px] text-[#aeaeb2] bg-[#f5f5f7] rounded-apple px-3 py-2">
+                      <p className="text-[10px] text-[#aeaeb2] bg-[#f2f3f5] rounded-apple px-3 py-2">
                         Limite de IA próximo. Contate o suporte para um plano sem limitações.
                       </p>
                     )}
@@ -2457,7 +2457,7 @@ const App: React.FC = () => {
             <p className="text-[13px] text-[#86868b] mb-6 leading-relaxed">{confirmDialog.message}</p>
             <div className="flex gap-2.5">
               <button onClick={() => setConfirmDialog(null)}
-                className="flex-1 px-5 py-2.5 bg-[#f5f5f7] text-[#1d1d1f] rounded-apple-lg font-semibold text-[13px] hover:bg-black/8 transition-all">
+                className="flex-1 px-5 py-2.5 bg-[#f2f3f5] text-[#1d1d1f] rounded-apple-lg font-semibold text-[13px] hover:bg-black/8 transition-all">
                 Cancelar
               </button>
               <button onClick={() => { confirmDialog.onConfirm(); setConfirmDialog(null); }}

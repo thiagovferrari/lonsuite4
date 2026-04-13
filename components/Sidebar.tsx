@@ -26,21 +26,21 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, trashCount = 0 
         <button
           onClick={() => setView(view)}
           aria-label={label}
-          className={`relative flex items-center justify-center w-[42px] h-[42px] rounded-full transition-all duration-300 ${isActive
-            ? 'bg-white text-[#1d1d1f] shadow-sm border border-black/[0.04]'
-            : 'text-[#86868b] hover:text-[#1d1d1f] hover:bg-white hover:shadow-sm border border-transparent'
+          className={`relative flex items-center justify-center w-[40px] h-[40px] rounded-[12px] transition-all duration-300 ${isActive
+            ? 'bg-white text-[#1d1d1f] shadow-apple border border-black/[0.04]'
+            : 'text-[#86868b] hover:text-[#1d1d1f] hover:bg-white/80 border border-transparent'
             }`}
         >
           <Icon size={20} strokeWidth={isActive ? 1.5 : 1} />
           {badge != null && badge > 0 && (
-            <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] bg-[#1d1d1f] text-white text-[8px] font-bold rounded-full flex items-center justify-center px-1 shadow-sm leading-none">
+            <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] bg-[#1d1d1f] text-white text-[8px] font-bold rounded-[6px] flex items-center justify-center px-1 shadow-sm leading-none">
               {badge > 9 ? '9+' : badge}
             </span>
           )}
         </button>
 
         {/* Tooltip */}
-        <div className="absolute left-full ml-3 px-2.5 py-1.5 bg-[#1d1d1f] text-white text-[10px] font-medium tracking-wider uppercase rounded-lg opacity-0 group-hover:opacity-100 transition-all whitespace-nowrap pointer-events-none z-[400] shadow-apple-md translate-x-1 group-hover:translate-x-0">
+        <div className="absolute left-full ml-3 px-2.5 py-1.5 bg-[#1d1d1f] text-white text-[10px] font-medium tracking-wider uppercase rounded-[8px] opacity-0 group-hover:opacity-100 transition-all whitespace-nowrap pointer-events-none z-[400] shadow-apple-md translate-x-1 group-hover:translate-x-0">
           {label}
           <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-[#1d1d1f]" />
         </div>
@@ -51,7 +51,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, trashCount = 0 
   return (
     <>
       {/* Desktop Sidebar */}
-      <div className="hidden md:flex fixed left-6 top-1/2 -translate-y-1/2 w-[60px] flex-col items-center glass rounded-full z-[200] shadow-apple-md py-6">
+      <div className="hidden md:flex fixed left-6 top-1/2 -translate-y-1/2 w-[56px] flex-col items-center glass rounded-[22px] z-[200] shadow-apple py-5">
         
         {/* Primary Nav */}
         <div className="flex flex-col items-center gap-5 flex-1">
