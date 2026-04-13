@@ -1153,13 +1153,13 @@ const App: React.FC = () => {
                 <button onClick={() => {
                   const nb = editingCase.blocks?.filter(b => b.id !== block.id);
                   syncCase({ ...editingCase, blocks: nb });
-                }} className="absolute top-2 right-2 md:top-2 md:-right-14 p-2 md:p-2.5 text-slate-200 hover:text-red-500 hover:bg-red-50 rounded-xl opacity-100 md:opacity-0 group-hover:opacity-100 transition-all z-10"><Trash2 size={16} /></button>
+                }} className="absolute top-2 right-2 md:top-2 md:-right-14 p-2 md:p-2.5 text-red-300 hover:text-red-500 bg-red-50/80 hover:bg-red-100 rounded-xl md:opacity-0 group-hover:opacity-100 transition-all z-10 shadow-sm"><Trash2 size={16} /></button>
               </div>
             ))}
           </div>
 
           {/* Floating toolbar */}
-          <div className="fixed bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 md:gap-4 bg-white px-4 md:px-6 py-3 md:py-3.5 rounded-apple-xl shadow-apple-lg border border-black/[0.04] z-[9999] max-w-[95vw]">
+          <div className="fixed bottom-[88px] md:bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 md:gap-4 bg-white px-4 md:px-6 py-3 md:py-3.5 rounded-apple-xl shadow-apple-lg border border-black/[0.04] z-[150] max-w-[95vw]">
             {/* Auto-save indicator */}
             <div className="hidden sm:flex w-32 items-center justify-center">
               {saveStatus === 'saving' && (
@@ -1488,7 +1488,7 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#fafbfc] text-[#1d1d1f] font-sans pb-20 md:pb-0 md:pl-[80px] transition-all duration-300">
-      <Sidebar currentView={view} setView={setView} trashCount={trashedAssets.length} />
+      <Sidebar currentView={view} setView={(v) => { setSelectedAsset(null); setEditingCase(null); setNewAssetId(null); setView(v); }} trashCount={trashedAssets.length} />
 
       {/* Name Prompt Modal — first time only */}
       {showNamePrompt && (
@@ -1953,7 +1953,7 @@ const App: React.FC = () => {
               {/* Grid */}
               <div className="grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-7 xl:grid-cols-9 2xl:grid-cols-11">
                 {filteredAssets.map(asset => (
-                  <AssetCard key={asset.id} asset={asset} onClick={handleOpenAsset} />
+                  <AssetCard key={asset.id} asset={asset} onClick={handleOpenAsset} ownerName={ownerName} />
                 ))}
               </div>
 
@@ -2103,8 +2103,8 @@ const App: React.FC = () => {
                             <Share2 size={13} />
                           </button>
                           <button onClick={e => { e.stopPropagation(); handleDeleteAsset(caseItem.id); }}
-                            className="p-1.5 text-[#c7c7cc] hover:text-red-500 transition-colors rounded-[8px] hover:bg-black/[0.03]">
-                            <Trash2 size={13} />
+                            className="p-1.5 text-red-300 hover:text-red-500 transition-colors rounded-[8px] hover:bg-red-50 bg-red-50/50">
+                            <Trash2 size={14} />
                           </button>
                         </div>
 
@@ -2256,20 +2256,27 @@ const App: React.FC = () => {
                 <p className="text-[11px] font-medium text-[#86868b] mb-8 tracking-wider">Lon Suite 3.0.0 · Longecta</p>
 
                 {/* Identity */}
-                {ownerName && (
-                  <div className="mb-3">
+                <div className="mb-3">
                     <SectionLabel>Identificação</SectionLabel>
                     <div className="bg-white rounded-apple-xl p-5 border border-black/6 shadow-apple flex items-center gap-4">
                       <div className="w-10 h-10 rounded-full bg-[#1d1d1f] flex items-center justify-center text-white text-[14px] font-bold shrink-0">
-                        {ownerName.charAt(0).toUpperCase()}
+                        {(ownerName || '?').charAt(0).toUpperCase()}
                       </div>
-                      <div className="min-w-0">
-                        <p className="text-[14px] font-semibold text-[#1d1d1f] truncate">{ownerName}</p>
-                        <p className="text-[10px] text-[#aeaeb2] mt-0.5 font-mono">ID {ownerId.slice(0, 12)}…</p>
+                      <div className="flex-1 min-w-0">
+                        <input
+                          type="text"
+                          value={ownerName}
+                          onChange={e => {
+                            setOwnerName(e.target.value);
+                            localStorage.setItem('lon_suite_owner_name', e.target.value);
+                          }}
+                          placeholder="Seu nome"
+                          className="text-[14px] font-semibold text-[#1d1d1f] bg-transparent hover:bg-black/[0.03] focus:bg-white border border-transparent hover:border-black/10 focus:border-[#4285F4]/40 focus:outline-none w-full px-2 py-1 rounded-lg transition-all"
+                        />
+                        <p className="text-[10px] text-[#aeaeb2] mt-0.5 font-mono px-2">ID {ownerId.slice(0, 12)}…</p>
                       </div>
                     </div>
                   </div>
-                )}
 
                 {/* Acervo stats */}
                 <div className="mb-3">

@@ -486,18 +486,31 @@ const AssetModal: React.FC<AssetModalProps> = ({
     const isContainerPdf = asset.type === 'pdf' || (typeof asset.thumbnail === 'string' && asset.thumbnail.startsWith('data:application/pdf')) || (typeof asset.title === 'string' && asset.title.toLowerCase().endsWith('.pdf'));
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center sm:p-2 md:p-6 animate-fade-in">
+        <div className="fixed inset-0 z-[300] flex items-center justify-center md:p-6 animate-fade-in">
             <div className="absolute inset-0 bg-black/30 backdrop-blur-md" onClick={onClose} />
             <div className={`relative w-full ${isContainerPdf ? 'md:max-w-7xl md:h-[96vh]' : 'md:max-w-5xl md:h-[88vh]'} h-[100dvh] bg-white md:rounded-apple-xl shadow-apple-xl flex flex-col md:flex-row ring-1 ring-black/[0.04] animate-scale-in overflow-hidden`}>
 
-                {/* Preview (left) */}
-                <div className="flex-1 relative flex items-center justify-center h-[50vh] md:h-full order-last md:order-first bg-[#f2f3f5]">
-                    {renderPreview()}
-                    <div className="md:hidden absolute top-4 left-4 z-10 pointer-events-none">
-                        <button onClick={onClose} className="pointer-events-auto p-2 bg-white/25 backdrop-blur rounded-full text-white active:scale-95">
-                            <X size={18} />
+                {/* Mobile top bar — clear close affordance */}
+                <div className="md:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-black/6 shrink-0 z-30">
+                    <button onClick={onClose} className="flex items-center gap-1.5 text-[#4285F4] active:opacity-60 transition-opacity">
+                        <ChevronLeft size={20} strokeWidth={2.5} />
+                        <span className="text-[14px] font-semibold">Voltar</span>
+                    </button>
+                    <div className="flex items-center gap-2">
+                        <button onClick={handleDownload} className="p-2 hover:bg-black/5 rounded-full text-[#86868b] transition-colors">
+                            <Download size={18} />
                         </button>
+                        {!isTrashMode && (
+                            <button onClick={handleDeleteClick} className="p-2 hover:bg-red-50 rounded-full text-red-400 hover:text-red-500 transition-colors">
+                                <Trash2 size={18} />
+                            </button>
+                        )}
                     </div>
+                </div>
+
+                {/* Preview (left) */}
+                <div className="flex-1 relative flex items-center justify-center h-[40vh] md:h-full order-last md:order-first bg-[#f2f3f5]">
+                    {renderPreview()}
                 </div>
 
                 {/* Metadata panel (right) */}
@@ -621,8 +634,8 @@ const AssetModal: React.FC<AssetModalProps> = ({
                                             </div>
                                             {!isTrashMode && (
                                                 <button onClick={e => handleDeleteAttachment(att.id, e)}
-                                                    className="p-1 hover:bg-red-50 text-[#86868b] hover:text-red-500 rounded-lg transition-colors opacity-0 group-hover/att:opacity-100 shrink-0">
-                                                    <Trash2 size={11} />
+                                                    className="p-1.5 bg-red-50 hover:bg-red-100 text-red-400 hover:text-red-600 rounded-lg transition-colors shrink-0">
+                                                    <Trash2 size={12} />
                                                 </button>
                                             )}
                                         </div>
@@ -717,7 +730,7 @@ const AssetModal: React.FC<AssetModalProps> = ({
                             </button>
                         ) : (
                             <button onClick={handleDeleteClick}
-                                className={`w-full py-2.5 rounded-apple font-semibold text-[11px] transition-all flex items-center justify-center gap-1.5 ${deleteConfirm ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-[#f2f3f5] text-[#86868b] border border-black/6 hover:border-red-200 hover:text-red-500'}`}>
+                                className={`w-full py-2.5 rounded-apple font-semibold text-[11px] transition-all flex items-center justify-center gap-1.5 ${deleteConfirm ? 'bg-red-500 text-white shadow-md' : 'bg-red-50 text-red-500 border border-red-200/60 hover:bg-red-100 hover:border-red-300'}`}>
                                 {deleteConfirm ? <><AlertTriangle size={13} /> Clique para confirmar</> : <><Trash2 size={13} /> Remover do Vault</>}
                             </button>
                         )}

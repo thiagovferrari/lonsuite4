@@ -7,9 +7,10 @@ import { getAttachmentData } from '../services/storageService';
 interface AssetCardProps {
   asset: Asset;
   onClick: (asset: Asset) => void;
+  ownerName?: string;
 }
 
-const AssetCard: React.FC<AssetCardProps> = ({ asset, onClick }) => {
+const AssetCard: React.FC<AssetCardProps> = ({ asset, onClick, ownerName }) => {
   const [groupThumb, setGroupThumb] = useState<string | null>(null);
 
   const fileInfo =
@@ -85,11 +86,13 @@ const AssetCard: React.FC<AssetCardProps> = ({ asset, onClick }) => {
             </div>
           )}
 
-          {/* Evidence Level Badge */}
-          <div className={`absolute top-2 right-2 flex items-center gap-1 ${evidence.bg} backdrop-blur-sm px-1.5 py-0.5 rounded-md shadow-sm border border-black/5`}>
-            <div className={`w-1.5 h-1.5 rounded-full ${evidence.color}`} />
-            <span className={`text-[8px] font-bold uppercase tracking-wider ${evidence.text}`}>{evidence.label}</span>
-          </div>
+          {/* Owner name badge */}
+          {ownerName && (
+            <div className="absolute top-2 right-2 flex items-center gap-1 bg-white/80 backdrop-blur-sm px-1.5 py-0.5 rounded-md shadow-sm border border-black/5">
+              <div className="w-3 h-3 rounded-full bg-[#1d1d1f] flex items-center justify-center text-white text-[6px] font-bold">{ownerName.charAt(0).toUpperCase()}</div>
+              <span className="text-[8px] font-semibold text-[#424245] truncate max-w-[60px]">{ownerName.split(' ')[0]}</span>
+            </div>
+          )}
 
           {/* Group badge */}
           {groupCount > 0 && (
@@ -133,9 +136,11 @@ const AssetCard: React.FC<AssetCardProps> = ({ asset, onClick }) => {
                 {fileInfo.label}
               </span>
             )}
-            <span className="text-[8px] text-[#aeaeb2] font-medium shrink-0">
-              {formatDate(asset.updatedAt || asset.createdAt || asset.date)}
-            </span>
+            {ownerName && (
+              <span className="text-[8px] text-[#aeaeb2] font-medium shrink-0 truncate max-w-[60px]">
+                {ownerName}
+              </span>
+            )}
           </div>
         </div>
       </div>
