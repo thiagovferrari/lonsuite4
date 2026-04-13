@@ -1951,7 +1951,7 @@ const App: React.FC = () => {
               </header>
 
               {/* Grid */}
-              <div className="grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-7 xl:grid-cols-9 2xl:grid-cols-11">
+              <div className="grid gap-2 sm:gap-4 grid-cols-3 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-7 xl:grid-cols-9 2xl:grid-cols-11">
                 {filteredAssets.map(asset => (
                   <AssetCard key={asset.id} asset={asset} onClick={handleOpenAsset} ownerName={ownerName} />
                 ))}

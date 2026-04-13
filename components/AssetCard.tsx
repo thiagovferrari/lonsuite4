@@ -80,24 +80,24 @@ const AssetCard: React.FC<AssetCardProps> = ({ asset, onClick, ownerName }) => {
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
             />
           ) : (
-            <div className={`w-full h-full bg-gradient-to-br ${fileInfo.gradient} flex flex-col items-center justify-center gap-1.5`}>
-              <div className="text-3xl filter drop-shadow">{fileInfo.icon}</div>
-              <div className="text-[9px] font-semibold text-white/80 uppercase tracking-widest">{fileInfo.label}</div>
+            <div className={`w-full h-full bg-gradient-to-br ${fileInfo.gradient} flex flex-col items-center justify-center gap-1`}>
+              <div className="text-xl sm:text-3xl filter drop-shadow">{fileInfo.icon}</div>
+              <div className="text-[7px] sm:text-[9px] font-semibold text-white/80 uppercase tracking-widest">{fileInfo.label}</div>
             </div>
           )}
 
           {/* Owner name badge */}
           {ownerName && (
-            <div className="absolute top-2 right-2 flex items-center gap-1 bg-white/80 backdrop-blur-sm px-1.5 py-0.5 rounded-md shadow-sm border border-black/5">
-              <div className="w-3 h-3 rounded-full bg-[#1d1d1f] flex items-center justify-center text-white text-[6px] font-bold">{ownerName.charAt(0).toUpperCase()}</div>
-              <span className="text-[8px] font-semibold text-[#424245] truncate max-w-[60px]">{ownerName.split(' ')[0]}</span>
+            <div className="absolute top-1 right-1 sm:top-2 sm:right-2 flex items-center gap-0.5 sm:gap-1 bg-white/80 backdrop-blur-sm px-1 sm:px-1.5 py-0.5 rounded-md shadow-sm border border-black/5">
+              <div className="w-2.5 sm:w-3 h-2.5 sm:h-3 rounded-full bg-[#1d1d1f] flex items-center justify-center text-white text-[5px] sm:text-[6px] font-bold">{ownerName.charAt(0).toUpperCase()}</div>
+              <span className="text-[6px] sm:text-[8px] font-semibold text-[#424245] truncate max-w-[40px] sm:max-w-[60px] hidden sm:inline">{ownerName.split(' ')[0]}</span>
             </div>
           )}
 
           {/* Group badge */}
           {groupCount > 0 && (
-            <div className="absolute top-2 left-2 flex items-center gap-1 bg-black/60 backdrop-blur-sm text-white px-1.5 py-0.5 rounded-md text-[9px] font-semibold shadow-sm">
-              <Briefcase size={8} />
+            <div className="absolute top-1 left-1 sm:top-2 sm:left-2 flex items-center gap-0.5 sm:gap-1 bg-black/60 backdrop-blur-sm text-white px-1 sm:px-1.5 py-0.5 rounded-md text-[7px] sm:text-[9px] font-semibold shadow-sm">
+              <Briefcase size={7} className="sm:w-[8px] sm:h-[8px]" />
               <span>{groupCount}</span>
             </div>
           )}
@@ -115,29 +115,29 @@ const AssetCard: React.FC<AssetCardProps> = ({ asset, onClick, ownerName }) => {
         </div>
 
         {/* Info */}
-        <div className="px-2.5 py-2.5 flex flex-col gap-1">
-          <h3 className="text-[10.5px] font-medium text-[#1d1d1f] line-clamp-2 leading-snug group-hover:text-[#4285F4] transition-colors">
+        <div className="px-1.5 sm:px-2.5 py-1.5 sm:py-2.5 flex flex-col gap-0.5 sm:gap-1">
+          <h3 className="text-[9px] sm:text-[10.5px] font-medium text-[#1d1d1f] leading-tight sm:leading-snug group-hover:text-[#4285F4] transition-colors break-words" style={{ display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
             {asset.title || '—'}
           </h3>
-          <div className="flex items-center justify-between gap-1">
+          <div className="flex items-center justify-between gap-0.5 sm:gap-1">
             {displayTags.map((tag, idx) => (
               <span
                 key={`${tag}-${idx}`}
-                className="inline-block self-start px-1.5 py-0.5 rounded-md bg-[#f2f3f5] text-[#86868b] text-[9px] font-medium truncate max-w-[70%]"
+                className="inline-block self-start px-1 sm:px-1.5 py-0.5 rounded-md bg-[#f2f3f5] text-[#86868b] text-[7px] sm:text-[9px] font-medium truncate max-w-[70%]"
               >
                 {tag}
               </span>
             ))}
             {displayTags.length === 0 && (
               <span
-                className="inline-block self-start px-1.5 py-0.5 rounded-md text-[9px] font-medium"
+                className="inline-block self-start px-1 sm:px-1.5 py-0.5 rounded-md text-[7px] sm:text-[9px] font-medium"
                 style={{ backgroundColor: `${fileInfo.color}14`, color: fileInfo.color }}
               >
                 {fileInfo.label}
               </span>
             )}
             {ownerName && (
-              <span className="text-[8px] text-[#aeaeb2] font-medium shrink-0 truncate max-w-[60px]">
+              <span className="text-[6px] sm:text-[8px] text-[#aeaeb2] font-medium shrink-0 truncate max-w-[45px] sm:max-w-[60px]">
                 {ownerName}
               </span>
             )}
