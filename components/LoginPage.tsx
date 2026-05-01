@@ -106,10 +106,6 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
           </p>
         </div>
 
-        {/* Demo hint */}
-        <p className="text-center text-[10px] text-[#c7c7cc] mt-5 font-mono">
-          demo@longecta.com · lon2025
-        </p>
       </div>
     </div>
   );
