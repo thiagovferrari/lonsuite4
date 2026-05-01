@@ -1,5 +1,5 @@
--- Lon Suite 4.0 Supabase schema
--- Compatible with the current frontend, which still uses a local/mock auth user.
+-- Lon Suite 4.0 Supabase schema for the existing crm project.
+-- This migration preserves existing crm tables and adds the fields required by the app.
 
 create extension if not exists pgcrypto;
 
@@ -14,44 +14,25 @@ create table if not exists public.profiles (
   updated_at timestamptz not null default now()
 );
 
-create table if not exists public.assets (
-  id text primary key,
-  owner_id text not null references public.profiles(id) on delete cascade,
-  title text not null,
-  type text not null check (type in ('image', 'pdf', 'video', 'document')),
-  tags text[] not null default '{}',
-  content text,
-  thumbnail text,
-  description text,
-  attachments jsonb not null default '[]'::jsonb,
-  summary text,
-  scientific_context text,
-  evidence_level text check (evidence_level is null or evidence_level in ('Alto', 'Moderado', 'Baixo')),
-  publication_year text,
-  key_findings text,
-  is_deleted boolean not null default false,
-  deleted_at timestamptz,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
+alter table public.assets alter column id type text using id::text;
+alter table public.cases alter column id type text using id::text;
 
-create table if not exists public.cases (
-  id text primary key,
-  owner_id text not null references public.profiles(id) on delete cascade,
-  owner_name text,
-  title text not null,
-  description text,
-  blocks jsonb not null default '[]'::jsonb,
-  tags text[] not null default '{}',
-  status text not null default 'em_andamento' check (status in ('em_andamento', 'completo', 'arquivado')),
-  visibility text not null default 'private' check (visibility in ('private', 'shared', 'public')),
-  shared_with text[] not null default '{}',
-  access_count integer not null default 0,
-  is_deleted boolean not null default false,
-  deleted_at timestamptz,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
+alter table public.assets add column if not exists owner_id text;
+alter table public.assets add column if not exists thumbnail text;
+alter table public.assets add column if not exists description text;
+alter table public.assets add column if not exists attachments jsonb not null default '[]'::jsonb;
+alter table public.assets add column if not exists is_deleted boolean not null default false;
+alter table public.assets add column if not exists updated_at timestamptz not null default now();
+
+alter table public.cases add column if not exists owner_id text;
+alter table public.cases add column if not exists owner_name text;
+alter table public.cases add column if not exists blocks jsonb not null default '[]'::jsonb;
+alter table public.cases add column if not exists tags text[] not null default '{}';
+alter table public.cases add column if not exists visibility text not null default 'private';
+alter table public.cases add column if not exists shared_with text[] not null default '{}';
+alter table public.cases add column if not exists access_count integer not null default 0;
+alter table public.cases add column if not exists is_deleted boolean not null default false;
+alter table public.cases add column if not exists deleted_at timestamptz;
 
 create table if not exists public.ai_usage_events (
   id uuid primary key default gen_random_uuid(),
@@ -62,6 +43,26 @@ create table if not exists public.ai_usage_events (
   metadata jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now()
 );
+
+update public.assets
+set owner_id = coalesce(owner_id, 'user-demo-001'),
+    thumbnail = coalesce(thumbnail, thumbnail_url, file_url),
+    is_deleted = coalesce(is_deleted, deleted_at is not null);
+
+update public.cases
+set owner_id = coalesce(owner_id, 'user-demo-001'),
+    tags = coalesce(tags, '{}'),
+    status = coalesce(status, 'em_andamento');
+
+alter table public.assets alter column owner_id set not null;
+alter table public.cases alter column owner_id set not null;
+
+insert into public.profiles (id, name, email, role)
+values ('user-demo-001', 'Dr. Demo Longecta', 'demo@longecta.com', 'admin')
+on conflict (id) do update
+set name = excluded.name,
+    email = excluded.email,
+    role = excluded.role;
 
 create index if not exists assets_owner_created_idx on public.assets (owner_id, created_at desc);
 create index if not exists assets_tags_idx on public.assets using gin (tags);
@@ -93,13 +94,6 @@ drop trigger if exists cases_set_updated_at on public.cases;
 create trigger cases_set_updated_at
 before update on public.cases
 for each row execute function public.set_updated_at();
-
-insert into public.profiles (id, name, email, role)
-values ('user-demo-001', 'Dr. Demo Longecta', 'demo@longecta.com', 'admin')
-on conflict (id) do update
-set name = excluded.name,
-    email = excluded.email,
-    role = excluded.role;
 
 alter table public.profiles disable row level security;
 alter table public.assets disable row level security;
