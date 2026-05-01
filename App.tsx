@@ -1,12 +1,15 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { ViewState, Asset, EvidenceLevel, AssetType, CaseBlock, CaseStatus, CaseVisibility, Attachment } from './types';
+import { ViewState, Asset, EvidenceLevel, AssetType, CaseBlock, CaseStatus, Attachment } from './types';
 import Sidebar from './components/Sidebar';
 import AssetCard from './components/AssetCard';
 import AssetModal from './components/AssetModal';
+import LoginPage from './components/LoginPage';
 import { analyzeAsset, searchAssetsWithAI, searchCasesWithAI, generateCaseSemanticTags, getAIUsage } from './services/geminiService';
-import { saveAttachmentData, deleteAttachmentData, getAttachmentData } from './services/storageService';
+import { saveAttachmentData, deleteAttachmentData } from './services/storageService';
 import { supabase } from './services/supabase';
-import { Plus, Brain, FileText, Image as ImageIcon, Loader2, ChevronLeft, Trash2, Type as TypeIcon, Search, LayoutGrid, List, RotateCcw, Clock, ChevronRight, Briefcase, X, AlertCircle, ExternalLink, Share2, Stethoscope, Activity, ArrowRight, Layers, Download, Home, BookOpen, Heading2, Eye, EyeOff, Globe, Lock, Link2 } from 'lucide-react';
+import { getStoredUser, storeUser, signOut as authSignOut } from './services/authService';
+import type { AuthUser } from './services/authService';
+import { Plus, Brain, FileText, Image as ImageIcon, Type as TypeIcon, Loader2, ChevronLeft, Trash2, Search, LayoutGrid, RotateCcw, ChevronRight, Briefcase, X, AlertCircle, Stethoscope, Download, Home, Lock, Award, Zap, Copy, CheckCircle2, Maximize2, Minimize2, Sparkles, AlignJustify, LogOut, TrendingUp, Share2, BookOpen, Link2, ExternalLink, Heading2, Clock } from 'lucide-react';
 
 const App: React.FC = () => {
   // Core State
@@ -53,8 +56,24 @@ const App: React.FC = () => {
   // Upload Mode State
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [uploadMode, setUploadMode] = useState<'single' | 'multiple' | 'group'>('single');
-  // ID of most recently uploaded asset (triggers field-hint in modal)
   const [newAssetId, setNewAssetId] = useState<string | null>(null);
+
+  // Presentation Mode
+  const [presentationMode, setPresentationMode] = useState(false);
+  const [presentationBlockIdx, setPresentationBlockIdx] = useState(0);
+
+  // Ghostwriter
+  const [showGhostwriter, setShowGhostwriter] = useState(false);
+  const [ghostwriterResult, setGhostwriterResult] = useState<string | null>(null);
+  const [isGeneratingArticle, setIsGeneratingArticle] = useState(false);
+  const [copiedGhostwriter, setCopiedGhostwriter] = useState(false);
+
+  // Certification
+  const [caseCertHash, setCaseCertHash] = useState<string | null>(null);
+  const [copiedCert, setCopiedCert] = useState(false);
+
+  // Cases view mode
+  const [caseViewMode, setCaseViewMode] = useState<'list' | 'grid'>('list');
 
   // Confirmation Dialog State
   const [confirmDialog, setConfirmDialog] = useState<{
@@ -64,22 +83,18 @@ const App: React.FC = () => {
     onConfirm: () => void;
   } | null>(null);
 
-  // Owner Identity (persisted in localStorage)
-  const [ownerId] = useState<string>(() => {
-    let id = localStorage.getItem('lon_suite_owner_id');
-    if (!id) { id = crypto.randomUUID(); localStorage.setItem('lon_suite_owner_id', id); }
-    return id;
-  });
-  const [ownerName, setOwnerName] = useState<string>(() => localStorage.getItem('lon_suite_owner_name') || '');
-  const [showNamePrompt, setShowNamePrompt] = useState(!localStorage.getItem('lon_suite_owner_name'));
-  const [nameInput, setNameInput] = useState('');
+  // Auth
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => getStoredUser());
+
+  // Derived owner helpers
+  const ownerId  = currentUser?.id  ?? 'guest';
+  const ownerName = currentUser?.name ?? '';
 
   // Homepage Search State
   const [homeSearchQuery, setHomeSearchQuery] = useState('');
   const [homeSearchResults, setHomeSearchResults] = useState<Asset[]>([]);
   const [homeSearchLoading, setHomeSearchLoading] = useState(false);
   const [homeHasSearched, setHomeHasSearched] = useState(false);
-  const [viewingPublicCase, setViewingPublicCase] = useState<Asset | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const homeScrollRef = useRef<HTMLDivElement>(null);
@@ -92,75 +107,86 @@ const App: React.FC = () => {
     }
   };
 
-  // Initial Load from Supabase
+  const LOCAL_STORAGE_ASSETS_KEY = `lon_assets_${ownerId}`;
+
+  // Persist assets to localStorage whenever they change
   useEffect(() => {
+    if (!isRefreshing && ownerId !== 'guest') {
+      localStorage.setItem(LOCAL_STORAGE_ASSETS_KEY, JSON.stringify(assets));
+    }
+  }, [assets, isRefreshing, ownerId, LOCAL_STORAGE_ASSETS_KEY]);
+
+  // Initial Load: Supabase first, localStorage fallback
+  useEffect(() => {
+    if (!currentUser) return;
     const fetchInitialData = async () => {
       setIsRefreshing(true);
       try {
         const { data: assetsData, error: assetsError } = await supabase
           .from('assets')
           .select('*')
+          .eq('owner_id', ownerId)
           .order('created_at', { ascending: false });
 
         const { data: casesData, error: casesError } = await supabase
           .from('cases')
           .select('*')
+          .eq('owner_id', ownerId)
           .order('created_at', { ascending: false });
 
         if (assetsError || casesError) throw assetsError || casesError;
 
-        // Map database schema back to app types
         const mappedAssets: Asset[] = [
-          ...(assetsData || []).map(a => ({
-            ...a,
-            scientificContext: a.scientific_context,
-            createdAt: a.created_at
+          ...(assetsData || []).map((a: Record<string, unknown>) => ({
+            ...(a as unknown as Asset),
+            scientificContext: a.scientific_context as string | undefined,
+            createdAt: a.created_at as string | undefined,
           })),
-          ...(casesData || []).map(c => ({
-            ...c,
-            type: 'case',
-            caseStatus: c.status,
-            visibility: c.visibility || 'private',
-            ownerId: c.owner_id,
-            ownerName: c.owner_name,
-            accessCount: c.access_count || 0,
-            sharedWith: c.shared_with || [],
-            createdAt: c.created_at
-          }))
+          ...(casesData || []).map((c: Record<string, unknown>) => ({
+            ...(c as unknown as Asset),
+            type: 'case' as AssetType,
+            caseStatus: c.status as CaseStatus | undefined,
+            ownerId: c.owner_id as string | undefined,
+            ownerName: c.owner_name as string | undefined,
+            createdAt: c.created_at as string | undefined,
+          })),
         ];
 
         setAssets(mappedAssets);
-      } catch (err) {
-        console.error('Falha ao carregar dados do Supabase:', err);
-        setAssets([]);
+      } catch {
+        // Supabase not configured — load from localStorage
+        try {
+          const raw = localStorage.getItem(LOCAL_STORAGE_ASSETS_KEY);
+          if (raw) setAssets(JSON.parse(raw) as Asset[]);
+        } catch { /* start fresh */ }
       } finally {
         setIsRefreshing(false);
       }
     };
 
     fetchInitialData();
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser]);
 
-  // Sync assets to cloud on change
-  const syncToCloud = async (asset: Asset) => {
+  // Sync asset to Supabase (fire-and-forget; localStorage always updated via effect)
+  const syncToCloud = useCallback(async (asset: Asset) => {
     try {
+      const base = { owner_id: ownerId };
       if (asset.type === 'case') {
         await supabase.from('cases').upsert({
+          ...base,
           id: asset.id,
           title: asset.title,
           description: asset.description,
           blocks: asset.blocks,
           tags: asset.tags,
           status: asset.caseStatus,
-          visibility: asset.visibility || 'private',
-          owner_id: asset.ownerId,
-          owner_name: asset.ownerName,
-          access_count: asset.accessCount || 0,
-          shared_with: asset.sharedWith || [],
-          created_at: asset.createdAt
+          owner_name: ownerName,
+          created_at: asset.createdAt,
         });
       } else {
         await supabase.from('assets').upsert({
+          ...base,
           id: asset.id,
           title: asset.title,
           type: asset.type,
@@ -169,13 +195,13 @@ const App: React.FC = () => {
           summary: asset.summary,
           scientific_context: asset.scientificContext,
           tags: asset.tags,
-          created_at: asset.createdAt
+          created_at: asset.createdAt,
         });
       }
-    } catch (err) {
-      console.error('Erro de sincronização na nuvem:', err);
+    } catch {
+      // Supabase offline — localStorage effect already handles persistence
     }
-  };
+  }, [ownerId, ownerName]);
 
   // AI Search Debounce Effect
   useEffect(() => {
@@ -612,6 +638,80 @@ const App: React.FC = () => {
   };
 
 
+  // Certification hash (deterministic, no crypto dependency needed)
+  const generateCertHash = (c: Asset): string => {
+    const data = `${c.id}|${c.title}|${c.createdAt}|${c.ownerId || 'local'}`;
+    let h = 0x811c9dc5;
+    for (let i = 0; i < data.length; i++) {
+      h ^= data.charCodeAt(i);
+      h = Math.imul(h, 0x01000193);
+    }
+    return `LON-${(h >>> 0).toString(16).toUpperCase().padStart(8, '0')}`;
+  };
+
+  // Local ghostwriter (no API cost — structure-based)
+  const generateArticleDraft = () => {
+    setIsGeneratingArticle(true);
+    const cases = activeAssets.filter(a => a.type === 'case').slice(0, 15);
+    const n = cases.length;
+    const tags = [...new Set(cases.flatMap(c => c.tags || []).filter(t => t !== 'Caso'))].slice(0, 6).join(', ');
+    const completedCases = cases.filter(c => c.caseStatus === 'completo').length;
+
+    setTimeout(() => {
+      setGhostwriterResult(`# Rascunho de Artigo Científico
+*Gerado pelo Lon Suite 4.0 · ${new Date().toLocaleDateString('pt-BR')}*
+
+---
+
+## Título Sugerido
+${tags ? `Análise de ${tags}: Série de ${n} Casos` : `Série de Casos Clínicos — ${n} Pacientes`}
+
+---
+
+## 1. Introdução
+
+A documentação sistemática de casos clínicos representa uma das bases do conhecimento médico. Este artigo apresenta uma série de ${n} casos${tags ? ` nas áreas de ${tags}` : ''}, documentados e analisados com metodologia estruturada.
+
+A relevância desta série reside na necessidade de consolidar evidências clínicas de forma reprodutível, contribuindo para a formação de protocolos baseados em evidências.
+
+## 2. Metodologia
+
+**Desenho do estudo:** Série de casos retrospectiva.
+**Período:** ${new Date(Math.min(...cases.map(c => new Date(c.createdAt || c.date).getTime()))).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })} a ${new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}.
+**N amostral:** ${n} casos documentados (${completedCases} completos, ${n - completedCases} em andamento).
+**Critérios de inclusão:** Casos documentados com evidência fotográfica e narrativa clínica estruturada.
+**Critérios de exclusão:** Documentação incompleta ou dados insuficientes para análise.
+
+## 3. Resultados
+
+Foram analisados ${n} casos clínicos. Os principais achados incluem:
+
+${cases.slice(0, 5).map((c, i) => `- **Caso ${i + 1}:** ${c.title || 'Caso sem título'}${c.tags?.length ? ` (${c.tags.slice(0, 2).join(', ')})` : ''}`).join('\n')}
+${n > 5 ? `- *...e mais ${n - 5} casos documentados.*` : ''}
+
+As evidências coletadas sugerem padrões consistentes que merecem investigação prospectiva adicional.
+
+## 4. Discussão
+
+Os resultados desta série de casos alinham-se com a literatura vigente e apontam para [inserir discussão específica baseada nos seus casos].
+
+**Limitações:** Caráter retrospectivo, tamanho amostral limitado, ausência de grupo controle.
+
+## 5. Conclusão
+
+Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos prospectivos com maior casuística são necessários para validação das hipóteses levantadas.
+
+---
+
+## Referências
+[Inserir referências no formato ABNT/Vancouver conforme a revista alvo]
+
+---
+*⚠️ Este é um rascunho estrutural gerado pelo Lon Suite 4.0. Revise, complete e adapte conforme as diretrizes da revista alvo antes da submissão.*`);
+      setIsGeneratingArticle(false);
+    }, 1800);
+  };
+
   const addBlock = (type: 'title' | 'subtitle' | 'text' | 'reference' | 'image' | 'asset', assetId?: string) => {
     if (!editingCase) return;
     const newId = crypto.randomUUID();
@@ -774,17 +874,29 @@ const App: React.FC = () => {
           const [imgData, caption] = entry.split('###');
           
           let finalImgData = imgData;
-          // Se for URL puro, converte em base64 localmente
+          // Convert URL to base64 via canvas (CORS-safe)
           if (finalImgData && finalImgData.startsWith('http')) {
             try {
-              const res = await fetch(finalImgData);
-              const blob = await res.blob();
-              finalImgData = await new Promise<string>((resolve) => {
+              const res = await fetch(finalImgData, { mode: 'cors', cache: 'force-cache' });
+              if (res.ok) {
+                const blob = await res.blob();
+                finalImgData = await new Promise<string>((resolve, reject) => {
                   const reader = new FileReader();
                   reader.onloadend = () => resolve(reader.result as string);
+                  reader.onerror = reject;
                   reader.readAsDataURL(blob);
-              });
-            } catch { /* ignore fetch errors safely */ }
+                });
+              }
+            } catch {
+              // CORS blocked — render placeholder text instead of crashing
+              checkPage(12);
+              doc.setFont('helvetica', 'italic');
+              doc.setFontSize(9);
+              doc.setTextColor(174, 174, 178);
+              doc.text('[Imagem disponível apenas online]', margin, y);
+              y += 8;
+              finalImgData = '';
+            }
           }
 
           // Render image
@@ -855,12 +967,34 @@ const App: React.FC = () => {
               y += clampedH + 8;
             } catch { /* skip broken images */ }
           } else if (linkedAsset.thumbnail && linkedAsset.thumbnail.startsWith('http')) {
-            // URL-based thumbnail - show as link reference
-            doc.setFont('helvetica', 'italic');
-            doc.setFontSize(8);
-            doc.setTextColor(66, 133, 244);
-            doc.textWithLink('[Ver imagem do ativo]', margin, y, { url: linkedAsset.thumbnail });
-            y += 6;
+            // Try to embed URL-based thumbnail
+            try {
+              const res = await fetch(linkedAsset.thumbnail, { mode: 'cors', cache: 'force-cache' });
+              if (res.ok) {
+                const blob = await res.blob();
+                const b64 = await new Promise<string>((resolve, reject) => {
+                  const reader = new FileReader();
+                  reader.onloadend = () => resolve(reader.result as string);
+                  reader.onerror = reject;
+                  reader.readAsDataURL(blob);
+                });
+                if (b64.startsWith('data:image')) {
+                  const imgProps = doc.getImageProperties(b64);
+                  const w = Math.min(contentWidth, 140);
+                  const h = Math.min((imgProps.height / imgProps.width) * w, 180);
+                  checkPage(h + 12);
+                  const fmt = b64.match(/^data:image\/(.*?);/)?.[1]?.toUpperCase() ?? 'JPEG';
+                  doc.addImage(b64, fmt === 'SVG+XML' ? 'PNG' : fmt, margin + (contentWidth - w) / 2, y, w, h);
+                  y += h + 8;
+                }
+              }
+            } catch {
+              doc.setFont('helvetica', 'italic');
+              doc.setFontSize(8);
+              doc.setTextColor(174, 174, 178);
+              doc.text('[Imagem disponível apenas online]', margin, y);
+              y += 6;
+            }
           }
 
           // Summary/Description
@@ -1038,118 +1172,140 @@ const App: React.FC = () => {
                     </div>
                   );
                   return (
-                    <div className="bg-gradient-to-br from-blue-50 to-slate-50 rounded-[32px] p-8 border border-blue-100 shadow-sm hover:shadow-md transition-shadow">
-                      <div className="flex flex-col lg:flex-row gap-8">
-                        {/* Asset Preview */}
-                        <div className="w-full lg:w-64 shrink-0">
-                          <div className="aspect-square bg-white rounded-2xl overflow-hidden shadow-inner border border-slate-100 flex items-center justify-center cursor-pointer hover:scale-[1.02] transition-transform" onClick={() => setSelectedAsset(linkedAsset)}>
-                            {linkedAsset.thumbnail ? (
-                              linkedAsset.type === 'pdf' ? (
-                                <div className="w-full h-full bg-gradient-to-br from-red-50 to-red-100 flex flex-col items-center justify-center p-4">
-                                  <FileText size={48} className="text-red-400 mb-2" />
-                                  <span className="text-[10px] font-bold text-red-400/80 uppercase tracking-wider">PDF</span>
-                                </div>
-                              ) : (
-                                <img src={linkedAsset.thumbnail} className="w-full h-full object-cover" />
-                              )
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center text-slate-200">
-                                <FileText size={48} />
-                              </div>
-                            )}
-                          </div>
-                          <div className="mt-4 text-center">
-                            <h4 className="text-sm font-semibold text-slate-800 line-clamp-2">{linkedAsset.title}</h4>
-                            <p className="text-[10px] text-slate-400 uppercase tracking-wider mt-1">{linkedAsset.type}</p>
-                            <button
-                              onClick={() => handleOpenAsset(linkedAsset)}
-                              className="mt-3 inline-flex items-center gap-1.5 px-4 py-2 bg-blue-500 text-white rounded-full text-[10px] font-bold uppercase tracking-wider hover:bg-blue-600 transition-all"
-                            >
-                              <ExternalLink size={12} /> Ver Completo
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Comment Section */}
-                        <div className="flex-1 pt-2 flex flex-col">
-                          <span className="text-[9px] font-black text-blue-400 uppercase tracking-widest block mb-4">Comentário sobre o Ativo</span>
-                          <textarea
-                            ref={(el) => autoResizeTextarea(el)}
-                            value={block.content}
-                            onChange={e => {
-                              const nb = editingCase.blocks?.map(b => b.id === block.id ? { ...b, content: e.target.value } : b);
-                              syncCase({ ...editingCase, blocks: nb });
-                            }}
-                            onInput={(e: any) => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; }}
-                            placeholder="Descreva a relevância deste ativo para o caso clínico..."
-                            className="w-full bg-white/50 backdrop-blur border border-blue-100 rounded-xl p-4 text-lg text-justify text-slate-500 font-light leading-relaxed outline-none resize-none placeholder:text-slate-300 overflow-hidden focus:border-blue-200"
-                            rows={3}
-                          />
-                          {linkedAsset.summary && (
-                            <div className="mt-4 p-4 bg-white/70 rounded-xl border border-slate-100">
-                              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-2">Resumo do Ativo</span>
-                              <p className="text-sm text-slate-500 leading-relaxed">{linkedAsset.summary}</p>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })() : (
-                  <div className="bg-gradient-to-br from-slate-50 to-slate-100/50 rounded-2xl md:rounded-[32px] p-4 md:p-8 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="flex flex-col gap-4 md:gap-10 lg:flex-row">
-                      <div className="flex-1 min-h-0">
-                        <div className="aspect-video bg-white rounded-2xl overflow-hidden relative shadow-inner border border-slate-100 flex items-center justify-center">
-                          {(block.content.split('|||')[activeBlockSlideIndices[block.id] || 0] || "###").split('###')[0] ? (
-                            <img
-                              src={(block.content.split('|||')[activeBlockSlideIndices[block.id] || 0] || "###").split('###')[0]}
-                              className="max-w-full max-h-full object-contain p-4 cursor-pointer hover:scale-[1.02] transition-transform"
-                              onClick={() => setFullscreenImg((block.content.split('|||')[activeBlockSlideIndices[block.id] || 0] || "###").split('###')[0])}
-                            />
+                    <div className="bg-white rounded-2xl border border-black/[0.06] shadow-apple overflow-hidden">
+                      {/* Asset header row */}
+                      <div className="flex items-center gap-3 p-4 border-b border-black/[0.04]">
+                        <div
+                          className="w-14 h-14 rounded-[10px] overflow-hidden shrink-0 border border-black/[0.06] bg-[#f5f5f7] flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
+                          onClick={() => setSelectedAsset(linkedAsset)}
+                        >
+                          {linkedAsset.thumbnail && linkedAsset.type !== 'pdf' ? (
+                            <img src={linkedAsset.thumbnail} className="w-full h-full object-cover" alt="" />
                           ) : (
-                            <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer text-slate-300 hover:text-slate-500 transition-all group/upload">
-                              <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center mb-4 group-hover/upload:bg-slate-100 transition-colors">
-                                <ImageIcon size={28} strokeWidth={1} />
-                              </div>
-                              <span className="text-[10px] font-bold uppercase tracking-widest">Anexar Evidência</span>
-                              <input type="file" multiple accept="image/*" className="hidden" onChange={e => handleCaseImgUpload(block.id, e)} />
-                            </label>
+                            <FileText size={22} strokeWidth={1.2} className="text-[#aeaeb2]" />
                           )}
                         </div>
-                        {block.content && (
-                          <div className="flex gap-2 mt-4 overflow-x-auto no-scrollbar shrink-0 pb-2">
-                            {block.content.split('|||').filter(Boolean).map((ent, idx) => (
-                              <div key={idx} onClick={() => setActiveBlockSlideIndices(p => ({ ...p, [block.id]: idx }))} className={`w-14 h-14 rounded-xl overflow-hidden cursor-pointer border-2 transition-all flex items-center justify-center bg-white hover:scale-105 ${activeBlockSlideIndices[block.id] === idx || (!activeBlockSlideIndices[block.id] && idx === 0) ? 'border-slate-900 shadow-md' : 'border-transparent opacity-40 hover:opacity-70'}`}>
-                                <img src={ent.split('###')[0]} className="max-w-full max-h-full object-contain p-1" />
-                              </div>
-                            ))}
-                            <label className="w-14 h-14 rounded-xl bg-white flex items-center justify-center text-slate-300 cursor-pointer border-2 border-dashed border-slate-200 hover:border-slate-400 hover:text-slate-400 transition-all shrink-0 hover:scale-105"><Plus size={16} /><input type="file" multiple accept="image/*" className="hidden" onChange={e => handleCaseImgUpload(block.id, e)} /></label>
-                          </div>
-                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[13px] font-semibold text-[#1d1d1f] truncate">{linkedAsset.title}</p>
+                          <p className="text-[10px] text-[#aeaeb2] uppercase tracking-wider mt-0.5">{linkedAsset.type}</p>
+                          {linkedAsset.evidenceLevel && (
+                            <span className={`inline-block mt-1 text-[8px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-full ${linkedAsset.evidenceLevel === 'Alto' ? 'bg-emerald-50 text-emerald-600' : linkedAsset.evidenceLevel === 'Moderado' ? 'bg-amber-50 text-amber-600' : 'bg-[#f2f3f5] text-[#86868b]'}`}>
+                              Evidência {linkedAsset.evidenceLevel}
+                            </span>
+                          )}
+                        </div>
+                        <button onClick={() => handleOpenAsset(linkedAsset)}
+                          className="flex items-center gap-1 px-3 py-1.5 rounded-apple text-[10px] font-semibold text-[#4285F4] hover:bg-blue-50 transition-all shrink-0">
+                          <ExternalLink size={11} /> Ver
+                        </button>
                       </div>
-                      <div className="flex-1 pt-2 flex flex-col overflow-hidden">
-                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-4">Lastro Científico</span>
+                      {/* Comment area */}
+                      <div className="p-4">
                         <textarea
                           ref={(el) => autoResizeTextarea(el)}
-                          value={(block.content.split('|||')[activeBlockSlideIndices[block.id] || 0] || "###").split('###')[1] || ''}
+                          value={block.content}
                           onChange={e => {
-                            let entries = block.content.split('|||').filter(Boolean);
-                            if (entries.length === 0) entries = ['###'];
-                            const currentIndex = activeBlockSlideIndices[block.id] || 0;
-                            let [data] = (entries[currentIndex] || "###").split('###');
-                            entries[currentIndex] = `${data}###${e.target.value}`;
-                            const nb = editingCase.blocks?.map(b => b.id === block.id ? { ...b, content: entries.join('|||') } : b);
+                            const nb = editingCase.blocks?.map(b => b.id === block.id ? { ...b, content: e.target.value } : b);
                             syncCase({ ...editingCase, blocks: nb });
                           }}
                           onInput={(e: any) => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; }}
-                          placeholder="Descreva a evidência científica desta imagem..."
-                          className="w-full bg-transparent text-base md:text-lg text-justify text-slate-500 font-light leading-relaxed outline-none resize-none placeholder:text-slate-200 overflow-hidden"
-                          rows={3}
+                          placeholder="Relevância deste ativo para o caso clínico..."
+                          className="w-full bg-transparent text-[14px] text-[#424245] font-light leading-relaxed outline-none resize-none placeholder:text-[#d1d1d6] overflow-hidden"
+                          rows={2}
                         />
+                        {linkedAsset.summary && (
+                          <div className="mt-3 pt-3 border-t border-black/[0.04]">
+                            <p className="text-[9px] font-bold text-[#aeaeb2] uppercase tracking-widest mb-1.5">Resumo do Ativo</p>
+                            <p className="text-[12px] text-[#86868b] leading-relaxed">{linkedAsset.summary}</p>
+                          </div>
+                        )}
                       </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })() : (() => {
+                  const currentIdx = activeBlockSlideIndices[block.id] || 0;
+                  const entries = block.content ? block.content.split('|||').filter(Boolean) : [];
+                  const currentEntry = entries[currentIdx] || '';
+                  const [imgSrc, imgCaption] = currentEntry.split('###');
+                  return (
+                    <div className="bg-white rounded-2xl border border-black/[0.06] shadow-apple overflow-hidden group/imgblock">
+                      {/* Main image */}
+                      <div className="relative bg-[#f5f5f7] min-h-[180px] flex items-center justify-center">
+                        {imgSrc ? (
+                          <>
+                            <img
+                              src={imgSrc}
+                              className="w-full max-h-[560px] object-contain cursor-zoom-in select-none"
+                              onClick={() => setFullscreenImg(imgSrc)}
+                              alt={imgCaption || 'Evidência clínica'}
+                              draggable={false}
+                            />
+                            {entries.length > 1 && (
+                              <>
+                                <button onClick={() => setActiveBlockSlideIndices(p => ({ ...p, [block.id]: Math.max(0, currentIdx - 1) }))} disabled={currentIdx === 0}
+                                  className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full shadow-apple-md flex items-center justify-center opacity-0 group-hover/imgblock:opacity-100 disabled:opacity-0 transition-all">
+                                  <ChevronLeft size={16} className="text-[#1d1d1f]" />
+                                </button>
+                                <button onClick={() => setActiveBlockSlideIndices(p => ({ ...p, [block.id]: Math.min(entries.length - 1, currentIdx + 1) }))} disabled={currentIdx === entries.length - 1}
+                                  className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full shadow-apple-md flex items-center justify-center opacity-0 group-hover/imgblock:opacity-100 disabled:opacity-0 transition-all">
+                                  <ChevronRight size={16} className="text-[#1d1d1f]" />
+                                </button>
+                                <div className="absolute bottom-3 right-3 px-2.5 py-1 bg-black/40 backdrop-blur-sm rounded-full text-white text-[10px] font-semibold tabular-nums">
+                                  {currentIdx + 1} / {entries.length}
+                                </div>
+                              </>
+                            )}
+                            <button onClick={() => setFullscreenImg(imgSrc)}
+                              className="absolute top-3 right-3 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full shadow-apple flex items-center justify-center opacity-0 group-hover/imgblock:opacity-100 transition-all">
+                              <Maximize2 size={13} className="text-[#1d1d1f]" />
+                            </button>
+                          </>
+                        ) : (
+                          <label className="flex flex-col items-center justify-center py-14 w-full cursor-pointer group/drop">
+                            <div className="w-14 h-14 rounded-2xl bg-white border border-black/[0.06] flex items-center justify-center mb-4 shadow-apple group-hover/drop:shadow-apple-md group-hover/drop:scale-105 transition-all">
+                              <ImageIcon size={24} strokeWidth={1.2} className="text-[#aeaeb2]" />
+                            </div>
+                            <span className="text-[12px] font-semibold text-[#86868b]">Adicionar imagem clínica</span>
+                            <span className="text-[10px] text-[#aeaeb2] mt-1">JPG, PNG ou WEBP</span>
+                            <input type="file" multiple accept="image/*" className="hidden" onChange={e => handleCaseImgUpload(block.id, e)} />
+                          </label>
+                        )}
+                      </div>
+                      {/* Caption — editorial style */}
+                      {imgSrc && (
+                        <div className="px-5 py-3 border-t border-black/[0.04]">
+                          <input type="text" value={imgCaption || ''}
+                            onChange={e => {
+                              const newEntries = [...entries];
+                              newEntries[currentIdx] = `${imgSrc}###${e.target.value}`;
+                              const nb = editingCase.blocks?.map(b => b.id === block.id ? { ...b, content: newEntries.join('|||') } : b);
+                              syncCase({ ...editingCase, blocks: nb });
+                            }}
+                            placeholder="Legenda da imagem (opcional)..."
+                            className="w-full text-[12px] text-center italic text-[#86868b] bg-transparent outline-none placeholder:text-[#d1d1d6] font-light" />
+                        </div>
+                      )}
+                      {/* Thumbnail strip */}
+                      {entries.length > 0 && (
+                        <div className="flex items-center gap-2 px-4 py-3 border-t border-black/[0.04] overflow-x-auto no-scrollbar">
+                          {entries.map((ent, idx) => {
+                            const [src] = ent.split('###');
+                            return (
+                              <button key={idx} onClick={() => setActiveBlockSlideIndices(p => ({ ...p, [block.id]: idx }))}
+                                className={`w-12 h-12 rounded-[10px] overflow-hidden shrink-0 border-2 transition-all hover:scale-105 ${idx === currentIdx ? 'border-[#1d1d1f] shadow-apple' : 'border-transparent opacity-40 hover:opacity-80'}`}>
+                                <img src={src} className="w-full h-full object-cover" alt="" />
+                              </button>
+                            );
+                          })}
+                          <label className="w-12 h-12 rounded-[10px] shrink-0 border-2 border-dashed border-[#d1d1d6] hover:border-[#86868b] flex items-center justify-center text-[#aeaeb2] hover:text-[#86868b] cursor-pointer transition-all hover:scale-105">
+                            <Plus size={14} strokeWidth={1.5} />
+                            <input type="file" multiple accept="image/*" className="hidden" onChange={e => handleCaseImgUpload(block.id, e)} />
+                          </label>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
                 <button onClick={() => {
                   const nb = editingCase.blocks?.filter(b => b.id !== block.id);
                   syncCase({ ...editingCase, blocks: nb });
@@ -1306,35 +1462,6 @@ const App: React.FC = () => {
 
             <div className="divider" />
 
-            <div>
-              <h3 className="text-[10px] font-bold text-[#86868b] uppercase tracking-widest mb-3">Visibilidade</h3>
-              <div className="space-y-1.5">
-                {([
-                  { value: 'private' as CaseVisibility, label: 'Privado', desc: 'Só você', icon: Lock, color: 'bg-slate-500' },
-                  { value: 'public' as CaseVisibility, label: 'Público', desc: 'Todos da plataforma', icon: Globe, color: 'bg-emerald-500' },
-                ]).map(opt => (
-                  <button
-                    key={opt.value}
-                    onClick={() => syncCase({ ...editingCase, visibility: opt.value })}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-apple-lg text-[12px] font-medium transition-all ${
-                      (editingCase.visibility || 'private') === opt.value
-                        ? 'bg-white shadow-apple border border-black/6 text-[#1d1d1f]'
-                        : 'text-[#86868b] hover:bg-white/80 hover:text-[#1d1d1f]'
-                    }`}
-                  >
-                    <div className={`w-2 h-2 rounded-full ${opt.color}`} />
-                    <div className="flex-1 text-left">
-                      <span>{opt.label}</span>
-                      <span className="text-[9px] text-[#aeaeb2] ml-1.5">· {opt.desc}</span>
-                    </div>
-                    <opt.icon size={12} className="text-[#aeaeb2]" />
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="divider" />
-
             <div className="space-y-2.5">
               <div className="flex justify-between items-center">
                 <span className="text-[10px] text-[#86868b] font-medium">Criado em</span>
@@ -1353,26 +1480,142 @@ const App: React.FC = () => {
             <div className="divider" />
 
             <button
-              onClick={() => {
-                const shareUrl = `${window.location.origin}?share=${editingCase.id}&type=case`;
-                navigator.clipboard.writeText(shareUrl);
-                alert('Link do caso copiado!');
-              }}
-              className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-apple-lg text-[11px] font-semibold bg-white border border-black/6 text-[#4285F4] hover:bg-blue-50 shadow-apple transition-all"
-            >
-              <Share2 size={12} />
-              Compartilhar
-            </button>
-
-            <button
               onClick={handleDownloadCasePDF}
               className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-apple-lg text-[11px] font-semibold bg-[#1d1d1f] text-white hover:bg-[#333] shadow-apple transition-all"
             >
               <Download size={12} />
               Baixar PDF
             </button>
+
+            <button
+              onClick={() => { setPresentationMode(true); setPresentationBlockIdx(0); setCaseCertHash(null); }}
+              className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-apple-lg text-[11px] font-semibold bg-[#f2f3f5] text-[#1d1d1f] hover:bg-[#e5e5ea] shadow-apple transition-all"
+            >
+              <Maximize2 size={12} />
+              Modo Apresentação
+            </button>
+
+            <div className="w-full h-px bg-black/[0.06]" />
+
+            <div>
+              <h3 className="text-[10px] font-bold text-[#86868b] uppercase tracking-widest mb-3">Certificação de Autoria</h3>
+              {caseCertHash ? (
+                <div className="bg-[#f0fdf4] border border-emerald-100 rounded-apple-lg p-3 space-y-2">
+                  <div className="flex items-center gap-1.5">
+                    <Award size={12} className="text-emerald-500" />
+                    <span className="text-[9px] font-bold text-emerald-600 uppercase tracking-widest">Certificado</span>
+                  </div>
+                  <p className="font-mono text-[11px] text-emerald-700 break-all font-semibold">{caseCertHash}</p>
+                  <p className="text-[9px] text-emerald-500">{new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(`CERTIFICADO LON SUITE 4.0\n${caseCertHash}\nCase: ${editingCase.title}\nData: ${new Date().toISOString()}\nAutor: ${editingCase.ownerName || 'Não identificado'}`);
+                      setCopiedCert(true);
+                      setTimeout(() => setCopiedCert(false), 2000);
+                    }}
+                    className="flex items-center gap-1 text-[9px] font-bold text-emerald-600 hover:text-emerald-700 transition-colors"
+                  >
+                    {copiedCert ? <CheckCircle2 size={10} /> : <Copy size={10} />}
+                    {copiedCert ? 'Copiado!' : 'Copiar certificado'}
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setCaseCertHash(generateCertHash(editingCase))}
+                  className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-apple-lg text-[11px] font-semibold bg-[#f0fdf4] text-emerald-600 hover:bg-emerald-100 border border-emerald-100 transition-all"
+                >
+                  <Award size={12} />
+                  Certificar Autoria
+                </button>
+              )}
+            </div>
           </div>
         </div>
+
+        {/* Presentation Mode Overlay */}
+        {presentationMode && editingCase && (() => {
+          const blocks = (editingCase.blocks || []).filter(b => b.content || b.type === 'image');
+          const block = blocks[presentationBlockIdx];
+          const total = blocks.length;
+          if (!block) return null;
+
+          const entries = block.type === 'image' && block.content ? block.content.split('|||').filter(Boolean) : [];
+          const [imgSrc] = entries[0]?.split('###') || [];
+
+          return (
+            <div className="fixed inset-0 z-[900] bg-[#0a0a0a] flex flex-col animate-fade-in">
+              {/* Top bar */}
+              <div className="flex items-center justify-between px-8 py-4 border-b border-white/[0.06]">
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 rounded-full bg-white/30" />
+                  <span className="text-white/60 text-[11px] font-semibold tracking-widest uppercase">Lon Suite · Modo Apresentação</span>
+                </div>
+                <div className="flex items-center gap-4">
+                  <span className="text-white/40 text-[11px] tabular-nums">{presentationBlockIdx + 1} / {total}</span>
+                  <button onClick={() => setPresentationMode(false)} className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all">
+                    <X size={14} className="text-white" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Slide content */}
+              <div className="flex-1 flex items-center justify-center px-8 py-10 overflow-hidden">
+                {block.type === 'title' && (
+                  <h1 className="text-4xl md:text-7xl font-extralight text-white tracking-tight text-center max-w-4xl leading-tight">
+                    {block.content || <span className="opacity-30">Sem título</span>}
+                  </h1>
+                )}
+                {block.type === 'subtitle' && (
+                  <h2 className="text-3xl md:text-5xl font-light text-white/80 tracking-tight text-center max-w-3xl">
+                    {block.content}
+                  </h2>
+                )}
+                {block.type === 'text' && (
+                  <p className="text-xl md:text-2xl font-light text-white/70 leading-relaxed text-center max-w-3xl">
+                    {block.content}
+                  </p>
+                )}
+                {block.type === 'image' && imgSrc && (
+                  <div className="flex flex-col items-center gap-6 max-h-full">
+                    <img src={imgSrc} className="max-h-[75vh] max-w-full object-contain rounded-2xl" alt="" />
+                    {entries[0]?.split('###')[1] && (
+                      <p className="text-[13px] italic text-white/40 text-center">{entries[0].split('###')[1]}</p>
+                    )}
+                  </div>
+                )}
+                {block.type === 'reference' && (
+                  <div className="border-l-2 border-white/20 pl-6 max-w-2xl">
+                    <p className="text-[15px] italic text-white/50 leading-relaxed">{block.content}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Navigation */}
+              <div className="flex items-center justify-center gap-4 pb-8">
+                <button
+                  onClick={() => setPresentationBlockIdx(i => Math.max(0, i - 1))}
+                  disabled={presentationBlockIdx === 0}
+                  className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 disabled:opacity-20 flex items-center justify-center transition-all"
+                >
+                  <ChevronLeft size={20} className="text-white" />
+                </button>
+                <div className="flex gap-1.5">
+                  {blocks.map((_, i) => (
+                    <button key={i} onClick={() => setPresentationBlockIdx(i)}
+                      className={`rounded-full transition-all ${i === presentationBlockIdx ? 'w-6 h-2 bg-white' : 'w-2 h-2 bg-white/25 hover:bg-white/50'}`} />
+                  ))}
+                </div>
+                <button
+                  onClick={() => setPresentationBlockIdx(i => Math.min(total - 1, i + 1))}
+                  disabled={presentationBlockIdx === total - 1}
+                  className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 disabled:opacity-20 flex items-center justify-center transition-all"
+                >
+                  <ChevronRight size={20} className="text-white" />
+                </button>
+              </div>
+            </div>
+          );
+        })()}
       </div>
     );
   };
@@ -1383,155 +1626,25 @@ const App: React.FC = () => {
     setConfirmDialog({ isOpen: true, ...opts });
   };
 
-  // Share Page Routing
-  const searchParams = new URLSearchParams(window.location.search);
-  const shareId = searchParams.get('share');
-  
-  if (shareId) {
-    const sharedAsset = assets.find(a => a.id === shareId);
-    if (!sharedAsset) {
-      return (
-        <div className="min-h-screen bg-[#f2f3f5] flex items-center justify-center p-4">
-          <div className="bg-white p-10 rounded-apple-xl shadow-apple-md text-center">
-            <h1 className="text-xl font-bold text-slate-900 mb-2">Ativo Não Encontrado</h1>
-            <p className="text-slate-500">O link pode ter expirado ou estar incorreto.</p>
-          </div>
-        </div>
-      );
-    }
-
-    // Check visibility for cases
-    if (sharedAsset.type === 'case' && sharedAsset.visibility === 'private' && sharedAsset.ownerId !== ownerId) {
-      return (
-        <div className="min-h-screen bg-[#f2f3f5] flex items-center justify-center p-4">
-          <div className="bg-white p-10 rounded-apple-xl shadow-apple-md text-center">
-            <Lock size={32} className="mx-auto mb-3 text-[#86868b]" />
-            <h1 className="text-xl font-bold text-slate-900 mb-2">Case Privado</h1>
-            <p className="text-slate-500">Este case é privado e não pode ser acessado.</p>
-          </div>
-        </div>
-      );
-    }
-    
-    // Simplistic Public Share View
+  // Auth gate — show login if not authenticated
+  if (!currentUser) {
     return (
-      <div className="min-h-screen bg-[#f2f3f5] flex flex-col items-center py-10 px-4 animate-fade-in">
-        <div className="w-full max-w-4xl bg-white rounded-apple-2xl shadow-apple-xl overflow-hidden min-h-[80vh]">
-          <div className="p-8 border-b border-black/6 bg-white sticky top-0 z-10 flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-semibold text-[#1d1d1f] tracking-tight">{sharedAsset.title || 'Sem título'}</h1>
-              <p className="text-xs font-semibold uppercase tracking-widest text-[#86868b] mt-2">{sharedAsset.type}</p>
-            </div>
-            <div className="px-4 py-2 bg-[#f2f3f5] text-[#86868b] text-[10px] font-bold uppercase tracking-widest rounded-full">
-              Lon Suite Share
-            </div>
-          </div>
-          <div className="p-10">
-            {sharedAsset.type === 'case' && sharedAsset.blocks ? (
-               <div className="space-y-8 max-w-2xl mx-auto">
-                 {sharedAsset.blocks.map(block => (
-                   <div key={block.id}>
-                     {block.type === 'title' && <h2 className="text-2xl font-bold mb-2 text-[#1d1d1f]">{block.content}</h2>}
-                     {block.type === 'subtitle' && <h3 className="text-xl font-semibold mb-2 text-[#424245]">{block.content}</h3>}
-                     {block.type === 'text' && <p className="text-lg font-light leading-relaxed text-[#424245] whitespace-pre-wrap">{block.content}</p>}
-                     {block.type === 'reference' && (
-                       <div className="border-l-2 border-slate-200 pl-5 py-2">
-                         <p className="text-sm italic font-light text-[#86868b]">
-                           {block.content.split(/(https?:\/\/[^\s]+)/g).map((part, i) =>
-                             /^https?:\/\//.test(part)
-                               ? <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-[#4285F4] hover:underline">{part}</a>
-                               : part
-                           )}
-                         </p>
-                       </div>
-                     )}
-                     {block.type === 'image' && block.content && (
-                       <div className="my-6">
-                         <img src={(block.content.split('|||')[0] || "###").split('###')[0]} className="w-full rounded-apple-lg border border-black/6 shadow-sm bg-[#f2f3f5] object-contain max-h-[60vh]" />
-                         {block.content.split('###')[1] && <p className="text-sm text-[#86868b] mt-3 italic text-center text-pretty">{block.content.split('###')[1]}</p>}
-                       </div>
-                     )}
-                   </div>
-                 ))}
-               </div>
-            ) : (
-               <div className="flex flex-col gap-8 items-center max-w-2xl mx-auto">
-                 {sharedAsset.thumbnail && <img src={sharedAsset.thumbnail} className="max-h-[60vh] object-contain rounded-apple-lg border border-black/6 shadow-sm bg-[#f2f3f5] w-full" />}
-                 <div className="w-full space-y-6">
-                   {sharedAsset.tags && sharedAsset.tags.length > 0 && (
-                     <div className="flex flex-wrap gap-2 justify-center">
-                       {sharedAsset.tags.filter(t => typeof t === 'string').map((t, i) => (
-                         <span key={i} className="px-3 py-1 bg-[#1d1d1f] text-white text-[11px] font-medium rounded-full">{t}</span>
-                       ))}
-                     </div>
-                   )}
-                   {sharedAsset.summary && (
-                     <div className="bg-[#f2f3f5] p-6 rounded-apple-xl">
-                       <h3 className="text-[10px] font-bold uppercase tracking-widest text-[#86868b] mb-3">Resumo</h3>
-                       <p className="text-base text-[#424245] leading-relaxed">{sharedAsset.summary}</p>
-                     </div>
-                   )}
-                   {sharedAsset.scientificContext && (
-                     <div className="bg-[#e8f2fc] p-6 rounded-apple-xl border border-blue-100">
-                       <h3 className="text-[10px] font-bold uppercase tracking-widest text-[#4285F4] mb-3">Contexto Científico</h3>
-                       <p className="text-base text-[#4285F4]/80 italic leading-relaxed">"{sharedAsset.scientificContext}"</p>
-                     </div>
-                   )}
-                 </div>
-               </div>
-            )}
-          </div>
-        </div>
-      </div>
+      <LoginPage onLogin={(user) => {
+        storeUser(user);
+        setCurrentUser(user);
+      }} />
     );
   }
+
+  const handleLogout = () => {
+    authSignOut();
+    setCurrentUser(null);
+    setAssets([]);
+  };
 
   return (
     <div className="min-h-screen bg-[#fafbfc] text-[#1d1d1f] font-sans pb-20 md:pb-0 md:pl-[80px] transition-all duration-300">
       <Sidebar currentView={view} setView={(v) => { setSelectedAsset(null); setEditingCase(null); setNewAssetId(null); setView(v); }} trashCount={trashedAssets.length} />
-
-      {/* Name Prompt Modal — first time only */}
-      {showNamePrompt && (
-        <div className="fixed inset-0 z-[700] bg-black/25 backdrop-blur-md flex items-center justify-center animate-fade-in p-4">
-          <div className="bg-white rounded-apple-2xl p-10 max-w-sm w-full shadow-apple-xl text-center animate-scale-in">
-            <div className="w-16 h-16 bg-[#1d1d1f] text-white rounded-apple-lg flex items-center justify-center mx-auto mb-6 shadow-apple-md">
-              <Stethoscope size={28} />
-            </div>
-            <h2 className="text-2xl font-semibold tracking-tight mb-2">Bem-vindo ao Lon Suite</h2>
-            <p className="text-[#86868b] text-[13px] mb-6 leading-relaxed">
-              Como você deseja ser identificado nos cases públicos?
-            </p>
-            <input
-              type="text"
-              placeholder="Seu nome profissional..."
-              value={nameInput}
-              onChange={e => setNameInput(e.target.value)}
-              onKeyDown={e => {
-                if (e.key === 'Enter' && nameInput.trim()) {
-                  localStorage.setItem('lon_suite_owner_name', nameInput.trim());
-                  setOwnerName(nameInput.trim());
-                  setShowNamePrompt(false);
-                }
-              }}
-              className="w-full px-4 py-3 bg-[#f2f3f5] border border-black/8 rounded-apple-lg text-[14px] outline-none focus:border-[#4285F4]/30 focus:shadow-[0_0_0_3px_rgba(0,113,227,0.08)] transition-all placeholder:text-[#aeaeb2] mb-4"
-              autoFocus
-            />
-            <button
-              onClick={() => {
-                if (nameInput.trim()) {
-                  localStorage.setItem('lon_suite_owner_name', nameInput.trim());
-                  setOwnerName(nameInput.trim());
-                  setShowNamePrompt(false);
-                }
-              }}
-              disabled={!nameInput.trim()}
-              className="w-full py-3.5 bg-[#1d1d1f] text-white rounded-apple-lg font-semibold text-[13px] hover:bg-[#333] transition-all disabled:opacity-30 shadow-apple"
-            >
-              Continuar
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Hidden file input */}
       <input ref={fileInputRef} type="file" multiple accept="image/*,.pdf,.pptx,.ppt,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation" className="hidden" onChange={handleFilesSelected} />
@@ -1584,47 +1697,44 @@ const App: React.FC = () => {
             if (!homeSearchQuery.trim() || homeSearchQuery.trim().length < 2) return;
             setHomeHasSearched(true);
 
-            // All cases searchable: user's own (including legacy without ownerId) + public from others
-            const searchableCases = activeAssets.filter(a =>
-              a.type === 'case' && (!a.isDeleted) && (
-                !a.ownerId || a.ownerId === ownerId || a.visibility === 'public'
-              )
-            );
+            // Search: user's own assets AND cases
+            const searchableItems = activeAssets.filter(a => !a.isDeleted);
 
-            // INSTANT: Local text search first (no AI, no latency)
             const query = homeSearchQuery.toLowerCase().trim();
-            const localResults = searchableCases
-              .map(c => {
+            const localResults = searchableItems
+              .map(item => {
                 let score = 0;
-                const title = (c.title || '').toLowerCase();
-                const tags = (c.tags || []).map(t => t.toLowerCase());
-                const blocksText = (c.blocks || []).map(b => typeof b.content === 'string' ? b.content : '').join(' ').toLowerCase();
+                const title = (item.title || '').toLowerCase();
+                const tags = (item.tags || []).map(t => t.toLowerCase());
+                const summary = (item.summary || '').toLowerCase();
+                const blocksText = (item.blocks || []).map(b => typeof b.content === 'string' ? b.content : '').join(' ').toLowerCase();
                 if (title.includes(query)) score += 10;
                 if (tags.some(t => t.includes(query))) score += 8;
+                if (summary.includes(query)) score += 6;
                 if (blocksText.includes(query)) score += 5;
-                // Prioritize own cases
-                const isOwn = !c.ownerId || c.ownerId === ownerId;
-                if (isOwn && score > 0) score += 100;
-                // Boost by access count
-                score += (c.accessCount || 0) * 0.1;
-                return { caseItem: c, score };
+                return { item, score };
               })
-              .filter(item => item.score > 0)
+              .filter(r => r.score > 0)
               .sort((a, b) => b.score - a.score)
-              .map(item => item.caseItem);
+              .map(r => r.item);
 
             setHomeSearchResults(localResults);
 
-            // ASYNC: Try AI enhanced search in background (non-blocking)
+            // AI enhanced search in background (cases only)
+            const searchableCases = searchableItems.filter(a => a.type === 'case');
             if (searchableCases.length > 0) {
               setHomeSearchLoading(true);
               try {
                 const resultIds = await searchCasesWithAI(homeSearchQuery, searchableCases, ownerId);
                 if (resultIds.length > 0) {
-                  const aiResults = resultIds
+                  const aiCaseResults = resultIds
                     .map(id => searchableCases.find(c => c.id === id))
                     .filter(Boolean) as Asset[];
-                  if (aiResults.length > 0) setHomeSearchResults(aiResults);
+                  if (aiCaseResults.length > 0) {
+                    // Merge AI case results with local asset results
+                    const assetResults = localResults.filter(r => r.type !== 'case');
+                    setHomeSearchResults([...aiCaseResults, ...assetResults]);
+                  }
                 }
               } catch { /* keep local results */ }
               setHomeSearchLoading(false);
@@ -1644,65 +1754,6 @@ const App: React.FC = () => {
             setHomeHasSearched(false);
             setHomeSearchResults([]);
           };
-
-          // Read-only case viewer for public cases (state is at component top level)
-
-          if (viewingPublicCase) {
-            return (
-              <div className="min-h-screen animate-fade-in">
-                <div className="max-w-[900px] mx-auto pt-8 md:pt-16 px-4 sm:px-6 md:px-8 pb-20">
-                  <button onClick={() => setViewingPublicCase(null)} className="mb-8 flex items-center gap-2 text-slate-400 hover:text-slate-900 transition-all text-[10px] font-bold uppercase tracking-[0.3em] group">
-                    <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Voltar à pesquisa
-                  </button>
-
-                  {/* Creator info */}
-                  {viewingPublicCase.ownerName && viewingPublicCase.ownerId !== ownerId && (
-                    <div className="flex items-center gap-3 mb-8 px-4 py-3 bg-white rounded-apple-lg border border-black/6 shadow-apple">
-                      <div className="w-8 h-8 rounded-full bg-[#1d1d1f] flex items-center justify-center text-white text-[11px] font-bold">
-                        {viewingPublicCase.ownerName.charAt(0).toUpperCase()}
-                      </div>
-                      <div>
-                        <p className="text-[12px] font-semibold text-[#1d1d1f]">{viewingPublicCase.ownerName}</p>
-                        <p className="text-[10px] text-[#86868b]">Autor do case · Somente leitura</p>
-                      </div>
-                      <Eye size={14} className="ml-auto text-[#aeaeb2]" />
-                    </div>
-                  )}
-
-                  <div className="space-y-8">
-                    {viewingPublicCase.blocks?.map(block => (
-                      <div key={block.id}>
-                        {block.type === 'title' && <h1 className="text-3xl md:text-5xl font-extralight tracking-tight text-slate-900">{block.content}</h1>}
-                        {block.type === 'subtitle' && <h2 className="text-xl md:text-2xl font-semibold tracking-tight text-slate-800">{block.content}</h2>}
-                        {block.type === 'text' && <p className="text-base md:text-xl font-light leading-relaxed text-justify text-slate-600 whitespace-pre-wrap">{block.content}</p>}
-                        {block.type === 'reference' && (
-                          <div className="border-l-2 border-slate-200 pl-5 py-2">
-                            <div className="flex items-center gap-2 mb-1">
-                              <BookOpen size={12} className="text-slate-400" />
-                              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Referência</span>
-                            </div>
-                            <p className="text-sm italic font-light text-slate-500">
-                              {block.content.split(/(https?:\/\/[^\s]+)/g).map((part, i) =>
-                                /^https?:\/\//.test(part)
-                                  ? <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-[#4285F4] hover:underline">{part}</a>
-                                  : part
-                              )}
-                            </p>
-                          </div>
-                        )}
-                        {block.type === 'image' && block.content && (
-                          <div className="my-6">
-                            <img src={(block.content.split('|||')[0] || "###").split('###')[0]} className="w-full rounded-apple-lg border border-black/6 shadow-sm bg-[#f2f3f5] object-contain max-h-[60vh]" />
-                            {block.content.split('###')[1] && <p className="text-sm text-[#86868b] mt-3 italic text-center">{block.content.split('###')[1]}</p>}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            );
-          }
 
           return (
             <div className="flex flex-col items-center min-h-[85vh] px-6 animate-fade-in relative w-full">
@@ -1726,7 +1777,7 @@ const App: React.FC = () => {
                   </div>
                   <input
                     type="text"
-                    placeholder="Pesquisar cases clínicos..."
+                    placeholder="Pesquisar ativos e cases científicos..."
                     value={homeSearchQuery}
                     onChange={e => {
                       const v = e.target.value;
@@ -1802,57 +1853,38 @@ const App: React.FC = () => {
                         </button>
                       </div>
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                        {homeSearchResults.map(caseItem => {
-                          const thumbnail = getCaseThumbnail(caseItem);
-                          const isOwn = !caseItem.ownerId || caseItem.ownerId === ownerId;
+                        {homeSearchResults.map(item => {
+                          const isCase = item.type === 'case';
+                          const thumbnail = isCase ? getCaseThumbnail(item) : (item.thumbnail || item.content || null);
                           return (
                             <div
-                              key={caseItem.id}
+                              key={item.id}
                               onClick={() => {
-                                if (isOwn) {
-                                  setEditingCase(caseItem);
+                                if (isCase) {
+                                  setEditingCase(item);
                                   setView(ViewState.CASES);
                                 } else {
-                                  // Increment access count
-                                  const updated = { ...caseItem, accessCount: (caseItem.accessCount || 0) + 1 };
-                                  setAssets(prev => prev.map(a => a.id === caseItem.id ? updated : a));
-                                  syncToCloud(updated);
-                                  setViewingPublicCase(caseItem);
+                                  handleOpenAsset(item);
                                 }
                               }}
                               className="group cursor-pointer bg-white rounded-apple-xl border border-black/6 shadow-apple overflow-hidden hover:shadow-apple-md hover:-translate-y-1 transition-all duration-300"
-                              style={{ width: '100%', minHeight: '250px' }}
                             >
                               {/* Thumbnail */}
-                              <div className="w-full h-[140px] bg-[#f2f3f5] overflow-hidden flex items-center justify-center">
+                              <div className="w-full h-[120px] bg-[#f2f3f5] overflow-hidden flex items-center justify-center">
                                 {thumbnail ? (
                                   <img src={thumbnail} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="" />
                                 ) : (
-                                  <Stethoscope size={28} className="text-[#aeaeb2] opacity-40" />
+                                  <Stethoscope size={24} className="text-[#aeaeb2] opacity-40" />
                                 )}
                               </div>
                               {/* Info */}
-                              <div className="p-3.5">
-                                <p className="text-[12px] font-semibold text-[#1d1d1f] line-clamp-2 leading-tight mb-1.5 group-hover:text-[#4285F4] transition-colors">
-                                  {caseItem.title || 'Caso Clínico'}
+                              <div className="p-3">
+                                <p className="text-[11px] font-semibold text-[#1d1d1f] line-clamp-2 leading-tight mb-2 group-hover:text-[#3a7bd5] transition-colors">
+                                  {item.title || (isCase ? 'Case Científico' : 'Ativo')}
                                 </p>
-                                <p className="text-[10px] text-[#aeaeb2] line-clamp-1 mb-2">
-                                  {getCasePreview(caseItem)}
-                                </p>
-                                <div className="flex items-center justify-between">
-                                  {isOwn ? (
-                                    <span className="text-[8px] font-bold text-[#4285F4] uppercase tracking-widest">Seu case</span>
-                                  ) : caseItem.ownerName ? (
-                                    <span className="text-[8px] font-medium text-[#86868b] truncate max-w-[100px]">{caseItem.ownerName}</span>
-                                  ) : (
-                                    <span className="text-[8px] text-[#aeaeb2]">Anônimo</span>
-                                  )}
-                                  {(caseItem.accessCount || 0) > 0 && (
-                                    <span className="text-[8px] text-[#aeaeb2] flex items-center gap-0.5">
-                                      <Eye size={8} />{caseItem.accessCount}
-                                    </span>
-                                  )}
-                                </div>
+                                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider ${isCase ? 'bg-[#f0f4ff] text-[#3a7bd5]' : 'bg-[#f5f5f7] text-[#86868b]'}`}>
+                                  {isCase ? 'Case' : 'Ativo'}
+                                </span>
                               </div>
                             </div>
                           );
@@ -1862,8 +1894,8 @@ const App: React.FC = () => {
                   ) : (
                     <div className="text-center py-16">
                       <Search size={32} className="mx-auto mb-3 text-[#aeaeb2] opacity-30" />
-                      <p className="text-[13px] text-[#86868b] font-medium">Nenhum case encontrado para "{homeSearchQuery}"</p>
-                      <p className="text-[11px] text-[#aeaeb2] mt-1">Tente outros termos médicos ou sinônimos</p>
+                      <p className="text-[13px] text-[#86868b] font-medium">Nenhum resultado para "{homeSearchQuery}"</p>
+                      <p className="text-[11px] text-[#aeaeb2] mt-1">Tente outros termos ou sinônimos</p>
                     </div>
                   )}
                 </div>
@@ -1934,7 +1966,7 @@ const App: React.FC = () => {
                       className="px-3 py-2.5 bg-white border border-black/8 rounded-apple-lg text-[12px] font-medium text-[#1d1d1f] outline-none focus:border-[#4285F4]/30 shadow-apple appearance-none cursor-pointer"
                     >
                       <option value="">Ano</option>
-                      {Array.from(new Set(assets.map(a => new Date(a.createdAt || a.date).getFullYear()))).sort((a, b) => b - a).map(y => (
+                      {Array.from(new Set(assets.map(a => new Date(a.createdAt || a.date).getFullYear()))).sort((a: number, b: number) => b - a).map(y => (
                         <option key={y} value={String(y)}>{y}</option>
                       ))}
                     </select>
@@ -1994,13 +2026,19 @@ const App: React.FC = () => {
               <header className="mb-8">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-7">
                   <div>
-                    <h1 className="text-3xl sm:text-4xl font-extralight tracking-tight text-[#1d1d1f]">Cases Clínicos</h1>
+                    <h1 className="text-3xl sm:text-4xl font-extralight tracking-tight text-[#1d1d1f]">Cases Científicos</h1>
                     <p className="text-[11px] font-medium text-[#86868b] tracking-wider mt-1.5">{filteredCases.length} {filteredCases.length === 1 ? 'caso' : 'casos'} · Documentação Editorial</p>
                   </div>
-                  <button onClick={handleCreateCase}
-                    className="btn-ai w-full sm:w-auto px-5 py-2.5 rounded-apple-lg font-semibold text-[13px] shadow-apple flex items-center justify-center gap-2 hover:-translate-y-0.5">
-                    <Plus size={15} /> Novo Case
-                  </button>
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <div className="flex items-center bg-white border border-black/[0.06] rounded-apple-lg shadow-apple p-0.5">
+                      <button onClick={() => setCaseViewMode('list')} className={`p-2 rounded-[8px] transition-all ${caseViewMode === 'list' ? 'bg-[#1d1d1f] text-white' : 'text-[#86868b] hover:text-[#1d1d1f]'}`}><AlignJustify size={14} /></button>
+                      <button onClick={() => setCaseViewMode('grid')} className={`p-2 rounded-[8px] transition-all ${caseViewMode === 'grid' ? 'bg-[#1d1d1f] text-white' : 'text-[#86868b] hover:text-[#1d1d1f]'}`}><LayoutGrid size={14} /></button>
+                    </div>
+                    <button onClick={handleCreateCase}
+                      className="btn-ai flex-1 sm:flex-none px-5 py-2.5 rounded-apple-lg font-semibold text-[13px] shadow-apple flex items-center justify-center gap-2 hover:-translate-y-0.5">
+                      <Plus size={15} /> Novo Case
+                    </button>
+                  </div>
                 </div>
 
                 {/* Search + Date Filter */}
@@ -2030,7 +2068,7 @@ const App: React.FC = () => {
                       className="px-3 py-2.5 bg-white border border-black/8 rounded-apple-lg text-[12px] font-medium text-[#1d1d1f] outline-none focus:border-[#4285F4]/30 shadow-apple appearance-none cursor-pointer"
                     >
                       <option value="">Ano</option>
-                      {Array.from(new Set(activeAssets.filter(a => a.type === 'case').map(a => new Date(a.createdAt || a.date).getFullYear()))).sort((a, b) => b - a).map(y => (
+                      {Array.from(new Set(activeAssets.filter(a => a.type === 'case').map(a => new Date(a.createdAt || a.date).getFullYear()))).sort((a: number, b: number) => b - a).map(y => (
                         <option key={y} value={String(y)}>{y}</option>
                       ))}
                     </select>
@@ -2046,8 +2084,38 @@ const App: React.FC = () => {
                 </div>
               </header>
 
-              {/* Cases List — Clean minimal rows */}
+              {/* Cases — List or Grid */}
               {filteredCases.length > 0 ? (
+                caseViewMode === 'grid' ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                    {filteredCases.map(caseItem => {
+                      const thumbnail = getCaseThumbnail(caseItem);
+                      const status = statusConfig[caseItem.caseStatus || 'em_andamento'] || statusConfig.em_andamento;
+                      return (
+                        <div key={caseItem.id}
+                          onClick={() => { setEditingCase(caseItem); setView(ViewState.CASES); }}
+                          className="group cursor-pointer bg-white rounded-apple-xl border border-black/[0.06] shadow-apple overflow-hidden hover:shadow-apple-md hover:-translate-y-1 transition-all duration-300"
+                        >
+                          <div className="w-full h-[130px] bg-[#f5f5f7] overflow-hidden flex items-center justify-center">
+                            {thumbnail
+                              ? <img src={thumbnail} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="" />
+                              : <Stethoscope size={24} className="text-[#aeaeb2] opacity-40" />
+                            }
+                          </div>
+                          <div className="p-3">
+                            <p className="text-[12px] font-semibold text-[#1d1d1f] line-clamp-2 leading-tight mb-1.5 group-hover:text-[#4285F4] transition-colors">
+                              {caseItem.title || 'Novo Caso Clínico'}
+                            </p>
+                            <div className="flex items-center gap-1.5">
+                              <div className={`w-1.5 h-1.5 rounded-full ${status.dot}`} />
+                              <span className={`text-[9px] font-semibold uppercase tracking-wide ${status.color}`}>{status.label}</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
                 <div>
                   {filteredCases.map((caseItem, idx) => {
                     const thumbnail = getCaseThumbnail(caseItem);
@@ -2095,13 +2163,6 @@ const App: React.FC = () => {
 
                         {/* Actions on hover */}
                         <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                          <button onClick={e => { e.stopPropagation();
-                            const shareUrl = `${window.location.origin}?share=${caseItem.id}&type=case`;
-                            navigator.clipboard.writeText(shareUrl);
-                            alert('Link do caso copiado!');
-                          }} className="p-1.5 text-[#c7c7cc] hover:text-[#4285F4] transition-colors rounded-[8px] hover:bg-black/[0.03]">
-                            <Share2 size={13} />
-                          </button>
                           <button onClick={e => { e.stopPropagation(); handleDeleteAsset(caseItem.id); }}
                             className="p-1.5 text-red-300 hover:text-red-500 transition-colors rounded-[8px] hover:bg-red-50 bg-red-50/50">
                             <Trash2 size={14} />
@@ -2113,11 +2174,12 @@ const App: React.FC = () => {
                     );
                   })}
                 </div>
-              ) : (
+              )
+            ) : (
                 <div className="text-center py-24 text-[#86868b]">
                   <Stethoscope size={40} className="mx-auto mb-4 opacity-25" />
                   <p className="text-[14px] font-medium mb-1">Nenhum case criado ainda</p>
-                  <p className="text-[12px] text-[#aeaeb2] mb-5">Cases clínicos editoriais aparecerão aqui</p>
+                  <p className="text-[12px] text-[#aeaeb2] mb-5">Cases científicos editoriais aparecerão aqui</p>
                   <button onClick={handleCreateCase}
                     className="btn-ai px-5 py-2.5 rounded-apple-lg text-[12px] font-semibold shadow-apple">
                     Criar Primeiro Case
@@ -2212,155 +2274,157 @@ const App: React.FC = () => {
           const aiLimit = 500;
           const aiPct   = Math.min(100, (aiCalls / aiLimit) * 100);
 
-          // SVG ring constants (r=28, C≈175.9)
-          const R = 28, C = 2 * Math.PI * R;
-          const storageDash = (storagePct / 100) * C;
-          const storageColor = storagePct >= 90 ? '#ff3b30' : storagePct >= 70 ? '#ff9f0a' : '#3a7bd5';
-
-          const aiDash  = (aiPct / 100) * C;
-          const aiColor = aiPct >= 90 ? '#ff3b30' : aiPct >= 70 ? '#ff9f0a' : '#34c759';
-
-          const SectionLabel = ({ children }: { children: React.ReactNode }) => (
-            <p className="text-[9px] font-bold text-[#aeaeb2] uppercase tracking-[0.25em] mb-3 px-1">{children}</p>
+          const SL = ({ children }: { children: React.ReactNode }) => (
+            <p className="text-[9px] font-bold text-[#aeaeb2] uppercase tracking-[0.22em] mb-3">{children}</p>
           );
 
-          const RingMeter = ({ pct, dash, color, label, sublabel }: { pct: number; dash: number; color: string; label: string; sublabel: string }) => (
-            <div className="flex items-center gap-5">
-              <div className="relative shrink-0">
-                <svg width="72" height="72" viewBox="0 0 72 72">
-                  <circle cx="36" cy="36" r={R} fill="none" stroke="#f5f5f7" strokeWidth="5"/>
-                  <circle cx="36" cy="36" r={R} fill="none" stroke={color} strokeWidth="5"
-                    strokeDasharray={`${dash} ${C}`} strokeLinecap="round"
-                    transform="rotate(-90 36 36)" style={{ transition: 'stroke-dasharray 0.8s ease' }}/>
-                </svg>
-                <span className="absolute inset-0 flex items-center justify-center text-[12px] font-bold text-[#1d1d1f]">
-                  {pct.toFixed(0)}%
-                </span>
+          // Thin bar meter — monochromatic, no colors
+          const BarMeter = ({ pct, label, sublabel, warning }: { pct: number; label: string; sublabel: string; warning?: boolean }) => (
+            <div>
+              <div className="flex items-baseline justify-between mb-2">
+                <span className="text-[13px] font-medium text-[#1d1d1f]">{label}</span>
+                <span className={`text-[11px] font-medium ${warning ? 'text-[#ff3b30]' : 'text-[#aeaeb2]'}`}>{pct.toFixed(0)}%</span>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[14px] font-semibold text-[#1d1d1f] mb-0.5">{label}</p>
-                <p className="text-[11px] text-[#86868b]">{sublabel}</p>
-                <div className="mt-2.5 h-1 bg-[#f2f3f5] rounded-full overflow-hidden">
-                  <div className="h-full rounded-full transition-all duration-700"
-                    style={{ width: `${pct}%`, backgroundColor: color }} />
-                </div>
+              <div className="h-[2px] bg-[#f2f3f5] rounded-full overflow-hidden">
+                <div className="h-full rounded-full transition-all duration-700 ease-out bg-[#1d1d1f]"
+                  style={{ width: `${Math.min(100, pct)}%`, opacity: warning ? 1 : 0.6 }} />
               </div>
+              <p className="text-[10px] text-[#aeaeb2] mt-1.5">{sublabel}</p>
             </div>
           );
 
+          const horasEconomizadas = Math.round(settingsTotalCases * 3.5 + settingsTotalAssets * 0.3);
+
+          // Monthly production data (last 6 months)
+          const now = new Date();
+          const monthlyData = Array.from({ length: 6 }, (_, i) => {
+            const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
+            const label = d.toLocaleDateString('pt-BR', { month: 'short' });
+            const count = activeAssets.filter(a => {
+              const ad = new Date(a.createdAt || a.date);
+              return ad.getMonth() === d.getMonth() && ad.getFullYear() === d.getFullYear();
+            }).length;
+            return { label, count };
+          });
+          const maxMonthly = Math.max(1, ...monthlyData.map(m => m.count));
+
           return (
             <div className="px-5 sm:px-10 md:px-12 pt-8 md:pt-10 pb-16 animate-fade-in">
-              <div className="max-w-xl">
+              <div className="max-w-2xl">
+
                 {/* Header */}
-                <h1 className="text-3xl sm:text-4xl font-extralight tracking-tight text-[#1d1d1f] mb-1">Ajustes</h1>
-                <p className="text-[11px] font-medium text-[#86868b] mb-8 tracking-wider">Lon Suite 3.0.0 · Longecta</p>
+                <h1 className="text-3xl sm:text-4xl font-extralight tracking-tight text-[#1d1d1f] mb-1">Produção Científica</h1>
+                <p className="text-[11px] font-medium text-[#86868b] mb-8 tracking-wider">Lon Suite 4.0 · Longecta</p>
 
                 {/* Identity */}
-                <div className="mb-3">
-                    <SectionLabel>Identificação</SectionLabel>
-                    <div className="bg-white rounded-apple-xl p-5 border border-black/6 shadow-apple flex items-center gap-4">
+                <div className="mb-6">
+                  <div className="bg-white rounded-apple-xl p-5 border border-black/[0.06] shadow-apple flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
                       <div className="w-10 h-10 rounded-full bg-[#1d1d1f] flex items-center justify-center text-white text-[14px] font-bold shrink-0">
                         {(ownerName || '?').charAt(0).toUpperCase()}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <input
-                          type="text"
-                          value={ownerName}
-                          onChange={e => {
-                            setOwnerName(e.target.value);
-                            localStorage.setItem('lon_suite_owner_name', e.target.value);
-                          }}
-                          placeholder="Seu nome"
-                          className="text-[14px] font-semibold text-[#1d1d1f] bg-transparent hover:bg-black/[0.03] focus:bg-white border border-transparent hover:border-black/10 focus:border-[#4285F4]/40 focus:outline-none w-full px-2 py-1 rounded-lg transition-all"
-                        />
-                        <p className="text-[10px] text-[#aeaeb2] mt-0.5 font-mono px-2">ID {ownerId.slice(0, 12)}…</p>
+                      <div>
+                        <p className="text-[14px] font-semibold text-[#1d1d1f]">{ownerName || 'Usuário'}</p>
+                        <p className="text-[10px] text-[#aeaeb2]">{currentUser?.email}</p>
                       </div>
                     </div>
-                  </div>
-
-                {/* Acervo stats */}
-                <div className="mb-3">
-                  <SectionLabel>Seu Acervo</SectionLabel>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-white rounded-apple-xl p-5 border border-black/6 shadow-apple">
-                      <div className="flex items-center gap-2 mb-3">
-                        <LayoutGrid size={13} className="text-[#4285F4]" strokeWidth={1.5} />
-                        <span className="text-[9px] font-bold text-[#aeaeb2] uppercase tracking-widest">Ativos</span>
-                      </div>
-                      <p className="text-4xl font-extralight text-[#1d1d1f] tracking-tight leading-none">{settingsTotalAssets}</p>
-                      <p className="text-[10px] text-[#aeaeb2] mt-2">científicos</p>
-                    </div>
-                    <div className="bg-white rounded-apple-xl p-5 border border-black/6 shadow-apple">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Stethoscope size={13} className="text-[#4285F4]" strokeWidth={1.5} />
-                        <span className="text-[9px] font-bold text-[#aeaeb2] uppercase tracking-widest">Cases</span>
-                      </div>
-                      <p className="text-4xl font-extralight text-[#1d1d1f] tracking-tight leading-none">{settingsTotalCases}</p>
-                      <p className="text-[10px] text-[#aeaeb2] mt-2">documentados</p>
-                    </div>
+                    <button onClick={() => openConfirmDialog({
+                      title: 'Sair da conta?',
+                      message: 'Você será redirecionado para a tela de login.',
+                      onConfirm: handleLogout,
+                    })} className="flex items-center gap-1.5 px-3 py-1.5 rounded-apple text-[11px] font-medium text-[#86868b] hover:text-[#ff3b30] hover:bg-red-50 transition-all">
+                      <LogOut size={13} />
+                      Sair
+                    </button>
                   </div>
                 </div>
 
-                {/* Storage meter */}
-                <div className="mb-3">
-                  <SectionLabel>Armazenamento</SectionLabel>
-                  <div className="bg-white rounded-apple-xl p-5 border border-black/6 shadow-apple space-y-4">
-                    <RingMeter
-                      pct={storagePct}
-                      dash={storageDash}
-                      color={storageColor}
-                      label={`${storageGB < 0.01 ? '< 0.01' : storageGB.toFixed(2)} GB utilizados`}
-                      sublabel={`de ${storageLimitGB} GB disponíveis`}
-                    />
-                    {storagePct >= 90 && (
-                      <div className="flex items-start gap-3 bg-red-50 rounded-apple p-3 border border-red-100">
-                        <AlertCircle size={14} className="text-red-500 shrink-0 mt-0.5" />
-                        <div>
-                          <p className="text-[11px] font-semibold text-red-700 mb-0.5">Armazenamento quase cheio</p>
-                          <p className="text-[10px] text-red-500">Entre em contato com o suporte para ampliar seu plano.</p>
-                          <a href="mailto:suporte@longecta.com.br"
-                            className="text-[10px] font-bold text-red-600 hover:underline mt-1 inline-block">
-                            suporte@longecta.com.br →
-                          </a>
+                {/* Numbers — 3-column */}
+                <div className="mb-6">
+                  <SL>Patrimônio</SL>
+                  <div className="grid grid-cols-3 gap-px bg-black/[0.04] rounded-apple-xl overflow-hidden border border-black/[0.05]">
+                    {[
+                      { n: settingsTotalAssets, label: 'Ativos' },
+                      { n: settingsTotalCases, label: 'Cases' },
+                      { n: horasEconomizadas, label: 'h estimadas' },
+                    ].map(({ n, label }) => (
+                      <div key={label} className="bg-white px-4 py-5 text-center">
+                        <p className="text-3xl font-extralight text-[#1d1d1f] tracking-tight leading-none mb-1.5">{n}</p>
+                        <p className="text-[9px] font-semibold text-[#aeaeb2] uppercase tracking-widest">{label}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Monthly production chart — thin bars */}
+                <div className="mb-6">
+                  <SL>Produção Mensal</SL>
+                  <div className="bg-white rounded-apple-xl p-5 border border-black/[0.06] shadow-apple">
+                    <div className="flex items-end justify-between gap-2 h-[72px]">
+                      {monthlyData.map(({ label, count }) => (
+                        <div key={label} className="flex-1 flex flex-col items-center gap-1.5">
+                          <div className="w-full flex items-end justify-center" style={{ height: '52px' }}>
+                            <div
+                              className="w-full max-w-[24px] rounded-sm bg-[#1d1d1f] transition-all duration-700"
+                              style={{ height: count === 0 ? '2px' : `${Math.max(6, (count / maxMonthly) * 52)}px`, opacity: count === 0 ? 0.12 : 0.75 }}
+                            />
+                          </div>
+                          <span className="text-[8px] text-[#aeaeb2] font-medium uppercase">{label}</span>
                         </div>
-                      </div>
-                    )}
+                      ))}
+                    </div>
                   </div>
                 </div>
 
-                {/* AI usage meter */}
-                <div className="mb-3">
-                  <SectionLabel>Inteligência Artificial</SectionLabel>
-                  <div className="bg-white rounded-apple-xl p-5 border border-black/6 shadow-apple space-y-4">
-                    <RingMeter
-                      pct={aiPct}
-                      dash={aiDash}
-                      color={aiColor}
-                      label={`${aiCalls} chamadas realizadas`}
-                      sublabel={`${Math.max(0, aiLimit - aiCalls)} restantes · limite ${aiLimit}/mês`}
+                {/* AI Ghostwriter */}
+                <div className="mb-6">
+                  <SL>Ferramentas</SL>
+                  <button
+                    onClick={() => setShowGhostwriter(true)}
+                    className="w-full bg-white rounded-apple-xl px-5 py-4 border border-black/[0.06] shadow-apple text-left hover:shadow-apple-md transition-all flex items-center gap-4 group"
+                  >
+                    <div className="w-9 h-9 rounded-[10px] bg-[#f2f3f5] flex items-center justify-center group-hover:bg-[#1d1d1f] transition-all shrink-0">
+                      <Sparkles size={15} className="text-[#86868b] group-hover:text-white transition-colors" strokeWidth={1.5} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] font-semibold text-[#1d1d1f]">AI Ghostwriter</p>
+                      <p className="text-[10px] text-[#aeaeb2]">Gerar rascunho IMRAD com base nos seus cases</p>
+                    </div>
+                    <ChevronRight size={14} className="text-[#d1d1d6] group-hover:text-[#1d1d1f] shrink-0 transition-colors" />
+                  </button>
+                </div>
+
+                {/* Usage bars */}
+                <div className="mb-6">
+                  <SL>Recursos</SL>
+                  <div className="bg-white rounded-apple-xl p-5 border border-black/6 shadow-apple space-y-5">
+                    <BarMeter
+                      pct={storagePct}
+                      label="Armazenamento"
+                      sublabel={`${storageGB < 0.01 ? '< 0.01' : storageGB.toFixed(2)} GB de ${storageLimitGB} GB`}
+                      warning={storagePct >= 90}
                     />
-                    {aiPct >= 90 && (
-                      <p className="text-[10px] text-[#aeaeb2] bg-[#f2f3f5] rounded-apple px-3 py-2">
-                        Limite de IA próximo. Contate o suporte para um plano sem limitações.
-                      </p>
-                    )}
+                    <div className="h-px bg-[#f5f5f7]" />
+                    <BarMeter
+                      pct={aiPct}
+                      label="IA — chamadas mensais"
+                      sublabel={`${aiCalls} de ${aiLimit} utilizadas`}
+                      warning={aiPct >= 90}
+                    />
                   </div>
                 </div>
 
                 {/* Danger zone */}
                 <div className="mb-3">
-                  <SectionLabel>Dados</SectionLabel>
-                  <div className="bg-white rounded-apple-xl p-5 border border-black/6 shadow-apple">
-                    <p className="text-[12px] text-[#86868b] mb-4 leading-relaxed">
-                      Os dados são sincronizados na nuvem via Supabase. A limpeza local remove os dados deste dispositivo.
-                    </p>
+                  <SL>Dados</SL>
+                  <div className="bg-white rounded-apple-xl px-5 py-4 border border-black/6 shadow-apple flex items-center justify-between">
+                    <p className="text-[12px] text-[#86868b]">Limpar todos os dados locais</p>
                     <button onClick={() => openConfirmDialog({
                       title: 'Limpar todos os dados?',
-                      message: 'Esta ação removerá todos os ativos, cases e configurações permanentemente. Não pode ser desfeita.',
+                      message: 'Remove todos os ativos e cases deste dispositivo permanentemente.',
                       onConfirm: () => { localStorage.clear(); window.location.reload(); }
-                    })}
-                      className="px-4 py-2 bg-red-50 text-red-600 rounded-apple text-[12px] font-semibold hover:bg-red-100 transition-colors border border-red-100/50">
-                      Limpar Todos os Dados
+                    })} className="text-[11px] font-semibold text-[#ff3b30] hover:underline transition-colors">
+                      Limpar
                     </button>
                   </div>
                 </div>
@@ -2451,6 +2515,84 @@ const App: React.FC = () => {
           onConfirmDialog={openConfirmDialog}
           showFieldHint={selectedAsset.id === newAssetId}
         />
+      )}
+
+      {/* Ghostwriter Modal */}
+      {showGhostwriter && (
+        <div className="fixed inset-0 z-[600] bg-black/30 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-6 animate-fade-in">
+          <div className="bg-white rounded-t-[32px] sm:rounded-[28px] shadow-apple-xl w-full sm:max-w-2xl max-h-[90vh] flex flex-col overflow-hidden animate-scale-in">
+            <div className="flex items-center justify-between p-6 border-b border-black/[0.06]">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-[10px] bg-[#1d1d1f] flex items-center justify-center">
+                  <Sparkles size={16} className="text-white" strokeWidth={1.5} />
+                </div>
+                <div>
+                  <h2 className="text-[16px] font-semibold text-[#1d1d1f]">AI Ghostwriter</h2>
+                  <p className="text-[10px] text-[#86868b]">Rascunho de artigo baseado nos seus cases</p>
+                </div>
+              </div>
+              <button onClick={() => { setShowGhostwriter(false); setGhostwriterResult(null); }} className="w-8 h-8 rounded-full bg-[#f2f3f5] hover:bg-[#e5e5ea] flex items-center justify-center transition-all">
+                <X size={14} className="text-[#86868b]" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-6">
+              {!ghostwriterResult ? (
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 rounded-2xl bg-[#f2f3f5] flex items-center justify-center mx-auto mb-5">
+                    <FileText size={28} strokeWidth={1} className="text-[#86868b]" />
+                  </div>
+                  <h3 className="text-[17px] font-semibold text-[#1d1d1f] mb-2">Gerar Rascunho IMRAD</h3>
+                  <p className="text-[13px] text-[#86868b] leading-relaxed max-w-sm mx-auto mb-8">
+                    O Ghostwriter analisa seus {activeAssets.filter(a => a.type === 'case').length} cases documentados e gera um rascunho estruturado no formato IMRAD, pronto para adaptar e submeter.
+                  </p>
+                  <div className="grid grid-cols-2 gap-3 text-left mb-8 max-w-sm mx-auto">
+                    {['Introdução', 'Metodologia', 'Resultados', 'Discussão'].map(s => (
+                      <div key={s} className="flex items-center gap-2 px-3 py-2 bg-[#f2f3f5] rounded-[10px]">
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#4285F4]" />
+                        <span className="text-[11px] font-medium text-[#1d1d1f]">{s}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    onClick={generateArticleDraft}
+                    disabled={isGeneratingArticle || activeAssets.filter(a => a.type === 'case').length === 0}
+                    className="px-8 py-3 bg-[#1d1d1f] text-white rounded-full text-[13px] font-semibold hover:bg-[#333] disabled:opacity-40 transition-all shadow-apple flex items-center gap-2 mx-auto"
+                  >
+                    {isGeneratingArticle ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+                    {isGeneratingArticle ? 'Gerando rascunho...' : 'Gerar Rascunho'}
+                  </button>
+                  {activeAssets.filter(a => a.type === 'case').length === 0 && (
+                    <p className="text-[11px] text-[#aeaeb2] mt-3">Crie pelo menos um case clínico para usar o Ghostwriter.</p>
+                  )}
+                </div>
+              ) : (
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-[11px] font-bold text-[#86868b] uppercase tracking-widest">Rascunho gerado</span>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(ghostwriterResult);
+                        setCopiedGhostwriter(true);
+                        setTimeout(() => setCopiedGhostwriter(false), 2000);
+                      }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-[#f2f3f5] hover:bg-[#e5e5ea] rounded-apple text-[11px] font-semibold text-[#1d1d1f] transition-all"
+                    >
+                      {copiedGhostwriter ? <CheckCircle2 size={12} className="text-emerald-500" /> : <Copy size={12} />}
+                      {copiedGhostwriter ? 'Copiado!' : 'Copiar'}
+                    </button>
+                  </div>
+                  <pre className="text-[12px] text-[#424245] leading-relaxed whitespace-pre-wrap font-sans bg-[#f5f5f7] rounded-[14px] p-5 overflow-auto max-h-[400px]">
+                    {ghostwriterResult}
+                  </pre>
+                  <button onClick={() => setGhostwriterResult(null)} className="mt-4 text-[11px] font-medium text-[#86868b] hover:text-[#1d1d1f] transition-colors">
+                    ← Gerar novamente
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Confirmation Dialog */}

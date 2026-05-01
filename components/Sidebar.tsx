@@ -57,7 +57,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, trashCount = 0 
         <div className="flex flex-col items-center gap-5 flex-1">
           <NavItem view={ViewState.HOME} icon={Home} label="Início" />
           <NavItem view={ViewState.ATIVOS} icon={LayoutGrid} label="Ativos" />
-          <NavItem view={ViewState.CASES} icon={Stethoscope} label="Cases Clínicos" />
+          <NavItem view={ViewState.CASES} icon={Stethoscope} label="Cases Científicos" />
         </div>
 
         {/* Secondary Nav */}
