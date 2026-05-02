@@ -5,7 +5,7 @@ import AssetCard from './components/AssetCard';
 import AssetModal from './components/AssetModal';
 import LoginPage from './components/LoginPage';
 import { analyzeAsset, searchAssetsWithAI, searchCasesWithAI, generateCaseSemanticTags, getAIUsage } from './services/geminiService';
-import { saveAttachmentData, deleteAttachmentData } from './services/storageService';
+import { saveAttachmentData, getAttachmentData, deleteAttachmentData } from './services/storageService';
 import { supabase } from './services/supabase';
 import { getStoredUser, storeUser, signOut as authSignOut } from './services/authService';
 import type { AuthUser } from './services/authService';
@@ -83,6 +83,8 @@ const mapAssetRow = (a: Record<string, unknown>): Asset => ({
   type: (a.type as AssetType | undefined) || 'image',
   tags: Array.isArray(a.tags) ? a.tags as string[] : [],
   date: (a.date || a.created_at || new Date().toISOString()) as string,
+  thumbnail: (a.thumbnail || a.thumbnail_url || a.file_url) as string | undefined,
+  content: (a.content || a.file_url || a.thumbnail_url) as string | undefined,
   scientificContext: a.scientific_context as string | undefined,
   createdAt: a.created_at as string | undefined,
   updatedAt: a.updated_at as string | undefined,
@@ -666,8 +668,11 @@ const App: React.FC = () => {
 
   // Permanent delete
   const handlePermanentDelete = async (id: string) => {
+    const assetToRemove = assets.find(a => a.id === id);
+    setAssets(prev => prev.filter(a => a.id !== id));
+    if (selectedAsset?.id === id) setSelectedAsset(null);
+
     try {
-      const assetToRemove = assets.find(a => a.id === id);
       if (assetToRemove) {
         // Delete from Storage
         if (assetToRemove.attachments) {
@@ -679,9 +684,11 @@ const App: React.FC = () => {
 
         // Delete from Database
         const table = assetToRemove.type === 'case' ? 'cases' : 'assets';
-        await supabase.from(table).delete().eq('id', id);
+        await withSupabaseTimeout(
+          supabase.from(table).delete().eq('id', id),
+          'Exclusão permanente no Supabase',
+        );
       }
-      setAssets(prev => prev.filter(a => a.id !== id));
     } catch (err) {
       console.error('Erro ao deletar permanente:', err);
     }
@@ -708,7 +715,19 @@ const App: React.FC = () => {
       title: 'Esvaziar Lixeira?',
       message: 'Esta ação não pode ser desfeita. Todos os itens da lixeira serão permanentemente removidos.',
       onConfirm: () => {
-        setAssets(prev => prev.filter(a => !a.isDeleted));
+        const ids = trashedAssets.map(asset => asset.id);
+        setAssets(prev => prev.filter(a => !ids.includes(a.id)));
+        trashedAssets.forEach(asset => {
+          if (asset.attachments) {
+            asset.attachments.forEach(att => deleteAttachmentData(att.id));
+          }
+          deleteAttachmentData(asset.id);
+          const table = asset.type === 'case' ? 'cases' : 'assets';
+          withSupabaseTimeout(
+            supabase.from(table).delete().eq('id', asset.id),
+            'Exclusão permanente no Supabase',
+          ).catch(err => console.error('Erro ao deletar item da lixeira:', err));
+        });
       }
     });
   };
@@ -924,6 +943,20 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
     return null;
   };
 
+  const getAssetVisualSource = async (asset: Asset): Promise<string> => {
+    const candidates = [asset.thumbnail, asset.content].filter((value): value is string => typeof value === 'string' && value.length > 0);
+    const directImage = candidates.find(src => src.startsWith('data:image') || src.startsWith('http') || src.startsWith('blob:'));
+    if (directImage && !directImage.startsWith('data:application/pdf')) return directImage;
+
+    const firstImageAttachment = asset.attachments?.find(att => typeof att.type === 'string' && att.type.startsWith('image/'));
+    if (firstImageAttachment) {
+      const src = firstImageAttachment.data || await getAttachmentData(firstImageAttachment.id);
+      if (src) return src;
+    }
+
+    return '';
+  };
+
   // Format relative time
   const formatRelativeTime = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -1135,8 +1168,9 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
             y += 5;
           }
 
-          if (linkedAsset.thumbnail) {
-            const linkedImg = await sourceToDataUrl(linkedAsset.thumbnail);
+          const linkedVisualSource = await getAssetVisualSource(linkedAsset);
+          if (linkedVisualSource) {
+            const linkedImg = await sourceToDataUrl(linkedVisualSource);
             if (!drawImageData(linkedImg, Math.min(contentWidth, 140), 180)) {
               checkPage(8);
               doc.setFont('helvetica', 'italic');
@@ -1437,15 +1471,17 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                       {/* Caption — editorial style */}
                       {imgSrc && (
                         <div className="px-5 py-3 border-t border-black/[0.04]">
-                          <input type="text" value={imgCaption || ''}
+                          <textarea value={imgCaption || ''}
                             onChange={e => {
                               const newEntries = [...entries];
                               newEntries[currentIdx] = `${imgSrc}###${e.target.value}`;
                               const nb = editingCase.blocks?.map(b => b.id === block.id ? { ...b, content: newEntries.join('|||') } : b);
                               syncCase({ ...editingCase, blocks: nb });
                             }}
+                            onInput={(e: any) => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; }}
                             placeholder="Legenda da imagem (opcional)..."
-                            className="w-full text-[12px] text-center italic text-[#86868b] bg-transparent outline-none placeholder:text-[#d1d1d6] font-light" />
+                            rows={1}
+                            className="w-full resize-none overflow-hidden text-[12px] text-center italic leading-relaxed text-[#86868b] bg-transparent outline-none placeholder:text-[#d1d1d6] font-light" />
                         </div>
                       )}
                       {/* Thumbnail strip */}
@@ -2783,7 +2819,9 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
           asset={selectedAsset}
           onClose={() => { setSelectedAsset(null); setNewAssetId(null); }}
           onSave={handleSaveAsset}
-          onDelete={handleDeleteAsset}
+          onDelete={selectedAsset.isDeleted ? handlePermanentDelete : handleDeleteAsset}
+          isTrashMode={Boolean(selectedAsset.isDeleted)}
+          onRestore={() => handleRestoreAsset(selectedAsset.id)}
           onConfirmDialog={openConfirmDialog}
           showFieldHint={selectedAsset.id === newAssetId}
         />

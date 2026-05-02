@@ -461,8 +461,9 @@ const AssetModal: React.FC<AssetModalProps> = ({
             );
         }
 
-        if (asset.thumbnail) {
-            return <img src={asset.thumbnail} alt="Preview" className="w-full h-full object-contain bg-[#f2f3f5]" />;
+        const visualSource = asset.thumbnail || asset.content || asset.attachments?.find(att => att.type?.startsWith('image/'))?.data;
+        if (visualSource && typeof visualSource === 'string' && (visualSource.startsWith('data:image') || visualSource.startsWith('http') || visualSource.startsWith('blob:'))) {
+            return <img src={visualSource} alt="Preview" className="w-full h-full object-contain bg-[#f2f3f5]" />;
         }
 
         return (
