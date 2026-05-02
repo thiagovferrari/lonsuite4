@@ -280,7 +280,7 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
             {[
               { icon: Search, title: 'Busca semântica como diferencial', body: 'A busca não depende só do nome do arquivo. Ela entende contexto, tema, técnica, achado e intenção.' },
               { icon: Brain, title: 'Ativos com inteligência', body: 'Cada imagem e documento ganha metadados úteis, tags, resumo e lugar dentro da produção científica.' },
-              { icon: Award, title: 'Valor percebido imediato', body: 'O médico não compra armazenamento. Compra memória, autoridade, rapidez e capacidade de apresentação.' },
+              { icon: Award, title: 'Presença científica sempre à mão', body: 'Seu melhor material deixa de depender da memória e passa a estar pronto para ser encontrado, revisado e apresentado.' },
             ].map(item => {
               const Icon = item.icon;
               return (
@@ -490,14 +490,14 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_28%_20%,rgba(255,255,255,0.12),transparent_30%),radial-gradient(circle_at_82%_72%,rgba(58,123,213,0.18),transparent_34%)]" />
           <div className="login-orbit absolute left-[10%] top-[8%] h-36 w-36 rounded-full border border-white/[0.08]" />
           <div className="login-orbit login-orbit-delayed absolute bottom-[12%] right-[12%] h-52 w-52 rounded-full border border-white/[0.06]" />
-          <div className="relative mx-auto grid w-full max-w-[980px] grid-cols-[0.84fr_1.16fr] items-center gap-10">
+          <div className="relative mx-auto grid w-full max-w-[1040px] grid-cols-[0.9fr_1.1fr] items-center gap-8 xl:gap-10">
             <div>
               <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/[0.10] bg-white/[0.06] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white/62">
                 <Award size={12} />
                 {story.eyebrow}
               </p>
               <div key={activeStory} className="login-story-enter">
-                <h2 className="text-[44px] font-extralight leading-[1.04] tracking-tight xl:text-[56px]">
+                <h2 className="text-[40px] font-extralight leading-[1.04] tracking-tight xl:text-[54px]">
                   {story.title}
                 </h2>
                 <p className="mt-6 max-w-[470px] text-[15px] font-light leading-relaxed text-white/62">
@@ -516,7 +516,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
                 ))}
               </div>
 
-              <div className="mt-8 grid gap-3">
+              <div className="mt-7 grid gap-2.5 xl:gap-3">
                 {[
                   { icon: Images, title: 'Ativos organizados', body: 'Imagens, PDFs e materiais científicos com tags, contexto e busca.' },
                   { icon: Brain, title: 'IA como assistente editorial', body: 'Indexação, resumos e achados principais para acelerar curadoria.' },
@@ -524,13 +524,13 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
                 ].map(item => {
                   const Icon = item.icon;
                   return (
-                    <div key={item.title} className="login-feature-card flex gap-3 rounded-[18px] border border-white/[0.08] bg-white/[0.055] p-4 backdrop-blur">
+                    <div key={item.title} className="login-feature-card flex gap-3 rounded-[18px] border border-white/[0.08] bg-white/[0.055] p-3.5 backdrop-blur xl:p-4">
                       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] bg-white text-[#1d1d1f]">
                         <Icon size={17} />
                       </div>
                       <div>
                         <p className="text-[13px] font-semibold text-white">{item.title}</p>
-                        <p className="mt-1 text-[12px] leading-relaxed text-white/48">{item.body}</p>
+                        <p className="mt-1 text-[11px] leading-relaxed text-white/48 xl:text-[12px]">{item.body}</p>
                       </div>
                     </div>
                   );
@@ -538,34 +538,34 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
               </div>
             </div>
 
-            <div className="relative min-h-[650px]">
+            <div className="relative min-h-[600px] xl:min-h-[650px]">
               <img
                 src="/assets/lon-suite-physician-female-editorial.png"
                 alt="Médica pesquisadora representando a Lon Suite"
-                className="absolute right-0 top-0 h-[520px] w-[82%] rounded-[32px] object-cover object-center shadow-[0_34px_120px_rgba(0,0,0,0.34)]"
+                className="absolute right-4 top-0 h-[500px] w-[88%] rounded-[32px] object-cover object-[58%_50%] shadow-[0_34px_120px_rgba(0,0,0,0.34)] xl:right-0 xl:h-[540px]"
               />
 
-              <div className="login-product-card absolute left-0 top-[270px] w-[72%] rounded-[30px] border border-white/[0.10] bg-[#f7f7f5] p-5 text-[#1d1d1f] shadow-[0_36px_110px_rgba(0,0,0,0.44)]">
-                <div className="mb-5 flex items-center justify-between">
+              <div className="login-product-card absolute left-0 top-[250px] w-[74%] rounded-[30px] border border-white/[0.10] bg-[#f7f7f5] p-4 text-[#1d1d1f] shadow-[0_36px_110px_rgba(0,0,0,0.44)] xl:top-[285px] xl:p-5">
+                <div className="mb-4 flex items-center justify-between">
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#86868b]">Ativo científico</p>
-                    <h3 className="mt-1 text-[22px] font-light tracking-tight">{activeStory === 1 ? 'Curadoria por IA' : activeStory === 2 ? 'Case pronto' : 'Imagem com contexto'}</h3>
+                    <h3 className="mt-1 text-[20px] font-light tracking-tight xl:text-[22px]">{activeStory === 1 ? 'Curadoria por IA' : activeStory === 2 ? 'Case pronto' : 'Imagem com contexto'}</h3>
                   </div>
-                  <div className="rounded-full bg-[#1d1d1f] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-white">Indexado</div>
+                  <div className="rounded-full bg-[#1d1d1f] px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-white xl:px-3 xl:text-[10px]">Indexado</div>
                 </div>
 
                 <div className="grid grid-cols-[0.9fr_1.1fr] gap-3">
-                  <div className="h-36 overflow-hidden rounded-[22px] bg-[#d8dde2]">
+                  <div className="h-28 overflow-hidden rounded-[22px] bg-[#d8dde2] xl:h-36">
                     <div className="login-scan h-full w-full bg-[linear-gradient(135deg,#cfd8df,#f5f2ec_48%,#aeb8bf)]" />
                   </div>
-                  <div className="rounded-[20px] bg-white p-4 shadow-[0_8px_24px_rgba(0,0,0,0.06)]">
-                    <Search size={16} className="mb-8 text-[#3a7bd5]" />
-                    <p className="text-[24px] font-light">{story.metric}</p>
+                  <div className="rounded-[20px] bg-white p-3.5 shadow-[0_8px_24px_rgba(0,0,0,0.06)] xl:p-4">
+                    <Search size={16} className="mb-5 text-[#3a7bd5] xl:mb-8" />
+                    <p className="text-[22px] font-light xl:text-[24px]">{story.metric}</p>
                     <p className="text-[9px] font-bold uppercase tracking-wider text-[#86868b]">{story.metricLabel}</p>
                   </div>
                 </div>
 
-                <div className="mt-4 space-y-2.5">
+                <div className="mt-3 space-y-2 xl:mt-4 xl:space-y-2.5">
                   {[
                     activeStory === 0
                       ? ['Contexto', 'Imagem catalogada por significado clínico']
@@ -578,7 +578,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
                         ? ['Curadoria', 'Menos arquivo solto, mais ativo útil']
                         : ['Destino', 'Aula, round, publicação ou memória'],
                   ].map(([label, value], index) => (
-                    <div key={label} className="login-row-reveal rounded-[16px] border border-black/[0.05] bg-white px-4 py-3" style={{ animationDelay: `${index * 120}ms` }}>
+                    <div key={label} className="login-row-reveal rounded-[16px] border border-black/[0.05] bg-white px-3.5 py-2.5 xl:px-4 xl:py-3" style={{ animationDelay: `${index * 120}ms` }}>
                       <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-[#86868b]">{label}</p>
                       <p className="mt-1 text-[12px] leading-relaxed text-[#424245]">{value}</p>
                     </div>
@@ -586,20 +586,20 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
                 </div>
               </div>
 
-              <div className="login-library-card absolute bottom-8 right-0 w-[58%] rounded-[26px] border border-white/[0.12] bg-white/[0.10] p-4 shadow-[0_28px_80px_rgba(0,0,0,0.36)] backdrop-blur-xl">
-                <div className="mb-4 flex items-center justify-between">
+              <div className="login-library-card absolute bottom-4 right-4 w-[56%] rounded-[26px] border border-white/[0.12] bg-white/[0.10] p-3.5 shadow-[0_28px_80px_rgba(0,0,0,0.36)] backdrop-blur-xl xl:bottom-8 xl:right-0 xl:p-4">
+                <div className="mb-3 flex items-center justify-between xl:mb-4">
                   <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/48">Biblioteca</p>
                   <FileText size={15} className="text-white/62" />
                 </div>
                 <div className="grid grid-cols-3 gap-2">
                   {['Cirurgia', 'Artigo', 'Caso', 'Imagem', 'PDF', 'Aula'].map(label => (
                     <div key={label} className="aspect-square rounded-[16px] bg-white/[0.10] p-2">
-                      <div className="mb-3 h-2 w-8 rounded-full bg-white/24" />
+                      <div className="mb-2 h-2 w-8 rounded-full bg-white/24 xl:mb-3" />
                       <p className="text-[10px] font-semibold text-white/70">{label}</p>
                     </div>
                   ))}
                 </div>
-                <div className="mt-4 rounded-[16px] bg-white px-4 py-3 text-[#1d1d1f]">
+                <div className="mt-3 rounded-[16px] bg-white px-4 py-3 text-[#1d1d1f] xl:mt-4">
                   <p className="text-[11px] font-semibold">Busca semântica</p>
                   <p className="mt-1 text-[10px] leading-relaxed text-[#86868b]">Encontre um caso por tema, técnica, imagem ou evidência.</p>
                 </div>
