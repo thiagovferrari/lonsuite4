@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { ArrowRight, Award, Brain, FileText, Images, LockKeyhole, Presentation, Search, ShieldCheck } from 'lucide-react';
 import { signIn } from '../services/authService';
 import type { AuthUser } from '../services/authService';
 
@@ -27,85 +28,208 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] flex items-center justify-center p-4">
-      <div className="w-full max-w-[380px]">
+    <div className="min-h-screen bg-[#f5f5f7] text-[#1d1d1f]">
+      <div className="grid min-h-screen lg:grid-cols-[minmax(420px,0.86fr)_1.14fr]">
+        <section className="flex items-center justify-center px-5 py-10 sm:px-8 lg:px-12">
+          <div className="w-full max-w-[420px]">
+            <div className="mb-10">
+              <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-[18px] bg-[#1d1d1f] shadow-[0_8px_28px_rgba(0,0,0,0.16)]">
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                  <path d="M3 5.5h16M3 11h10M3 16.5h12" stroke="white" strokeWidth="1.6" strokeLinecap="round"/>
+                </svg>
+              </div>
+              <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Longecta Scientific Workspace</p>
+              <h1 className="text-[34px] font-extralight leading-tight tracking-tight text-[#1d1d1f]">Lon Suite</h1>
+              <p className="mt-3 max-w-[340px] text-[13px] leading-relaxed text-[#6e6e73]">
+                Entre no ambiente onde ativos científicos, imagens cirúrgicas e cases clínicos viram patrimônio organizado.
+              </p>
+            </div>
 
-        {/* Brand */}
-        <div className="text-center mb-10">
-          <div className="w-14 h-14 bg-[#1d1d1f] rounded-[18px] flex items-center justify-center mx-auto mb-5 shadow-[0_6px_24px_rgba(0,0,0,0.14)]">
-            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-              <path d="M3 5.5h16M3 11h10M3 16.5h12" stroke="white" strokeWidth="1.6" strokeLinecap="round"/>
-            </svg>
+            <div className="rounded-[26px] border border-black/[0.05] bg-white p-7 shadow-[0_18px_60px_rgba(0,0,0,0.08)] sm:p-8">
+              <div className="mb-7 flex items-start justify-between gap-5">
+                <div>
+                  <h2 className="text-[20px] font-semibold tracking-tight text-[#1d1d1f]">Acessar conta</h2>
+                  <p className="mt-1 text-[12px] leading-relaxed text-[#86868b]">Use suas credenciais cadastradas no Supabase.</p>
+                </div>
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-[#f5f5f7] text-[#1d1d1f]">
+                  <LockKeyhole size={17} />
+                </div>
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-[0.15em] text-[#86868b]">
+                    E-mail
+                  </label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={e => { setEmail(e.target.value); setError(''); }}
+                    placeholder="seu@email.com"
+                    required
+                    autoComplete="email"
+                    className="w-full rounded-[14px] border border-transparent bg-[#f5f5f7] px-4 py-3 text-[14px] text-[#1d1d1f] outline-none transition-all placeholder:text-[#c7c7cc] focus:border-black/[0.08] focus:bg-white focus:ring-4 focus:ring-black/[0.04]"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-[0.15em] text-[#86868b]">
+                    Senha
+                  </label>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={e => { setPassword(e.target.value); setError(''); }}
+                    placeholder="••••••••"
+                    required
+                    autoComplete="current-password"
+                    className="w-full rounded-[14px] border border-transparent bg-[#f5f5f7] px-4 py-3 text-[14px] text-[#1d1d1f] outline-none transition-all placeholder:text-[#c7c7cc] focus:border-black/[0.08] focus:bg-white focus:ring-4 focus:ring-black/[0.04]"
+                  />
+                </div>
+
+                {error && (
+                  <div className="rounded-[14px] border border-[#ff3b30]/10 bg-[#fff1f0] px-3 py-2 text-[12px] font-medium text-[#d92d20]">
+                    {error}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={loading || !email || !password}
+                  className="mt-2 flex w-full items-center justify-center gap-2 rounded-[14px] bg-[#1d1d1f] py-3 text-[14px] font-semibold text-white shadow-[0_10px_26px_rgba(0,0,0,0.16)] transition-all hover:bg-[#2d2d2f] active:scale-[0.98] disabled:opacity-40"
+                >
+                  {loading ? (
+                    <>
+                      <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="3" opacity="0.3"/>
+                        <path d="M12 2a10 10 0 0 1 10 10" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+                      </svg>
+                      Entrando...
+                    </>
+                  ) : (
+                    <>
+                      Entrar no workspace
+                      <ArrowRight size={15} />
+                    </>
+                  )}
+                </button>
+              </form>
+
+              <p className="mt-7 text-center text-[11px] leading-relaxed text-[#aeaeb2]">
+                Acesso somente por convite.{' '}
+                <a href="mailto:suporte@longecta.com.br" className="font-medium text-[#3a7bd5] hover:underline">
+                  suporte@longecta.com.br
+                </a>
+              </p>
+            </div>
+
+            <div className="mt-6 flex items-center gap-2 text-[11px] font-medium text-[#86868b]">
+              <ShieldCheck size={14} className="text-[#1d1d1f]" />
+              Dados científicos organizados por conta e protegidos por autenticação.
+            </div>
           </div>
-          <h1 className="text-[26px] font-light tracking-tight text-[#1d1d1f]">Lon Suite</h1>
-          <p className="text-[11px] text-[#86868b] mt-1 font-medium tracking-[0.12em] uppercase">Patrimônio Científico · Longecta</p>
-        </div>
+        </section>
 
-        {/* Card */}
-        <div className="bg-white rounded-[24px] p-8 shadow-[0_2px_24px_rgba(0,0,0,0.07)] border border-black/[0.05]">
-          <h2 className="text-[18px] font-semibold text-[#1d1d1f] mb-1">Acessar conta</h2>
-          <p className="text-[12px] text-[#aeaeb2] mb-7">Insira suas credenciais para continuar</p>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
+        <section className="relative hidden overflow-hidden bg-[#101114] px-10 py-10 text-white lg:flex lg:items-center">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_28%_20%,rgba(255,255,255,0.12),transparent_30%),radial-gradient(circle_at_82%_72%,rgba(58,123,213,0.18),transparent_34%)]" />
+          <div className="relative mx-auto grid w-full max-w-[900px] grid-cols-[0.88fr_1.12fr] items-center gap-10">
             <div>
-              <label className="block text-[10px] font-bold text-[#86868b] uppercase tracking-[0.15em] mb-1.5">
-                E-mail
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={e => { setEmail(e.target.value); setError(''); }}
-                placeholder="seu@email.com"
-                required
-                autoComplete="email"
-                className="w-full px-4 py-3 bg-[#f5f5f7] rounded-[12px] text-[14px] text-[#1d1d1f] outline-none focus:ring-2 focus:ring-black/10 transition-all placeholder:text-[#c7c7cc] border border-transparent focus:bg-white"
-              />
+              <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/[0.10] bg-white/[0.06] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white/62">
+                <Award size={12} />
+                Patrimônio Científico
+              </p>
+              <h2 className="text-[44px] font-extralight leading-[1.04] tracking-tight xl:text-[56px]">
+                A memória científica da sua prática, pronta para ser encontrada, apresentada e publicada.
+              </h2>
+              <p className="mt-6 max-w-[470px] text-[15px] font-light leading-relaxed text-white/62">
+                A Lon Suite organiza fotos cirúrgicas, documentos, evidências e cases em um workspace sóbrio para médicos que produzem conhecimento.
+              </p>
+
+              <div className="mt-8 grid gap-3">
+                {[
+                  { icon: Images, title: 'Ativos organizados', body: 'Imagens, PDFs e materiais científicos com tags, contexto e busca.' },
+                  { icon: Brain, title: 'IA como assistente editorial', body: 'Indexação, resumos e achados principais para acelerar curadoria.' },
+                  { icon: Presentation, title: 'Cases apresentáveis', body: 'Documentação clínica com modo apresentação e exportação estruturada.' },
+                ].map(item => {
+                  const Icon = item.icon;
+                  return (
+                    <div key={item.title} className="flex gap-3 rounded-[18px] border border-white/[0.08] bg-white/[0.055] p-4 backdrop-blur">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] bg-white text-[#1d1d1f]">
+                        <Icon size={17} />
+                      </div>
+                      <div>
+                        <p className="text-[13px] font-semibold text-white">{item.title}</p>
+                        <p className="mt-1 text-[12px] leading-relaxed text-white/48">{item.body}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
 
-            <div>
-              <label className="block text-[10px] font-bold text-[#86868b] uppercase tracking-[0.15em] mb-1.5">
-                Senha
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={e => { setPassword(e.target.value); setError(''); }}
-                placeholder="••••••••"
-                required
-                autoComplete="current-password"
-                className="w-full px-4 py-3 bg-[#f5f5f7] rounded-[12px] text-[14px] text-[#1d1d1f] outline-none focus:ring-2 focus:ring-black/10 transition-all placeholder:text-[#c7c7cc] border border-transparent focus:bg-white"
-              />
+            <div className="relative min-h-[620px]">
+              <div className="absolute left-0 top-8 w-[92%] rounded-[30px] border border-white/[0.10] bg-[#f7f7f5] p-5 text-[#1d1d1f] shadow-[0_36px_110px_rgba(0,0,0,0.44)]">
+                <div className="mb-5 flex items-center justify-between">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#86868b]">Case em preparo</p>
+                    <h3 className="mt-1 text-[22px] font-light tracking-tight">Reconstrução complexa</h3>
+                  </div>
+                  <div className="rounded-full bg-[#1d1d1f] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-white">Pronto</div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="col-span-2 h-44 overflow-hidden rounded-[22px] bg-[#d8dde2]">
+                    <div className="h-full w-full bg-[linear-gradient(135deg,#cfd8df,#f5f2ec_48%,#aeb8bf)]" />
+                  </div>
+                  <div className="grid gap-2">
+                    <div className="rounded-[18px] bg-white p-3 shadow-[0_8px_24px_rgba(0,0,0,0.06)]">
+                      <Images size={16} className="mb-5 text-[#3a7bd5]" />
+                      <p className="text-[24px] font-light">42</p>
+                      <p className="text-[9px] font-bold uppercase tracking-wider text-[#86868b]">Imagens</p>
+                    </div>
+                    <div className="rounded-[18px] bg-[#1d1d1f] p-3 text-white">
+                      <Search size={16} className="mb-5 text-white/72" />
+                      <p className="text-[24px] font-light">IA</p>
+                      <p className="text-[9px] font-bold uppercase tracking-wider text-white/42">Indexado</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-5 space-y-3">
+                  {[
+                    ['Contexto científico', 'Retalho local, evolução pós-operatória, evidência moderada'],
+                    ['Achados principais', 'Boa integração tecidual e documentação longitudinal'],
+                    ['Apresentação', '12 slides editoriais gerados para discussão clínica'],
+                  ].map(([label, value]) => (
+                    <div key={label} className="rounded-[16px] border border-black/[0.05] bg-white px-4 py-3">
+                      <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-[#86868b]">{label}</p>
+                      <p className="mt-1 text-[12px] leading-relaxed text-[#424245]">{value}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="absolute bottom-12 right-0 w-[66%] rounded-[26px] border border-white/[0.12] bg-white/[0.10] p-4 shadow-[0_28px_80px_rgba(0,0,0,0.36)] backdrop-blur-xl">
+                <div className="mb-4 flex items-center justify-between">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/48">Biblioteca</p>
+                  <FileText size={15} className="text-white/62" />
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  {['Cirurgia', 'Artigo', 'Caso', 'Imagem', 'PDF', 'Aula'].map(label => (
+                    <div key={label} className="aspect-square rounded-[16px] bg-white/[0.10] p-2">
+                      <div className="mb-3 h-2 w-8 rounded-full bg-white/24" />
+                      <p className="text-[10px] font-semibold text-white/70">{label}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4 rounded-[16px] bg-white px-4 py-3 text-[#1d1d1f]">
+                  <p className="text-[11px] font-semibold">Busca semântica</p>
+                  <p className="mt-1 text-[10px] leading-relaxed text-[#86868b]">Encontre um caso por tema, técnica, imagem ou evidência.</p>
+                </div>
+              </div>
             </div>
-
-            {error && (
-              <p className="text-[12px] text-[#ff3b30] font-medium pl-1">{error}</p>
-            )}
-
-            <button
-              type="submit"
-              disabled={loading || !email || !password}
-              className="w-full py-3 bg-[#1d1d1f] text-white rounded-[12px] text-[14px] font-semibold hover:bg-[#2d2d2f] active:scale-[0.98] disabled:opacity-40 transition-all shadow-[0_1px_6px_rgba(0,0,0,0.12)] flex items-center justify-center gap-2 mt-1"
-            >
-              {loading ? (
-                <>
-                  <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="3" opacity="0.3"/>
-                    <path d="M12 2a10 10 0 0 1 10 10" stroke="white" strokeWidth="3" strokeLinecap="round"/>
-                  </svg>
-                  Entrando…
-                </>
-              ) : 'Entrar'}
-            </button>
-          </form>
-
-          <p className="text-[11px] text-[#c7c7cc] text-center mt-7 leading-relaxed">
-            Acesso somente por convite.{' '}
-            <a href="mailto:suporte@longecta.com.br" className="text-[#3a7bd5] hover:underline">
-              suporte@longecta.com.br
-            </a>
-          </p>
-        </div>
-
+          </div>
+        </section>
       </div>
     </div>
   );
