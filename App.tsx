@@ -112,6 +112,7 @@ const App: React.FC = () => {
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
   const [pendingUpload, setPendingUpload] = useState<{ files: File[], base64s: string[] } | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<{ step: number; total: number; label: string } | null>(null);
 
   // Filter State
   const [searchQuery, setSearchQuery] = useState('');
@@ -515,6 +516,11 @@ const App: React.FC = () => {
   const processUpload = async (useAI: boolean) => {
     if (!pendingUpload) return;
     setIsProcessing(true);
+    setUploadProgress({
+      step: 0,
+      total: Math.max(1, pendingUpload.files.length + (useAI ? 1 : 0) + 1),
+      label: 'Preparando arquivos...',
+    });
     let firstNewAsset: Asset | null = null;
 
     try {
@@ -534,6 +540,7 @@ const App: React.FC = () => {
         };
 
         if (useAI) {
+          setUploadProgress(prev => ({ step: Math.max(prev?.step ?? 0, 1), total: prev?.total ?? pendingUpload.files.length + 2, label: 'IA analisando o primeiro arquivo...' }));
           try {
             const analysis = await analyzeAsset(firstBase64.split(',')[1], firstFile.type, 'Medicina');
             assetData = {
@@ -554,6 +561,11 @@ const App: React.FC = () => {
           const file = pendingUpload.files[i];
           const base64 = pendingUpload.base64s[i];
           const attId = crypto.randomUUID();
+          setUploadProgress({
+            step: (useAI ? 1 : 0) + i + 1,
+            total: pendingUpload.files.length + (useAI ? 1 : 0) + 1,
+            label: `Enviando ${file.name}`,
+          });
 
           // Save to Supabase Storage and get URL
           const publicUrl = await saveAttachmentData(attId, base64);
@@ -580,6 +592,11 @@ const App: React.FC = () => {
         };
 
         setAssets(prev => [groupAsset, ...prev]);
+        setUploadProgress({
+          step: pendingUpload.files.length + (useAI ? 1 : 0) + 1,
+          total: pendingUpload.files.length + (useAI ? 1 : 0) + 1,
+          label: 'Sincronizando ativo...',
+        });
         syncToCloud(groupAsset);
         firstNewAsset = groupAsset;
 
@@ -600,6 +617,11 @@ const App: React.FC = () => {
           };
 
           if (useAI) {
+            setUploadProgress({
+              step: i + 1,
+              total: pendingUpload.files.length * 2 + 1,
+              label: `IA analisando ${file.name}`,
+            });
             try {
               const analysis = await analyzeAsset(base64.split(',')[1], file.type, 'Medicina');
               assetData = {
@@ -617,6 +639,11 @@ const App: React.FC = () => {
           const assetType: AssetType = file.type.includes('pdf') ? 'pdf' : (file.type.includes('powerpoint') || file.type.includes('presentation') || file.name.endsWith('.ppt') || file.name.endsWith('.pptx')) ? 'document' : 'image';
           const assetId = crypto.randomUUID();
 
+          setUploadProgress({
+            step: (useAI ? pendingUpload.files.length : 0) + i + 1,
+            total: pendingUpload.files.length * (useAI ? 2 : 1) + 1,
+            label: `Enviando ${file.name}`,
+          });
           const publicUrl = await saveAttachmentData(assetId, base64);
 
           const newAsset: Asset = {
@@ -633,6 +660,11 @@ const App: React.FC = () => {
           await syncToCloud(newAsset);
         }
 
+        setUploadProgress({
+          step: pendingUpload.files.length * (useAI ? 2 : 1) + 1,
+          total: pendingUpload.files.length * (useAI ? 2 : 1) + 1,
+          label: 'Finalizando biblioteca...',
+        });
         setAssets(prev => [...newAssets, ...prev]);
         if (newAssets.length > 0) firstNewAsset = newAssets[0];
       }
@@ -642,6 +674,7 @@ const App: React.FC = () => {
     } finally {
       setPendingUpload(null);
       setIsProcessing(false);
+      setUploadProgress(null);
       setUploadMode('single');
       // Auto-open modal for manual uploads so user fills in details
       if (firstNewAsset && !useAI) {
@@ -1308,7 +1341,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
 
           <div className="space-y-8">
             {editingCase.blocks?.map((block, index) => (
-              <div id={block.id} key={block.id} className="group relative animate-fade-in">
+              <div id={block.id} key={block.id} className="group relative scroll-mt-28 rounded-[24px] border border-transparent px-3 py-3 transition-all hover:border-black/[0.045] hover:bg-white/72 hover:shadow-[0_18px_60px_rgba(0,0,0,0.045)] md:px-0 md:py-0 md:hover:bg-transparent md:hover:shadow-none">
                 {block.type === 'title' ? (
                   <input
                     value={block.content}
@@ -2108,7 +2141,27 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
             <p className="text-[#86868b] text-[13px] mb-8 leading-relaxed">
               {pendingUpload.files.length === 1 ? pendingUpload.files[0].name : `${pendingUpload.files.length} arquivos selecionados`}
             </p>
-            <p className="text-[12px] text-[#86868b] mb-6">Deseja que a IA indexe automaticamente?</p>
+            {isProcessing && uploadProgress ? (
+              <div className="mb-7 rounded-[18px] border border-black/[0.06] bg-[#f7f7f8] p-4 text-left">
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <p className="min-w-0 truncate text-[11px] font-semibold text-[#1d1d1f]">{uploadProgress.label}</p>
+                  <span className="text-[10px] font-bold tabular-nums text-[#86868b]">
+                    {Math.round((uploadProgress.step / Math.max(1, uploadProgress.total)) * 100)}%
+                  </span>
+                </div>
+                <div className="h-1.5 overflow-hidden rounded-full bg-black/[0.06]">
+                  <div
+                    className="h-full rounded-full bg-[#1d1d1f] transition-all duration-500 ease-out"
+                    style={{ width: `${Math.min(100, Math.round((uploadProgress.step / Math.max(1, uploadProgress.total)) * 100))}%` }}
+                  />
+                </div>
+                <p className="mt-2 text-[10px] text-[#aeaeb2]">
+                  Etapa {Math.min(uploadProgress.step, uploadProgress.total)} de {uploadProgress.total}
+                </p>
+              </div>
+            ) : (
+              <p className="text-[12px] text-[#86868b] mb-6">Deseja que a IA indexe automaticamente?</p>
+            )}
             <div className="flex flex-col gap-2.5">
               <button onClick={() => processUpload(true)} disabled={isProcessing}
                 className="btn-ai w-full py-3.5 rounded-apple-lg font-semibold text-[13px] shadow-apple flex items-center justify-center gap-2.5 disabled:opacity-50">
