@@ -74,6 +74,7 @@ const App: React.FC = () => {
 
   // Cases view mode
   const [caseViewMode, setCaseViewMode] = useState<'list' | 'grid'>('list');
+  const [assetTileSize, setAssetTileSize] = useState<'small' | 'medium' | 'large'>('medium');
 
   // Confirmation Dialog State
   const [confirmDialog, setConfirmDialog] = useState<{
@@ -276,6 +277,18 @@ const App: React.FC = () => {
     };
   }, [editingCase]);
 
+  useEffect(() => {
+    if (!presentationMode || !editingCase) return;
+    const total = (editingCase.blocks || []).filter(b => b.content || b.type === 'image' || b.assetId).length;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setPresentationMode(false);
+      if (event.key === 'ArrowLeft') setPresentationBlockIdx(i => Math.max(0, i - 1));
+      if (event.key === 'ArrowRight' || event.key === ' ') setPresentationBlockIdx(i => Math.min(total - 1, i + 1));
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [presentationMode, editingCase]);
+
   // Computed values
   const activeAssets = useMemo(() => assets.filter(a => !a.isDeleted), [assets]);
   const trashedAssets = useMemo(() => assets.filter(a => a.isDeleted), [assets]);
@@ -342,6 +355,11 @@ const App: React.FC = () => {
   }, [activeAssets, searchQuery, applyDateFilter]);
 
   // filteredCases already handles all case filtering
+  const assetGridClass = {
+    small: 'grid-cols-[repeat(auto-fill,minmax(92px,1fr))] gap-2',
+    medium: 'grid-cols-[repeat(auto-fill,minmax(132px,1fr))] gap-3 sm:gap-4',
+    large: 'grid-cols-[repeat(auto-fill,minmax(190px,1fr))] gap-4 sm:gap-5',
+  }[assetTileSize];
 
   // File Upload Handler
   const handleFilesSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1534,81 +1552,140 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
 
         {/* Presentation Mode Overlay */}
         {presentationMode && editingCase && (() => {
-          const blocks = (editingCase.blocks || []).filter(b => b.content || b.type === 'image');
+          const blocks = (editingCase.blocks || []).filter(b => b.content || b.type === 'image' || b.assetId);
           const block = blocks[presentationBlockIdx];
           const total = blocks.length;
           if (!block) return null;
 
           const entries = block.type === 'image' && block.content ? block.content.split('|||').filter(Boolean) : [];
-          const [imgSrc] = entries[0]?.split('###') || [];
+          const imageEntries = entries.map(entry => {
+            const [src, caption] = entry.split('###');
+            return { src, caption };
+          }).filter(entry => entry.src);
+          const linkedAsset = block.type === 'asset' ? activeAssets.find(a => a.id === block.assetId) : null;
+          const progress = total > 0 ? ((presentationBlockIdx + 1) / total) * 100 : 0;
 
           return (
-            <div className="fixed inset-0 z-[900] bg-[#0a0a0a] flex flex-col animate-fade-in">
+            <div className="fixed inset-0 z-[900] bg-[#07080a] text-white flex flex-col animate-fade-in">
               {/* Top bar */}
-              <div className="flex items-center justify-between px-8 py-4 border-b border-white/[0.06]">
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 rounded-full bg-white/30" />
-                  <span className="text-white/60 text-[11px] font-semibold tracking-widest uppercase">Lon Suite · Modo Apresentação</span>
+              <div className="relative flex items-center justify-between px-5 sm:px-8 py-4 border-b border-white/[0.08] bg-white/[0.03] backdrop-blur-xl">
+                <div className="absolute left-0 bottom-0 h-px bg-white transition-all duration-300" style={{ width: `${progress}%` }} />
+                <div className="min-w-0">
+                  <p className="text-white/35 text-[9px] sm:text-[10px] font-bold tracking-[0.18em] uppercase">Lon Suite · Apresentação</p>
+                  <p className="max-w-[58vw] truncate text-white/70 text-[12px] sm:text-[13px] font-medium mt-0.5">{editingCase.title || 'Case científico'}</p>
                 </div>
-                <div className="flex items-center gap-4">
-                  <span className="text-white/40 text-[11px] tabular-nums">{presentationBlockIdx + 1} / {total}</span>
-                  <button onClick={() => setPresentationMode(false)} className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all">
+                <div className="flex items-center gap-2 sm:gap-4">
+                  <span className="text-white/45 text-[11px] tabular-nums">{presentationBlockIdx + 1} / {total}</span>
+                  <button onClick={() => setPresentationMode(false)} aria-label="Fechar apresentação" className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all active:scale-95">
                     <X size={14} className="text-white" />
                   </button>
                 </div>
               </div>
 
               {/* Slide content */}
-              <div className="flex-1 flex items-center justify-center px-8 py-10 overflow-hidden">
+              <div className="flex-1 flex items-center justify-center px-5 sm:px-10 py-8 sm:py-12 overflow-hidden">
                 {block.type === 'title' && (
-                  <h1 className="text-4xl md:text-7xl font-extralight text-white tracking-tight text-center max-w-4xl leading-tight">
-                    {block.content || <span className="opacity-30">Sem título</span>}
-                  </h1>
+                  <div className="w-full max-w-5xl text-center">
+                    <div className="mx-auto mb-8 h-px w-24 bg-white/20" />
+                    <h1 className="text-4xl sm:text-6xl md:text-7xl font-extralight tracking-tight leading-[1.04]">
+                      {block.content || <span className="opacity-30">Sem título</span>}
+                    </h1>
+                    <p className="mt-8 text-[11px] font-semibold tracking-[0.18em] uppercase text-white/35">{editingCase.ownerName || ownerName || 'Lon Suite'}</p>
+                  </div>
                 )}
                 {block.type === 'subtitle' && (
-                  <h2 className="text-3xl md:text-5xl font-light text-white/80 tracking-tight text-center max-w-3xl">
-                    {block.content}
-                  </h2>
+                  <div className="max-w-4xl text-center">
+                    <p className="mb-5 text-[10px] font-bold tracking-[0.2em] uppercase text-white/30">Seção</p>
+                    <h2 className="text-3xl sm:text-5xl md:text-6xl font-light text-white/90 tracking-tight leading-tight">
+                      {block.content}
+                    </h2>
+                  </div>
                 )}
                 {block.type === 'text' && (
-                  <p className="text-xl md:text-2xl font-light text-white/70 leading-relaxed text-center max-w-3xl">
-                    {block.content}
-                  </p>
+                  <div className="w-full max-w-4xl rounded-[28px] border border-white/[0.08] bg-white/[0.04] px-6 py-7 sm:px-10 sm:py-9 shadow-[0_30px_100px_rgba(0,0,0,0.35)]">
+                    <p className="text-[20px] sm:text-2xl md:text-3xl font-light text-white/82 leading-relaxed text-center whitespace-pre-wrap">
+                      {block.content}
+                    </p>
+                  </div>
                 )}
-                {block.type === 'image' && imgSrc && (
-                  <div className="flex flex-col items-center gap-6 max-h-full">
-                    <img src={imgSrc} className="max-h-[75vh] max-w-full object-contain rounded-2xl" alt="" />
-                    {entries[0]?.split('###')[1] && (
-                      <p className="text-[13px] italic text-white/40 text-center">{entries[0].split('###')[1]}</p>
+                {block.type === 'image' && imageEntries.length > 0 && (
+                  <div className="w-full max-w-6xl max-h-full">
+                    <div className={`grid gap-4 ${imageEntries.length === 1 ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'}`}>
+                      {imageEntries.slice(0, 4).map((entry, idx) => (
+                        <figure key={`${entry.src}-${idx}`} className="flex min-h-0 flex-col items-center gap-3">
+                          <img
+                            src={entry.src}
+                            className="max-h-[62vh] w-full object-contain rounded-[22px] border border-white/[0.08] bg-black/30 shadow-[0_28px_80px_rgba(0,0,0,0.45)]"
+                            alt=""
+                          />
+                          {entry.caption && (
+                            <figcaption className="max-w-3xl text-center text-[12px] sm:text-[13px] italic text-white/48 leading-relaxed">{entry.caption}</figcaption>
+                          )}
+                        </figure>
+                      ))}
+                    </div>
+                    {imageEntries.length > 4 && (
+                      <p className="mt-4 text-center text-[11px] text-white/35">+{imageEntries.length - 4} imagens neste bloco</p>
                     )}
                   </div>
                 )}
+                {block.type === 'asset' && linkedAsset && (
+                  <div className="grid w-full max-w-5xl items-center gap-7 md:grid-cols-[0.95fr_1.05fr]">
+                    <div className="aspect-[4/3] overflow-hidden rounded-[28px] border border-white/[0.08] bg-white/[0.04] shadow-[0_28px_90px_rgba(0,0,0,0.45)]">
+                      {linkedAsset.thumbnail && linkedAsset.type !== 'pdf' ? (
+                        <img src={linkedAsset.thumbnail} className="h-full w-full object-cover" alt="" />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center">
+                          <BookOpen size={52} className="text-white/35" />
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <p className="mb-4 text-[10px] font-bold tracking-[0.2em] uppercase text-white/35">Ativo vinculado</p>
+                      <h2 className="text-3xl sm:text-5xl font-light tracking-tight leading-tight">{linkedAsset.title}</h2>
+                      {linkedAsset.summary && (
+                        <p className="mt-6 text-lg sm:text-xl font-light leading-relaxed text-white/62">{linkedAsset.summary}</p>
+                      )}
+                      {(linkedAsset.tags || []).length > 0 && (
+                        <div className="mt-7 flex flex-wrap gap-2">
+                          {(linkedAsset.tags || []).slice(0, 5).map(tag => (
+                            <span key={tag} className="rounded-full border border-white/[0.08] bg-white/[0.06] px-3 py-1 text-[11px] font-semibold text-white/60">{tag}</span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
                 {block.type === 'reference' && (
-                  <div className="border-l-2 border-white/20 pl-6 max-w-2xl">
-                    <p className="text-[15px] italic text-white/50 leading-relaxed">{block.content}</p>
+                  <div className="max-w-3xl rounded-[28px] border border-white/[0.08] bg-white/[0.035] p-8 sm:p-10">
+                    <p className="mb-4 text-[10px] font-bold tracking-[0.2em] uppercase text-white/30">Referência</p>
+                    <p className="text-lg sm:text-2xl italic text-white/62 leading-relaxed">{block.content}</p>
                   </div>
                 )}
               </div>
 
               {/* Navigation */}
-              <div className="flex items-center justify-center gap-4 pb-8">
+              <div className="flex items-center justify-center gap-4 px-5 pb-6 sm:pb-8">
                 <button
                   onClick={() => setPresentationBlockIdx(i => Math.max(0, i - 1))}
                   disabled={presentationBlockIdx === 0}
-                  className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 disabled:opacity-20 flex items-center justify-center transition-all"
+                  aria-label="Slide anterior"
+                  className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 disabled:opacity-20 flex items-center justify-center transition-all active:scale-95"
                 >
                   <ChevronLeft size={20} className="text-white" />
                 </button>
-                <div className="flex gap-1.5">
+                <div className="flex max-w-[55vw] gap-1.5 overflow-hidden">
                   {blocks.map((_, i) => (
                     <button key={i} onClick={() => setPresentationBlockIdx(i)}
+                      aria-label={`Ir para slide ${i + 1}`}
                       className={`rounded-full transition-all ${i === presentationBlockIdx ? 'w-6 h-2 bg-white' : 'w-2 h-2 bg-white/25 hover:bg-white/50'}`} />
                   ))}
                 </div>
                 <button
                   onClick={() => setPresentationBlockIdx(i => Math.min(total - 1, i + 1))}
                   disabled={presentationBlockIdx === total - 1}
-                  className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 disabled:opacity-20 flex items-center justify-center transition-all"
+                  aria-label="Próximo slide"
+                  className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 disabled:opacity-20 flex items-center justify-center transition-all active:scale-95"
                 >
                   <ChevronRight size={20} className="text-white" />
                 </button>
@@ -1646,13 +1723,13 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
     <div className="min-h-screen bg-[#fafbfc] text-[#1d1d1f] font-sans pb-20 md:pb-0 md:pl-[80px] transition-all duration-300">
       <Sidebar currentView={view} setView={(v) => { setSelectedAsset(null); setEditingCase(null); setNewAssetId(null); setView(v); }} trashCount={trashedAssets.length} />
 
-      <div className="fixed top-4 right-4 z-[210] md:top-6 md:right-6">
-        <div className="flex items-center gap-1.5 rounded-[18px] border border-black/[0.06] bg-white/85 px-2 py-2 shadow-[0_10px_32px_rgba(0,0,0,0.08)] backdrop-blur-xl">
-          <div className="hidden sm:flex min-w-0 items-center gap-2 pl-2 pr-1">
+      <div className="sticky top-0 z-[210] flex justify-end px-4 pt-4 md:px-6 md:pt-5">
+        <div className="flex max-w-full items-center gap-1.5 rounded-[18px] border border-black/[0.06] bg-white/90 px-2 py-2 shadow-[0_10px_32px_rgba(0,0,0,0.08)] backdrop-blur-xl">
+          <div className="flex min-w-0 items-center gap-2 pl-2 pr-1">
             <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#1d1d1f] text-[10px] font-semibold text-white">
               {(ownerName || currentUser.email || '?').charAt(0).toUpperCase()}
             </div>
-            <span className="max-w-[180px] truncate text-[12px] font-medium text-[#424245] md:max-w-[240px]">
+            <span className="max-w-[138px] truncate text-[12px] font-medium text-[#424245] sm:max-w-[220px] md:max-w-[280px]">
               {currentUser.email}
             </span>
           </div>
@@ -2004,11 +2081,31 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                       </button>
                     )}
                   </div>
+
+                  <div className="flex items-center justify-between sm:justify-start gap-2">
+                    <div className="flex items-center bg-white border border-black/[0.06] rounded-apple-lg shadow-apple p-0.5">
+                      {([
+                        { id: 'small', label: 'P', title: 'Miniaturas pequenas' },
+                        { id: 'medium', label: 'M', title: 'Miniaturas médias' },
+                        { id: 'large', label: 'G', title: 'Miniaturas grandes' },
+                      ] as const).map(size => (
+                        <button
+                          key={size.id}
+                          onClick={() => setAssetTileSize(size.id)}
+                          title={size.title}
+                          aria-label={size.title}
+                          className={`h-8 min-w-8 rounded-[8px] px-2 text-[10px] font-bold transition-all ${assetTileSize === size.id ? 'bg-[#1d1d1f] text-white shadow-sm' : 'text-[#86868b] hover:text-[#1d1d1f] hover:bg-[#f5f5f7]'}`}
+                        >
+                          {size.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </header>
 
               {/* Grid */}
-              <div className="grid gap-2 sm:gap-4 grid-cols-3 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-7 xl:grid-cols-9 2xl:grid-cols-11">
+              <div className={`grid ${assetGridClass}`}>
                 {filteredAssets.map(asset => (
                   <AssetCard key={asset.id} asset={asset} onClick={handleOpenAsset} ownerName={ownerName} />
                 ))}
