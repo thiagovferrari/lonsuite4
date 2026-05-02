@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ArrowRight, Award, Brain, FileText, Images, LockKeyhole, Presentation, Search, ShieldCheck } from 'lucide-react';
 import { signIn } from '../services/authService';
 import type { AuthUser } from '../services/authService';
@@ -12,6 +12,40 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
   const [password, setPassword] = useState('');
   const [error, setError]       = useState('');
   const [loading, setLoading]   = useState(false);
+  const [activeStory, setActiveStory] = useState(0);
+
+  const stories = useMemo(() => [
+    {
+      eyebrow: 'Patrimônio Científico',
+      title: 'A memória científica da sua prática, pronta para ser encontrada.',
+      body: 'Transforme fotos cirúrgicas, PDFs e observações clínicas em um acervo pesquisável, organizado e seguro.',
+      metric: '42',
+      metricLabel: 'imagens indexadas',
+    },
+    {
+      eyebrow: 'IA editorial',
+      title: 'Da imagem bruta ao contexto científico em poucos segundos.',
+      body: 'A IA ajuda a sugerir títulos, tags, resumo, achados principais e contexto para acelerar a curadoria médica.',
+      metric: 'IA',
+      metricLabel: 'curadoria assistida',
+    },
+    {
+      eyebrow: 'Cases apresentáveis',
+      title: 'Organize casos para discussão, aula, publicação e memória institucional.',
+      body: 'Monte narrativas clínicas com imagens, textos, ativos vinculados e uma apresentação visualmente pronta.',
+      metric: '12',
+      metricLabel: 'slides editoriais',
+    },
+  ], []);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setActiveStory(index => (index + 1) % stories.length);
+    }, 5200);
+    return () => window.clearInterval(timer);
+  }, [stories.length]);
+
+  const story = stories[activeStory];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -132,18 +166,33 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
 
         <section className="relative hidden overflow-hidden bg-[#101114] px-10 py-10 text-white lg:flex lg:items-center">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_28%_20%,rgba(255,255,255,0.12),transparent_30%),radial-gradient(circle_at_82%_72%,rgba(58,123,213,0.18),transparent_34%)]" />
+          <div className="login-orbit absolute left-[10%] top-[8%] h-36 w-36 rounded-full border border-white/[0.08]" />
+          <div className="login-orbit login-orbit-delayed absolute bottom-[12%] right-[12%] h-52 w-52 rounded-full border border-white/[0.06]" />
           <div className="relative mx-auto grid w-full max-w-[900px] grid-cols-[0.88fr_1.12fr] items-center gap-10">
             <div>
               <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/[0.10] bg-white/[0.06] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white/62">
                 <Award size={12} />
-                Patrimônio Científico
+                {story.eyebrow}
               </p>
-              <h2 className="text-[44px] font-extralight leading-[1.04] tracking-tight xl:text-[56px]">
-                A memória científica da sua prática, pronta para ser encontrada, apresentada e publicada.
-              </h2>
-              <p className="mt-6 max-w-[470px] text-[15px] font-light leading-relaxed text-white/62">
-                A Lon Suite organiza fotos cirúrgicas, documentos, evidências e cases em um workspace sóbrio para médicos que produzem conhecimento.
-              </p>
+              <div key={activeStory} className="login-story-enter">
+                <h2 className="text-[44px] font-extralight leading-[1.04] tracking-tight xl:text-[56px]">
+                  {story.title}
+                </h2>
+                <p className="mt-6 max-w-[470px] text-[15px] font-light leading-relaxed text-white/62">
+                  {story.body}
+                </p>
+              </div>
+
+              <div className="mt-7 flex items-center gap-2">
+                {stories.map((item, index) => (
+                  <button
+                    key={item.eyebrow}
+                    onClick={() => setActiveStory(index)}
+                    aria-label={`Mostrar ${item.eyebrow}`}
+                    className={`h-1.5 rounded-full transition-all ${index === activeStory ? 'w-12 bg-white' : 'w-4 bg-white/20 hover:bg-white/40'}`}
+                  />
+                ))}
+              </div>
 
               <div className="mt-8 grid gap-3">
                 {[
@@ -153,7 +202,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
                 ].map(item => {
                   const Icon = item.icon;
                   return (
-                    <div key={item.title} className="flex gap-3 rounded-[18px] border border-white/[0.08] bg-white/[0.055] p-4 backdrop-blur">
+                    <div key={item.title} className="login-feature-card flex gap-3 rounded-[18px] border border-white/[0.08] bg-white/[0.055] p-4 backdrop-blur">
                       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] bg-white text-[#1d1d1f]">
                         <Icon size={17} />
                       </div>
@@ -168,26 +217,26 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
             </div>
 
             <div className="relative min-h-[620px]">
-              <div className="absolute left-0 top-8 w-[92%] rounded-[30px] border border-white/[0.10] bg-[#f7f7f5] p-5 text-[#1d1d1f] shadow-[0_36px_110px_rgba(0,0,0,0.44)]">
+              <div className="login-product-card absolute left-0 top-8 w-[92%] rounded-[30px] border border-white/[0.10] bg-[#f7f7f5] p-5 text-[#1d1d1f] shadow-[0_36px_110px_rgba(0,0,0,0.44)]">
                 <div className="mb-5 flex items-center justify-between">
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#86868b]">Case em preparo</p>
-                    <h3 className="mt-1 text-[22px] font-light tracking-tight">Reconstrução complexa</h3>
+                    <h3 className="mt-1 text-[22px] font-light tracking-tight">{activeStory === 1 ? 'Curadoria por IA' : activeStory === 2 ? 'Apresentação clínica' : 'Reconstrução complexa'}</h3>
                   </div>
                   <div className="rounded-full bg-[#1d1d1f] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-white">Pronto</div>
                 </div>
 
                 <div className="grid grid-cols-3 gap-2">
                   <div className="col-span-2 h-44 overflow-hidden rounded-[22px] bg-[#d8dde2]">
-                    <div className="h-full w-full bg-[linear-gradient(135deg,#cfd8df,#f5f2ec_48%,#aeb8bf)]" />
+                    <div className="login-scan h-full w-full bg-[linear-gradient(135deg,#cfd8df,#f5f2ec_48%,#aeb8bf)]" />
                   </div>
                   <div className="grid gap-2">
                     <div className="rounded-[18px] bg-white p-3 shadow-[0_8px_24px_rgba(0,0,0,0.06)]">
                       <Images size={16} className="mb-5 text-[#3a7bd5]" />
-                      <p className="text-[24px] font-light">42</p>
-                      <p className="text-[9px] font-bold uppercase tracking-wider text-[#86868b]">Imagens</p>
+                      <p className="text-[24px] font-light">{story.metric}</p>
+                      <p className="text-[9px] font-bold uppercase tracking-wider text-[#86868b]">{story.metricLabel}</p>
                     </div>
-                    <div className="rounded-[18px] bg-[#1d1d1f] p-3 text-white">
+                    <div className="login-pulse-card rounded-[18px] bg-[#1d1d1f] p-3 text-white">
                       <Search size={16} className="mb-5 text-white/72" />
                       <p className="text-[24px] font-light">IA</p>
                       <p className="text-[9px] font-bold uppercase tracking-wider text-white/42">Indexado</p>
@@ -197,11 +246,23 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
 
                 <div className="mt-5 space-y-3">
                   {[
-                    ['Contexto científico', 'Retalho local, evolução pós-operatória, evidência moderada'],
-                    ['Achados principais', 'Boa integração tecidual e documentação longitudinal'],
-                    ['Apresentação', '12 slides editoriais gerados para discussão clínica'],
-                  ].map(([label, value]) => (
-                    <div key={label} className="rounded-[16px] border border-black/[0.05] bg-white px-4 py-3">
+                    activeStory === 0
+                      ? ['Contexto científico', 'Retalho local, evolução pós-operatória, evidência moderada']
+                      : activeStory === 1
+                        ? ['Resumo por IA', 'Título, tags e achados principais sugeridos automaticamente']
+                        : ['Roteiro visual', 'Narrativa pronta para discussão clínica e apresentação'],
+                    activeStory === 0
+                      ? ['Achados principais', 'Boa integração tecidual e documentação longitudinal']
+                      : activeStory === 1
+                        ? ['Busca semântica', 'Localize materiais por tema, técnica, evidência ou descrição']
+                        : ['Modo palco', 'Slides limpos com imagens, referências e ativos vinculados'],
+                    activeStory === 0
+                      ? ['Apresentação', '12 slides editoriais gerados para discussão clínica']
+                      : activeStory === 1
+                        ? ['Curadoria', 'Menos tempo catalogando, mais tempo produzindo conhecimento']
+                        : ['Exportação', 'Case organizado para PDF, aula, round ou publicação'],
+                  ].map(([label, value], index) => (
+                    <div key={label} className="login-row-reveal rounded-[16px] border border-black/[0.05] bg-white px-4 py-3" style={{ animationDelay: `${index * 120}ms` }}>
                       <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-[#86868b]">{label}</p>
                       <p className="mt-1 text-[12px] leading-relaxed text-[#424245]">{value}</p>
                     </div>
@@ -209,7 +270,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
                 </div>
               </div>
 
-              <div className="absolute bottom-12 right-0 w-[66%] rounded-[26px] border border-white/[0.12] bg-white/[0.10] p-4 shadow-[0_28px_80px_rgba(0,0,0,0.36)] backdrop-blur-xl">
+              <div className="login-library-card absolute bottom-12 right-0 w-[66%] rounded-[26px] border border-white/[0.12] bg-white/[0.10] p-4 shadow-[0_28px_80px_rgba(0,0,0,0.36)] backdrop-blur-xl">
                 <div className="mb-4 flex items-center justify-between">
                   <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/48">Biblioteca</p>
                   <FileText size={15} className="text-white/62" />

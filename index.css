@@ -147,3 +147,110 @@ select:focus-visible {
   from { opacity: 0; transform: scale(0.94); }
   to   { opacity: 1; transform: scale(1);    }
 }
+
+.login-story-enter {
+  animation: loginStoryEnter 0.72s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.login-feature-card {
+  animation: loginFloat 8s ease-in-out infinite;
+}
+
+.login-feature-card:nth-child(2) {
+  animation-delay: 0.8s;
+}
+
+.login-feature-card:nth-child(3) {
+  animation-delay: 1.6s;
+}
+
+.login-product-card {
+  animation: loginProductFloat 9s ease-in-out infinite;
+}
+
+.login-library-card {
+  animation: loginLibraryFloat 10s ease-in-out infinite;
+}
+
+.login-pulse-card {
+  animation: loginPulse 3.4s ease-in-out infinite;
+}
+
+.login-row-reveal {
+  animation: loginRowReveal 0.62s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.login-scan {
+  position: relative;
+  overflow: hidden;
+}
+
+.login-scan::after {
+  content: '';
+  position: absolute;
+  inset: -20% -40%;
+  background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.42) 48%, transparent 62%);
+  animation: loginScan 4.8s ease-in-out infinite;
+}
+
+.login-orbit {
+  animation: loginOrbit 18s linear infinite;
+}
+
+.login-orbit-delayed {
+  animation-delay: -7s;
+}
+
+@keyframes loginStoryEnter {
+  from { opacity: 0; transform: translateY(16px); filter: blur(8px); }
+  to   { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+@keyframes loginFloat {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+
+@keyframes loginProductFloat {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(-0.4deg); }
+  50%      { transform: translate3d(0, -12px, 0) rotate(0.4deg); }
+}
+
+@keyframes loginLibraryFloat {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0.6deg); }
+  50%      { transform: translate3d(0, 10px, 0) rotate(-0.5deg); }
+}
+
+@keyframes loginPulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(58,123,213,0); }
+  50%      { box-shadow: 0 0 34px rgba(58,123,213,0.28); }
+}
+
+@keyframes loginRowReveal {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes loginScan {
+  0%, 35% { transform: translateX(-55%); opacity: 0; }
+  50%     { opacity: 1; }
+  72%, 100% { transform: translateX(65%); opacity: 0; }
+}
+
+@keyframes loginOrbit {
+  from { transform: rotate(0deg) translateX(10px) rotate(0deg); }
+  to   { transform: rotate(360deg) translateX(10px) rotate(-360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-story-enter,
+  .login-feature-card,
+  .login-product-card,
+  .login-library-card,
+  .login-pulse-card,
+  .login-row-reveal,
+  .login-scan::after,
+  .login-orbit {
+    animation: none !important;
+  }
+}
