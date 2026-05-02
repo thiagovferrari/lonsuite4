@@ -11,6 +11,95 @@ import { getStoredUser, storeUser, signOut as authSignOut } from './services/aut
 import type { AuthUser } from './services/authService';
 import { Plus, Brain, FileText, Image as ImageIcon, Type as TypeIcon, Loader2, ChevronLeft, Trash2, Search, LayoutGrid, RotateCcw, ChevronRight, Briefcase, X, AlertCircle, Stethoscope, Download, Home, Lock, Award, Zap, Copy, CheckCircle2, Maximize2, Minimize2, Sparkles, AlignJustify, LogOut, TrendingUp, Share2, BookOpen, Link2, ExternalLink, Heading2, Clock, Save } from 'lucide-react';
 
+const ASSET_STORAGE_PREFIX = 'lon_assets_';
+const ASSET_BACKUP_PREFIX = 'lon_assets_backup_';
+const SUPABASE_TIMEOUT_MS = 10000;
+
+async function withSupabaseTimeout<T>(promise: PromiseLike<T>, label: string): Promise<T> {
+  let timeoutId: number | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = window.setTimeout(() => reject(new Error(`${label} demorou para responder.`)), SUPABASE_TIMEOUT_MS);
+  });
+
+  try {
+    return await Promise.race([Promise.resolve(promise), timeout]);
+  } finally {
+    if (timeoutId) window.clearTimeout(timeoutId);
+  }
+}
+
+const parseAssetArray = (raw: string | null): Asset[] => {
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.filter(Boolean) as Asset[] : [];
+  } catch {
+    return [];
+  }
+};
+
+const assetTime = (asset: Asset) => {
+  const date = asset.updatedAt || asset.createdAt || asset.date;
+  const time = date ? new Date(date).getTime() : 0;
+  return Number.isFinite(time) ? time : 0;
+};
+
+const mergeAssetSets = (...sets: Asset[][]): Asset[] => {
+  const map = new Map<string, Asset>();
+  sets.flat().forEach(asset => {
+    if (!asset?.id) return;
+    const existing = map.get(asset.id);
+    if (!existing || assetTime(asset) >= assetTime(existing)) {
+      map.set(asset.id, { ...existing, ...asset });
+    }
+  });
+  return Array.from(map.values()).sort((a, b) => assetTime(b) - assetTime(a));
+};
+
+const readLocalAssetRecovery = (preferredKey: string): Asset[] => {
+  const preferred = parseAssetArray(localStorage.getItem(preferredKey));
+  const candidates: Asset[][] = preferred.length > 0 ? [preferred] : [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (!key) continue;
+    if (key.startsWith(ASSET_STORAGE_PREFIX) || key.startsWith(ASSET_BACKUP_PREFIX)) {
+      const value = parseAssetArray(localStorage.getItem(key));
+      if (value.length > 0) candidates.push(value);
+    }
+  }
+  return mergeAssetSets(...candidates);
+};
+
+const mapAssetRow = (a: Record<string, unknown>): Asset => ({
+  ...(a as unknown as Asset),
+  type: (a.type as AssetType | undefined) || 'image',
+  tags: Array.isArray(a.tags) ? a.tags as string[] : [],
+  date: (a.date || a.created_at || new Date().toISOString()) as string,
+  scientificContext: a.scientific_context as string | undefined,
+  createdAt: a.created_at as string | undefined,
+  updatedAt: a.updated_at as string | undefined,
+  ownerId: a.owner_id as string | undefined,
+  attachments: Array.isArray(a.attachments) ? a.attachments as Attachment[] : [],
+  isDeleted: Boolean(a.is_deleted),
+  deletedAt: a.deleted_at as string | undefined,
+});
+
+const mapCaseRow = (c: Record<string, unknown>): Asset => ({
+  ...(c as unknown as Asset),
+  type: 'case',
+  tags: Array.isArray(c.tags) ? c.tags as string[] : ['Caso'],
+  date: (c.date || c.created_at || new Date().toISOString()) as string,
+  blocks: Array.isArray(c.blocks) ? c.blocks as CaseBlock[] : [],
+  caseStatus: c.status as CaseStatus | undefined,
+  visibility: c.visibility as Asset['visibility'],
+  ownerId: c.owner_id as string | undefined,
+  ownerName: c.owner_name as string | undefined,
+  createdAt: c.created_at as string | undefined,
+  updatedAt: c.updated_at as string | undefined,
+  isDeleted: Boolean(c.is_deleted),
+  deletedAt: c.deleted_at as string | undefined,
+});
+
 const App: React.FC = () => {
   // Core State
   const [view, setView] = useState<ViewState>(ViewState.HOME);
@@ -99,6 +188,7 @@ const App: React.FC = () => {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const homeScrollRef = useRef<HTMLDivElement>(null);
+  const lastCloudLoadWasEmptyRef = useRef(false);
 
   // Helper para auto-ajuste de altura em textareas
   const autoResizeTextarea = (element: HTMLTextAreaElement | null) => {
@@ -112,8 +202,21 @@ const App: React.FC = () => {
 
   // Persist assets to localStorage whenever they change
   useEffect(() => {
-    if (!isRefreshing && ownerId !== 'guest') {
-      localStorage.setItem(LOCAL_STORAGE_ASSETS_KEY, JSON.stringify(assets));
+    if (isRefreshing || ownerId === 'guest') return;
+
+    if (assets.length > 0) {
+      const payload = JSON.stringify(assets);
+      localStorage.setItem(LOCAL_STORAGE_ASSETS_KEY, payload);
+      localStorage.setItem(`${ASSET_BACKUP_PREFIX}${ownerId}`, payload);
+      localStorage.setItem('lon_assets_last_non_empty', payload);
+      lastCloudLoadWasEmptyRef.current = false;
+      return;
+    }
+
+    const existing = readLocalAssetRecovery(LOCAL_STORAGE_ASSETS_KEY);
+    if (existing.length > 0 || lastCloudLoadWasEmptyRef.current) {
+      console.warn('Lon Suite: empty asset state blocked to protect local recovery data.');
+      return;
     }
   }, [assets, isRefreshing, ownerId, LOCAL_STORAGE_ASSETS_KEY]);
 
@@ -122,43 +225,42 @@ const App: React.FC = () => {
     if (!currentUser) return;
     const fetchInitialData = async () => {
       setIsRefreshing(true);
+      const localSnapshot = readLocalAssetRecovery(LOCAL_STORAGE_ASSETS_KEY);
+      if (localSnapshot.length > 0) setAssets(localSnapshot);
       try {
-        const { data: assetsData, error: assetsError } = await supabase
-          .from('assets')
-          .select('*')
-          .eq('owner_id', ownerId)
-          .order('created_at', { ascending: false });
-
-        const { data: casesData, error: casesError } = await supabase
-          .from('cases')
-          .select('*')
-          .eq('owner_id', ownerId)
-          .order('created_at', { ascending: false });
+        const [{ data: assetsData, error: assetsError }, { data: casesData, error: casesError }] = await Promise.all([
+          withSupabaseTimeout(
+            supabase.from('assets').select('*').eq('owner_id', ownerId).order('created_at', { ascending: false }),
+            'Leitura dos ativos no Supabase',
+          ),
+          withSupabaseTimeout(
+            supabase.from('cases').select('*').eq('owner_id', ownerId).order('created_at', { ascending: false }),
+            'Leitura dos cases no Supabase',
+          ),
+        ]);
 
         if (assetsError || casesError) throw assetsError || casesError;
 
         const mappedAssets: Asset[] = [
-          ...(assetsData || []).map((a: Record<string, unknown>) => ({
-            ...(a as unknown as Asset),
-            scientificContext: a.scientific_context as string | undefined,
-            createdAt: a.created_at as string | undefined,
-          })),
-          ...(casesData || []).map((c: Record<string, unknown>) => ({
-            ...(c as unknown as Asset),
-            type: 'case' as AssetType,
-            caseStatus: c.status as CaseStatus | undefined,
-            ownerId: c.owner_id as string | undefined,
-            ownerName: c.owner_name as string | undefined,
-            createdAt: c.created_at as string | undefined,
-          })),
+          ...(assetsData || []).map((a: Record<string, unknown>) => mapAssetRow(a)),
+          ...(casesData || []).map((c: Record<string, unknown>) => mapCaseRow(c)),
         ];
 
-        setAssets(mappedAssets);
+        if (mappedAssets.length > 0) {
+          lastCloudLoadWasEmptyRef.current = false;
+          setAssets(mergeAssetSets(mappedAssets, localSnapshot));
+        } else if (localSnapshot.length > 0) {
+          lastCloudLoadWasEmptyRef.current = true;
+          setAssets(localSnapshot);
+          localSnapshot.forEach(asset => syncToCloud(asset));
+        } else {
+          lastCloudLoadWasEmptyRef.current = true;
+          setAssets([]);
+        }
       } catch {
         // Supabase not configured — load from localStorage
         try {
-          const raw = localStorage.getItem(LOCAL_STORAGE_ASSETS_KEY);
-          if (raw) setAssets(JSON.parse(raw) as Asset[]);
+          if (localSnapshot.length > 0) setAssets(localSnapshot);
         } catch { /* start fresh */ }
       } finally {
         setIsRefreshing(false);
@@ -174,7 +276,7 @@ const App: React.FC = () => {
     try {
       const base = { owner_id: ownerId };
       if (asset.type === 'case') {
-        await supabase.from('cases').upsert({
+        await withSupabaseTimeout(supabase.from('cases').upsert({
           ...base,
           id: asset.id,
           title: asset.title,
@@ -182,22 +284,31 @@ const App: React.FC = () => {
           blocks: asset.blocks,
           tags: asset.tags,
           status: asset.caseStatus,
+          visibility: asset.visibility,
+          shared_with: asset.sharedWith || [],
+          access_count: asset.accessCount || 0,
+          is_deleted: Boolean(asset.isDeleted),
+          deleted_at: asset.deletedAt,
           owner_name: ownerName,
           created_at: asset.createdAt,
-        });
+        }), 'Gravação do case no Supabase');
       } else {
-        await supabase.from('assets').upsert({
+        await withSupabaseTimeout(supabase.from('assets').upsert({
           ...base,
           id: asset.id,
           title: asset.title,
           type: asset.type,
           content: asset.content,
           thumbnail: asset.thumbnail,
+          description: asset.description,
+          attachments: asset.attachments || [],
           summary: asset.summary,
           scientific_context: asset.scientificContext,
           tags: asset.tags,
+          is_deleted: Boolean(asset.isDeleted),
+          deleted_at: asset.deletedAt,
           created_at: asset.createdAt,
-        });
+        }), 'Gravação do ativo no Supabase');
       }
     } catch {
       // Supabase offline — localStorage effect already handles persistence
@@ -815,6 +926,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
 
   const handleDownloadCasePDF = async () => {
     if (!editingCase) return;
+    try {
     const jsPDF = (await import('jspdf')).default;
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
     const pageWidth = 210;
@@ -1077,6 +1189,10 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
 
     const safeTitle = (editingCase.title || 'Caso_Clinico').replace(/[\s/?*><|:"\\]+/g, '_');
     doc.save(`${safeTitle}.pdf`);
+    } catch (error) {
+      console.error('Erro ao gerar PDF do case:', error);
+      alert('Não consegui gerar o PDF agora. O case continua salvo; tente novamente após recarregar a página.');
+    }
   };
 
   const renderCaseEditor = () => {

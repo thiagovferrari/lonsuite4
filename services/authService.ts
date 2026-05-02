@@ -7,6 +7,20 @@ export interface AuthUser {
 }
 
 const AUTH_KEY = 'lon_suite_auth_v1';
+const AUTH_TIMEOUT_MS = 12000;
+
+async function withTimeout<T>(promise: Promise<T>, message: string): Promise<T> {
+  let timeoutId: number | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = window.setTimeout(() => reject(new Error(message)), AUTH_TIMEOUT_MS);
+  });
+
+  try {
+    return await Promise.race([promise, timeout]);
+  } finally {
+    if (timeoutId) window.clearTimeout(timeoutId);
+  }
+}
 
 export function getStoredUser(): AuthUser | null {
   try {
@@ -27,7 +41,10 @@ export function clearStoredUser(): void {
 }
 
 export async function signIn(email: string, password: string): Promise<AuthUser> {
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await withTimeout(
+    supabase.auth.signInWithPassword({ email, password }),
+    'O Supabase demorou para responder. Verifique a conexão e tente novamente.',
+  );
 
   if (error || !data.user) {
     throw new Error('E-mail ou senha incorretos.');
@@ -44,11 +61,16 @@ export async function signIn(email: string, password: string): Promise<AuthUser>
     email: data.user.email ?? email,
   };
 
-  await supabase.from('profiles').upsert({
-    id: authUser.id,
-    auth_user_id: data.user.id,
-    name: authUser.name,
-    email: authUser.email,
+  withTimeout(
+    supabase.from('profiles').upsert({
+      id: authUser.id,
+      auth_user_id: data.user.id,
+      name: authUser.name,
+      email: authUser.email,
+    }),
+    'Perfil demorou para sincronizar.',
+  ).catch(error => {
+    console.warn('[Lon Suite] Perfil não sincronizado no login:', error);
   });
 
   storeUser(authUser);
