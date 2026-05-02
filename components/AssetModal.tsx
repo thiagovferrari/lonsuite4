@@ -356,11 +356,11 @@ const AssetModal: React.FC<AssetModalProps> = ({
         if (editedAsset.attachments && editedAsset.attachments.length > 0) {
             return (
                 <div className="w-full h-full bg-[#f2f3f5] flex flex-col relative overflow-hidden">
-                    <div className="flex-1 relative flex items-center justify-center p-6 min-h-[400px]">
+                    <div className="relative flex min-h-0 flex-1 items-center justify-center p-3 sm:p-6 md:min-h-[400px]">
                         {activeSlideBlobUrl && typeof activeAttachment?.type === 'string' && activeAttachment.type.includes('image') ? (
                             <img src={activeSlideBlobUrl} alt={activeAttachment.name} className="max-w-full max-h-full object-contain rounded-apple-lg shadow-apple bg-white" />
                         ) : activeSlideBlobUrl && typeof activeAttachment?.type === 'string' && activeAttachment.type.includes('pdf') ? (
-                            <iframe src={activeSlideBlobUrl} title={activeAttachment.name} className="w-full h-full rounded-apple-lg border-none" style={{ minHeight: 420 }} />
+                            <iframe src={activeSlideBlobUrl} title={activeAttachment.name} className="h-full w-full rounded-apple-lg border-none" />
                         ) : !activeSlideBlobUrl && activeAttachment ? (
                             <div className="flex flex-col items-center justify-center text-[#86868b] gap-3">
                                 <div className="w-8 h-8 border-2 border-[#86868b]/30 border-t-[#4285F4] rounded-full animate-spin" />
@@ -397,10 +397,10 @@ const AssetModal: React.FC<AssetModalProps> = ({
                         )}
                     </div>
                     {/* Thumbnail strip */}
-                    <div className="h-[88px] bg-white/90 backdrop-blur border-t border-black/6 flex items-center gap-2.5 px-5 overflow-x-auto no-scrollbar shrink-0">
+                    <div className="h-[72px] bg-white/90 backdrop-blur border-t border-black/6 flex items-center gap-2.5 px-4 sm:h-[88px] sm:px-5 overflow-x-auto no-scrollbar shrink-0">
                         {editedAsset.attachments.map((att, idx) => (
                             <div key={att.id} onClick={() => setCurrentSlideIndex(idx)}
-                                className={`w-[60px] h-[60px] rounded-apple overflow-hidden cursor-pointer transition-all border-2 relative shrink-0 group/thumb ${currentSlideIndex === idx ? 'border-[#4285F4] shadow-apple' : 'border-transparent opacity-50 hover:opacity-80'}`}>
+                                className={`h-[48px] w-[48px] sm:w-[60px] sm:h-[60px] rounded-apple overflow-hidden cursor-pointer transition-all border-2 relative shrink-0 group/thumb ${currentSlideIndex === idx ? 'border-[#4285F4] shadow-apple' : 'border-transparent opacity-50 hover:opacity-80'}`}>
                                 {typeof att.type === 'string' && att.type.includes('image') ? (
                                     <img src={thumbUrls[att.id] || att.data || undefined} alt={att.name} className="w-full h-full object-cover bg-[#f2f3f5]" />
                                 ) : (
@@ -497,6 +497,11 @@ const AssetModal: React.FC<AssetModalProps> = ({
                         <span className="text-[14px] font-semibold">Voltar</span>
                     </button>
                     <div className="flex items-center gap-2">
+                        {!isTrashMode && (
+                            <button onClick={handleSaveAll} className="flex items-center gap-1.5 rounded-full bg-[#1d1d1f] px-3 py-2 text-[11px] font-semibold text-white shadow-apple active:scale-95">
+                                <Save size={13} /> Salvar
+                            </button>
+                        )}
                         <button onClick={handleDownload} className="p-2 hover:bg-black/5 rounded-full text-[#86868b] transition-colors">
                             <Download size={18} />
                         </button>
@@ -509,12 +514,12 @@ const AssetModal: React.FC<AssetModalProps> = ({
                 </div>
 
                 {/* Preview (left) */}
-                <div className="flex-1 relative flex items-center justify-center h-[40vh] md:h-full order-last md:order-first bg-[#f2f3f5]">
+                <div className="relative flex h-[46dvh] shrink-0 items-center justify-center bg-[#f2f3f5] md:h-full md:flex-1 md:shrink">
                     {renderPreview()}
                 </div>
 
                 {/* Metadata panel (right) */}
-                <div className="w-full md:w-[380px] shrink-0 bg-white flex flex-col h-[50vh] md:h-full border-l border-black/6 z-20 relative">
+                <div className="flex min-h-0 w-full flex-1 flex-col bg-white md:h-full md:w-[380px] md:flex-none md:shrink-0 border-l border-black/6 z-20 relative">
                     {/* Header */}
                     <div className="px-6 py-5 border-b border-black/6 flex justify-between items-start shrink-0">
                         <div className="flex-1 min-w-0 mr-3">
@@ -723,16 +728,17 @@ const AssetModal: React.FC<AssetModalProps> = ({
                                     {deleteConfirm ? 'Confirmar?' : 'Excluir'}
                                 </button>
                             </>
-                        ) : (isEditingMetadata || isEditingContent || isEditingTitle) ? (
-                            <button onClick={handleSaveAll}
-                                className="w-full py-2.5 btn-ai rounded-apple font-semibold text-[11px] shadow-apple transition-all flex items-center justify-center gap-1.5">
-                                <Save size={13} /> Salvar Alterações
-                            </button>
                         ) : (
-                            <button onClick={handleDeleteClick}
-                                className={`w-full py-2.5 rounded-apple font-semibold text-[11px] transition-all flex items-center justify-center gap-1.5 ${deleteConfirm ? 'bg-red-500 text-white shadow-md' : 'bg-red-50 text-red-500 border border-red-200/60 hover:bg-red-100 hover:border-red-300'}`}>
-                                {deleteConfirm ? <><AlertTriangle size={13} /> Clique para confirmar</> : <><Trash2 size={13} /> Remover do Vault</>}
-                            </button>
+                            <>
+                                <button onClick={handleSaveAll}
+                                    className="flex-[1.4] py-2.5 btn-ai rounded-apple font-semibold text-[11px] shadow-apple transition-all flex items-center justify-center gap-1.5">
+                                    <Save size={13} /> Salvar Alterações
+                                </button>
+                                <button onClick={handleDeleteClick}
+                                    className={`flex-1 py-2.5 rounded-apple font-semibold text-[11px] transition-all flex items-center justify-center gap-1.5 ${deleteConfirm ? 'bg-red-500 text-white shadow-md' : 'bg-red-50 text-red-500 border border-red-200/60 hover:bg-red-100 hover:border-red-300'}`}>
+                                    {deleteConfirm ? <><AlertTriangle size={13} /> Confirmar</> : <><Trash2 size={13} /> Remover</>}
+                                </button>
+                            </>
                         )}
                     </div>
                 </div>

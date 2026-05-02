@@ -9,7 +9,7 @@ import { saveAttachmentData, deleteAttachmentData } from './services/storageServ
 import { supabase } from './services/supabase';
 import { getStoredUser, storeUser, signOut as authSignOut } from './services/authService';
 import type { AuthUser } from './services/authService';
-import { Plus, Brain, FileText, Image as ImageIcon, Type as TypeIcon, Loader2, ChevronLeft, Trash2, Search, LayoutGrid, RotateCcw, ChevronRight, Briefcase, X, AlertCircle, Stethoscope, Download, Home, Lock, Award, Zap, Copy, CheckCircle2, Maximize2, Minimize2, Sparkles, AlignJustify, LogOut, TrendingUp, Share2, BookOpen, Link2, ExternalLink, Heading2, Clock } from 'lucide-react';
+import { Plus, Brain, FileText, Image as ImageIcon, Type as TypeIcon, Loader2, ChevronLeft, Trash2, Search, LayoutGrid, RotateCcw, ChevronRight, Briefcase, X, AlertCircle, Stethoscope, Download, Home, Lock, Award, Zap, Copy, CheckCircle2, Maximize2, Minimize2, Sparkles, AlignJustify, LogOut, TrendingUp, Share2, BookOpen, Link2, ExternalLink, Heading2, Clock, Save } from 'lucide-react';
 
 const App: React.FC = () => {
   // Core State
@@ -356,9 +356,9 @@ const App: React.FC = () => {
 
   // filteredCases already handles all case filtering
   const assetGridClass = {
-    small: 'grid-cols-[repeat(auto-fill,minmax(92px,1fr))] gap-2',
-    medium: 'grid-cols-[repeat(auto-fill,minmax(132px,1fr))] gap-3 sm:gap-4',
-    large: 'grid-cols-[repeat(auto-fill,minmax(190px,1fr))] gap-4 sm:gap-5',
+    small: 'grid-cols-[repeat(auto-fill,minmax(112px,1fr))] gap-2.5',
+    medium: 'grid-cols-[repeat(auto-fill,minmax(148px,1fr))] gap-3 sm:gap-4',
+    large: 'grid-cols-[repeat(auto-fill,minmax(210px,1fr))] gap-4 sm:gap-5',
   }[assetTileSize];
 
   // File Upload Handler
@@ -624,6 +624,16 @@ const App: React.FC = () => {
     
     // Sync to Supabase
     syncToCloud(withTimestamp);
+  };
+
+  const handleSaveCaseChanges = () => {
+    if (!editingCase) return;
+    const withTimestamp = { ...editingCase, updatedAt: new Date().toISOString() };
+    setEditingCase(withTimestamp);
+    setAssets(prev => prev.map(a => a.id === withTimestamp.id ? withTimestamp : a));
+    syncToCloud(withTimestamp);
+    setSaveStatus('saved');
+    setTimeout(() => setSaveStatus('idle'), 1800);
   };
 
   // Close editor and auto-generate semantic tags in background
@@ -960,6 +970,18 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
           doc.text(assetTitleLines, margin, y, { align: 'left' });
           y += assetTitleLines.length * 5 + 3;
 
+          const assetShareUrl = `${window.location.origin}?share=${linkedAsset.id}&type=asset`;
+          checkPage(8);
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(8);
+          doc.setTextColor(0, 113, 227);
+          doc.textWithLink('Abrir ativo relacionado na Lon Suite', margin, y, { url: assetShareUrl });
+          y += 5;
+          doc.setTextColor(134, 134, 139);
+          const assetUrlLines = doc.splitTextToSize(assetShareUrl, contentWidth);
+          doc.text(assetUrlLines, margin, y);
+          y += assetUrlLines.length * 4 + 4;
+
           // Tags
           if (linkedAsset.tags && linkedAsset.tags.length > 0) {
             doc.setFont('helvetica', 'normal');
@@ -1102,8 +1124,14 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                 <Share2 size={12} /> Compartilhar
               </button>
               <button
-                onClick={handleDownloadCasePDF}
+                onClick={handleSaveCaseChanges}
                 className="flex items-center gap-1.5 px-3 py-2 bg-[#1d1d1f] rounded-apple text-[11px] font-semibold text-white shadow-apple"
+              >
+                <Save size={12} /> Salvar
+              </button>
+              <button
+                onClick={handleDownloadCasePDF}
+                className="flex items-center gap-1.5 px-3 py-2 bg-white border border-black/8 rounded-apple text-[11px] font-medium text-[#1d1d1f] shadow-apple"
               >
                 <Download size={12} /> PDF
               </button>
@@ -1370,6 +1398,10 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
             </button>
             <div className="w-px h-6 md:h-8 bg-slate-200 mx-1 md:mx-2"></div>
 
+            <button onClick={handleSaveCaseChanges} className="px-4 py-2.5 bg-[#1d1d1f] text-white rounded-apple text-[10px] font-bold uppercase tracking-widest hover:bg-[#333] transition-all flex items-center gap-1.5" title="Salvar alterações">
+              <Save size={13} />
+              <span className="hidden sm:inline">Salvar</span>
+            </button>
             <button onClick={() => handleCloseCase()} className="hidden sm:block px-5 py-2.5 bg-[#f2f3f5] text-[#8e8e93] rounded-apple text-[10px] font-bold uppercase tracking-widest hover:bg-[#e8e9eb] hover:text-[#1d1d1f] transition-all" title="Fechar editor">
               Fechar
             </button>
@@ -2436,7 +2468,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
 
                 {/* Header */}
                 <h1 className="text-3xl sm:text-4xl font-extralight tracking-tight text-[#1d1d1f] mb-1">Produção Científica</h1>
-                <p className="text-[11px] font-medium text-[#86868b] mb-8 tracking-wider">Lon Suite 4.0 · Longecta</p>
+                <p className="text-[11px] font-medium text-[#86868b] mb-8 tracking-wider">Lon Suite 4.0</p>
 
                 {/* Identity */}
                 <div className="mb-6">

@@ -112,6 +112,12 @@ const AssetCard: React.FC<AssetCardProps> = ({ asset, onClick, ownerName }) => {
               </div>
             )}
           </div>
+
+          <div className="absolute bottom-1.5 left-1.5 right-1.5 flex justify-center sm:hidden">
+            <span className="rounded-full bg-black/65 px-2.5 py-1 text-[8px] font-bold uppercase tracking-[0.12em] text-white shadow-sm backdrop-blur">
+              Toque para abrir
+            </span>
+          </div>
         </div>
 
         {/* Info */}

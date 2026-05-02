@@ -151,7 +151,7 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
 
             <div className="relative min-h-[680px]">
               <img
-                src="/assets/lon-suite-physician-editorial.png"
+                src="/assets/lon-suite-physician-editorial.jpg"
                 alt="Médico pesquisador representando o valor científico da Lon Suite"
                 className="absolute right-0 top-0 h-[560px] w-[78%] rounded-[34px] object-cover object-center shadow-[0_36px_120px_rgba(0,0,0,0.16)]"
               />
@@ -235,6 +235,9 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
             <div>
               <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">O problema real</p>
               <h2 className="text-[42px] font-semibold leading-tight tracking-tight sm:text-[64px]">Seu acervo científico deve responder na velocidade da sua prática.</h2>
+              <p className="mt-6 max-w-xl text-[16px] font-light leading-relaxed text-[#6e6e73]">
+                A Lon Suite organiza a memória clínica em uma camada viva: cada imagem, PDF e anotação passa a ter contexto, destino e valor de apresentação.
+              </p>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               {[
@@ -249,6 +252,40 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
                 </div>
               ))}
             </div>
+          </section>
+
+          <section className="mt-24 grid gap-5 lg:grid-cols-3">
+            {[
+              {
+                image: '/assets/lon-suite-doctors-laptop-editorial.jpg',
+                eyebrow: 'Workspace científico',
+                title: 'A revisão deixa de depender de pastas soltas.',
+                body: 'O médico abre o sistema e encontra o material pelo significado clínico, não pelo nome improvisado do arquivo.',
+              },
+              {
+                image: '/assets/lon-suite-doctor-smartphone-editorial.jpg',
+                eyebrow: 'Acesso imediato',
+                title: 'O caso acompanha a rotina, inclusive no celular.',
+                body: 'Quando surge a aula, o round ou a conversa científica, o ativo certo já está perto o bastante para ser usado.',
+              },
+              {
+                image: '/assets/lon-suite-physician-female-editorial.jpg',
+                eyebrow: 'Presença editorial',
+                title: 'De documentação clínica para narrativa de autoridade.',
+                body: 'A imagem ganha contexto, o contexto vira case, e o case ganha forma para apresentação com acabamento premium.',
+              },
+            ].map((item, index) => (
+              <article key={item.title} className={`plans-card overflow-hidden rounded-[36px] bg-white shadow-[0_28px_90px_rgba(0,0,0,0.08)] ${index === 1 ? 'lg:translate-y-10' : ''}`}>
+                <div className="aspect-[4/3] overflow-hidden bg-[#e8e8e6]">
+                  <img src={item.image} alt="" className="h-full w-full object-cover grayscale transition-transform duration-700 hover:scale-[1.035]" />
+                </div>
+                <div className="p-7">
+                  <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">{item.eyebrow}</p>
+                  <h3 className="text-[29px] font-light leading-tight tracking-tight text-[#111113]">{item.title}</h3>
+                  <p className="mt-5 text-[14px] font-light leading-relaxed text-[#6e6e73]">{item.body}</p>
+                </div>
+              </article>
+            ))}
           </section>
 
           <section className="mt-24 overflow-hidden rounded-[38px] bg-[#111113] text-white shadow-[0_40px_120px_rgba(0,0,0,0.25)]">
@@ -293,6 +330,26 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
                 </div>
               );
             })}
+          </section>
+
+          <section className="mt-24 grid items-center gap-8 rounded-[38px] bg-[#ededeb] p-6 sm:p-10 lg:grid-cols-[0.95fr_1.05fr] lg:p-12">
+            <div>
+              <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Valor prático</p>
+              <h2 className="text-[42px] font-semibold leading-tight tracking-tight sm:text-[60px]">Menos tempo procurando. Mais tempo usando o que você já construiu.</h2>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {[
+                ['Antes', 'Arquivo perdido, sem contexto, difícil de reaproveitar.'],
+                ['Depois', 'Ativo científico com busca, resumo e vínculo ao case.'],
+                ['No dia a dia', 'Material pronto para aula, reunião, discussão e memória profissional.'],
+                ['No crescimento', 'Acervo acumulado vira patrimônio intelectual organizado.'],
+              ].map(([title, body], index) => (
+                <div key={title} className={`rounded-[28px] p-6 ${index === 1 ? 'bg-[#111113] text-white shadow-[0_24px_70px_rgba(0,0,0,0.18)]' : 'bg-white text-[#111113]'}`}>
+                  <p className="text-[12px] font-bold uppercase tracking-[0.16em] text-current opacity-45">{title}</p>
+                  <p className="mt-7 text-[20px] font-light leading-tight">{body}</p>
+                </div>
+              ))}
+            </div>
           </section>
 
           <section className="mt-24 rounded-[38px] bg-white p-8 text-center shadow-[0_28px_90px_rgba(0,0,0,0.08)] sm:p-14">
@@ -385,7 +442,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
                   <path d="M3 5.5h16M3 11h10M3 16.5h12" stroke="white" strokeWidth="1.6" strokeLinecap="round"/>
                 </svg>
               </div>
-              <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Longecta Scientific Workspace</p>
+              <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Lon Suite</p>
               <h1 className="text-[34px] font-extralight leading-tight tracking-tight text-[#1d1d1f]">Lon Suite</h1>
               <p className="mt-3 max-w-[340px] text-[13px] leading-relaxed text-[#6e6e73]">
                 Entre no ambiente onde ativos científicos, imagens cirúrgicas e cases clínicos viram patrimônio organizado.
@@ -541,7 +598,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
             <div className="relative min-h-[600px] xl:min-h-[650px]">
               <div className="absolute inset-x-0 top-0 h-[540px] overflow-hidden rounded-[36px] bg-white shadow-[0_34px_120px_rgba(0,0,0,0.34)] xl:h-[590px]">
                 <img
-                  src="/assets/lon-suite-physician-female-editorial.png"
+                  src="/assets/lon-suite-physician-female-editorial.jpg"
                   alt="Médica pesquisadora representando a Lon Suite"
                   className="h-full w-full object-cover object-[42%_50%]"
                 />
