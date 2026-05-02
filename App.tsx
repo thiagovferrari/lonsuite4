@@ -158,6 +158,7 @@ const App: React.FC = () => {
   // Presentation Mode
   const [presentationMode, setPresentationMode] = useState(false);
   const [presentationBlockIdx, setPresentationBlockIdx] = useState(0);
+  const [isGeneratingCasePdf, setIsGeneratingCasePdf] = useState(false);
 
   // Ghostwriter
   const [showGhostwriter, setShowGhostwriter] = useState(false);
@@ -940,7 +941,8 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
   };
 
   const handleDownloadCasePDF = async () => {
-    if (!editingCase) return;
+    if (!editingCase || isGeneratingCasePdf) return;
+    setIsGeneratingCasePdf(true);
     try {
     const jsPDF = (await import('jspdf')).default;
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
@@ -951,6 +953,49 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
 
     const checkPage = (needed: number) => {
       if (y + needed > 280) { doc.addPage(); y = margin; }
+    };
+
+    const sourceToDataUrl = async (src: string, fallbackMime = 'image/jpeg'): Promise<string> => {
+      if (!src) return '';
+      if (src.startsWith('data:image')) return src;
+      if (src.startsWith('data:application/pdf')) return '';
+      if (!src.startsWith('http')) return src.startsWith('data:') ? src : '';
+
+      const controller = new AbortController();
+      const timeout = window.setTimeout(() => controller.abort(), 4500);
+      try {
+        const res = await fetch(src, { mode: 'cors', cache: 'force-cache', signal: controller.signal });
+        if (!res.ok) return '';
+        const blob = await res.blob();
+        return await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob.type ? blob : new Blob([blob], { type: fallbackMime }));
+        });
+      } catch {
+        return '';
+      } finally {
+        window.clearTimeout(timeout);
+      }
+    };
+
+    const drawImageData = (imgData: string, maxWidth: number, maxHeight: number): boolean => {
+      if (!imgData.startsWith('data:image')) return false;
+      try {
+        const imgProps = doc.getImageProperties(imgData);
+        const imgWidth = maxWidth;
+        const imgHeight = Math.min((imgProps.height / imgProps.width) * imgWidth, maxHeight);
+        checkPage(imgHeight + 14);
+        const formatMatch = imgData.match(/^data:image\/(.*?);/);
+        let format = formatMatch ? formatMatch[1].toUpperCase() : 'JPEG';
+        if (format === 'SVG+XML') format = 'PNG';
+        doc.addImage(imgData, format, margin + (contentWidth - imgWidth) / 2, y, imgWidth, imgHeight);
+        y += imgHeight + 8;
+        return true;
+      } catch {
+        return false;
+      }
     };
 
     // Title — left aligned
@@ -1028,47 +1073,18 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
         for (const entry of entries) {
           const [imgData, caption] = entry.split('###');
           
-          let finalImgData = imgData;
-          // Convert URL to base64 via canvas (CORS-safe)
-          if (finalImgData && finalImgData.startsWith('http')) {
-            try {
-              const res = await fetch(finalImgData, { mode: 'cors', cache: 'force-cache' });
-              if (res.ok) {
-                const blob = await res.blob();
-                finalImgData = await new Promise<string>((resolve, reject) => {
-                  const reader = new FileReader();
-                  reader.onloadend = () => resolve(reader.result as string);
-                  reader.onerror = reject;
-                  reader.readAsDataURL(blob);
-                });
-              }
-            } catch {
-              // CORS blocked — render placeholder text instead of crashing
-              checkPage(12);
-              doc.setFont('helvetica', 'italic');
-              doc.setFontSize(9);
-              doc.setTextColor(174, 174, 178);
-              doc.text('[Imagem disponível apenas online]', margin, y);
-              y += 8;
-              finalImgData = '';
-            }
-          }
+          const finalImgData = await sourceToDataUrl(imgData);
 
           // Render image
-          if (finalImgData && finalImgData.startsWith('data:image')) {
-            try {
-              const imgProps = doc.getImageProperties(finalImgData);
-              const imgWidth = contentWidth;
-              const imgHeight = (imgProps.height / imgProps.width) * imgWidth;
-              const clampedHeight = Math.min(imgHeight, 240);
-              checkPage(clampedHeight + 20); // More margin for caption
-              // Detect format dynamically to prevent PDF corruption
-              const formatMatch = finalImgData.match(/^data:image\/(.*?);/);
-              let format = formatMatch ? formatMatch[1].toUpperCase() : 'JPEG';
-              if (format === 'SVG+XML') format = 'PNG'; // SVG fallback
-              doc.addImage(finalImgData, format, margin, y, imgWidth, clampedHeight);
-              y += clampedHeight + 12; // Extra gap before caption
-            } catch { /* skip broken images */ }
+          if (finalImgData) {
+            drawImageData(finalImgData, contentWidth, 240);
+          } else if (imgData) {
+            checkPage(12);
+            doc.setFont('helvetica', 'italic');
+            doc.setFontSize(9);
+            doc.setTextColor(174, 174, 178);
+            doc.text('[Imagem indisponível no momento da exportação]', margin, y);
+            y += 8;
           }
           
           // Render caption (legenda) — always after its image
@@ -1119,47 +1135,14 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
             y += 5;
           }
 
-          // Thumbnail image if available
-          if (linkedAsset.thumbnail && linkedAsset.thumbnail.startsWith('data:image')) {
-            try {
-              const imgProps = doc.getImageProperties(linkedAsset.thumbnail);
-              const imgWidth = Math.min(contentWidth, 140);
-              const imgHeight = (imgProps.height / imgProps.width) * imgWidth;
-              const clampedH = Math.min(imgHeight, 180);
-              checkPage(clampedH + 12);
-              const formatMatch = linkedAsset.thumbnail.match(/^data:image\/(.*?);/);
-              let format = formatMatch ? formatMatch[1].toUpperCase() : 'JPEG';
-              if (format === 'SVG+XML') format = 'PNG';
-              doc.addImage(linkedAsset.thumbnail, format, margin + (contentWidth - imgWidth) / 2, y, imgWidth, clampedH);
-              y += clampedH + 8;
-            } catch { /* skip broken images */ }
-          } else if (linkedAsset.thumbnail && linkedAsset.thumbnail.startsWith('http')) {
-            // Try to embed URL-based thumbnail
-            try {
-              const res = await fetch(linkedAsset.thumbnail, { mode: 'cors', cache: 'force-cache' });
-              if (res.ok) {
-                const blob = await res.blob();
-                const b64 = await new Promise<string>((resolve, reject) => {
-                  const reader = new FileReader();
-                  reader.onloadend = () => resolve(reader.result as string);
-                  reader.onerror = reject;
-                  reader.readAsDataURL(blob);
-                });
-                if (b64.startsWith('data:image')) {
-                  const imgProps = doc.getImageProperties(b64);
-                  const w = Math.min(contentWidth, 140);
-                  const h = Math.min((imgProps.height / imgProps.width) * w, 180);
-                  checkPage(h + 12);
-                  const fmt = b64.match(/^data:image\/(.*?);/)?.[1]?.toUpperCase() ?? 'JPEG';
-                  doc.addImage(b64, fmt === 'SVG+XML' ? 'PNG' : fmt, margin + (contentWidth - w) / 2, y, w, h);
-                  y += h + 8;
-                }
-              }
-            } catch {
+          if (linkedAsset.thumbnail) {
+            const linkedImg = await sourceToDataUrl(linkedAsset.thumbnail);
+            if (!drawImageData(linkedImg, Math.min(contentWidth, 140), 180)) {
+              checkPage(8);
               doc.setFont('helvetica', 'italic');
               doc.setFontSize(8);
               doc.setTextColor(174, 174, 178);
-              doc.text('[Imagem disponível apenas online]', margin, y);
+              doc.text(linkedAsset.type === 'pdf' ? '[PDF vinculado disponível pelo link acima]' : '[Miniatura indisponível no momento da exportação]', margin, y);
               y += 6;
             }
           }
@@ -1207,6 +1190,8 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
     } catch (error) {
       console.error('Erro ao gerar PDF do case:', error);
       alert('Não consegui gerar o PDF agora. O case continua salvo; tente novamente após recarregar a página.');
+    } finally {
+      setIsGeneratingCasePdf(false);
     }
   };
 
@@ -1262,9 +1247,10 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
               </button>
               <button
                 onClick={handleDownloadCasePDF}
+                disabled={isGeneratingCasePdf}
                 className="flex items-center gap-1.5 px-3 py-2 bg-white border border-black/8 rounded-apple text-[11px] font-medium text-[#1d1d1f] shadow-apple"
               >
-                <Download size={12} /> PDF
+                {isGeneratingCasePdf ? <Loader2 size={12} className="animate-spin" /> : <Download size={12} />} PDF
               </button>
             </div>
 
@@ -1662,10 +1648,11 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
 
             <button
               onClick={handleDownloadCasePDF}
-              className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-apple-lg text-[11px] font-semibold bg-[#1d1d1f] text-white hover:bg-[#333] shadow-apple transition-all"
+              disabled={isGeneratingCasePdf}
+              className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-apple-lg text-[11px] font-semibold bg-[#1d1d1f] text-white hover:bg-[#333] shadow-apple transition-all disabled:opacity-60"
             >
-              <Download size={12} />
-              Baixar PDF
+              {isGeneratingCasePdf ? <Loader2 size={12} className="animate-spin" /> : <Download size={12} />}
+              {isGeneratingCasePdf ? 'Gerando PDF...' : 'Baixar PDF'}
             </button>
 
             <button
