@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, ArrowRight, Award, Brain, Building2, Check, Crown, Database, FileText, Images, LockKeyhole, Presentation, Search, ShieldCheck, Sparkles, Zap } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Award, Brain, Building2, Check, Crown, Database, Images, LockKeyhole, Presentation, Search, ShieldCheck, Sparkles, Zap } from 'lucide-react';
 import { signIn } from '../services/authService';
 import type { AuthUser } from '../services/authService';
 
@@ -234,7 +234,7 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
           <section className="mt-24 grid items-center gap-12 lg:grid-cols-[0.9fr_1.1fr]">
             <div>
               <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">O problema real</p>
-              <h2 className="text-[42px] font-semibold leading-tight tracking-tight sm:text-[64px]">O médico já tem conteúdo. Ele só não consegue encontrá-lo quando precisa.</h2>
+              <h2 className="text-[42px] font-semibold leading-tight tracking-tight sm:text-[64px]">Seu acervo científico deve responder na velocidade da sua prática.</h2>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               {[
@@ -539,72 +539,39 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
             </div>
 
             <div className="relative min-h-[600px] xl:min-h-[650px]">
-              <div className="absolute inset-x-4 top-0 h-[430px] overflow-hidden rounded-[34px] bg-white shadow-[0_34px_120px_rgba(0,0,0,0.34)] xl:inset-x-0 xl:h-[470px]">
+              <div className="absolute inset-x-0 top-0 h-[540px] overflow-hidden rounded-[36px] bg-white shadow-[0_34px_120px_rgba(0,0,0,0.34)] xl:h-[590px]">
                 <img
                   src="/assets/lon-suite-physician-female-editorial.png"
                   alt="Médica pesquisadora representando a Lon Suite"
-                  className="h-full w-full object-cover object-[44%_50%]"
+                  className="h-full w-full object-cover object-[42%_50%]"
                 />
-                <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(16,17,20,0.20)_0%,rgba(16,17,20,0)_42%,rgba(16,17,20,0.10)_100%)]" />
+                <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(16,17,20,0.18)_0%,rgba(16,17,20,0)_34%,rgba(16,17,20,0.08)_100%)]" />
               </div>
 
-              <div className="login-product-card absolute left-0 top-[385px] w-[62%] rounded-[30px] border border-white/[0.10] bg-[#f7f7f5] p-4 text-[#1d1d1f] shadow-[0_36px_110px_rgba(0,0,0,0.44)] xl:top-[410px] xl:w-[60%] xl:p-5">
-                <div className="mb-4 flex items-center justify-between">
+              <div className="login-product-card absolute bottom-8 left-8 right-8 rounded-[28px] border border-white/[0.14] bg-[#101114]/82 p-5 text-white shadow-[0_28px_90px_rgba(0,0,0,0.34)] backdrop-blur-xl">
+                <div className="flex items-start justify-between gap-6">
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#86868b]">Ativo científico</p>
-                    <h3 className="mt-1 text-[20px] font-light tracking-tight xl:text-[22px]">{activeStory === 1 ? 'Curadoria por IA' : activeStory === 2 ? 'Case pronto' : 'Imagem com contexto'}</h3>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/42">Lon Suite em ação</p>
+                    <h3 className="mt-2 text-[27px] font-extralight leading-tight tracking-tight xl:text-[31px]">
+                      {activeStory === 1 ? 'A imagem ganha leitura científica.' : activeStory === 2 ? 'O ativo vira narrativa clínica.' : 'O acervo fica pronto para ser encontrado.'}
+                    </h3>
                   </div>
-                  <div className="rounded-full bg-[#1d1d1f] px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-white xl:px-3 xl:text-[10px]">Indexado</div>
-                </div>
-
-                <div className="grid grid-cols-[0.9fr_1.1fr] gap-3">
-                  <div className="h-28 overflow-hidden rounded-[22px] bg-[#d8dde2] xl:h-36">
-                    <div className="login-scan h-full w-full bg-[linear-gradient(135deg,#cfd8df,#f5f2ec_48%,#aeb8bf)]" />
-                  </div>
-                  <div className="rounded-[20px] bg-white p-3.5 shadow-[0_8px_24px_rgba(0,0,0,0.06)] xl:p-4">
-                    <Search size={16} className="mb-5 text-[#3a7bd5] xl:mb-8" />
-                    <p className="text-[22px] font-light xl:text-[24px]">{story.metric}</p>
-                    <p className="text-[9px] font-bold uppercase tracking-wider text-[#86868b]">{story.metricLabel}</p>
+                  <div className="hidden shrink-0 items-center gap-2 rounded-full bg-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[#1d1d1f] xl:flex">
+                    <Search size={12} />
+                    Semântico
                   </div>
                 </div>
-
-                <div className="mt-3 space-y-2 xl:mt-4 xl:space-y-2.5">
+                <div className="mt-5 grid grid-cols-3 gap-2">
                   {[
-                    activeStory === 0
-                      ? ['Contexto', 'Imagem catalogada por significado clínico']
-                      : activeStory === 1
-                        ? ['Resumo', 'Tags e achados sugeridos para revisão']
-                        : ['Narrativa', 'Blocos prontos para apresentação'],
-                    activeStory === 0
-                      ? ['Busca', 'Encontrável por tema, técnica e evolução']
-                      : activeStory === 1
-                        ? ['Curadoria', 'Menos arquivo solto, mais ativo útil']
-                        : ['Destino', 'Aula, round, publicação ou memória'],
-                  ].map(([label, value], index) => (
-                    <div key={label} className="login-row-reveal rounded-[16px] border border-black/[0.05] bg-white px-3.5 py-2.5 xl:px-4 xl:py-3" style={{ animationDelay: `${index * 120}ms` }}>
-                      <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-[#86868b]">{label}</p>
-                      <p className="mt-1 text-[12px] leading-relaxed text-[#424245]">{value}</p>
+                    ['Ativo', 'contexto'],
+                    ['Busca', 'sentido'],
+                    ['Case', 'narrativa'],
+                  ].map(([label, value]) => (
+                    <div key={label} className="rounded-[16px] border border-white/[0.08] bg-white/[0.08] px-3 py-2.5">
+                      <p className="text-[11px] font-semibold text-white">{label}</p>
+                      <p className="mt-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-white/36">{value}</p>
                     </div>
                   ))}
-                </div>
-              </div>
-
-              <div className="login-library-card absolute bottom-4 right-4 w-[42%] rounded-[26px] border border-white/[0.12] bg-white/[0.10] p-3.5 shadow-[0_28px_80px_rgba(0,0,0,0.36)] backdrop-blur-xl xl:bottom-8 xl:right-0 xl:w-[40%] xl:p-4">
-                <div className="mb-3 flex items-center justify-between xl:mb-4">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/48">Biblioteca</p>
-                  <FileText size={15} className="text-white/62" />
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  {['Cirurgia', 'Caso', 'Imagem', 'PDF'].map(label => (
-                    <div key={label} className="aspect-square rounded-[16px] bg-white/[0.10] p-2">
-                      <div className="mb-2 h-2 w-8 rounded-full bg-white/24 xl:mb-3" />
-                      <p className="text-[10px] font-semibold text-white/70">{label}</p>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-3 rounded-[16px] bg-white px-4 py-3 text-[#1d1d1f] xl:mt-4">
-                  <p className="text-[11px] font-semibold">Busca semântica</p>
-                  <p className="mt-1 text-[10px] leading-relaxed text-[#86868b]">Encontre um caso por tema, técnica, imagem ou evidência.</p>
                 </div>
               </div>
             </div>
