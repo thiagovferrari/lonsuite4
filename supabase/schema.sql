@@ -58,7 +58,7 @@ alter table public.assets alter column owner_id set not null;
 alter table public.cases alter column owner_id set not null;
 
 insert into public.profiles (id, name, email, role)
-values ('user-demo-001', 'Dr. Demo Longecta', 'demo@longecta.com', 'admin')
+values ('user-demo-001', 'Dr. Demo Lon Suite', 'demo@lonsuite.com.br', 'admin')
 on conflict (id) do update
 set name = excluded.name,
     email = excluded.email,

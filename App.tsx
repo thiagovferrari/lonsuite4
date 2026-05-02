@@ -175,6 +175,7 @@ const App: React.FC = () => {
   // Cases view mode
   const [caseViewMode, setCaseViewMode] = useState<'list' | 'grid'>('list');
   const [assetTileSize, setAssetTileSize] = useState<'small' | 'medium' | 'large'>('medium');
+  const [dataLoadNotice, setDataLoadNotice] = useState<string | null>(null);
 
   // Confirmation Dialog State
   const [confirmDialog, setConfirmDialog] = useState<{
@@ -235,41 +236,55 @@ const App: React.FC = () => {
   // Initial Load: Supabase first, localStorage fallback
   useEffect(() => {
     if (!currentUser) return;
-    if (isOfflineUser) {
-      setAssets(readLocalAssetRecovery(LOCAL_STORAGE_ASSETS_KEY));
-      setIsRefreshing(false);
-      return;
-    }
+
+    const loadCloudData = async (scopeOwnerId?: string): Promise<Asset[]> => {
+      const scopedAssetsQuery = scopeOwnerId
+        ? supabase.from('assets').select('*').eq('owner_id', scopeOwnerId).order('created_at', { ascending: false }).limit(1000)
+        : supabase.from('assets').select('*').order('created_at', { ascending: false }).limit(1000);
+      const scopedCasesQuery = scopeOwnerId
+        ? supabase.from('cases').select('*').eq('owner_id', scopeOwnerId).order('created_at', { ascending: false }).limit(1000)
+        : supabase.from('cases').select('*').order('created_at', { ascending: false }).limit(1000);
+
+      const [{ data: assetsData, error: assetsError }, { data: casesData, error: casesError }] = await Promise.all([
+        withSupabaseTimeout(scopedAssetsQuery, scopeOwnerId ? 'Leitura dos ativos do usuário no Supabase' : 'Leitura dos ativos do projeto no Supabase'),
+        withSupabaseTimeout(scopedCasesQuery, scopeOwnerId ? 'Leitura dos cases do usuário no Supabase' : 'Leitura dos cases do projeto no Supabase'),
+      ]);
+
+      if (assetsError || casesError) throw assetsError || casesError;
+
+      return [
+        ...(assetsData || []).map((a: Record<string, unknown>) => mapAssetRow(a)),
+        ...(casesData || []).map((c: Record<string, unknown>) => mapCaseRow(c)),
+      ];
+    };
+
     const fetchInitialData = async () => {
       setIsRefreshing(true);
+      setDataLoadNotice(null);
       const localSnapshot = readLocalAssetRecovery(LOCAL_STORAGE_ASSETS_KEY);
       if (localSnapshot.length > 0) setAssets(localSnapshot);
+
       try {
-        const [{ data: assetsData, error: assetsError }, { data: casesData, error: casesError }] = await Promise.all([
-          withSupabaseTimeout(
-            supabase.from('assets').select('*').eq('owner_id', ownerId).order('created_at', { ascending: false }),
-            'Leitura dos ativos no Supabase',
-          ),
-          withSupabaseTimeout(
-            supabase.from('cases').select('*').eq('owner_id', ownerId).order('created_at', { ascending: false }),
-            'Leitura dos cases no Supabase',
-          ),
-        ]);
+        const scopedAssets = isOfflineUser ? [] : await loadCloudData(ownerId);
+        let mappedAssets = scopedAssets;
 
-        if (assetsError || casesError) throw assetsError || casesError;
-
-        const mappedAssets: Asset[] = [
-          ...(assetsData || []).map((a: Record<string, unknown>) => mapAssetRow(a)),
-          ...(casesData || []).map((c: Record<string, unknown>) => mapCaseRow(c)),
-        ];
+        if (mappedAssets.length === 0) {
+          // MCP/test stage recovery: avoid hiding real project data when auth owner_id
+          // differs from the current local session. Replace with tenant RLS on migration.
+          mappedAssets = await loadCloudData();
+          if (mappedAssets.length > 0) {
+            setDataLoadNotice('Acervo recuperado do projeto MCP. Na migração final, estes registros serão vinculados ao usuário definitivo.');
+          }
+        }
 
         if (mappedAssets.length > 0) {
           lastCloudLoadWasEmptyRef.current = false;
           setAssets(mergeAssetSets(mappedAssets, localSnapshot));
+          setDataLoadNotice(prev => prev);
         } else if (localSnapshot.length > 0) {
           lastCloudLoadWasEmptyRef.current = true;
           setAssets(localSnapshot);
-          localSnapshot.forEach(asset => syncToCloud(asset));
+          if (!isOfflineUser) localSnapshot.forEach(asset => syncToCloud(asset));
         } else {
           lastCloudLoadWasEmptyRef.current = true;
           setAssets([]);
@@ -278,6 +293,7 @@ const App: React.FC = () => {
         // Supabase not configured — load from localStorage
         try {
           if (localSnapshot.length > 0) setAssets(localSnapshot);
+          else setDataLoadNotice('Não consegui consultar o Supabase agora. Tente atualizar em alguns segundos.');
         } catch { /* start fresh */ }
       } finally {
         setIsRefreshing(false);
@@ -2201,7 +2217,9 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-7">
                   <div>
                     <h1 className="text-3xl sm:text-4xl font-extralight tracking-tight text-[#1d1d1f]">Ativos</h1>
-                    <p className="text-[11px] font-medium text-[#86868b] tracking-wider mt-1.5">Patrimônio Científico</p>
+                    <p className="text-[11px] font-medium text-[#86868b] tracking-wider mt-1.5">
+                      {isRefreshing ? 'Sincronizando acervo...' : `${filteredAssets.length} ativos visíveis · ${activeAssets.filter(a => a.type === 'case').length} cases`}
+                    </p>
                   </div>
                   <button onClick={() => setShowUploadModal(true)}
                     className="btn-ai w-full sm:w-auto px-5 py-2.5 rounded-apple-lg font-semibold text-[13px] shadow-apple flex items-center justify-center gap-2 hover:-translate-y-0.5">
@@ -2288,6 +2306,13 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                     </div>
                   </div>
                 </div>
+
+                {dataLoadNotice && (
+                  <div className="mt-4 flex items-start gap-2 rounded-[18px] border border-amber-200/70 bg-amber-50 px-4 py-3 text-[12px] font-medium leading-relaxed text-amber-800">
+                    <AlertCircle size={15} className="mt-0.5 shrink-0" />
+                    <span>{dataLoadNotice}</span>
+                  </div>
+                )}
               </header>
 
               {/* Grid */}
@@ -2299,13 +2324,23 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
 
               {filteredAssets.length === 0 && (
                 <div className="text-center py-24 text-[#86868b]">
-                  <LayoutGrid size={40} className="mx-auto mb-4 opacity-25" />
-                  <p className="text-[14px] font-medium mb-1">Nenhum ativo encontrado</p>
-                  <p className="text-[12px] text-[#aeaeb2] mb-5">Tente ajustar os filtros ou adicione um novo ativo</p>
-                  <button onClick={() => fileInputRef.current?.click()}
-                    className="btn-ai px-5 py-2.5 rounded-apple-lg text-[12px] font-semibold shadow-apple">
-                    Adicionar Ativo
-                  </button>
+                  {isRefreshing ? (
+                    <>
+                      <Loader2 size={38} className="mx-auto mb-4 animate-spin text-[#1d1d1f]/30" />
+                      <p className="text-[14px] font-medium mb-1">Carregando acervo científico</p>
+                      <p className="text-[12px] text-[#aeaeb2]">Consultando cache local e Supabase...</p>
+                    </>
+                  ) : (
+                    <>
+                      <LayoutGrid size={40} className="mx-auto mb-4 opacity-25" />
+                      <p className="text-[14px] font-medium mb-1">Nenhum ativo encontrado</p>
+                      <p className="text-[12px] text-[#aeaeb2] mb-5">Tente ajustar os filtros ou adicione um novo ativo</p>
+                      <button onClick={() => fileInputRef.current?.click()}
+                        className="btn-ai px-5 py-2.5 rounded-apple-lg text-[12px] font-semibold shadow-apple">
+                        Adicionar Ativo
+                      </button>
+                    </>
+                  )}
                 </div>
               )}
             </div>

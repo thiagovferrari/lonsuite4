@@ -7,6 +7,7 @@ export interface AuthUser {
 }
 
 const AUTH_KEY = 'lon_suite_auth_v1';
+const LAST_ONLINE_AUTH_KEY = 'lon_suite_last_online_auth_v1';
 const AUTH_TIMEOUT_MS = 12000;
 const OFFLINE_AUTH_PREFIX = 'offline:';
 
@@ -37,6 +38,21 @@ export function storeUser(user: AuthUser): void {
   localStorage.setItem(AUTH_KEY, JSON.stringify(user));
 }
 
+function storeLastOnlineUser(user: AuthUser): void {
+  localStorage.setItem(LAST_ONLINE_AUTH_KEY, JSON.stringify(user));
+}
+
+function getLastOnlineUser(email: string): AuthUser | null {
+  try {
+    const raw = localStorage.getItem(LAST_ONLINE_AUTH_KEY);
+    if (!raw) return null;
+    const user = JSON.parse(raw) as AuthUser;
+    return user.email.trim().toLowerCase() === email.trim().toLowerCase() ? user : null;
+  } catch {
+    return null;
+  }
+}
+
 export function clearStoredUser(): void {
   localStorage.removeItem(AUTH_KEY);
 }
@@ -61,6 +77,11 @@ export async function signIn(email: string, password: string): Promise<AuthUser>
   } catch (error) {
     const isTimeout = error instanceof Error && error.message.includes('demorou');
     if (isTimeout && email.includes('@') && password.length > 0) {
+      const lastOnlineUser = getLastOnlineUser(email);
+      if (lastOnlineUser) {
+        storeUser(lastOnlineUser);
+        return lastOnlineUser;
+      }
       const offlineUser = createOfflineUser(email);
       storeUser(offlineUser);
       return offlineUser;
@@ -98,6 +119,7 @@ export async function signIn(email: string, password: string): Promise<AuthUser>
   });
 
   storeUser(authUser);
+  storeLastOnlineUser(authUser);
   return authUser;
 }
 

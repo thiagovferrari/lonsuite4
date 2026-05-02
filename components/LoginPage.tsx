@@ -12,7 +12,7 @@ interface PlansPageProps {
 }
 
 const planMailto = (plan: string) =>
-  `mailto:suporte@longecta.com.br?subject=${encodeURIComponent(`Assinar Lon Suite ${plan}`)}&body=${encodeURIComponent(`Olá, quero assinar o plano ${plan} da Lon Suite. Pode me orientar nos próximos passos?`)}`;
+  `mailto:contato@lonsuite.com.br?subject=${encodeURIComponent(`Assinar Lon Suite ${plan}`)}&body=${encodeURIComponent(`Olá, quero assinar o plano ${plan} da Lon Suite. Pode me orientar nos próximos passos?`)}`;
 
 const PriceDisplay: React.FC<{ price: string; period: string; inverted?: boolean }> = ({ price, period, inverted = false }) => {
   if (price === 'Sob consulta') {
@@ -521,8 +521,8 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
 
               <p className="mt-7 text-center text-[11px] leading-relaxed text-[#aeaeb2]">
                 Acesso somente por convite.{' '}
-                <a href="mailto:suporte@longecta.com.br" className="font-medium text-[#3a7bd5] hover:underline">
-                  suporte@longecta.com.br
+                <a href="mailto:contato@lonsuite.com.br" className="font-medium text-[#3a7bd5] hover:underline">
+                  contato@lonsuite.com.br
                 </a>
               </p>
 
@@ -596,20 +596,20 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
             </div>
 
             <div className="relative min-h-[600px] xl:min-h-[650px]">
-              <div className="absolute inset-x-0 top-0 h-[540px] overflow-hidden rounded-[36px] bg-white shadow-[0_34px_120px_rgba(0,0,0,0.34)] xl:h-[590px]">
+              <div className="absolute inset-x-0 top-0 h-[540px] overflow-hidden rounded-[36px] bg-[#f6f5f2] shadow-[0_34px_120px_rgba(0,0,0,0.34)] xl:h-[590px]">
                 <img
                   src="/assets/lon-suite-physician-female-editorial.jpg"
                   alt="Médica pesquisadora representando a Lon Suite"
-                  className="h-full w-full object-cover object-[42%_50%]"
+                  className="h-full w-full object-contain object-center"
                 />
-                <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(16,17,20,0.18)_0%,rgba(16,17,20,0)_34%,rgba(16,17,20,0.08)_100%)]" />
+                <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(16,17,20,0.16)_0%,rgba(16,17,20,0)_30%,rgba(16,17,20,0.06)_100%)]" />
               </div>
 
-              <div className="login-product-card absolute bottom-8 left-8 right-8 rounded-[28px] border border-white/[0.14] bg-[#101114]/82 p-5 text-white shadow-[0_28px_90px_rgba(0,0,0,0.34)] backdrop-blur-xl">
+              <div className="login-product-card absolute bottom-4 left-5 w-[min(430px,calc(100%-40px))] rounded-[26px] border border-white/[0.14] bg-[#101114]/84 p-4 text-white shadow-[0_28px_90px_rgba(0,0,0,0.34)] backdrop-blur-xl xl:bottom-8 xl:left-8 xl:p-5">
                 <div className="flex items-start justify-between gap-6">
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/42">Lon Suite em ação</p>
-                    <h3 className="mt-2 text-[27px] font-extralight leading-tight tracking-tight xl:text-[31px]">
+                    <h3 className="mt-2 text-[23px] font-extralight leading-tight tracking-tight xl:text-[29px]">
                       {activeStory === 1 ? 'A imagem ganha leitura científica.' : activeStory === 2 ? 'O ativo vira narrativa clínica.' : 'O acervo fica pronto para ser encontrado.'}
                     </h3>
                   </div>
