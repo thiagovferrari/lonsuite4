@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, ArrowRight, Award, Brain, Building2, Check, Crown, Database, Images, LockKeyhole, Presentation, Search, ShieldCheck, Sparkles, Zap } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Award, Brain, Building2, Check, Crown, Database, FileText, Images, LockKeyhole, Presentation, Search, ShieldCheck, Sparkles, Zap } from 'lucide-react';
 import { signIn } from '../services/authService';
 import type { AuthUser } from '../services/authService';
 
