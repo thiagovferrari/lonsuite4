@@ -15,6 +15,22 @@ const planMailto = (plan: string) =>
   `mailto:suporte@longecta.com.br?subject=${encodeURIComponent(`Assinar Lon Suite ${plan}`)}&body=${encodeURIComponent(`Olá, quero assinar o plano ${plan} da Lon Suite. Pode me orientar nos próximos passos?`)}`;
 
 const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
+  const [activeDemo, setActiveDemo] = useState(0);
+
+  const demoSteps = [
+    { label: 'Material bruto', title: 'Imagem, foto ou PDF', body: 'O que antes ficava perdido no celular, WhatsApp ou pasta solta entra no acervo.' },
+    { label: 'Ativo científico', title: 'Contexto, tags e evidência', body: 'A Lon Suite transforma o arquivo em algo pesquisável, interpretável e reaproveitável.' },
+    { label: 'Busca semântica', title: 'Encontre pelo significado', body: 'Procure por técnica, tema, achado, complicação, evolução ou intenção clínica.' },
+    { label: 'Case Builder', title: 'Um case em minutos', body: 'Monte uma narrativa científica com imagens, textos, ativos vinculados e apresentação.' },
+  ];
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setActiveDemo(index => (index + 1) % demoSteps.length);
+    }, 3600);
+    return () => window.clearInterval(timer);
+  }, [demoSteps.length]);
+
   const plans = [
     {
       name: 'Free',
@@ -31,26 +47,26 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
     {
       name: 'Personal',
       icon: Database,
-      price: 'R$ 49',
+      price: 'R$ 150',
       period: '/mês',
-      description: 'Para o médico que quer preservar, localizar e apresentar sua própria produção científica.',
+      description: 'Para o médico que quer transformar imagens e documentos em ativos científicos próprios.',
       storage: '5 GB',
       highlight: true,
       cta: 'Assinar Personal',
       href: planMailto('Personal'),
-      features: ['Até 5 GB de imagens e documentos', 'Busca e organização por tags', 'Cases com modo apresentação', 'Suporte para evolução do acervo'],
+      features: ['5 GB para acervo científico pessoal', 'Busca semântica e organização por contexto', 'Case Builder para aulas e discussões', 'Biblioteca de valor profissional'],
     },
     {
       name: 'Premium',
       icon: Crown,
-      price: 'R$ 149',
+      price: 'R$ 299',
       period: '/mês',
-      description: 'Para produção científica recorrente, aulas, apresentações e documentação clínica robusta.',
+      description: 'Para quem produz, apresenta e reaproveita conhecimento científico com frequência.',
       storage: '20 GB',
       highlight: false,
       cta: 'Assinar Premium',
       href: planMailto('Premium'),
-      features: ['20 GB para acervo avançado', 'Biblioteca científica ampliada', 'Exportação e apresentação premium', 'Preparado para recursos de IA'],
+      features: ['20 GB para acervo avançado', 'Cases e apresentações recorrentes', 'Fluxo premium para produção científica', 'Preparado para IA e automações'],
     },
     {
       name: 'Enterprise',
@@ -68,9 +84,10 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
 
   return (
     <div className="min-h-screen overflow-hidden bg-[#f5f5f7] text-[#1d1d1f]">
-      <section className="relative px-5 pb-16 pt-6 sm:px-8 lg:px-12">
+      <section className="relative px-5 pb-20 pt-6 sm:px-8 lg:px-12">
         <div className="plans-orbit absolute right-[8%] top-20 h-56 w-56 rounded-full border border-black/[0.06]" />
         <div className="plans-orbit plans-orbit-slow absolute bottom-20 left-[7%] h-72 w-72 rounded-full border border-black/[0.04]" />
+        <div className="absolute inset-x-0 top-0 h-[620px] bg-[linear-gradient(180deg,#ffffff_0%,rgba(255,255,255,0)_100%)]" />
 
         <div className="relative mx-auto max-w-7xl">
           <div className="mb-12 flex items-center justify-between gap-5">
@@ -87,61 +104,84 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
             </div>
           </div>
 
-          <div className="grid items-end gap-10 lg:grid-cols-[0.92fr_1.08fr]">
+          <div className="grid items-center gap-10 lg:grid-cols-[0.92fr_1.08fr]">
             <div className="plans-story-enter">
               <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-black/[0.06] bg-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[#6e6e73] shadow-[0_12px_34px_rgba(0,0,0,0.05)]">
                 <Award size={13} className="text-[#1d1d1f]" />
-                Planos Lon Suite
+                A primeira suíte de ativos científicos
               </p>
-              <h1 className="max-w-4xl text-[44px] font-extralight leading-[1.02] tracking-tight text-[#1d1d1f] sm:text-[64px] lg:text-[74px]">
-                O plano certo para transformar produção médica em patrimônio científico.
+              <h1 className="max-w-4xl text-[44px] font-extralight leading-[1.01] tracking-tight text-[#1d1d1f] sm:text-[68px] lg:text-[82px]">
+                Seus arquivos deixam de ser arquivos. Viram ativos científicos.
               </h1>
-              <p className="mt-7 max-w-2xl text-[16px] font-light leading-relaxed text-[#6e6e73] sm:text-[18px]">
-                A Lon Suite não é um drive. É o espaço onde imagens cirúrgicas, documentos, evidências e cases ganham contexto, busca, apresentação e permanência.
+              <p className="mt-7 max-w-2xl text-[17px] font-light leading-relaxed text-[#6e6e73] sm:text-[19px]">
+                A Lon Suite transforma fotos, imagens cirúrgicas, PDFs e documentos em uma biblioteca inteligente, pesquisável por significado e pronta para gerar cases, aulas, discussões e valor profissional.
               </p>
+              <div className="mt-8 grid gap-3 sm:grid-cols-3">
+                {[
+                  ['Transforma', 'material bruto em ativo'],
+                  ['Encontra', 'por busca semântica'],
+                  ['Constrói', 'cases com velocidade'],
+                ].map(([title, body]) => (
+                  <div key={title} className="rounded-[22px] border border-black/[0.06] bg-white p-4 shadow-[0_14px_40px_rgba(0,0,0,0.045)]">
+                    <p className="text-[15px] font-semibold">{title}</p>
+                    <p className="mt-1 text-[11px] leading-relaxed text-[#86868b]">{body}</p>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <div className="plans-showcase relative min-h-[430px] rounded-[34px] bg-[#101114] p-6 text-white shadow-[0_34px_110px_rgba(0,0,0,0.22)]">
+            <div className="plans-showcase relative min-h-[560px] rounded-[38px] bg-[#101114] p-6 text-white shadow-[0_40px_130px_rgba(0,0,0,0.25)]">
               <div className="absolute inset-0 rounded-[34px] bg-[radial-gradient(circle_at_22%_18%,rgba(255,255,255,0.16),transparent_32%),radial-gradient(circle_at_84%_82%,rgba(58,123,213,0.20),transparent_38%)]" />
-              <div className="relative grid h-full gap-4">
+              <div className="relative grid h-full gap-5">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/42">Value engine</p>
-                    <h2 className="mt-2 max-w-[460px] text-[32px] font-extralight leading-tight tracking-tight">Menos arquivo perdido. Mais conhecimento reaproveitado.</h2>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/42">Lon Suite value engine</p>
+                    <h2 className="mt-2 max-w-[500px] text-[34px] font-extralight leading-tight tracking-tight">O ciclo completo: capturar, entender, encontrar, apresentar.</h2>
                   </div>
-                  <div className="rounded-full bg-white px-4 py-2 text-[11px] font-bold uppercase tracking-[0.12em] text-[#1d1d1f]">Premium</div>
+                  <div className="rounded-full bg-white px-4 py-2 text-[11px] font-bold uppercase tracking-[0.12em] text-[#1d1d1f]">Única</div>
+                </div>
+
+                <div className="grid gap-3">
+                  <div className="rounded-[28px] bg-white p-4 text-[#1d1d1f]">
+                    <div className="mb-4 flex items-center justify-between">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#86868b]">Demonstração viva</p>
+                      <Brain size={16} className="text-[#3a7bd5]" />
+                    </div>
+                    <div key={activeDemo} className="plans-demo-enter grid gap-4 md:grid-cols-[0.88fr_1.12fr]">
+                      <div className="relative aspect-[4/3] overflow-hidden rounded-[22px] bg-[linear-gradient(135deg,#d8dde2,#f7f2ea_48%,#aeb8bf)]">
+                        <div className="login-scan absolute inset-0" />
+                        <div className="absolute bottom-3 left-3 rounded-full bg-white/85 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#424245] backdrop-blur">{demoSteps[activeDemo].label}</div>
+                      </div>
+                      <div className="flex flex-col justify-center">
+                        <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#86868b]">Etapa {activeDemo + 1} de 4</p>
+                        <h3 className="mt-2 text-[30px] font-light leading-tight tracking-tight">{demoSteps[activeDemo].title}</h3>
+                        <p className="mt-3 text-[13px] leading-relaxed text-[#6e6e73]">{demoSteps[activeDemo].body}</p>
+                      </div>
+                    </div>
+                    <div className="mt-5 grid grid-cols-4 gap-2">
+                      {demoSteps.map((step, index) => (
+                        <button
+                          key={step.label}
+                          onClick={() => setActiveDemo(index)}
+                          className={`h-1.5 rounded-full transition-all ${activeDemo === index ? 'bg-[#1d1d1f]' : 'bg-black/10 hover:bg-black/25'}`}
+                          aria-label={`Ver etapa ${step.label}`}
+                        />
+                      ))}
+                    </div>
+                  </div>
                 </div>
 
                 <div className="grid gap-3 sm:grid-cols-3">
                   {[
-                    ['5 GB', 'Personal'],
-                    ['20 GB', 'Premium'],
-                    ['100 GB+', 'Enterprise'],
+                    ['Ativos', 'Fotos, PDFs e documentos com significado'],
+                    ['Busca', 'Encontra pelo sentido, não só pelo nome'],
+                    ['Cases', 'Builder rápido para narrativa científica'],
                   ].map(([value, label], index) => (
-                    <div key={label} className="plans-metric rounded-[22px] border border-white/[0.08] bg-white/[0.075] p-4 backdrop-blur" style={{ animationDelay: `${index * 260}ms` }}>
-                      <p className="text-[32px] font-extralight">{value}</p>
+                    <div key={value} className="plans-metric rounded-[22px] border border-white/[0.08] bg-white/[0.075] p-4 backdrop-blur" style={{ animationDelay: `${index * 260}ms` }}>
+                      <p className="text-[22px] font-light">{value}</p>
                       <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.14em] text-white/42">{label}</p>
                     </div>
                   ))}
-                </div>
-
-                <div className="grid gap-3 sm:grid-cols-[1.15fr_0.85fr]">
-                  <div className="rounded-[24px] bg-white p-4 text-[#1d1d1f]">
-                    <div className="mb-4 flex items-center justify-between">
-                      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#86868b]">Acervo médico</p>
-                      <Images size={16} className="text-[#3a7bd5]" />
-                    </div>
-                    <div className="grid grid-cols-4 gap-2">
-                      {[0, 1, 2, 3, 4, 5, 6, 7].map(i => (
-                        <div key={i} className="aspect-square rounded-[14px] bg-[linear-gradient(135deg,#d8dde2,#f5f2ec_52%,#aeb8bf)]" />
-                      ))}
-                    </div>
-                  </div>
-                  <div className="rounded-[24px] border border-white/[0.08] bg-white/[0.08] p-4">
-                    <Brain size={18} className="mb-8 text-white/70" />
-                    <p className="text-[24px] font-extralight leading-tight">IA pronta para entrar quando o acervo pedir escala.</p>
-                    <p className="mt-3 text-[11px] leading-relaxed text-white/45">Começamos com storage e organização. Depois ativamos tokens, limites e automação.</p>
-                  </div>
                 </div>
               </div>
             </div>
