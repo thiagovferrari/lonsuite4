@@ -14,14 +14,34 @@ interface PlansPageProps {
 const planMailto = (plan: string) =>
   `mailto:suporte@longecta.com.br?subject=${encodeURIComponent(`Assinar Lon Suite ${plan}`)}&body=${encodeURIComponent(`Olá, quero assinar o plano ${plan} da Lon Suite. Pode me orientar nos próximos passos?`)}`;
 
+const PriceDisplay: React.FC<{ price: string; period: string; inverted?: boolean }> = ({ price, period, inverted = false }) => {
+  if (price === 'Sob consulta') {
+    return (
+      <div>
+        <span className="block text-[34px] font-semibold leading-none tracking-tight">Sob consulta</span>
+        <span className={`mt-2 block text-[12px] font-semibold ${inverted ? 'text-white/55' : 'text-[#6e6e73]'}`}>{period}</span>
+      </div>
+    );
+  }
+
+  const [, amount = price] = price.split(' ');
+  return (
+    <div className="flex items-end gap-1.5">
+      <span className={`pb-1.5 text-[18px] font-semibold tracking-tight ${inverted ? 'text-white/70' : 'text-[#424245]'}`}>R$</span>
+      <span className="text-[50px] font-semibold leading-[0.9] tracking-tight">{amount}</span>
+      <span className={`pb-2 text-[13px] font-semibold ${inverted ? 'text-white/55' : 'text-[#6e6e73]'}`}>{period}</span>
+    </div>
+  );
+};
+
 const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
   const [activeDemo, setActiveDemo] = useState(0);
 
   const demoSteps = [
-    { label: 'Material bruto', title: 'Imagem, foto ou PDF', body: 'O que antes ficava perdido no celular, WhatsApp ou pasta solta entra no acervo.' },
-    { label: 'Ativo científico', title: 'Contexto, tags e evidência', body: 'A Lon Suite transforma o arquivo em algo pesquisável, interpretável e reaproveitável.' },
-    { label: 'Busca semântica', title: 'Encontre pelo significado', body: 'Procure por técnica, tema, achado, complicação, evolução ou intenção clínica.' },
-    { label: 'Case Builder', title: 'Um case em minutos', body: 'Monte uma narrativa científica com imagens, textos, ativos vinculados e apresentação.' },
+    { label: 'Material bruto', title: 'Tudo começa no acervo invisível.', body: 'A imagem que ficaria esquecida ganha entrada, dono, contexto e futuro.' },
+    { label: 'Ativo científico', title: 'O arquivo passa a carregar significado.', body: 'Tags, resumo, evidência e relação clínica transformam memória solta em patrimônio.' },
+    { label: 'Busca semântica', title: 'Encontre pelo que o caso significa.', body: 'Procure por técnica, achado, complicação, evolução ou intenção científica.' },
+    { label: 'Case Builder', title: 'Do ativo ao case com fluidez.', body: 'Construa uma narrativa clínica com blocos, imagens, referências e apresentação.' },
   ];
 
   useEffect(() => {
@@ -37,48 +57,48 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
       icon: Sparkles,
       price: 'R$ 0',
       period: 'para experimentar',
-      description: 'Para conhecer a experiência Lon Suite e organizar os primeiros ativos científicos.',
+      description: 'Para sentir a diferença entre guardar arquivos e começar um acervo científico.',
       storage: '100 MB',
       highlight: false,
       cta: 'Começar pelo Free',
       href: planMailto('Free'),
-      features: ['Biblioteca inicial de ativos', 'Login seguro por conta', 'Cases científicos básicos', 'Ideal para teste e validação'],
+      features: ['Primeiros ativos científicos', 'Conta individual segura', 'Case Builder básico', 'Entrada sem fricção'],
     },
     {
       name: 'Personal',
       icon: Database,
       price: 'R$ 150',
       period: '/mês',
-      description: 'Para o médico que quer transformar imagens e documentos em ativos científicos próprios.',
+      description: 'Para o médico que quer encontrar, reaproveitar e apresentar seu próprio conhecimento.',
       storage: '5 GB',
       highlight: true,
       cta: 'Assinar Personal',
       href: planMailto('Personal'),
-      features: ['5 GB para acervo científico pessoal', 'Busca semântica e organização por contexto', 'Case Builder para aulas e discussões', 'Biblioteca de valor profissional'],
+      features: ['5 GB para acervo pessoal', 'Busca semântica por significado', 'Case Builder para aulas e rounds', 'Ativos com valor profissional'],
     },
     {
       name: 'Premium',
       icon: Crown,
       price: 'R$ 299',
       period: '/mês',
-      description: 'Para quem produz, apresenta e reaproveita conhecimento científico com frequência.',
+      description: 'Para quem documenta com frequência e quer transformar acervo em produção científica.',
       storage: '20 GB',
       highlight: false,
       cta: 'Assinar Premium',
       href: planMailto('Premium'),
-      features: ['20 GB para acervo avançado', 'Cases e apresentações recorrentes', 'Fluxo premium para produção científica', 'Preparado para IA e automações'],
+      features: ['20 GB para acervo avançado', 'Produção recorrente de cases', 'Apresentações com acabamento premium', 'Preparado para IA e automações'],
     },
     {
       name: 'Enterprise',
       icon: Building2,
       price: 'Sob consulta',
       period: 'para equipes',
-      description: 'Para clínicas, serviços, grupos médicos e instituições que precisam governança e escala.',
+      description: 'Para clínicas, serviços e grupos que querem transformar memória institucional em vantagem científica.',
       storage: '100 GB+',
       highlight: false,
       cta: 'Consultar equipe',
       href: planMailto('Enterprise'),
-      features: ['Limites personalizados', 'Onboarding assistido', 'Governança para equipes', 'Plano de dados sob medida'],
+      features: ['Limites e usuários personalizados', 'Onboarding assistido', 'Governança para equipes', 'Plano de dados sob medida'],
     },
   ];
 
@@ -113,10 +133,10 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
                 Lon Suite Pricing
               </p>
               <h1 className="max-w-4xl text-[48px] font-extralight leading-[0.98] tracking-tight text-[#111113] sm:text-[76px] lg:text-[92px]">
-                Arquivos que viram reputação científica.
+                O acervo científico que trabalha por você.
               </h1>
               <p className="mt-8 max-w-2xl text-[18px] font-light leading-relaxed text-[#6e6e73] sm:text-[21px]">
-                A Lon Suite transforma imagens, fotos e documentos em ativos científicos pesquisáveis. O que era arquivo morto vira aula, case, apresentação, memória e valor profissional.
+                A Lon Suite transforma imagens, fotos e documentos em ativos científicos pesquisáveis. O que antes era arquivo esquecido passa a gerar aula, case, apresentação, memória e autoridade.
               </p>
               <div className="mt-9 flex flex-col gap-3 sm:flex-row">
                 <a href={planMailto('Personal')} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#1d1d1f] px-6 py-3 text-[13px] font-semibold text-white shadow-[0_18px_44px_rgba(0,0,0,0.18)] hover:bg-[#2d2d2f]">
@@ -166,7 +186,7 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
           <section className="mt-12 rounded-[36px] bg-[#ededeb] px-4 py-12 sm:px-8 lg:px-10">
             <div className="mx-auto mb-9 max-w-3xl text-center">
               <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Planos</p>
-              <h2 className="text-[38px] font-semibold leading-tight tracking-tight sm:text-[56px]">Escolha quanto do seu conhecimento vai deixar de ficar perdido.</h2>
+              <h2 className="text-[38px] font-semibold leading-tight tracking-tight sm:text-[56px]">Planos para transformar acervo em presença científica.</h2>
             </div>
 
             <div className="grid gap-5 lg:grid-cols-4">
@@ -183,10 +203,7 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
                         <span className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] ${plan.highlight ? 'bg-white text-[#111113]' : 'bg-white text-[#424245]'}`}>{plan.name}</span>
                         <Icon size={20} className={plan.highlight ? 'text-white/72' : 'text-[#1d1d1f]'} />
                       </div>
-                      <div className="flex items-end gap-1">
-                        <span className="text-[42px] font-semibold tracking-tight">{plan.price}</span>
-                        <span className={`pb-2 text-[13px] font-semibold ${plan.highlight ? 'text-white/55' : 'text-[#6e6e73]'}`}>{plan.period}</span>
-                      </div>
+                      <PriceDisplay price={plan.price} period={plan.period} inverted={plan.highlight} />
                       <p className={`mt-4 min-h-[58px] text-[13px] leading-relaxed ${plan.highlight ? 'text-white/64' : 'text-[#6e6e73]'}`}>{plan.description}</p>
                     </div>
 
@@ -473,7 +490,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_28%_20%,rgba(255,255,255,0.12),transparent_30%),radial-gradient(circle_at_82%_72%,rgba(58,123,213,0.18),transparent_34%)]" />
           <div className="login-orbit absolute left-[10%] top-[8%] h-36 w-36 rounded-full border border-white/[0.08]" />
           <div className="login-orbit login-orbit-delayed absolute bottom-[12%] right-[12%] h-52 w-52 rounded-full border border-white/[0.06]" />
-          <div className="relative mx-auto grid w-full max-w-[900px] grid-cols-[0.88fr_1.12fr] items-center gap-10">
+          <div className="relative mx-auto grid w-full max-w-[980px] grid-cols-[0.84fr_1.16fr] items-center gap-10">
             <div>
               <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/[0.10] bg-white/[0.06] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white/62">
                 <Award size={12} />
@@ -521,51 +538,45 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
               </div>
             </div>
 
-            <div className="relative min-h-[620px]">
-              <div className="login-product-card absolute left-0 top-8 w-[92%] rounded-[30px] border border-white/[0.10] bg-[#f7f7f5] p-5 text-[#1d1d1f] shadow-[0_36px_110px_rgba(0,0,0,0.44)]">
+            <div className="relative min-h-[650px]">
+              <img
+                src="/assets/lon-suite-physician-female-editorial.png"
+                alt="Médica pesquisadora representando a Lon Suite"
+                className="absolute right-0 top-0 h-[520px] w-[82%] rounded-[32px] object-cover object-center shadow-[0_34px_120px_rgba(0,0,0,0.34)]"
+              />
+
+              <div className="login-product-card absolute left-0 top-[270px] w-[72%] rounded-[30px] border border-white/[0.10] bg-[#f7f7f5] p-5 text-[#1d1d1f] shadow-[0_36px_110px_rgba(0,0,0,0.44)]">
                 <div className="mb-5 flex items-center justify-between">
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#86868b]">Case em preparo</p>
-                    <h3 className="mt-1 text-[22px] font-light tracking-tight">{activeStory === 1 ? 'Curadoria por IA' : activeStory === 2 ? 'Apresentação clínica' : 'Reconstrução complexa'}</h3>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#86868b]">Ativo científico</p>
+                    <h3 className="mt-1 text-[22px] font-light tracking-tight">{activeStory === 1 ? 'Curadoria por IA' : activeStory === 2 ? 'Case pronto' : 'Imagem com contexto'}</h3>
                   </div>
-                  <div className="rounded-full bg-[#1d1d1f] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-white">Pronto</div>
+                  <div className="rounded-full bg-[#1d1d1f] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-white">Indexado</div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2">
-                  <div className="col-span-2 h-44 overflow-hidden rounded-[22px] bg-[#d8dde2]">
+                <div className="grid grid-cols-[0.9fr_1.1fr] gap-3">
+                  <div className="h-36 overflow-hidden rounded-[22px] bg-[#d8dde2]">
                     <div className="login-scan h-full w-full bg-[linear-gradient(135deg,#cfd8df,#f5f2ec_48%,#aeb8bf)]" />
                   </div>
-                  <div className="grid gap-2">
-                    <div className="rounded-[18px] bg-white p-3 shadow-[0_8px_24px_rgba(0,0,0,0.06)]">
-                      <Images size={16} className="mb-5 text-[#3a7bd5]" />
-                      <p className="text-[24px] font-light">{story.metric}</p>
-                      <p className="text-[9px] font-bold uppercase tracking-wider text-[#86868b]">{story.metricLabel}</p>
-                    </div>
-                    <div className="login-pulse-card rounded-[18px] bg-[#1d1d1f] p-3 text-white">
-                      <Search size={16} className="mb-5 text-white/72" />
-                      <p className="text-[24px] font-light">IA</p>
-                      <p className="text-[9px] font-bold uppercase tracking-wider text-white/42">Indexado</p>
-                    </div>
+                  <div className="rounded-[20px] bg-white p-4 shadow-[0_8px_24px_rgba(0,0,0,0.06)]">
+                    <Search size={16} className="mb-8 text-[#3a7bd5]" />
+                    <p className="text-[24px] font-light">{story.metric}</p>
+                    <p className="text-[9px] font-bold uppercase tracking-wider text-[#86868b]">{story.metricLabel}</p>
                   </div>
                 </div>
 
-                <div className="mt-5 space-y-3">
+                <div className="mt-4 space-y-2.5">
                   {[
                     activeStory === 0
-                      ? ['Contexto científico', 'Retalho local, evolução pós-operatória, evidência moderada']
+                      ? ['Contexto', 'Imagem catalogada por significado clínico']
                       : activeStory === 1
-                        ? ['Resumo por IA', 'Título, tags e achados principais sugeridos automaticamente']
-                        : ['Roteiro visual', 'Narrativa pronta para discussão clínica e apresentação'],
+                        ? ['Resumo', 'Tags e achados sugeridos para revisão']
+                        : ['Narrativa', 'Blocos prontos para apresentação'],
                     activeStory === 0
-                      ? ['Achados principais', 'Boa integração tecidual e documentação longitudinal']
+                      ? ['Busca', 'Encontrável por tema, técnica e evolução']
                       : activeStory === 1
-                        ? ['Busca semântica', 'Localize materiais por tema, técnica, evidência ou descrição']
-                        : ['Modo palco', 'Slides limpos com imagens, referências e ativos vinculados'],
-                    activeStory === 0
-                      ? ['Apresentação', '12 slides editoriais gerados para discussão clínica']
-                      : activeStory === 1
-                        ? ['Curadoria', 'Menos tempo catalogando, mais tempo produzindo conhecimento']
-                        : ['Exportação', 'Case organizado para PDF, aula, round ou publicação'],
+                        ? ['Curadoria', 'Menos arquivo solto, mais ativo útil']
+                        : ['Destino', 'Aula, round, publicação ou memória'],
                   ].map(([label, value], index) => (
                     <div key={label} className="login-row-reveal rounded-[16px] border border-black/[0.05] bg-white px-4 py-3" style={{ animationDelay: `${index * 120}ms` }}>
                       <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-[#86868b]">{label}</p>
@@ -575,7 +586,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
                 </div>
               </div>
 
-              <div className="login-library-card absolute bottom-12 right-0 w-[66%] rounded-[26px] border border-white/[0.12] bg-white/[0.10] p-4 shadow-[0_28px_80px_rgba(0,0,0,0.36)] backdrop-blur-xl">
+              <div className="login-library-card absolute bottom-8 right-0 w-[58%] rounded-[26px] border border-white/[0.12] bg-white/[0.10] p-4 shadow-[0_28px_80px_rgba(0,0,0,0.36)] backdrop-blur-xl">
                 <div className="mb-4 flex items-center justify-between">
                   <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/48">Biblioteca</p>
                   <FileText size={15} className="text-white/62" />
