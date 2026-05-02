@@ -43,6 +43,12 @@ const AssetModal: React.FC<AssetModalProps> = ({
 
     const [thumbUrls, setThumbUrls] = useState<Record<string, string>>({});
 
+    const autoResizeTextarea = (element: HTMLTextAreaElement | null) => {
+        if (!element) return;
+        element.style.height = 'auto';
+        element.style.height = `${element.scrollHeight}px`;
+    };
+
     useEffect(() => {
         let cancelled = false;
         if (!asset.attachments) return;
@@ -338,14 +344,20 @@ const AssetModal: React.FC<AssetModalProps> = ({
                     <div className="flex-1 overflow-y-auto custom-scrollbar px-10 py-14">
                         <div className="max-w-2xl mx-auto">
                             {isEditingTitle ? (
-                                <input value={editedAsset.title} onChange={e => setEditedAsset({ ...editedAsset, title: e.target.value })}
-                                    className="text-3xl font-semibold mb-8 text-[#1d1d1f] tracking-tight w-full border-b-2 border-[#4285F4]/40 focus:border-[#4285F4] outline-none pb-1 bg-transparent transition-all"
-                                    placeholder="Título do Documento" />
+                                <textarea
+                                    ref={(el) => autoResizeTextarea(el)}
+                                    value={editedAsset.title}
+                                    onChange={e => setEditedAsset({ ...editedAsset, title: e.target.value })}
+                                    onInput={(e: any) => autoResizeTextarea(e.currentTarget)}
+                                    rows={1}
+                                    className="preserve-lines mb-8 w-full resize-none overflow-hidden border-b-2 border-[#4285F4]/40 bg-transparent pb-1 text-3xl font-semibold tracking-tight text-[#1d1d1f] outline-none transition-all focus:border-[#4285F4]"
+                                    placeholder="Título do Documento"
+                                />
                             ) : (
-                                <h2 className="text-3xl font-semibold mb-8 text-[#1d1d1f] tracking-tight leading-tight">{editedAsset.title}</h2>
+                                <h2 className="preserve-lines text-3xl font-semibold mb-8 text-[#1d1d1f] tracking-tight leading-tight">{editedAsset.title}</h2>
                             )}
                             <div ref={contentRef} contentEditable={isEditingContent} suppressContentEditableWarning
-                                className={`prose prose-slate text-base leading-loose text-[#424245] outline-none ${isEditingContent ? 'ring-2 ring-[#4285F4]/20 rounded-xl p-4 bg-[#f2f3f5]/50' : ''}`}
+                                className={`preserve-lines prose prose-slate text-base leading-loose text-[#424245] outline-none ${isEditingContent ? 'ring-2 ring-[#4285F4]/20 rounded-xl p-4 bg-[#f2f3f5]/50' : ''}`}
                                 dangerouslySetInnerHTML={{ __html: editedAsset.content || 'Sem conteúdo.' }} />
                         </div>
                     </div>
@@ -526,11 +538,14 @@ const AssetModal: React.FC<AssetModalProps> = ({
                         <div className="flex-1 min-w-0 mr-3">
                             {!isTrashMode ? (
                                 <div className="relative group/title w-full flex items-center mb-1">
-                                    <input
+                                    <textarea
+                                        ref={(el) => autoResizeTextarea(el)}
                                         value={editedAsset.title}
                                         onChange={e => setEditedAsset({ ...editedAsset, title: e.target.value })}
+                                        onInput={(e: any) => autoResizeTextarea(e.currentTarget)}
                                         onBlur={handleSaveAll}
-                                        className={`text-[17px] font-semibold text-[#1d1d1f] bg-transparent hover:bg-black/5 focus:bg-white border hover:border-black/10 border-transparent focus:border-[#4285F4]/40 focus:outline-none w-full px-1.5 py-0.5 rounded leading-snug ${fieldHint ? 'animate-field-hint' : 'transition-all'}`}
+                                        rows={1}
+                                        className={`preserve-lines w-full resize-none overflow-hidden rounded border border-transparent bg-transparent px-1.5 py-0.5 text-[17px] font-semibold leading-snug text-[#1d1d1f] hover:border-black/10 hover:bg-black/5 focus:border-[#4285F4]/40 focus:bg-white focus:outline-none ${fieldHint ? 'animate-field-hint' : 'transition-all'}`}
                                         style={fieldHint ? { animationDelay: '600ms' } : undefined}
                                         placeholder="Título do Ativo"
                                     />
@@ -617,11 +632,11 @@ const AssetModal: React.FC<AssetModalProps> = ({
                                     onChange={e => setEditedAsset({ ...editedAsset, scientificContext: e.target.value })}
                                     onBlur={handleSaveAll}
                                     placeholder="Adicione referências científicas aqui..."
-                                    className={`w-full text-[12px] text-[#424245] leading-relaxed bg-transparent hover:bg-white p-2 -ml-2 rounded border hover:border-blue-200 focus:bg-white focus:outline-none focus:border-[#4285F4]/40 resize-none text-justify ${fieldHint ? 'animate-field-hint border-transparent' : 'transition-all border-transparent'}`}
+                                    className={`preserve-lines w-full text-[12px] text-[#424245] leading-relaxed bg-transparent hover:bg-white p-2 -ml-2 rounded border hover:border-blue-200 focus:bg-white focus:outline-none focus:border-[#4285F4]/40 resize-none text-justify ${fieldHint ? 'animate-field-hint border-transparent' : 'transition-all border-transparent'}`}
                                     style={fieldHint ? { animationDelay: '400ms' } : undefined}
                                     rows={3} />
                             ) : (
-                                <p className="text-[12px] text-[#424245] italic leading-relaxed text-justify">
+                                <p className="preserve-lines text-[12px] text-[#424245] italic leading-relaxed text-justify">
                                     "{editedAsset.scientificContext || asset.scientificContext || 'Sem referência científica.'}"
                                 </p>
                             )}
@@ -636,7 +651,7 @@ const AssetModal: React.FC<AssetModalProps> = ({
                                             <div className="flex-1 flex items-center gap-2 cursor-pointer hover:text-[#4285F4] transition-colors min-w-0"
                                                 onClick={() => handleAttachmentDownload(att)}>
                                                 <Paperclip size={11} className="text-[#4285F4] shrink-0" />
-                                                <span className="truncate">{att.name}</span>
+                                                <span className="line-clamp-2">{att.name}</span>
                                             </div>
                                             {!isTrashMode && (
                                                 <button onClick={e => handleDeleteAttachment(att.id, e)}
@@ -660,11 +675,11 @@ const AssetModal: React.FC<AssetModalProps> = ({
                                     onChange={e => setEditedAsset({ ...editedAsset, summary: e.target.value })}
                                     onBlur={handleSaveAll}
                                     placeholder="Descreva visualmente o ativo..."
-                                    className={`w-full text-[12px] text-[#424245] leading-relaxed bg-transparent hover:bg-[#f2f3f5] p-2 -ml-2 rounded border hover:border-black/10 focus:bg-[#f2f3f5] focus:outline-none focus:border-[#4285F4]/40 resize-none ${fieldHint ? 'animate-field-hint border-transparent' : 'transition-all border-transparent'}`}
+                                    className={`preserve-lines w-full text-[12px] text-[#424245] leading-relaxed bg-transparent hover:bg-[#f2f3f5] p-2 -ml-2 rounded border hover:border-black/10 focus:bg-[#f2f3f5] focus:outline-none focus:border-[#4285F4]/40 resize-none ${fieldHint ? 'animate-field-hint border-transparent' : 'transition-all border-transparent'}`}
                                     style={fieldHint ? { animationDelay: '200ms' } : undefined}
                                     rows={2} />
                             ) : (
-                                <p className="text-[12px] text-[#424245] leading-relaxed font-light">{asset.summary || 'Sem descrição.'}</p>
+                                <p className="preserve-lines text-[12px] text-[#424245] leading-relaxed font-light">{asset.summary || 'Sem descrição.'}</p>
                             )}
                         </div>
 
@@ -676,7 +691,7 @@ const AssetModal: React.FC<AssetModalProps> = ({
                             <div className="flex flex-wrap gap-1.5 mb-2">
                                 {(editedAsset.tags || []).filter(t => typeof t === 'string').map((tag, idx) => (
                                     <span key={`${tag}-${idx}`}
-                                        className="px-2.5 py-1 rounded-full bg-blue-50 text-[#4285F4] text-[11px] font-medium border border-blue-100 flex items-center gap-1">
+                                        className="max-w-full px-2.5 py-1 rounded-full bg-blue-50 text-[#4285F4] text-[11px] font-medium border border-blue-100 flex items-center gap-1">
                                         {tag}
                                         {!isTrashMode && (
                                             <button onClick={() => handleRemoveTag(tag)} className="hover:text-red-500 opacity-60 hover:opacity-100 transition-colors ml-0.5">

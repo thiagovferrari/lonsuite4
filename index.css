@@ -62,6 +62,37 @@ select {
   transition: all 0.2s ease-out;
 }
 
+/* Text robustness: long clinical terms, file names, URLs and pasted notes must never escape the UI. */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+span,
+a,
+button,
+label,
+figcaption,
+textarea,
+input,
+[contenteditable="true"],
+.force-wrap {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+textarea,
+input,
+[contenteditable="true"] {
+  min-width: 0;
+}
+
+.preserve-lines {
+  white-space: pre-wrap;
+}
+
 /* Enhanced focus states */
 input:focus-visible,
 textarea:focus-visible,

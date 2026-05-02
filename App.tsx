@@ -194,6 +194,7 @@ const App: React.FC = () => {
   const [homeSearchResults, setHomeSearchResults] = useState<Asset[]>([]);
   const [homeSearchLoading, setHomeSearchLoading] = useState(false);
   const [homeHasSearched, setHomeHasSearched] = useState(false);
+  const [brokenPreviewIds, setBrokenPreviewIds] = useState<Set<string>>(() => new Set());
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const homeScrollRef = useRef<HTMLDivElement>(null);
@@ -994,10 +995,28 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
     return null;
   };
 
+  const isRenderableImageSource = (src?: string | null) => {
+    if (!src || typeof src !== 'string') return false;
+    const clean = src.trim();
+    if (!clean || clean.startsWith('data:application/pdf')) return false;
+    if (clean.startsWith('data:image') || clean.startsWith('blob:')) return true;
+    if (!clean.startsWith('http')) return false;
+    if (/\.(pdf|ppt|pptx|doc|docx|xls|xlsx)(\?|#|$)/i.test(clean)) return false;
+    return /\.(png|jpe?g|webp|gif|avif|heic|heif)(\?|#|$)/i.test(clean) || clean.includes('/storage/v1/object/');
+  };
+
+  const getAssetPreviewSource = (asset: Asset) => {
+    if (asset.type === 'pdf' || asset.type === 'document') return null;
+    const imageAttachment = asset.attachments?.find(att => typeof att.type === 'string' && att.type.startsWith('image/'));
+    const candidates = [asset.thumbnail, asset.content, imageAttachment?.data].filter((value): value is string => typeof value === 'string' && value.length > 0);
+    return candidates.find(isRenderableImageSource) || null;
+  };
+
   const getAssetVisualSource = async (asset: Asset): Promise<string> => {
+    if (asset.type === 'pdf' || asset.type === 'document') return '';
     const candidates = [asset.thumbnail, asset.content].filter((value): value is string => typeof value === 'string' && value.length > 0);
-    const directImage = candidates.find(src => src.startsWith('data:image') || src.startsWith('http') || src.startsWith('blob:'));
-    if (directImage && !directImage.startsWith('data:application/pdf')) return directImage;
+    const directImage = candidates.find(isRenderableImageSource);
+    if (directImage) return directImage;
 
     const firstImageAttachment = asset.attachments?.find(att => typeof att.type === 'string' && att.type.startsWith('image/'));
     if (firstImageAttachment) {
@@ -1082,11 +1101,32 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
       }
     };
 
+    const normalizePdfText = (value?: string | null) => {
+      return (value || '')
+        .replace(/\r\n/g, '\n')
+        .replace(/\t/g, ' ')
+        .replace(/([^\s]{42})(?=[^\s])/g, '$1 ');
+    };
+
+    const pdfLines = (value: string | null | undefined, width = contentWidth): string[] => {
+      const lines = doc.splitTextToSize(normalizePdfText(value), width);
+      return Array.isArray(lines) ? lines : [lines];
+    };
+
+    const writePdfLines = (value: string | null | undefined, options?: { width?: number; size?: number; after?: number }) => {
+      const width = options?.width || contentWidth;
+      const fontSize = options?.size || 5;
+      const lines = pdfLines(value, width);
+      checkPage(lines.length * fontSize + (options?.after || 0));
+      doc.text(lines, margin, y, { align: 'left' });
+      y += lines.length * fontSize + (options?.after || 0);
+    };
+
     // Title — left aligned
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(22);
     doc.setTextColor(29, 29, 31);
-    const titleLines = doc.splitTextToSize(editingCase.title || 'Caso Clínico', contentWidth);
+    const titleLines = pdfLines(editingCase.title || 'Caso Clínico');
     checkPage(titleLines.length * 9);
     doc.text(titleLines, margin, y, { align: 'left' });
     y += titleLines.length * 9 + 4;
@@ -1103,8 +1143,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
     if (editingCase.tags && editingCase.tags.length > 0) {
       doc.setFontSize(8);
       doc.setTextColor(0, 113, 227);
-      doc.text(editingCase.tags.join('  ·  '), margin, y, { align: 'left' });
-      y += 8;
+      writePdfLines(editingCase.tags.join(' - '), { size: 4, after: 4 });
     }
 
     // Divider
@@ -1120,7 +1159,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(16);
         doc.setTextColor(29, 29, 31);
-        const lines = doc.splitTextToSize(block.content || '', contentWidth);
+        const lines = pdfLines(block.content);
         doc.text(lines, margin, y, { align: 'left' });
         y += lines.length * 7 + 6;
       } else if (block.type === 'subtitle') {
@@ -1128,7 +1167,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(14);
         doc.setTextColor(50, 50, 55);
-        const lines = doc.splitTextToSize(block.content || '', contentWidth);
+        const lines = pdfLines(block.content);
         doc.text(lines, margin, y, { align: 'left' });
         y += lines.length * 6 + 5;
       } else if (block.type === 'reference') {
@@ -1137,7 +1176,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
         doc.setFontSize(9);
         doc.setTextColor(134, 134, 139);
         const refText = block.content || '';
-        const lines = doc.splitTextToSize(refText, contentWidth - 6);
+        const lines = pdfLines(refText, contentWidth - 6);
         // Draw left border line
         doc.setDrawColor(200, 200, 200);
         doc.line(margin, y - 2, margin, y + lines.length * 4 + 2);
@@ -1148,14 +1187,16 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(11);
         doc.setTextColor(66, 66, 69);
-        const lines = doc.splitTextToSize(block.content || '', contentWidth);
-        doc.text(lines, margin, y, { align: 'justify', maxWidth: contentWidth });
+        const lines = pdfLines(block.content);
+        doc.text(lines, margin, y, { align: 'left' });
         y += lines.length * 5.5 + 6;
       } else if (block.type === 'image' && block.content) {
         // Format: data:image/...###caption|||data:image/...###caption2
         const entries = block.content.split('|||').filter(Boolean);
         for (const entry of entries) {
-          const [imgData, caption] = entry.split('###');
+          const separatorIndex = entry.indexOf('###');
+          const imgData = separatorIndex >= 0 ? entry.slice(0, separatorIndex) : entry;
+          const caption = separatorIndex >= 0 ? entry.slice(separatorIndex + 3) : '';
           
           const finalImgData = await sourceToDataUrl(imgData);
 
@@ -1176,9 +1217,9 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
             doc.setFont('helvetica', 'italic');
             doc.setFontSize(9);
             doc.setTextColor(134, 134, 139);
-            const captionLines = doc.splitTextToSize(caption.trim(), contentWidth);
+            const captionLines = pdfLines(caption.trim());
             checkPage(captionLines.length * 4 + 4);
-            doc.text(captionLines, margin, y, { align: 'justify', maxWidth: contentWidth });
+            doc.text(captionLines, margin, y, { align: 'left' });
             y += captionLines.length * 4 + 6;
           }
         }
@@ -1192,8 +1233,8 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
           doc.setFont('helvetica', 'bold');
           doc.setFontSize(12);
           doc.setTextColor(66, 133, 244);
-          const assetTitle = `▸ ${linkedAsset.title}`;
-          const assetTitleLines = doc.splitTextToSize(assetTitle, contentWidth);
+          const assetTitle = `> ${linkedAsset.title}`;
+          const assetTitleLines = pdfLines(assetTitle);
           doc.text(assetTitleLines, margin, y, { align: 'left' });
           y += assetTitleLines.length * 5 + 3;
 
@@ -1205,7 +1246,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
           doc.textWithLink('Abrir ativo relacionado na Lon Suite', margin, y, { url: assetShareUrl });
           y += 5;
           doc.setTextColor(134, 134, 139);
-          const assetUrlLines = doc.splitTextToSize(assetShareUrl, contentWidth);
+          const assetUrlLines = pdfLines(assetShareUrl);
           doc.text(assetUrlLines, margin, y);
           y += assetUrlLines.length * 4 + 4;
 
@@ -1214,9 +1255,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(8);
             doc.setTextColor(134, 134, 139);
-            const tagText = linkedAsset.tags.join(' · ');
-            doc.text(tagText, margin, y);
-            y += 5;
+            writePdfLines(linkedAsset.tags.join(' - '), { size: 4, after: 1 });
           }
 
           const linkedVisualSource = await getAssetVisualSource(linkedAsset);
@@ -1239,8 +1278,8 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
             doc.setFontSize(10);
             doc.setTextColor(100, 100, 105);
             const refText = linkedAsset.summary || linkedAsset.scientificContext || '';
-            const summaryLines = doc.splitTextToSize(`"${refText}"`, contentWidth);
-            doc.text(summaryLines, margin, y, { align: 'justify', maxWidth: contentWidth });
+            const summaryLines = pdfLines(`"${refText}"`);
+            doc.text(summaryLines, margin, y, { align: 'left' });
             y += summaryLines.length * 4.5 + 4;
           }
 
@@ -1250,8 +1289,8 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(9);
             doc.setTextColor(120, 120, 125);
-            const ctxLines = doc.splitTextToSize(linkedAsset.scientificContext, contentWidth);
-            doc.text(ctxLines, margin, y, { align: 'justify', maxWidth: contentWidth });
+            const ctxLines = pdfLines(linkedAsset.scientificContext);
+            doc.text(ctxLines, margin, y, { align: 'left' });
             y += ctxLines.length * 4 + 4;
           }
 
@@ -1343,25 +1382,31 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
             {editingCase.blocks?.map((block, index) => (
               <div id={block.id} key={block.id} className="group relative scroll-mt-28 rounded-[24px] border border-transparent px-3 py-3 transition-all hover:border-black/[0.045] hover:bg-white/72 hover:shadow-[0_18px_60px_rgba(0,0,0,0.045)] md:px-0 md:py-0 md:hover:bg-transparent md:hover:shadow-none">
                 {block.type === 'title' ? (
-                  <input
+                  <textarea
+                    ref={(el) => autoResizeTextarea(el)}
                     value={block.content}
                     onChange={e => {
                       const nb = editingCase.blocks?.map(b => b.id === block.id ? { ...b, content: e.target.value } : b);
                       const newTitle = index === 0 ? e.target.value : editingCase.title;
                       syncCase({ ...editingCase, blocks: nb, title: newTitle || 'Novo Caso Clínico' });
                     }}
+                    onInput={(e: any) => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; }}
                     placeholder="Digite o título do caso..."
-                    className="w-full bg-transparent text-3xl md:text-5xl font-extralight tracking-tight text-slate-900 outline-none placeholder:text-slate-200 transition-colors focus:placeholder:text-slate-300"
+                    rows={1}
+                    className="preserve-lines w-full resize-none overflow-hidden bg-transparent text-3xl md:text-5xl font-extralight tracking-tight text-slate-900 outline-none placeholder:text-slate-200 transition-colors focus:placeholder:text-slate-300"
                   />
                 ) : block.type === 'subtitle' ? (
-                  <input
+                  <textarea
+                    ref={(el) => autoResizeTextarea(el)}
                     value={block.content}
                     onChange={e => {
                       const nb = editingCase.blocks?.map(b => b.id === block.id ? { ...b, content: e.target.value } : b);
                       syncCase({ ...editingCase, blocks: nb });
                     }}
+                    onInput={(e: any) => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; }}
                     placeholder="Subtítulo da seção..."
-                    className="w-full bg-transparent text-xl md:text-2xl font-semibold tracking-tight text-slate-800 outline-none placeholder:text-slate-200 transition-colors focus:placeholder:text-slate-300"
+                    rows={1}
+                    className="preserve-lines w-full resize-none overflow-hidden bg-transparent text-xl md:text-2xl font-semibold tracking-tight text-slate-800 outline-none placeholder:text-slate-200 transition-colors focus:placeholder:text-slate-300"
                   />
                 ) : block.type === 'reference' ? (
                   <div className="border-l-2 border-slate-200 pl-5 py-2">
@@ -1378,7 +1423,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                       }}
                       onInput={(e: any) => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; }}
                       placeholder="Ex: SMITH, J. et al. Título do artigo. Revista, v.1, p.1-10, 2024. https://doi.org/..."
-                      className="w-full bg-transparent text-sm md:text-base italic font-light leading-relaxed text-slate-500 outline-none resize-none placeholder:text-slate-200 overflow-hidden transition-colors focus:placeholder:text-slate-300"
+                      className="preserve-lines w-full bg-transparent text-sm md:text-base italic font-light leading-relaxed text-slate-500 outline-none resize-none placeholder:text-slate-200 overflow-hidden transition-colors focus:placeholder:text-slate-300"
                       rows={1}
                     />
                     {/* Render detected links below */}
@@ -1408,7 +1453,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                     }}
                     onInput={(e: any) => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; }}
                     placeholder="Comece a escrever a narrativa clínica..."
-                    className="w-full bg-transparent text-base md:text-xl font-light leading-relaxed text-justify text-slate-600 outline-none resize-none placeholder:text-slate-200 overflow-hidden transition-colors focus:placeholder:text-slate-300"
+                    className="preserve-lines w-full bg-transparent text-base md:text-xl font-light leading-relaxed text-justify text-slate-600 outline-none resize-none placeholder:text-slate-200 overflow-hidden transition-colors focus:placeholder:text-slate-300"
                     rows={1}
                   />
                 ) : block.type === 'asset' ? (() => {
@@ -1427,14 +1472,14 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                           className="w-14 h-14 rounded-[10px] overflow-hidden shrink-0 border border-black/[0.06] bg-[#f5f5f7] flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
                           onClick={() => setSelectedAsset(linkedAsset)}
                         >
-                          {linkedAsset.thumbnail && linkedAsset.type !== 'pdf' ? (
-                            <img src={linkedAsset.thumbnail} className="w-full h-full object-cover" alt="" />
+                          {getAssetPreviewSource(linkedAsset) ? (
+                            <img src={getAssetPreviewSource(linkedAsset) as string} className="w-full h-full object-cover" alt="" />
                           ) : (
                             <FileText size={22} strokeWidth={1.2} className="text-[#aeaeb2]" />
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-[13px] font-semibold text-[#1d1d1f] truncate">{linkedAsset.title}</p>
+                          <p className="preserve-lines text-[13px] font-semibold text-[#1d1d1f] leading-snug">{linkedAsset.title}</p>
                           <p className="text-[10px] text-[#aeaeb2] uppercase tracking-wider mt-0.5">{linkedAsset.type}</p>
                           {linkedAsset.evidenceLevel && (
                             <span className={`inline-block mt-1 text-[8px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-full ${linkedAsset.evidenceLevel === 'Alto' ? 'bg-emerald-50 text-emerald-600' : linkedAsset.evidenceLevel === 'Moderado' ? 'bg-amber-50 text-amber-600' : 'bg-[#f2f3f5] text-[#86868b]'}`}>
@@ -1458,13 +1503,13 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                           }}
                           onInput={(e: any) => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; }}
                           placeholder="Relevância deste ativo para o caso clínico..."
-                          className="w-full bg-transparent text-[14px] text-[#424245] font-light leading-relaxed outline-none resize-none placeholder:text-[#d1d1d6] overflow-hidden"
+                          className="preserve-lines w-full bg-transparent text-[14px] text-[#424245] font-light leading-relaxed outline-none resize-none placeholder:text-[#d1d1d6] overflow-hidden"
                           rows={2}
                         />
                         {linkedAsset.summary && (
                           <div className="mt-3 pt-3 border-t border-black/[0.04]">
                             <p className="text-[9px] font-bold text-[#aeaeb2] uppercase tracking-widest mb-1.5">Resumo do Ativo</p>
-                            <p className="text-[12px] text-[#86868b] leading-relaxed">{linkedAsset.summary}</p>
+                            <p className="preserve-lines text-[12px] text-[#86868b] leading-relaxed">{linkedAsset.summary}</p>
                           </div>
                         )}
                       </div>
@@ -1532,7 +1577,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                             onInput={(e: any) => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; }}
                             placeholder="Legenda da imagem (opcional)..."
                             rows={1}
-                            className="w-full resize-none overflow-hidden text-[12px] text-center italic leading-relaxed text-[#86868b] bg-transparent outline-none placeholder:text-[#d1d1d6] font-light" />
+                            className="preserve-lines w-full resize-none overflow-hidden text-[12px] text-center italic leading-relaxed text-[#86868b] bg-transparent outline-none placeholder:text-[#d1d1d6] font-light" />
                         </div>
                       )}
                       {/* Thumbnail strip */}
@@ -1664,8 +1709,8 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                         className="group cursor-pointer bg-slate-50 rounded-2xl overflow-hidden border border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all"
                       >
                         <div className="aspect-square bg-white overflow-hidden">
-                          {asset.thumbnail ? (
-                            <img src={asset.thumbnail} alt={asset.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                          {getAssetPreviewSource(asset) ? (
+                            <img src={getAssetPreviewSource(asset) as string} alt={asset.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-slate-200">
                               <FileText size={32} />
@@ -1673,7 +1718,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                           )}
                         </div>
                         <div className="p-3">
-                          <p className="text-xs font-medium text-slate-700 truncate">{asset.title}</p>
+                          <p className="line-clamp-2 text-xs font-medium leading-snug text-slate-700">{asset.title}</p>
                           <p className="text-[10px] text-slate-400 uppercase tracking-wider mt-1">{asset.type}</p>
                         </div>
                       </div>
@@ -1881,7 +1926,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                 <div className="absolute left-0 bottom-0 h-px bg-[#1d1d1f] transition-all duration-300" style={{ width: `${progress}%` }} />
                 <div className="min-w-0">
                   <p className="text-[#86868b] text-[9px] sm:text-[10px] font-bold tracking-[0.18em] uppercase">Lon Suite · Apresentação</p>
-                  <p className="max-w-[58vw] truncate text-[#1d1d1f] text-[12px] sm:text-[13px] font-semibold mt-0.5">{editingCase.title || 'Case científico'}</p>
+                  <p className="max-w-[58vw] line-clamp-2 text-[#1d1d1f] text-[12px] sm:text-[13px] font-semibold mt-0.5">{editingCase.title || 'Case científico'}</p>
                 </div>
                 <div className="flex items-center gap-2 sm:gap-4">
                   <span className="text-[#86868b] text-[11px] tabular-nums">{currentSlideIndex + 1} / {total}</span>
@@ -1897,19 +1942,19 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                   {slide.kind === 'story' && (
                     <section className="w-full max-h-full overflow-y-auto rounded-[30px] border border-black/[0.06] bg-white px-6 py-7 shadow-[0_28px_90px_rgba(0,0,0,0.08)] sm:px-10 sm:py-9 md:px-14 md:py-12">
                       {slide.title && (
-                        <h1 className="max-w-5xl text-[clamp(32px,5.8vw,76px)] font-extralight leading-[1.02] tracking-tight text-[#111113]">
+                        <h1 className="preserve-lines max-w-5xl text-[clamp(32px,5.8vw,76px)] font-extralight leading-[1.02] tracking-tight text-[#111113]">
                           {slide.title}
                         </h1>
                       )}
                       {slide.subtitle && (
-                        <h2 className={`${slide.title ? 'mt-5' : ''} max-w-4xl text-[clamp(22px,3vw,38px)] font-light leading-tight tracking-tight text-[#424245]`}>
+                        <h2 className={`preserve-lines ${slide.title ? 'mt-5' : ''} max-w-4xl text-[clamp(22px,3vw,38px)] font-light leading-tight tracking-tight text-[#424245]`}>
                           {slide.subtitle}
                         </h2>
                       )}
                       {slide.texts.length > 0 && (
                         <div className="mt-7 max-w-4xl space-y-4 text-[clamp(15px,1.7vw,22px)] font-light leading-relaxed text-[#424245]">
                           {slide.texts.map((text, index) => (
-                            <p key={index} className="whitespace-pre-wrap text-justify">{text}</p>
+                            <p key={index} className="preserve-lines text-justify">{text}</p>
                           ))}
                         </div>
                       )}
@@ -1929,7 +1974,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                       {slide.caption && (
                         <figcaption className="min-h-0 overflow-y-auto rounded-[26px] border border-black/[0.06] bg-white px-5 py-5 text-[13px] italic leading-relaxed text-[#6e6e73] shadow-[0_18px_54px_rgba(0,0,0,0.06)] sm:text-[15px] md:max-h-full md:px-7 md:py-7">
                           <span className="mb-4 block text-[9px] font-bold not-italic uppercase tracking-[0.2em] text-[#aeaeb2]">Legenda</span>
-                          <span className="block whitespace-pre-wrap text-justify">{slide.caption}</span>
+                          <span className="preserve-lines block text-justify">{slide.caption}</span>
                         </figcaption>
                       )}
                     </figure>
@@ -1938,8 +1983,8 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                   {slide.kind === 'asset' && (
                     <div className="grid w-full max-h-full items-center gap-6 overflow-y-auto rounded-[30px] border border-black/[0.06] bg-white p-5 shadow-[0_28px_90px_rgba(0,0,0,0.08)] md:grid-cols-[0.95fr_1.05fr] md:p-8">
                       <div className="aspect-[4/3] overflow-hidden rounded-[24px] border border-black/[0.06] bg-[#f5f5f7]">
-                        {(slide.asset.thumbnail || slide.asset.content) && slide.asset.type !== 'pdf' ? (
-                          <img src={(slide.asset.thumbnail || slide.asset.content) as string} className="h-full w-full object-contain" alt="" />
+                        {getAssetPreviewSource(slide.asset) ? (
+                          <img src={getAssetPreviewSource(slide.asset) as string} className="h-full w-full object-contain" alt="" />
                         ) : slide.asset.type === 'pdf' ? (
                           <div className="flex h-full w-full flex-col items-center justify-center gap-3 text-[#d92d20]">
                             <FileText size={56} strokeWidth={1.2} />
@@ -1953,9 +1998,9 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                       </div>
                       <div>
                         <p className="mb-4 text-[10px] font-bold tracking-[0.2em] uppercase text-[#86868b]">Ativo vinculado</p>
-                        <h2 className="text-[clamp(28px,4vw,54px)] font-light tracking-tight leading-tight">{slide.asset.title}</h2>
+                        <h2 className="preserve-lines text-[clamp(28px,4vw,54px)] font-light tracking-tight leading-tight">{slide.asset.title}</h2>
                         {slide.asset.summary && (
-                          <p className="mt-6 text-[16px] sm:text-xl font-light leading-relaxed text-[#6e6e73]">{slide.asset.summary}</p>
+                          <p className="preserve-lines mt-6 text-[16px] sm:text-xl font-light leading-relaxed text-[#6e6e73]">{slide.asset.summary}</p>
                         )}
                         {(slide.asset.tags || []).length > 0 && (
                           <div className="mt-7 flex flex-wrap gap-2">
@@ -1971,7 +2016,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                   {slide.kind === 'reference' && (
                     <div className="max-h-full max-w-3xl overflow-y-auto rounded-[28px] border border-black/[0.06] bg-white p-8 shadow-[0_28px_90px_rgba(0,0,0,0.08)] sm:p-10">
                       <p className="mb-4 text-[10px] font-bold tracking-[0.2em] uppercase text-[#86868b]">Referência</p>
-                      <p className="text-lg sm:text-2xl italic text-[#6e6e73] leading-relaxed">{slide.content}</p>
+                      <p className="preserve-lines text-lg sm:text-2xl italic text-[#6e6e73] leading-relaxed">{slide.content}</p>
                     </div>
                   )}
                 </div>
@@ -2197,6 +2242,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
           const handleHomeSearch = async () => {
             if (!homeSearchQuery.trim() || homeSearchQuery.trim().length < 2) return;
             setHomeHasSearched(true);
+            setBrokenPreviewIds(new Set());
 
             // Search: user's own assets AND cases
             const searchableItems = activeAssets.filter(a => !a.isDeleted);
@@ -2248,12 +2294,14 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
               setHomeSearchQuery('');
               setHomeHasSearched(false);
               setHomeSearchResults([]);
+              setBrokenPreviewIds(new Set());
             }
           };
           const clearHomeSearch = () => {
             setHomeSearchQuery('');
             setHomeHasSearched(false);
             setHomeSearchResults([]);
+            setBrokenPreviewIds(new Set());
           };
 
           return (
@@ -2356,7 +2404,8 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                         {homeSearchResults.map(item => {
                           const isCase = item.type === 'case';
-                          const thumbnail = isCase ? getCaseThumbnail(item) : (item.thumbnail || item.content || null);
+                          const thumbnail = brokenPreviewIds.has(item.id) ? null : (isCase ? getCaseThumbnail(item) : getAssetPreviewSource(item));
+                          const ResultIcon = isCase ? Briefcase : item.type === 'pdf' ? FileText : Stethoscope;
                           return (
                             <div
                               key={item.id}
@@ -2372,10 +2421,25 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                             >
                               {/* Thumbnail */}
                               <div className="w-full h-[120px] bg-[#f2f3f5] overflow-hidden flex items-center justify-center">
-                                {thumbnail ? (
-                                  <img src={thumbnail} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="" />
+                                {thumbnail && isRenderableImageSource(thumbnail) ? (
+                                  <img
+                                    src={thumbnail}
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                    alt=""
+                                    onError={event => {
+                                      event.currentTarget.style.display = 'none';
+                                      setBrokenPreviewIds(prev => {
+                                        const next = new Set(prev);
+                                        next.add(item.id);
+                                        return next;
+                                      });
+                                    }}
+                                  />
                                 ) : (
-                                  <Stethoscope size={24} className="text-[#aeaeb2] opacity-40" />
+                                  <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-[#f5f5f7] text-[#aeaeb2]">
+                                    <ResultIcon size={24} strokeWidth={1.2} className="opacity-70" />
+                                    <span className="text-[8px] font-bold uppercase tracking-[0.16em]">{isCase ? 'Case' : item.type}</span>
+                                  </div>
                                 )}
                               </div>
                               {/* Info */}
@@ -2677,10 +2741,10 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
 
                         {/* Title + Preview */}
                         <div className="flex-1 min-w-0">
-                          <p className={`text-[13px] font-medium truncate transition-colors ${caseItem.title ? 'text-[#1d1d1f] group-hover:text-[#4285F4]' : 'text-[#86868b] italic'}`}>
+                          <p className={`line-clamp-2 text-[13px] font-medium leading-snug transition-colors ${caseItem.title ? 'text-[#1d1d1f] group-hover:text-[#4285F4]' : 'text-[#86868b] italic'}`}>
                             {caseItem.title || 'Novo Caso Clínico'}
                           </p>
-                          <p className="text-[11px] text-[#c7c7cc] truncate mt-0.5">{getCasePreview(caseItem)}</p>
+                          <p className="line-clamp-2 text-[11px] text-[#c7c7cc] mt-0.5">{getCasePreview(caseItem)}</p>
                         </div>
 
                         {/* Tags */}
@@ -2762,8 +2826,8 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                     className={`flex items-center gap-4 px-5 py-4 ${idx < trashedAssets.length - 1 ? 'border-b border-black/5' : ''
                       }`}>
                     <div className="w-11 h-11 rounded-apple bg-[#f2f3f5] overflow-hidden shrink-0 border border-black/6 opacity-50">
-                      {asset.thumbnail
-                        ? <img src={asset.thumbnail} alt="" className="w-full h-full object-cover" />
+                      {getAssetPreviewSource(asset)
+                        ? <img src={getAssetPreviewSource(asset) as string} alt="" className="w-full h-full object-cover" />
                         : <div className="w-full h-full flex items-center justify-center text-[#86868b]">{asset.type === 'case' ? <Briefcase size={18} /> : <ImageIcon size={18} />}</div>
                       }
                     </div>
