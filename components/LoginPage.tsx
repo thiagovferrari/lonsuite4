@@ -396,7 +396,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
               <div className="mb-7 flex items-start justify-between gap-5">
                 <div>
                   <h2 className="text-[20px] font-semibold tracking-tight text-[#1d1d1f]">Acessar conta</h2>
-                  <p className="mt-1 text-[12px] leading-relaxed text-[#86868b]">Use suas credenciais cadastradas no Supabase.</p>
+                  <p className="mt-1 text-[12px] leading-relaxed text-[#86868b]">Entre no seu workspace científico.</p>
                 </div>
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-[#f5f5f7] text-[#1d1d1f]">
                   <LockKeyhole size={17} />
@@ -539,13 +539,16 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
             </div>
 
             <div className="relative min-h-[600px] xl:min-h-[650px]">
-              <img
-                src="/assets/lon-suite-physician-female-editorial.png"
-                alt="Médica pesquisadora representando a Lon Suite"
-                className="absolute right-4 top-0 h-[500px] w-[88%] rounded-[32px] object-cover object-[58%_50%] shadow-[0_34px_120px_rgba(0,0,0,0.34)] xl:right-0 xl:h-[540px]"
-              />
+              <div className="absolute inset-x-4 top-0 h-[430px] overflow-hidden rounded-[34px] bg-white shadow-[0_34px_120px_rgba(0,0,0,0.34)] xl:inset-x-0 xl:h-[470px]">
+                <img
+                  src="/assets/lon-suite-physician-female-editorial.png"
+                  alt="Médica pesquisadora representando a Lon Suite"
+                  className="h-full w-full object-cover object-[44%_50%]"
+                />
+                <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(16,17,20,0.20)_0%,rgba(16,17,20,0)_42%,rgba(16,17,20,0.10)_100%)]" />
+              </div>
 
-              <div className="login-product-card absolute left-0 top-[250px] w-[74%] rounded-[30px] border border-white/[0.10] bg-[#f7f7f5] p-4 text-[#1d1d1f] shadow-[0_36px_110px_rgba(0,0,0,0.44)] xl:top-[285px] xl:p-5">
+              <div className="login-product-card absolute left-0 top-[385px] w-[62%] rounded-[30px] border border-white/[0.10] bg-[#f7f7f5] p-4 text-[#1d1d1f] shadow-[0_36px_110px_rgba(0,0,0,0.44)] xl:top-[410px] xl:w-[60%] xl:p-5">
                 <div className="mb-4 flex items-center justify-between">
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#86868b]">Ativo científico</p>
@@ -586,13 +589,13 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
                 </div>
               </div>
 
-              <div className="login-library-card absolute bottom-4 right-4 w-[56%] rounded-[26px] border border-white/[0.12] bg-white/[0.10] p-3.5 shadow-[0_28px_80px_rgba(0,0,0,0.36)] backdrop-blur-xl xl:bottom-8 xl:right-0 xl:p-4">
+              <div className="login-library-card absolute bottom-4 right-4 w-[42%] rounded-[26px] border border-white/[0.12] bg-white/[0.10] p-3.5 shadow-[0_28px_80px_rgba(0,0,0,0.36)] backdrop-blur-xl xl:bottom-8 xl:right-0 xl:w-[40%] xl:p-4">
                 <div className="mb-3 flex items-center justify-between xl:mb-4">
                   <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/48">Biblioteca</p>
                   <FileText size={15} className="text-white/62" />
                 </div>
-                <div className="grid grid-cols-3 gap-2">
-                  {['Cirurgia', 'Artigo', 'Caso', 'Imagem', 'PDF', 'Aula'].map(label => (
+                <div className="grid grid-cols-2 gap-2">
+                  {['Cirurgia', 'Caso', 'Imagem', 'PDF'].map(label => (
                     <div key={label} className="aspect-square rounded-[16px] bg-white/[0.10] p-2">
                       <div className="mb-2 h-2 w-8 rounded-full bg-white/24 xl:mb-3" />
                       <p className="text-[10px] font-semibold text-white/70">{label}</p>
