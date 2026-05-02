@@ -83,181 +83,215 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
   ];
 
   return (
-    <div className="min-h-screen overflow-hidden bg-[#f5f5f7] text-[#1d1d1f]">
-      <section className="relative px-5 pb-20 pt-6 sm:px-8 lg:px-12">
-        <div className="plans-orbit absolute right-[8%] top-20 h-56 w-56 rounded-full border border-black/[0.06]" />
-        <div className="plans-orbit plans-orbit-slow absolute bottom-20 left-[7%] h-72 w-72 rounded-full border border-black/[0.04]" />
-        <div className="absolute inset-x-0 top-0 h-[620px] bg-[linear-gradient(180deg,#ffffff_0%,rgba(255,255,255,0)_100%)]" />
+    <div className="min-h-screen overflow-hidden bg-[#f4f4f2] text-[#111113]">
+      <section className="relative min-h-screen px-5 pb-20 pt-6 sm:px-8 lg:px-12">
+        <div className="absolute inset-x-0 top-0 h-[720px] bg-white" />
+        <div className="plans-orbit absolute right-[8%] top-28 h-56 w-56 rounded-full border border-black/[0.05]" />
+        <div className="plans-orbit plans-orbit-slow absolute bottom-28 left-[7%] h-72 w-72 rounded-full border border-black/[0.04]" />
 
         <div className="relative mx-auto max-w-7xl">
-          <div className="mb-12 flex items-center justify-between gap-5">
-            <button
-              onClick={onBack}
-              className="inline-flex items-center gap-2 rounded-full border border-black/[0.08] bg-white px-4 py-2 text-[12px] font-semibold text-[#424245] shadow-[0_10px_30px_rgba(0,0,0,0.05)] hover:bg-[#1d1d1f] hover:text-white"
-            >
+          <nav className="mb-14 flex items-center justify-between rounded-full border border-black/[0.06] bg-white/85 px-3 py-2 shadow-[0_18px_60px_rgba(0,0,0,0.06)] backdrop-blur-xl">
+            <button onClick={onBack} className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-[12px] font-semibold text-[#424245] hover:bg-[#1d1d1f] hover:text-white">
               <ArrowLeft size={14} />
-              Voltar ao login
+              Login
             </button>
-            <div className="hidden items-center gap-2 rounded-full bg-white px-4 py-2 text-[11px] font-semibold text-[#86868b] shadow-[0_10px_30px_rgba(0,0,0,0.05)] sm:flex">
-              <ShieldCheck size={14} className="text-[#1d1d1f]" />
-              Dados científicos, acervo e apresentação em um só workspace
+            <div className="hidden items-center gap-7 text-[11px] font-semibold text-[#6e6e73] md:flex">
+              <span>Ativos</span>
+              <span>Busca semântica</span>
+              <span>Case Builder</span>
+              <span>Planos</span>
             </div>
-          </div>
+            <a href={planMailto('Personal')} className="rounded-full bg-[#1d1d1f] px-4 py-2 text-[12px] font-semibold text-white hover:bg-[#2d2d2f]">
+              Assinar
+            </a>
+          </nav>
 
-          <div className="grid items-center gap-10 lg:grid-cols-[0.92fr_1.08fr]">
+          <div className="grid min-h-[640px] items-center gap-10 lg:grid-cols-[0.95fr_1.05fr]">
             <div className="plans-story-enter">
               <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-black/[0.06] bg-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[#6e6e73] shadow-[0_12px_34px_rgba(0,0,0,0.05)]">
                 <Award size={13} className="text-[#1d1d1f]" />
-                A primeira suíte de ativos científicos
+                Lon Suite Pricing
               </p>
-              <h1 className="max-w-4xl text-[44px] font-extralight leading-[1.01] tracking-tight text-[#1d1d1f] sm:text-[68px] lg:text-[82px]">
-                Seus arquivos deixam de ser arquivos. Viram ativos científicos.
+              <h1 className="max-w-4xl text-[48px] font-extralight leading-[0.98] tracking-tight text-[#111113] sm:text-[76px] lg:text-[92px]">
+                Arquivos que viram reputação científica.
               </h1>
-              <p className="mt-7 max-w-2xl text-[17px] font-light leading-relaxed text-[#6e6e73] sm:text-[19px]">
-                A Lon Suite transforma fotos, imagens cirúrgicas, PDFs e documentos em uma biblioteca inteligente, pesquisável por significado e pronta para gerar cases, aulas, discussões e valor profissional.
+              <p className="mt-8 max-w-2xl text-[18px] font-light leading-relaxed text-[#6e6e73] sm:text-[21px]">
+                A Lon Suite transforma imagens, fotos e documentos em ativos científicos pesquisáveis. O que era arquivo morto vira aula, case, apresentação, memória e valor profissional.
               </p>
-              <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                {[
-                  ['Transforma', 'material bruto em ativo'],
-                  ['Encontra', 'por busca semântica'],
-                  ['Constrói', 'cases com velocidade'],
-                ].map(([title, body]) => (
-                  <div key={title} className="rounded-[22px] border border-black/[0.06] bg-white p-4 shadow-[0_14px_40px_rgba(0,0,0,0.045)]">
-                    <p className="text-[15px] font-semibold">{title}</p>
-                    <p className="mt-1 text-[11px] leading-relaxed text-[#86868b]">{body}</p>
-                  </div>
-                ))}
+              <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+                <a href={planMailto('Personal')} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#1d1d1f] px-6 py-3 text-[13px] font-semibold text-white shadow-[0_18px_44px_rgba(0,0,0,0.18)] hover:bg-[#2d2d2f]">
+                  Escolher plano
+                  <ArrowRight size={15} />
+                </a>
+                <button onClick={() => setActiveDemo(0)} className="inline-flex items-center justify-center gap-2 rounded-full border border-black/[0.08] bg-white px-6 py-3 text-[13px] font-semibold text-[#424245] hover:bg-[#f5f5f7]">
+                  Ver o conceito
+                </button>
               </div>
             </div>
 
-            <div className="plans-showcase relative min-h-[560px] rounded-[38px] bg-[#101114] p-6 text-white shadow-[0_40px_130px_rgba(0,0,0,0.25)]">
-              <div className="absolute inset-0 rounded-[34px] bg-[radial-gradient(circle_at_22%_18%,rgba(255,255,255,0.16),transparent_32%),radial-gradient(circle_at_84%_82%,rgba(58,123,213,0.20),transparent_38%)]" />
-              <div className="relative grid h-full gap-5">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/42">Lon Suite value engine</p>
-                    <h2 className="mt-2 max-w-[500px] text-[34px] font-extralight leading-tight tracking-tight">O ciclo completo: capturar, entender, encontrar, apresentar.</h2>
-                  </div>
-                  <div className="rounded-full bg-white px-4 py-2 text-[11px] font-bold uppercase tracking-[0.12em] text-[#1d1d1f]">Única</div>
+            <div className="relative min-h-[680px]">
+              <img
+                src="/assets/lon-suite-physician-editorial.png"
+                alt="Médico pesquisador representando o valor científico da Lon Suite"
+                className="absolute right-0 top-0 h-[560px] w-[78%] rounded-[34px] object-cover object-center shadow-[0_36px_120px_rgba(0,0,0,0.16)]"
+              />
+              <div className="plans-showcase absolute bottom-0 left-0 w-[74%] rounded-[34px] bg-[#101114] p-6 text-white shadow-[0_40px_130px_rgba(0,0,0,0.32)]">
+                <div className="mb-5 flex items-center justify-between">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/42">Demonstração viva</p>
+                  <Brain size={17} className="text-white/64" />
                 </div>
-
-                <div className="grid gap-3">
-                  <div className="rounded-[28px] bg-white p-4 text-[#1d1d1f]">
-                    <div className="mb-4 flex items-center justify-between">
-                      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#86868b]">Demonstração viva</p>
-                      <Brain size={16} className="text-[#3a7bd5]" />
-                    </div>
-                    <div key={activeDemo} className="plans-demo-enter grid gap-4 md:grid-cols-[0.88fr_1.12fr]">
-                      <div className="relative aspect-[4/3] overflow-hidden rounded-[22px] bg-[linear-gradient(135deg,#d8dde2,#f7f2ea_48%,#aeb8bf)]">
-                        <div className="login-scan absolute inset-0" />
-                        <div className="absolute bottom-3 left-3 rounded-full bg-white/85 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#424245] backdrop-blur">{demoSteps[activeDemo].label}</div>
-                      </div>
-                      <div className="flex flex-col justify-center">
-                        <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#86868b]">Etapa {activeDemo + 1} de 4</p>
-                        <h3 className="mt-2 text-[30px] font-light leading-tight tracking-tight">{demoSteps[activeDemo].title}</h3>
-                        <p className="mt-3 text-[13px] leading-relaxed text-[#6e6e73]">{demoSteps[activeDemo].body}</p>
-                      </div>
-                    </div>
-                    <div className="mt-5 grid grid-cols-4 gap-2">
-                      {demoSteps.map((step, index) => (
-                        <button
-                          key={step.label}
-                          onClick={() => setActiveDemo(index)}
-                          className={`h-1.5 rounded-full transition-all ${activeDemo === index ? 'bg-[#1d1d1f]' : 'bg-black/10 hover:bg-black/25'}`}
-                          aria-label={`Ver etapa ${step.label}`}
-                        />
-                      ))}
-                    </div>
-                  </div>
+                <div key={activeDemo} className="plans-demo-enter">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-white/38">{demoSteps[activeDemo].label}</p>
+                  <h2 className="mt-3 text-[34px] font-extralight leading-tight tracking-tight">{demoSteps[activeDemo].title}</h2>
+                  <p className="mt-4 text-[13px] leading-relaxed text-white/55">{demoSteps[activeDemo].body}</p>
                 </div>
-
-                <div className="grid gap-3 sm:grid-cols-3">
-                  {[
-                    ['Ativos', 'Fotos, PDFs e documentos com significado'],
-                    ['Busca', 'Encontra pelo sentido, não só pelo nome'],
-                    ['Cases', 'Builder rápido para narrativa científica'],
-                  ].map(([value, label], index) => (
-                    <div key={value} className="plans-metric rounded-[22px] border border-white/[0.08] bg-white/[0.075] p-4 backdrop-blur" style={{ animationDelay: `${index * 260}ms` }}>
-                      <p className="text-[22px] font-light">{value}</p>
-                      <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.14em] text-white/42">{label}</p>
-                    </div>
+                <div className="mt-7 grid grid-cols-4 gap-2">
+                  {demoSteps.map((step, index) => (
+                    <button
+                      key={step.label}
+                      onClick={() => setActiveDemo(index)}
+                      className={`h-1.5 rounded-full transition-all ${activeDemo === index ? 'bg-white' : 'bg-white/16 hover:bg-white/36'}`}
+                      aria-label={`Ver etapa ${step.label}`}
+                    />
                   ))}
                 </div>
               </div>
+              <div className="absolute right-8 top-[470px] rounded-[24px] border border-black/[0.05] bg-white p-5 shadow-[0_26px_80px_rgba(0,0,0,0.12)]">
+                <p className="text-[44px] font-extralight leading-none">4x</p>
+                <p className="mt-2 max-w-[150px] text-[11px] font-semibold leading-relaxed text-[#86868b]">mais reaproveitamento do acervo científico</p>
+              </div>
             </div>
           </div>
 
-          <div className="mt-14 grid gap-4 lg:grid-cols-4">
-            {plans.map((plan, index) => {
-              const Icon = plan.icon;
-              return (
-                <article
-                  key={plan.name}
-                  className={`plans-card group relative overflow-hidden rounded-[30px] border p-6 transition-all hover:-translate-y-1 ${plan.highlight ? 'border-[#1d1d1f] bg-[#1d1d1f] text-white shadow-[0_32px_90px_rgba(0,0,0,0.22)]' : 'border-black/[0.06] bg-white text-[#1d1d1f] shadow-[0_18px_60px_rgba(0,0,0,0.07)]'}`}
-                  style={{ animationDelay: `${index * 120}ms` }}
-                >
-                  {plan.highlight && (
-                    <div className="absolute right-4 top-4 rounded-full bg-white px-3 py-1 text-[9px] font-bold uppercase tracking-[0.14em] text-[#1d1d1f]">
-                      Recomendado
-                    </div>
-                  )}
-                  <div className={`mb-6 flex h-12 w-12 items-center justify-center rounded-[16px] ${plan.highlight ? 'bg-white text-[#1d1d1f]' : 'bg-[#f5f5f7] text-[#1d1d1f]'}`}>
-                    <Icon size={21} />
-                  </div>
+          <section className="mt-12 rounded-[36px] bg-[#ededeb] px-4 py-12 sm:px-8 lg:px-10">
+            <div className="mx-auto mb-9 max-w-3xl text-center">
+              <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Planos</p>
+              <h2 className="text-[38px] font-semibold leading-tight tracking-tight sm:text-[56px]">Escolha quanto do seu conhecimento vai deixar de ficar perdido.</h2>
+            </div>
 
-                  <h3 className="text-[24px] font-light tracking-tight">{plan.name}</h3>
-                  <p className={`mt-2 min-h-[56px] text-[13px] leading-relaxed ${plan.highlight ? 'text-white/58' : 'text-[#6e6e73]'}`}>{plan.description}</p>
-
-                  <div className="my-7">
-                    <div className="flex items-end gap-1">
-                      <span className="text-[38px] font-extralight tracking-tight">{plan.price}</span>
-                      <span className={`pb-2 text-[12px] font-medium ${plan.highlight ? 'text-white/45' : 'text-[#86868b]'}`}>{plan.period}</span>
+            <div className="grid gap-5 lg:grid-cols-4">
+              {plans.map((plan, index) => {
+                const Icon = plan.icon;
+                return (
+                  <article
+                    key={plan.name}
+                    className={`plans-card group relative min-h-[560px] overflow-hidden rounded-[34px] border p-5 transition-all hover:-translate-y-1 ${plan.highlight ? 'border-[#111113] bg-[#111113] text-white shadow-[0_38px_100px_rgba(0,0,0,0.30)] lg:-translate-y-4' : 'border-white bg-white text-[#111113] shadow-[0_22px_70px_rgba(0,0,0,0.08)]'}`}
+                    style={{ animationDelay: `${index * 120}ms` }}
+                  >
+                    <div className={`mb-6 rounded-[26px] p-5 ${plan.highlight ? 'bg-[linear-gradient(135deg,rgba(255,255,255,0.18),rgba(58,123,213,0.18))]' : 'bg-[#f0f0ef]'}`}>
+                      <div className="mb-12 flex items-center justify-between">
+                        <span className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] ${plan.highlight ? 'bg-white text-[#111113]' : 'bg-white text-[#424245]'}`}>{plan.name}</span>
+                        <Icon size={20} className={plan.highlight ? 'text-white/72' : 'text-[#1d1d1f]'} />
+                      </div>
+                      <div className="flex items-end gap-1">
+                        <span className="text-[42px] font-semibold tracking-tight">{plan.price}</span>
+                        <span className={`pb-2 text-[13px] font-semibold ${plan.highlight ? 'text-white/55' : 'text-[#6e6e73]'}`}>{plan.period}</span>
+                      </div>
+                      <p className={`mt-4 min-h-[58px] text-[13px] leading-relaxed ${plan.highlight ? 'text-white/64' : 'text-[#6e6e73]'}`}>{plan.description}</p>
                     </div>
-                    <div className={`mt-3 inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-bold ${plan.highlight ? 'bg-white/10 text-white/70' : 'bg-[#f5f5f7] text-[#424245]'}`}>
+
+                    <div className={`mb-6 inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-bold ${plan.highlight ? 'bg-white/10 text-white/72' : 'bg-[#f5f5f7] text-[#424245]'}`}>
                       <Database size={13} />
                       {plan.storage} de espaço
                     </div>
+
+                    <div className="space-y-3">
+                      {plan.features.map(feature => (
+                        <div key={feature} className="flex gap-2 text-[13px] leading-relaxed">
+                          <Check size={15} className={`mt-0.5 shrink-0 ${plan.highlight ? 'text-white' : 'text-[#111113]'}`} />
+                          <span className={plan.highlight ? 'text-white/72' : 'text-[#424245]'}>{feature}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <a href={plan.href} className={`absolute bottom-5 left-5 right-5 flex items-center justify-center gap-2 rounded-full px-4 py-3 text-[13px] font-semibold transition-all active:scale-[0.98] ${plan.highlight ? 'bg-white text-[#111113] hover:bg-white/90' : 'bg-[#111113] text-white hover:bg-[#2d2d2f]'}`}>
+                      {plan.cta}
+                      <ArrowRight size={14} />
+                    </a>
+                  </article>
+                );
+              })}
+            </div>
+          </section>
+
+          <section className="mt-24 grid items-center gap-12 lg:grid-cols-[0.9fr_1.1fr]">
+            <div>
+              <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">O problema real</p>
+              <h2 className="text-[42px] font-semibold leading-tight tracking-tight sm:text-[64px]">O médico já tem conteúdo. Ele só não consegue encontrá-lo quando precisa.</h2>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {[
+                ['Celular', 'Fotos científicas misturadas com vida pessoal.'],
+                ['WhatsApp', 'Casos importantes soterrados em conversas.'],
+                ['Drive', 'Pastas com nomes frios e pouca inteligência.'],
+                ['Lon Suite', 'Ativos com contexto, busca e destino editorial.'],
+              ].map(([title, body], index) => (
+                <div key={title} className={`plans-card rounded-[28px] border p-6 ${index === 3 ? 'border-[#111113] bg-[#111113] text-white' : 'border-black/[0.06] bg-white'}`}>
+                  <p className="text-[22px] font-light">{title}</p>
+                  <p className={`mt-4 text-[13px] leading-relaxed ${index === 3 ? 'text-white/62' : 'text-[#6e6e73]'}`}>{body}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="mt-24 overflow-hidden rounded-[38px] bg-[#111113] text-white shadow-[0_40px_120px_rgba(0,0,0,0.25)]">
+            <div className="grid lg:grid-cols-2">
+              <div className="p-8 sm:p-12 lg:p-16">
+                <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.18em] text-white/40">Case Builder</p>
+                <h2 className="text-[42px] font-extralight leading-tight tracking-tight sm:text-[64px]">Um case builder para transformar evidência em narrativa.</h2>
+                <p className="mt-7 max-w-xl text-[16px] font-light leading-relaxed text-white/58">
+                  A Lon Suite aproxima o momento clínico do momento científico. O médico encontra o ativo certo e monta o case com blocos, imagens, referências e apresentação sem recomeçar do zero.
+                </p>
+              </div>
+              <div className="relative min-h-[520px] bg-[#0b0c0e] p-8">
+                <div className="plans-product-stack absolute left-8 top-12 w-[76%] rounded-[30px] bg-white p-5 text-[#111113] shadow-[0_28px_100px_rgba(0,0,0,0.35)]">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#86868b]">Case em construção</p>
+                  <h3 className="mt-2 text-[30px] font-light tracking-tight">Evolução cirúrgica documentada</h3>
+                  <div className="mt-5 grid grid-cols-3 gap-2">
+                    {[0, 1, 2].map(i => <div key={i} className="h-28 rounded-[18px] bg-[linear-gradient(135deg,#d8dde2,#f7f2ea_48%,#aeb8bf)]" />)}
                   </div>
+                </div>
+                <div className="plans-product-stack absolute bottom-12 right-8 w-[60%] rounded-[28px] border border-white/[0.10] bg-white/[0.10] p-5 backdrop-blur-xl">
+                  <Presentation size={20} className="mb-12 text-white/70" />
+                  <p className="text-[28px] font-extralight leading-tight">Pronto para aula, round ou publicação.</p>
+                </div>
+              </div>
+            </div>
+          </section>
 
-                  <div className="space-y-3">
-                    {plan.features.map(feature => (
-                      <div key={feature} className="flex gap-2 text-[12px] leading-relaxed">
-                        <Check size={14} className={`mt-0.5 shrink-0 ${plan.highlight ? 'text-white' : 'text-[#1d1d1f]'}`} />
-                        <span className={plan.highlight ? 'text-white/70' : 'text-[#424245]'}>{feature}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <a
-                    href={plan.href}
-                    className={`mt-8 flex w-full items-center justify-center gap-2 rounded-[16px] px-4 py-3 text-[13px] font-semibold transition-all active:scale-[0.98] ${plan.highlight ? 'bg-white text-[#1d1d1f] hover:bg-white/90' : 'bg-[#1d1d1f] text-white hover:bg-[#2d2d2f]'}`}
-                  >
-                    {plan.cta}
-                    <ArrowRight size={14} />
-                  </a>
-                </article>
-              );
-            })}
-          </div>
-
-          <div className="mt-16 grid gap-4 lg:grid-cols-3">
+          <section className="mt-24 grid gap-5 lg:grid-cols-3">
             {[
-              { icon: ShieldCheck, title: 'Controle por usuário', body: 'Cada médico tem sua própria conta, acervo e limite. O próximo passo é automatizar uso, alertas e upgrade.' },
-              { icon: Zap, title: 'Cresce sem perder elegância', body: 'Comece com storage e biblioteca. Evolua para IA, tokens, cobrança automática e painel administrativo.' },
-              { icon: Presentation, title: 'Valor percebido imediato', body: 'O usuário não compra apenas espaço. Ele compra clareza, memória científica e presença profissional.' },
+              { icon: Search, title: 'Busca semântica como diferencial', body: 'A busca não depende só do nome do arquivo. Ela entende contexto, tema, técnica, achado e intenção.' },
+              { icon: Brain, title: 'Ativos com inteligência', body: 'Cada imagem e documento ganha metadados úteis, tags, resumo e lugar dentro da produção científica.' },
+              { icon: Award, title: 'Valor percebido imediato', body: 'O médico não compra armazenamento. Compra memória, autoridade, rapidez e capacidade de apresentação.' },
             ].map(item => {
               const Icon = item.icon;
               return (
-                <div key={item.title} className="rounded-[28px] border border-black/[0.06] bg-white p-6 shadow-[0_18px_50px_rgba(0,0,0,0.055)]">
-                  <div className="mb-8 flex h-11 w-11 items-center justify-center rounded-[15px] bg-[#1d1d1f] text-white">
-                    <Icon size={19} />
+                <div key={item.title} className="rounded-[34px] border border-black/[0.06] bg-white p-8 shadow-[0_22px_70px_rgba(0,0,0,0.07)]">
+                  <div className="mb-12 flex h-12 w-12 items-center justify-center rounded-[16px] bg-[#111113] text-white">
+                    <Icon size={20} />
                   </div>
-                  <h3 className="text-[20px] font-light tracking-tight">{item.title}</h3>
-                  <p className="mt-3 text-[13px] leading-relaxed text-[#6e6e73]">{item.body}</p>
+                  <h3 className="text-[26px] font-light tracking-tight">{item.title}</h3>
+                  <p className="mt-4 text-[14px] leading-relaxed text-[#6e6e73]">{item.body}</p>
                 </div>
               );
             })}
-          </div>
+          </section>
+
+          <section className="mt-24 rounded-[38px] bg-white p-8 text-center shadow-[0_28px_90px_rgba(0,0,0,0.08)] sm:p-14">
+            <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Comece pela decisão certa</p>
+            <h2 className="mx-auto max-w-4xl text-[42px] font-semibold leading-tight tracking-tight sm:text-[64px]">O próximo ativo científico que você perder pode ser justamente o que mais precisava encontrar.</h2>
+            <p className="mx-auto mt-6 max-w-2xl text-[16px] leading-relaxed text-[#6e6e73]">Escolha um plano e comece a transformar seu acervo em vantagem intelectual.</p>
+            <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
+              <a href={planMailto('Personal')} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#111113] px-7 py-3 text-[13px] font-semibold text-white hover:bg-[#2d2d2f]">
+                Assinar Personal
+                <ArrowRight size={15} />
+              </a>
+              <a href={planMailto('Enterprise')} className="inline-flex items-center justify-center gap-2 rounded-full border border-black/[0.08] px-7 py-3 text-[13px] font-semibold text-[#424245] hover:bg-[#f5f5f7]">
+                Falar com a equipe
+              </a>
+            </div>
+          </section>
         </div>
       </section>
     </div>
