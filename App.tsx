@@ -70,6 +70,14 @@ const readLocalAssetRecovery = (preferredKey: string): Asset[] => {
   return mergeAssetSets(...candidates);
 };
 
+const safeLocalSet = (key: string, value: string) => {
+  try {
+    localStorage.setItem(key, value);
+  } catch (error) {
+    console.warn(`[Lon Suite] Não foi possível salvar cache local "${key}".`, error);
+  }
+};
+
 const mapAssetRow = (a: Record<string, unknown>): Asset => ({
   ...(a as unknown as Asset),
   type: (a.type as AssetType | undefined) || 'image',
@@ -207,9 +215,9 @@ const App: React.FC = () => {
 
     if (assets.length > 0) {
       const payload = JSON.stringify(assets);
-      localStorage.setItem(LOCAL_STORAGE_ASSETS_KEY, payload);
-      localStorage.setItem(`${ASSET_BACKUP_PREFIX}${ownerId}`, payload);
-      localStorage.setItem('lon_assets_last_non_empty', payload);
+      safeLocalSet(LOCAL_STORAGE_ASSETS_KEY, payload);
+      safeLocalSet(`${ASSET_BACKUP_PREFIX}${ownerId}`, payload);
+      safeLocalSet('lon_assets_last_non_empty', payload);
       lastCloudLoadWasEmptyRef.current = false;
       return;
     }
@@ -342,7 +350,7 @@ const App: React.FC = () => {
     setSelectedAsset(asset);
     setRecentAccesses(prev => {
       const newRecent = [asset, ...prev.filter(a => a.id !== asset.id)].slice(0, 10);
-      localStorage.setItem('lon_suite_recent', JSON.stringify(newRecent));
+      safeLocalSet('lon_suite_recent', JSON.stringify(newRecent));
       return newRecent;
     });
   };
