@@ -179,6 +179,7 @@ const App: React.FC = () => {
   // Derived owner helpers
   const ownerId  = currentUser?.id  ?? 'guest';
   const ownerName = currentUser?.name ?? '';
+  const isOfflineUser = ownerId.startsWith('offline:');
 
   // Homepage Search State
   const [homeSearchQuery, setHomeSearchQuery] = useState('');
@@ -223,6 +224,11 @@ const App: React.FC = () => {
   // Initial Load: Supabase first, localStorage fallback
   useEffect(() => {
     if (!currentUser) return;
+    if (isOfflineUser) {
+      setAssets(readLocalAssetRecovery(LOCAL_STORAGE_ASSETS_KEY));
+      setIsRefreshing(false);
+      return;
+    }
     const fetchInitialData = async () => {
       setIsRefreshing(true);
       const localSnapshot = readLocalAssetRecovery(LOCAL_STORAGE_ASSETS_KEY);
@@ -273,6 +279,7 @@ const App: React.FC = () => {
 
   // Sync asset to Supabase (fire-and-forget; localStorage always updated via effect)
   const syncToCloud = useCallback(async (asset: Asset) => {
+    if (ownerId === 'guest' || ownerId.startsWith('offline:')) return;
     try {
       const base = { owner_id: ownerId };
       if (asset.type === 'case') {

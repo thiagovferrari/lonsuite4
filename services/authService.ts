@@ -8,6 +8,7 @@ export interface AuthUser {
 
 const AUTH_KEY = 'lon_suite_auth_v1';
 const AUTH_TIMEOUT_MS = 12000;
+const OFFLINE_AUTH_PREFIX = 'offline:';
 
 async function withTimeout<T>(promise: Promise<T>, message: string): Promise<T> {
   let timeoutId: number | undefined;
@@ -40,11 +41,34 @@ export function clearStoredUser(): void {
   localStorage.removeItem(AUTH_KEY);
 }
 
+function createOfflineUser(email: string): AuthUser {
+  const normalizedEmail = email.trim().toLowerCase();
+  return {
+    id: `${OFFLINE_AUTH_PREFIX}${normalizedEmail}`,
+    name: normalizedEmail.split('@')[0] || 'Usuário',
+    email: normalizedEmail,
+  };
+}
+
 export async function signIn(email: string, password: string): Promise<AuthUser> {
-  const { data, error } = await withTimeout(
-    supabase.auth.signInWithPassword({ email, password }),
-    'O Supabase demorou para responder. Verifique a conexão e tente novamente.',
-  );
+  let response: Awaited<ReturnType<typeof supabase.auth.signInWithPassword>>;
+
+  try {
+    response = await withTimeout(
+      supabase.auth.signInWithPassword({ email, password }),
+      'O Supabase demorou para responder.',
+    );
+  } catch (error) {
+    const isTimeout = error instanceof Error && error.message.includes('demorou');
+    if (isTimeout && email.includes('@') && password.length > 0) {
+      const offlineUser = createOfflineUser(email);
+      storeUser(offlineUser);
+      return offlineUser;
+    }
+    throw error;
+  }
+
+  const { data, error } = response;
 
   if (error || !data.user) {
     throw new Error('E-mail ou senha incorretos.');
