@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ArrowRight, Award, Brain, FileText, Images, LockKeyhole, Presentation, Search, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Award, Brain, Building2, Check, Crown, Database, FileText, Images, LockKeyhole, Presentation, Search, ShieldCheck, Sparkles, Zap } from 'lucide-react';
 import { signIn } from '../services/authService';
 import type { AuthUser } from '../services/authService';
 
@@ -7,12 +7,230 @@ interface Props {
   onLogin: (user: AuthUser) => void;
 }
 
+interface PlansPageProps {
+  onBack: () => void;
+}
+
+const planMailto = (plan: string) =>
+  `mailto:suporte@longecta.com.br?subject=${encodeURIComponent(`Assinar Lon Suite ${plan}`)}&body=${encodeURIComponent(`Olá, quero assinar o plano ${plan} da Lon Suite. Pode me orientar nos próximos passos?`)}`;
+
+const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
+  const plans = [
+    {
+      name: 'Free',
+      icon: Sparkles,
+      price: 'R$ 0',
+      period: 'para experimentar',
+      description: 'Para conhecer a experiência Lon Suite e organizar os primeiros ativos científicos.',
+      storage: '100 MB',
+      highlight: false,
+      cta: 'Começar pelo Free',
+      href: planMailto('Free'),
+      features: ['Biblioteca inicial de ativos', 'Login seguro por conta', 'Cases científicos básicos', 'Ideal para teste e validação'],
+    },
+    {
+      name: 'Personal',
+      icon: Database,
+      price: 'R$ 49',
+      period: '/mês',
+      description: 'Para o médico que quer preservar, localizar e apresentar sua própria produção científica.',
+      storage: '5 GB',
+      highlight: true,
+      cta: 'Assinar Personal',
+      href: planMailto('Personal'),
+      features: ['Até 5 GB de imagens e documentos', 'Busca e organização por tags', 'Cases com modo apresentação', 'Suporte para evolução do acervo'],
+    },
+    {
+      name: 'Premium',
+      icon: Crown,
+      price: 'R$ 149',
+      period: '/mês',
+      description: 'Para produção científica recorrente, aulas, apresentações e documentação clínica robusta.',
+      storage: '20 GB',
+      highlight: false,
+      cta: 'Assinar Premium',
+      href: planMailto('Premium'),
+      features: ['20 GB para acervo avançado', 'Biblioteca científica ampliada', 'Exportação e apresentação premium', 'Preparado para recursos de IA'],
+    },
+    {
+      name: 'Enterprise',
+      icon: Building2,
+      price: 'Sob consulta',
+      period: 'para equipes',
+      description: 'Para clínicas, serviços, grupos médicos e instituições que precisam governança e escala.',
+      storage: '100 GB+',
+      highlight: false,
+      cta: 'Consultar equipe',
+      href: planMailto('Enterprise'),
+      features: ['Limites personalizados', 'Onboarding assistido', 'Governança para equipes', 'Plano de dados sob medida'],
+    },
+  ];
+
+  return (
+    <div className="min-h-screen overflow-hidden bg-[#f5f5f7] text-[#1d1d1f]">
+      <section className="relative px-5 pb-16 pt-6 sm:px-8 lg:px-12">
+        <div className="plans-orbit absolute right-[8%] top-20 h-56 w-56 rounded-full border border-black/[0.06]" />
+        <div className="plans-orbit plans-orbit-slow absolute bottom-20 left-[7%] h-72 w-72 rounded-full border border-black/[0.04]" />
+
+        <div className="relative mx-auto max-w-7xl">
+          <div className="mb-12 flex items-center justify-between gap-5">
+            <button
+              onClick={onBack}
+              className="inline-flex items-center gap-2 rounded-full border border-black/[0.08] bg-white px-4 py-2 text-[12px] font-semibold text-[#424245] shadow-[0_10px_30px_rgba(0,0,0,0.05)] hover:bg-[#1d1d1f] hover:text-white"
+            >
+              <ArrowLeft size={14} />
+              Voltar ao login
+            </button>
+            <div className="hidden items-center gap-2 rounded-full bg-white px-4 py-2 text-[11px] font-semibold text-[#86868b] shadow-[0_10px_30px_rgba(0,0,0,0.05)] sm:flex">
+              <ShieldCheck size={14} className="text-[#1d1d1f]" />
+              Dados científicos, acervo e apresentação em um só workspace
+            </div>
+          </div>
+
+          <div className="grid items-end gap-10 lg:grid-cols-[0.92fr_1.08fr]">
+            <div className="plans-story-enter">
+              <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-black/[0.06] bg-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[#6e6e73] shadow-[0_12px_34px_rgba(0,0,0,0.05)]">
+                <Award size={13} className="text-[#1d1d1f]" />
+                Planos Lon Suite
+              </p>
+              <h1 className="max-w-4xl text-[44px] font-extralight leading-[1.02] tracking-tight text-[#1d1d1f] sm:text-[64px] lg:text-[74px]">
+                O plano certo para transformar produção médica em patrimônio científico.
+              </h1>
+              <p className="mt-7 max-w-2xl text-[16px] font-light leading-relaxed text-[#6e6e73] sm:text-[18px]">
+                A Lon Suite não é um drive. É o espaço onde imagens cirúrgicas, documentos, evidências e cases ganham contexto, busca, apresentação e permanência.
+              </p>
+            </div>
+
+            <div className="plans-showcase relative min-h-[430px] rounded-[34px] bg-[#101114] p-6 text-white shadow-[0_34px_110px_rgba(0,0,0,0.22)]">
+              <div className="absolute inset-0 rounded-[34px] bg-[radial-gradient(circle_at_22%_18%,rgba(255,255,255,0.16),transparent_32%),radial-gradient(circle_at_84%_82%,rgba(58,123,213,0.20),transparent_38%)]" />
+              <div className="relative grid h-full gap-4">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/42">Value engine</p>
+                    <h2 className="mt-2 max-w-[460px] text-[32px] font-extralight leading-tight tracking-tight">Menos arquivo perdido. Mais conhecimento reaproveitado.</h2>
+                  </div>
+                  <div className="rounded-full bg-white px-4 py-2 text-[11px] font-bold uppercase tracking-[0.12em] text-[#1d1d1f]">Premium</div>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-3">
+                  {[
+                    ['5 GB', 'Personal'],
+                    ['20 GB', 'Premium'],
+                    ['100 GB+', 'Enterprise'],
+                  ].map(([value, label], index) => (
+                    <div key={label} className="plans-metric rounded-[22px] border border-white/[0.08] bg-white/[0.075] p-4 backdrop-blur" style={{ animationDelay: `${index * 260}ms` }}>
+                      <p className="text-[32px] font-extralight">{value}</p>
+                      <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.14em] text-white/42">{label}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-[1.15fr_0.85fr]">
+                  <div className="rounded-[24px] bg-white p-4 text-[#1d1d1f]">
+                    <div className="mb-4 flex items-center justify-between">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#86868b]">Acervo médico</p>
+                      <Images size={16} className="text-[#3a7bd5]" />
+                    </div>
+                    <div className="grid grid-cols-4 gap-2">
+                      {[0, 1, 2, 3, 4, 5, 6, 7].map(i => (
+                        <div key={i} className="aspect-square rounded-[14px] bg-[linear-gradient(135deg,#d8dde2,#f5f2ec_52%,#aeb8bf)]" />
+                      ))}
+                    </div>
+                  </div>
+                  <div className="rounded-[24px] border border-white/[0.08] bg-white/[0.08] p-4">
+                    <Brain size={18} className="mb-8 text-white/70" />
+                    <p className="text-[24px] font-extralight leading-tight">IA pronta para entrar quando o acervo pedir escala.</p>
+                    <p className="mt-3 text-[11px] leading-relaxed text-white/45">Começamos com storage e organização. Depois ativamos tokens, limites e automação.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-14 grid gap-4 lg:grid-cols-4">
+            {plans.map((plan, index) => {
+              const Icon = plan.icon;
+              return (
+                <article
+                  key={plan.name}
+                  className={`plans-card group relative overflow-hidden rounded-[30px] border p-6 transition-all hover:-translate-y-1 ${plan.highlight ? 'border-[#1d1d1f] bg-[#1d1d1f] text-white shadow-[0_32px_90px_rgba(0,0,0,0.22)]' : 'border-black/[0.06] bg-white text-[#1d1d1f] shadow-[0_18px_60px_rgba(0,0,0,0.07)]'}`}
+                  style={{ animationDelay: `${index * 120}ms` }}
+                >
+                  {plan.highlight && (
+                    <div className="absolute right-4 top-4 rounded-full bg-white px-3 py-1 text-[9px] font-bold uppercase tracking-[0.14em] text-[#1d1d1f]">
+                      Recomendado
+                    </div>
+                  )}
+                  <div className={`mb-6 flex h-12 w-12 items-center justify-center rounded-[16px] ${plan.highlight ? 'bg-white text-[#1d1d1f]' : 'bg-[#f5f5f7] text-[#1d1d1f]'}`}>
+                    <Icon size={21} />
+                  </div>
+
+                  <h3 className="text-[24px] font-light tracking-tight">{plan.name}</h3>
+                  <p className={`mt-2 min-h-[56px] text-[13px] leading-relaxed ${plan.highlight ? 'text-white/58' : 'text-[#6e6e73]'}`}>{plan.description}</p>
+
+                  <div className="my-7">
+                    <div className="flex items-end gap-1">
+                      <span className="text-[38px] font-extralight tracking-tight">{plan.price}</span>
+                      <span className={`pb-2 text-[12px] font-medium ${plan.highlight ? 'text-white/45' : 'text-[#86868b]'}`}>{plan.period}</span>
+                    </div>
+                    <div className={`mt-3 inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-bold ${plan.highlight ? 'bg-white/10 text-white/70' : 'bg-[#f5f5f7] text-[#424245]'}`}>
+                      <Database size={13} />
+                      {plan.storage} de espaço
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    {plan.features.map(feature => (
+                      <div key={feature} className="flex gap-2 text-[12px] leading-relaxed">
+                        <Check size={14} className={`mt-0.5 shrink-0 ${plan.highlight ? 'text-white' : 'text-[#1d1d1f]'}`} />
+                        <span className={plan.highlight ? 'text-white/70' : 'text-[#424245]'}>{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <a
+                    href={plan.href}
+                    className={`mt-8 flex w-full items-center justify-center gap-2 rounded-[16px] px-4 py-3 text-[13px] font-semibold transition-all active:scale-[0.98] ${plan.highlight ? 'bg-white text-[#1d1d1f] hover:bg-white/90' : 'bg-[#1d1d1f] text-white hover:bg-[#2d2d2f]'}`}
+                  >
+                    {plan.cta}
+                    <ArrowRight size={14} />
+                  </a>
+                </article>
+              );
+            })}
+          </div>
+
+          <div className="mt-16 grid gap-4 lg:grid-cols-3">
+            {[
+              { icon: ShieldCheck, title: 'Controle por usuário', body: 'Cada médico tem sua própria conta, acervo e limite. O próximo passo é automatizar uso, alertas e upgrade.' },
+              { icon: Zap, title: 'Cresce sem perder elegância', body: 'Comece com storage e biblioteca. Evolua para IA, tokens, cobrança automática e painel administrativo.' },
+              { icon: Presentation, title: 'Valor percebido imediato', body: 'O usuário não compra apenas espaço. Ele compra clareza, memória científica e presença profissional.' },
+            ].map(item => {
+              const Icon = item.icon;
+              return (
+                <div key={item.title} className="rounded-[28px] border border-black/[0.06] bg-white p-6 shadow-[0_18px_50px_rgba(0,0,0,0.055)]">
+                  <div className="mb-8 flex h-11 w-11 items-center justify-center rounded-[15px] bg-[#1d1d1f] text-white">
+                    <Icon size={19} />
+                  </div>
+                  <h3 className="text-[20px] font-light tracking-tight">{item.title}</h3>
+                  <p className="mt-3 text-[13px] leading-relaxed text-[#6e6e73]">{item.body}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+};
+
 const LoginPage: React.FC<Props> = ({ onLogin }) => {
   const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
   const [error, setError]       = useState('');
   const [loading, setLoading]   = useState(false);
   const [activeStory, setActiveStory] = useState(0);
+  const [showPlans, setShowPlans] = useState(false);
 
   const stories = useMemo(() => [
     {
@@ -60,6 +278,10 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
       setLoading(false);
     }
   };
+
+  if (showPlans) {
+    return <PlansPage onBack={() => setShowPlans(false)} />;
+  }
 
   return (
     <div className="min-h-screen bg-[#f5f5f7] text-[#1d1d1f]">
@@ -155,6 +377,15 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
                   suporte@longecta.com.br
                 </a>
               </p>
+
+              <button
+                type="button"
+                onClick={() => setShowPlans(true)}
+                className="mt-4 flex w-full items-center justify-center gap-2 rounded-[14px] border border-black/[0.06] bg-[#f9f9fb] px-4 py-3 text-[12px] font-semibold text-[#424245] hover:bg-[#1d1d1f] hover:text-white"
+              >
+                Confira nossos planos
+                <ArrowRight size={14} />
+              </button>
             </div>
 
             <div className="mt-6 flex items-center gap-2 text-[11px] font-medium text-[#86868b]">

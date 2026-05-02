@@ -201,6 +201,31 @@ select:focus-visible {
   animation-delay: -7s;
 }
 
+.plans-story-enter {
+  animation: plansStoryEnter 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.plans-showcase {
+  animation: plansShowcaseFloat 10s ease-in-out infinite;
+}
+
+.plans-card {
+  animation: plansCardEnter 0.72s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.plans-metric {
+  animation: plansMetric 4.8s ease-in-out infinite;
+}
+
+.plans-orbit {
+  animation: plansOrbit 22s linear infinite;
+}
+
+.plans-orbit-slow {
+  animation-duration: 32s;
+  animation-direction: reverse;
+}
+
 @keyframes loginStoryEnter {
   from { opacity: 0; transform: translateY(16px); filter: blur(8px); }
   to   { opacity: 1; transform: translateY(0); filter: blur(0); }
@@ -242,6 +267,31 @@ select:focus-visible {
   to   { transform: rotate(360deg) translateX(10px) rotate(-360deg); }
 }
 
+@keyframes plansStoryEnter {
+  from { opacity: 0; transform: translateY(20px); filter: blur(10px); }
+  to   { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+@keyframes plansShowcaseFloat {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50%      { transform: translate3d(0, -10px, 0) rotate(0.35deg); }
+}
+
+@keyframes plansCardEnter {
+  from { opacity: 0; transform: translateY(18px) scale(0.985); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes plansMetric {
+  0%, 100% { transform: translateY(0); background-color: rgba(255,255,255,0.075); }
+  50%      { transform: translateY(-5px); background-color: rgba(255,255,255,0.12); }
+}
+
+@keyframes plansOrbit {
+  from { transform: rotate(0deg) translateX(12px) rotate(0deg); }
+  to   { transform: rotate(360deg) translateX(12px) rotate(-360deg); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .login-story-enter,
   .login-feature-card,
@@ -250,7 +300,12 @@ select:focus-visible {
   .login-pulse-card,
   .login-row-reveal,
   .login-scan::after,
-  .login-orbit {
+  .login-orbit,
+  .plans-story-enter,
+  .plans-showcase,
+  .plans-card,
+  .plans-metric,
+  .plans-orbit {
     animation: none !important;
   }
 }
