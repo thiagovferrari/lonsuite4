@@ -1646,6 +1646,31 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
     <div className="min-h-screen bg-[#fafbfc] text-[#1d1d1f] font-sans pb-20 md:pb-0 md:pl-[80px] transition-all duration-300">
       <Sidebar currentView={view} setView={(v) => { setSelectedAsset(null); setEditingCase(null); setNewAssetId(null); setView(v); }} trashCount={trashedAssets.length} />
 
+      <div className="fixed top-4 right-4 z-[210] md:top-6 md:right-6">
+        <div className="flex items-center gap-1.5 rounded-[18px] border border-black/[0.06] bg-white/85 px-2 py-2 shadow-[0_10px_32px_rgba(0,0,0,0.08)] backdrop-blur-xl">
+          <div className="hidden sm:flex min-w-0 items-center gap-2 pl-2 pr-1">
+            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#1d1d1f] text-[10px] font-semibold text-white">
+              {(ownerName || currentUser.email || '?').charAt(0).toUpperCase()}
+            </div>
+            <span className="max-w-[180px] truncate text-[12px] font-medium text-[#424245] md:max-w-[240px]">
+              {currentUser.email}
+            </span>
+          </div>
+          <button
+            onClick={() => openConfirmDialog({
+              title: 'Sair da conta?',
+              message: 'Você será redirecionado para a tela de login.',
+              onConfirm: handleLogout,
+            })}
+            aria-label="Sair da conta"
+            title="Sair da conta"
+            className="flex h-8 w-8 items-center justify-center rounded-[12px] text-[#86868b] transition-all hover:bg-[#f5f5f7] hover:text-[#ff3b30] active:scale-95"
+          >
+            <LogOut size={15} />
+          </button>
+        </div>
+      </div>
+
       {/* Hidden file input */}
       <input ref={fileInputRef} type="file" multiple accept="image/*,.pdf,.pptx,.ppt,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation" className="hidden" onChange={handleFilesSelected} />
 
