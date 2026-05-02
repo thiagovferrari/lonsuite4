@@ -96,16 +96,65 @@ create trigger cases_set_updated_at
 before update on public.cases
 for each row execute function public.set_updated_at();
 
-alter table public.profiles disable row level security;
-alter table public.assets disable row level security;
-alter table public.cases disable row level security;
-alter table public.ai_usage_events disable row level security;
+alter table public.profiles enable row level security;
+alter table public.assets enable row level security;
+alter table public.cases enable row level security;
+alter table public.ai_usage_events enable row level security;
 
 grant usage on schema public to anon, authenticated;
-grant select, insert, update, delete on public.profiles to anon, authenticated;
-grant select, insert, update, delete on public.assets to anon, authenticated;
-grant select, insert, update, delete on public.cases to anon, authenticated;
-grant select, insert on public.ai_usage_events to anon, authenticated;
+revoke all on public.profiles from anon;
+revoke all on public.assets from anon;
+revoke all on public.cases from anon;
+revoke all on public.ai_usage_events from anon;
+grant select, insert, update, delete on public.profiles to authenticated;
+grant select, insert, update, delete on public.assets to authenticated;
+grant select, insert, update, delete on public.cases to authenticated;
+grant select, insert on public.ai_usage_events to authenticated;
+
+drop policy if exists "Users can read own profile" on public.profiles;
+create policy "Users can read own profile"
+on public.profiles for select
+to authenticated
+using (id = auth.uid()::text or auth_user_id = auth.uid());
+
+drop policy if exists "Users can insert own profile" on public.profiles;
+create policy "Users can insert own profile"
+on public.profiles for insert
+to authenticated
+with check (id = auth.uid()::text or auth_user_id = auth.uid());
+
+drop policy if exists "Users can update own profile" on public.profiles;
+create policy "Users can update own profile"
+on public.profiles for update
+to authenticated
+using (id = auth.uid()::text or auth_user_id = auth.uid())
+with check (id = auth.uid()::text or auth_user_id = auth.uid());
+
+drop policy if exists "Users can manage own assets" on public.assets;
+create policy "Users can manage own assets"
+on public.assets for all
+to authenticated
+using (owner_id = auth.uid()::text)
+with check (owner_id = auth.uid()::text);
+
+drop policy if exists "Users can manage own cases" on public.cases;
+create policy "Users can manage own cases"
+on public.cases for all
+to authenticated
+using (owner_id = auth.uid()::text)
+with check (owner_id = auth.uid()::text);
+
+drop policy if exists "Users can read own ai usage" on public.ai_usage_events;
+create policy "Users can read own ai usage"
+on public.ai_usage_events for select
+to authenticated
+using (owner_id = auth.uid()::text);
+
+drop policy if exists "Users can insert own ai usage" on public.ai_usage_events;
+create policy "Users can insert own ai usage"
+on public.ai_usage_events for insert
+to authenticated
+with check (owner_id = auth.uid()::text);
 
 insert into storage.buckets (id, name, public, file_size_limit)
 values ('assets-storage', 'assets-storage', true, 52428800)

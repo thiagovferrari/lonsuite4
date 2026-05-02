@@ -9,7 +9,7 @@ import { saveAttachmentData, getAttachmentData, deleteAttachmentData } from './s
 import { supabase } from './services/supabase';
 import { getStoredUser, storeUser, signOut as authSignOut } from './services/authService';
 import type { AuthUser } from './services/authService';
-import { Plus, Brain, FileText, Image as ImageIcon, Type as TypeIcon, Loader2, ChevronLeft, Trash2, Search, LayoutGrid, RotateCcw, ChevronRight, Briefcase, X, AlertCircle, Stethoscope, Download, Home, Lock, Award, Zap, Copy, CheckCircle2, Maximize2, Minimize2, Sparkles, AlignJustify, LogOut, TrendingUp, Share2, BookOpen, Link2, ExternalLink, Clock, Save } from 'lucide-react';
+import { Plus, Brain, FileText, Image as ImageIcon, Type as TypeIcon, Loader2, ChevronLeft, Trash2, Search, LayoutGrid, RotateCcw, ChevronRight, Briefcase, X, AlertCircle, Stethoscope, Download, Home, Lock, Award, Zap, Copy, CheckCircle2, Maximize2, Minimize2, Sparkles, AlignJustify, LogOut, TrendingUp, Share2, BookOpen, Link2, ExternalLink, Clock, Save, ArrowUp, ArrowDown } from 'lucide-react';
 
 const ASSET_STORAGE_PREFIX = 'lon_assets_';
 const ASSET_BACKUP_PREFIX = 'lon_assets_backup_';
@@ -57,17 +57,7 @@ const mergeAssetSets = (...sets: Asset[][]): Asset[] => {
 };
 
 const readLocalAssetRecovery = (preferredKey: string): Asset[] => {
-  const preferred = parseAssetArray(localStorage.getItem(preferredKey));
-  const candidates: Asset[][] = preferred.length > 0 ? [preferred] : [];
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (!key) continue;
-    if (key.startsWith(ASSET_STORAGE_PREFIX) || key.startsWith(ASSET_BACKUP_PREFIX)) {
-      const value = parseAssetArray(localStorage.getItem(key));
-      if (value.length > 0) candidates.push(value);
-    }
-  }
-  return mergeAssetSets(...candidates);
+  return parseAssetArray(localStorage.getItem(preferredKey));
 };
 
 const safeLocalSet = (key: string, value: string) => {
@@ -234,7 +224,6 @@ const App: React.FC = () => {
       const payload = JSON.stringify(assets);
       safeLocalSet(LOCAL_STORAGE_ASSETS_KEY, payload);
       safeLocalSet(`${ASSET_BACKUP_PREFIX}${ownerId}`, payload);
-      safeLocalSet('lon_assets_last_non_empty', payload);
       lastCloudLoadWasEmptyRef.current = false;
       return;
     }
@@ -250,17 +239,13 @@ const App: React.FC = () => {
   useEffect(() => {
     if (!currentUser) return;
 
-    const loadCloudData = async (scopeOwnerId?: string): Promise<Asset[]> => {
-      const scopedAssetsQuery = scopeOwnerId
-        ? supabase.from('assets').select('*').eq('owner_id', scopeOwnerId).order('created_at', { ascending: false }).limit(1000)
-        : supabase.from('assets').select('*').order('created_at', { ascending: false }).limit(1000);
-      const scopedCasesQuery = scopeOwnerId
-        ? supabase.from('cases').select('*').eq('owner_id', scopeOwnerId).order('created_at', { ascending: false }).limit(1000)
-        : supabase.from('cases').select('*').order('created_at', { ascending: false }).limit(1000);
+    const loadCloudData = async (scopeOwnerId: string): Promise<Asset[]> => {
+      const scopedAssetsQuery = supabase.from('assets').select('*').eq('owner_id', scopeOwnerId).order('created_at', { ascending: false }).limit(1000);
+      const scopedCasesQuery = supabase.from('cases').select('*').eq('owner_id', scopeOwnerId).order('created_at', { ascending: false }).limit(1000);
 
       const [{ data: assetsData, error: assetsError }, { data: casesData, error: casesError }] = await Promise.all([
-        withSupabaseTimeout(scopedAssetsQuery, scopeOwnerId ? 'Leitura dos ativos do usuário no Supabase' : 'Leitura dos ativos do projeto no Supabase'),
-        withSupabaseTimeout(scopedCasesQuery, scopeOwnerId ? 'Leitura dos cases do usuário no Supabase' : 'Leitura dos cases do projeto no Supabase'),
+        withSupabaseTimeout(scopedAssetsQuery, 'Leitura dos ativos do usuário no Supabase'),
+        withSupabaseTimeout(scopedCasesQuery, 'Leitura dos cases do usuário no Supabase'),
       ]);
 
       if (assetsError || casesError) throw assetsError || casesError;
@@ -278,22 +263,11 @@ const App: React.FC = () => {
       if (localSnapshot.length > 0) setAssets(localSnapshot);
 
       try {
-        const scopedAssets = isOfflineUser ? [] : await loadCloudData(ownerId);
-        let mappedAssets = scopedAssets;
-
-        if (mappedAssets.length === 0) {
-          // MCP/test stage recovery: avoid hiding real project data when auth owner_id
-          // differs from the current local session. Replace with tenant RLS on migration.
-          mappedAssets = await loadCloudData();
-          if (mappedAssets.length > 0) {
-            setDataLoadNotice('Acervo recuperado do projeto MCP. Na migração final, estes registros serão vinculados ao usuário definitivo.');
-          }
-        }
+        const mappedAssets = isOfflineUser ? [] : await loadCloudData(ownerId);
 
         if (mappedAssets.length > 0) {
           lastCloudLoadWasEmptyRef.current = false;
           setAssets(mergeAssetSets(mappedAssets, localSnapshot));
-          setDataLoadNotice(prev => prev);
         } else if (localSnapshot.length > 0) {
           lastCloudLoadWasEmptyRef.current = true;
           setAssets(localSnapshot);
@@ -936,6 +910,21 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
     }
   };
 
+  const moveCaseBlock = (blockId: string, direction: 'up' | 'down') => {
+    if (!editingCase?.blocks) return;
+    const currentIndex = editingCase.blocks.findIndex(block => block.id === blockId);
+    const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+    if (currentIndex < 0 || targetIndex < 0 || targetIndex >= editingCase.blocks.length) return;
+
+    const nextBlocks = [...editingCase.blocks];
+    const [movedBlock] = nextBlocks.splice(currentIndex, 1);
+    nextBlocks.splice(targetIndex, 0, movedBlock);
+    syncCase({ ...editingCase, blocks: nextBlocks });
+    window.setTimeout(() => {
+      document.getElementById(blockId)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 80);
+  };
+
   const handleCaseImgUpload = (blockId: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     files.forEach((file: File) => {
@@ -1534,6 +1523,26 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                     </div>
                   );
                 })()}
+                <div className="absolute left-2 top-2 z-10 flex overflow-hidden rounded-full border border-black/[0.06] bg-white/92 shadow-sm backdrop-blur md:-left-14 md:flex-col md:opacity-0 md:transition-opacity md:group-hover:opacity-100">
+                  <button
+                    onClick={() => moveCaseBlock(block.id, 'up')}
+                    disabled={index === 0}
+                    className="flex h-8 w-8 items-center justify-center text-[#8e8e93] transition-colors hover:bg-[#f5f5f7] hover:text-[#1d1d1f] disabled:cursor-not-allowed disabled:opacity-25"
+                    title="Subir bloco"
+                    aria-label="Subir bloco"
+                  >
+                    <ArrowUp size={13} />
+                  </button>
+                  <button
+                    onClick={() => moveCaseBlock(block.id, 'down')}
+                    disabled={index === (editingCase.blocks?.length || 0) - 1}
+                    className="flex h-8 w-8 items-center justify-center border-l border-black/[0.05] text-[#8e8e93] transition-colors hover:bg-[#f5f5f7] hover:text-[#1d1d1f] disabled:cursor-not-allowed disabled:opacity-25 md:border-l-0 md:border-t"
+                    title="Descer bloco"
+                    aria-label="Descer bloco"
+                  >
+                    <ArrowDown size={13} />
+                  </button>
+                </div>
                 <button onClick={() => {
                   const nb = editingCase.blocks?.filter(b => b.id !== block.id);
                   syncCase({ ...editingCase, blocks: nb });
@@ -1876,17 +1885,18 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                   )}
 
                   {slide.kind === 'image' && (
-                    <figure className="grid h-full w-full grid-rows-[minmax(0,1fr)_auto] items-center gap-4">
+                    <figure className={`grid h-full w-full min-h-0 gap-4 ${slide.caption ? 'grid-rows-[minmax(0,1fr)_auto] md:grid-cols-[minmax(0,1.12fr)_minmax(260px,0.58fr)] md:grid-rows-1' : 'grid-cols-1'}`}>
                       <div className="flex min-h-0 items-center justify-center overflow-hidden rounded-[30px] border border-black/[0.06] bg-white p-3 shadow-[0_28px_90px_rgba(0,0,0,0.08)] sm:p-4">
                         <img
                           src={slide.src}
-                          className="max-h-[calc(100vh-230px)] w-full object-contain"
+                          className="max-h-[calc(100vh-214px)] w-full object-contain md:max-h-[calc(100vh-178px)]"
                           alt=""
                         />
                       </div>
                       {slide.caption && (
-                        <figcaption className="mx-auto max-h-[96px] max-w-4xl overflow-y-auto px-2 text-center text-[13px] italic leading-relaxed text-[#6e6e73] sm:text-[15px]">
-                          {slide.caption}
+                        <figcaption className="min-h-0 overflow-y-auto rounded-[26px] border border-black/[0.06] bg-white px-5 py-5 text-[13px] italic leading-relaxed text-[#6e6e73] shadow-[0_18px_54px_rgba(0,0,0,0.06)] sm:text-[15px] md:max-h-full md:px-7 md:py-7">
+                          <span className="mb-4 block text-[9px] font-bold not-italic uppercase tracking-[0.2em] text-[#aeaeb2]">Legenda</span>
+                          <span className="block whitespace-pre-wrap text-justify">{slide.caption}</span>
                         </figcaption>
                       )}
                     </figure>

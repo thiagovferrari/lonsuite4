@@ -116,13 +116,13 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
               Login
             </button>
             <div className="hidden items-center gap-7 text-[11px] font-semibold text-[#6e6e73] md:flex">
-              <span>Ativos</span>
-              <span>Busca semântica</span>
-              <span>Case Builder</span>
-              <span>Planos</span>
+              <a href="#ativos" className="transition-colors hover:text-[#1d1d1f]">Ativos</a>
+              <a href="#busca" className="transition-colors hover:text-[#1d1d1f]">Busca semântica</a>
+              <a href="#case-builder" className="transition-colors hover:text-[#1d1d1f]">Case Builder</a>
+              <a href="#planos" className="transition-colors hover:text-[#1d1d1f]">Planos</a>
             </div>
-            <a href={planMailto('Personal')} className="rounded-full bg-[#1d1d1f] px-4 py-2 text-[12px] font-semibold text-white hover:bg-[#2d2d2f]">
-              Assinar
+            <a href="#planos" className="rounded-full bg-[#1d1d1f] px-4 py-2 text-[12px] font-semibold text-white hover:bg-[#2d2d2f]">
+              Ver planos
             </a>
           </nav>
 
@@ -139,13 +139,10 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
                 A Lon Suite transforma imagens, fotos e documentos em ativos científicos pesquisáveis. O que antes era arquivo esquecido passa a gerar aula, case, apresentação, memória e autoridade.
               </p>
               <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-                <a href={planMailto('Personal')} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#1d1d1f] px-6 py-3 text-[13px] font-semibold text-white shadow-[0_18px_44px_rgba(0,0,0,0.18)] hover:bg-[#2d2d2f]">
-                  Escolher plano
+                <a href="#planos" className="inline-flex items-center justify-center gap-2 rounded-full bg-[#1d1d1f] px-6 py-3 text-[13px] font-semibold text-white shadow-[0_18px_44px_rgba(0,0,0,0.18)] hover:bg-[#2d2d2f]">
+                  Ver planos
                   <ArrowRight size={15} />
                 </a>
-                <button onClick={() => setActiveDemo(0)} className="inline-flex items-center justify-center gap-2 rounded-full border border-black/[0.08] bg-white px-6 py-3 text-[13px] font-semibold text-[#424245] hover:bg-[#f5f5f7]">
-                  Ver o conceito
-                </button>
               </div>
             </div>
 
@@ -183,7 +180,7 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
             </div>
           </div>
 
-          <section className="mt-12 rounded-[36px] bg-[#ededeb] px-4 py-12 sm:px-8 lg:px-10">
+          <section id="planos" className="mt-12 scroll-mt-8 rounded-[36px] bg-[#ededeb] px-4 py-12 sm:px-8 lg:px-10">
             <div className="mx-auto mb-9 max-w-3xl text-center">
               <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Planos</p>
               <h2 className="text-[38px] font-semibold leading-tight tracking-tight sm:text-[56px]">Planos para transformar acervo em presença científica.</h2>
@@ -231,7 +228,7 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
             </div>
           </section>
 
-          <section className="mt-24 grid items-center gap-12 lg:grid-cols-[0.9fr_1.1fr]">
+          <section id="ativos" className="mt-24 scroll-mt-8 grid items-center gap-12 lg:grid-cols-[0.9fr_1.1fr]">
             <div>
               <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">O problema real</p>
               <h2 className="text-[42px] font-semibold leading-tight tracking-tight sm:text-[64px]">Seu acervo científico deve responder na velocidade da sua prática.</h2>
@@ -288,7 +285,7 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
             ))}
           </section>
 
-          <section className="mt-24 overflow-hidden rounded-[38px] bg-[#111113] text-white shadow-[0_40px_120px_rgba(0,0,0,0.25)]">
+          <section id="case-builder" className="mt-24 scroll-mt-8 overflow-hidden rounded-[38px] bg-[#111113] text-white shadow-[0_40px_120px_rgba(0,0,0,0.25)]">
             <div className="grid lg:grid-cols-2">
               <div className="p-8 sm:p-12 lg:p-16">
                 <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.18em] text-white/40">Case Builder</p>
@@ -302,7 +299,16 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
                   <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#86868b]">Case em construção</p>
                   <h3 className="mt-2 text-[30px] font-light tracking-tight">Evolução cirúrgica documentada</h3>
                   <div className="mt-5 grid grid-cols-3 gap-2">
-                    {[0, 1, 2].map(i => <div key={i} className="h-28 rounded-[18px] bg-[linear-gradient(135deg,#d8dde2,#f7f2ea_48%,#aeb8bf)]" />)}
+                    {[
+                      { Icon: Images, label: 'Imagem' },
+                      { Icon: FileText, label: 'Texto' },
+                      { Icon: Presentation, label: 'Slide' },
+                    ].map(({ Icon, label }) => (
+                      <div key={label} className="flex h-28 flex-col items-center justify-center rounded-[18px] bg-[linear-gradient(135deg,#d8dde2,#f7f2ea_48%,#aeb8bf)] text-[#1d1d1f]/58">
+                        <Icon size={22} strokeWidth={1.4} />
+                        <span className="mt-2 text-[8px] font-bold uppercase tracking-[0.16em]">{label}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
                 <div className="plans-product-stack absolute bottom-12 right-8 w-[60%] rounded-[28px] border border-white/[0.10] bg-white/[0.10] p-5 backdrop-blur-xl">
@@ -313,7 +319,7 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
             </div>
           </section>
 
-          <section className="mt-24 grid gap-5 lg:grid-cols-3">
+          <section id="busca" className="mt-24 scroll-mt-8 grid gap-5 lg:grid-cols-3">
             {[
               { icon: Search, title: 'Busca semântica como diferencial', body: 'A busca não depende só do nome do arquivo. Ela entende contexto, tema, técnica, achado e intenção.' },
               { icon: Brain, title: 'Ativos com inteligência', body: 'Cada imagem e documento ganha metadados úteis, tags, resumo e lugar dentro da produção científica.' },
@@ -600,7 +606,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
                 <img
                   src="/assets/lon-suite-login-doctors-editorial.png"
                   alt="Médicos pesquisadores representando a Lon Suite"
-                  className="h-full w-full object-contain object-center"
+                  className="h-full w-full object-cover object-center"
                 />
                 <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(16,17,20,0.16)_0%,rgba(16,17,20,0)_30%,rgba(16,17,20,0.06)_100%)]" />
               </div>
