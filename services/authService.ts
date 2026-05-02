@@ -4,6 +4,8 @@ export interface AuthUser {
   id: string;
   name: string;
   email: string;
+  specialty?: string;
+  avatarUrl?: string;
 }
 
 const AUTH_KEY = 'lon_suite_auth_v1';
@@ -36,6 +38,9 @@ export function getStoredUser(): AuthUser | null {
 
 export function storeUser(user: AuthUser): void {
   localStorage.setItem(AUTH_KEY, JSON.stringify(user));
+  if (!user.id.startsWith(OFFLINE_AUTH_PREFIX)) {
+    localStorage.setItem(LAST_ONLINE_AUTH_KEY, JSON.stringify(user));
+  }
 }
 
 function storeLastOnlineUser(user: AuthUser): void {
@@ -106,12 +111,29 @@ export async function signIn(email: string, password: string): Promise<AuthUser>
     email: data.user.email ?? email,
   };
 
+  try {
+    const { data: profile } = await withTimeout(
+      supabase.from('profiles').select('name,email,specialty,avatar_url').eq('id', authUser.id).maybeSingle(),
+      'Perfil demorou para carregar.',
+    );
+    if (profile) {
+      authUser.name = typeof profile.name === 'string' && profile.name.trim() ? profile.name : authUser.name;
+      authUser.email = typeof profile.email === 'string' && profile.email.trim() ? profile.email : authUser.email;
+      authUser.specialty = typeof profile.specialty === 'string' ? profile.specialty : undefined;
+      authUser.avatarUrl = typeof profile.avatar_url === 'string' ? profile.avatar_url : undefined;
+    }
+  } catch (error) {
+    console.warn('[Lon Suite] Perfil não carregado no login:', error);
+  }
+
   withTimeout(
     supabase.from('profiles').upsert({
       id: authUser.id,
       auth_user_id: data.user.id,
       name: authUser.name,
       email: authUser.email,
+      specialty: authUser.specialty,
+      avatar_url: authUser.avatarUrl,
     }),
     'Perfil demorou para sincronizar.',
   ).catch(error => {

@@ -9,6 +9,7 @@ create table if not exists public.profiles (
   name text not null,
   email text unique not null,
   role text not null default 'user',
+  specialty text,
   avatar_url text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()

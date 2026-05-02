@@ -9,7 +9,7 @@ import { saveAttachmentData, getAttachmentData, deleteAttachmentData } from './s
 import { supabase } from './services/supabase';
 import { getStoredUser, storeUser, signOut as authSignOut } from './services/authService';
 import type { AuthUser } from './services/authService';
-import { Plus, Brain, FileText, Image as ImageIcon, Type as TypeIcon, Loader2, ChevronLeft, Trash2, Search, LayoutGrid, RotateCcw, ChevronRight, Briefcase, X, AlertCircle, Stethoscope, Download, Home, Lock, Award, Zap, Copy, CheckCircle2, Maximize2, Minimize2, Sparkles, AlignJustify, LogOut, TrendingUp, Share2, BookOpen, Link2, ExternalLink, Heading2, Clock, Save } from 'lucide-react';
+import { Plus, Brain, FileText, Image as ImageIcon, Type as TypeIcon, Loader2, ChevronLeft, Trash2, Search, LayoutGrid, RotateCcw, ChevronRight, Briefcase, X, AlertCircle, Stethoscope, Download, Home, Lock, Award, Zap, Copy, CheckCircle2, Maximize2, Minimize2, Sparkles, AlignJustify, LogOut, TrendingUp, Share2, BookOpen, Link2, ExternalLink, Clock, Save } from 'lucide-react';
 
 const ASSET_STORAGE_PREFIX = 'lon_assets_';
 const ASSET_BACKUP_PREFIX = 'lon_assets_backup_';
@@ -174,7 +174,7 @@ const App: React.FC = () => {
 
   // Cases view mode
   const [caseViewMode, setCaseViewMode] = useState<'list' | 'grid'>('list');
-  const [assetTileSize, setAssetTileSize] = useState<'small' | 'medium' | 'large'>('medium');
+  const [assetTileSize, setAssetTileSize] = useState<'small' | 'medium' | 'large'>('small');
   const [dataLoadNotice, setDataLoadNotice] = useState<string | null>(null);
 
   // Confirmation Dialog State
@@ -187,6 +187,11 @@ const App: React.FC = () => {
 
   // Auth
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => getStoredUser());
+  const [profileDraft, setProfileDraft] = useState({
+    name: currentUser?.name || '',
+    specialty: currentUser?.specialty || '',
+    avatarUrl: currentUser?.avatarUrl || '',
+  });
 
   // Derived owner helpers
   const ownerId  = currentUser?.id  ?? 'guest';
@@ -212,6 +217,14 @@ const App: React.FC = () => {
   };
 
   const LOCAL_STORAGE_ASSETS_KEY = `lon_assets_${ownerId}`;
+
+  useEffect(() => {
+    setProfileDraft({
+      name: currentUser?.name || '',
+      specialty: currentUser?.specialty || '',
+      avatarUrl: currentUser?.avatarUrl || '',
+    });
+  }, [currentUser]);
 
   // Persist assets to localStorage whenever they change
   useEffect(() => {
@@ -1550,8 +1563,8 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
             <button onClick={() => addBlock('title')} className="p-2.5 md:p-3 hover:bg-[#f2f3f5] rounded-[10px] text-[#8e8e93] hover:text-[#1d1d1f] transition-all" title="Adicionar título">
               <TypeIcon size={17} />
             </button>
-            <button onClick={() => addBlock('subtitle')} className="p-2.5 md:p-3 hover:bg-[#f2f3f5] rounded-[10px] text-[#8e8e93] hover:text-[#1d1d1f] transition-all" title="Adicionar subtítulo (H2)">
-              <Heading2 size={17} />
+            <button onClick={() => addBlock('subtitle')} className="flex h-[38px] min-w-[38px] items-center justify-center rounded-[10px] px-2 text-[14px] font-semibold text-[#8e8e93] transition-all hover:bg-[#f2f3f5] hover:text-[#1d1d1f] md:h-[42px] md:min-w-[42px]" title="Adicionar subtítulo (T²)">
+              T<sup className="-ml-0.5 text-[9px]">2</sup>
             </button>
             <button onClick={() => addBlock('text')} className="p-2.5 md:p-3 hover:bg-[#f2f3f5] rounded-[10px] text-[#8e8e93] hover:text-[#1d1d1f] transition-all" title="Adicionar texto">
               <FileText size={17} />
@@ -1754,142 +1767,197 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
 
         {/* Presentation Mode Overlay */}
         {presentationMode && editingCase && (() => {
-          const blocks = (editingCase.blocks || []).filter(b => b.content || b.type === 'image' || b.assetId);
-          const block = blocks[presentationBlockIdx];
-          const total = blocks.length;
-          if (!block) return null;
+          type PresentationSlide =
+            | { kind: 'story'; id: string; title?: string; subtitle?: string; texts: string[] }
+            | { kind: 'image'; id: string; src: string; caption?: string }
+            | { kind: 'asset'; id: string; asset: Asset }
+            | { kind: 'reference'; id: string; content: string };
 
-          const entries = block.type === 'image' && block.content ? block.content.split('|||').filter(Boolean) : [];
-          const imageEntries = entries.map(entry => {
-            const [src, caption] = entry.split('###');
-            return { src, caption };
-          }).filter(entry => entry.src);
-          const linkedAsset = block.type === 'asset' ? activeAssets.find(a => a.id === block.assetId) : null;
-          const progress = total > 0 ? ((presentationBlockIdx + 1) / total) * 100 : 0;
+          const sourceBlocks = (editingCase.blocks || []).filter(b => {
+            if (b.type === 'image' || b.type === 'asset') return Boolean(b.content || b.assetId);
+            return Boolean(b.content?.trim());
+          });
+          const slides: PresentationSlide[] = [];
+          let story: Extract<PresentationSlide, { kind: 'story' }> | null = null;
+
+          const flushStory = () => {
+            if (story && (story.title || story.subtitle || story.texts.length > 0)) slides.push(story);
+            story = null;
+          };
+
+          sourceBlocks.forEach(block => {
+            if (block.type === 'title') {
+              flushStory();
+              story = { kind: 'story', id: block.id, title: block.content, texts: [] };
+              return;
+            }
+            if (block.type === 'subtitle') {
+              if (!story) story = { kind: 'story', id: block.id, texts: [] };
+              else if (story.subtitle || story.texts.length > 0) {
+                flushStory();
+                story = { kind: 'story', id: block.id, texts: [] };
+              }
+              story.subtitle = block.content;
+              return;
+            }
+            if (block.type === 'text') {
+              if (!story) story = { kind: 'story', id: block.id, texts: [] };
+              if (story.texts.join('\n').length > 900) {
+                flushStory();
+                story = { kind: 'story', id: block.id, texts: [] };
+              }
+              story.texts.push(block.content);
+              return;
+            }
+            flushStory();
+            if (block.type === 'image' && block.content) {
+              block.content.split('|||').filter(Boolean).forEach((entry, index) => {
+                const [src, caption] = entry.split('###');
+                if (src) slides.push({ kind: 'image', id: `${block.id}-${index}`, src, caption });
+              });
+              return;
+            }
+            if (block.type === 'asset' && block.assetId) {
+              const asset = activeAssets.find(a => a.id === block.assetId);
+              if (asset) slides.push({ kind: 'asset', id: block.id, asset });
+              return;
+            }
+            if (block.type === 'reference') slides.push({ kind: 'reference', id: block.id, content: block.content });
+          });
+          flushStory();
+
+          const total = slides.length;
+          if (total === 0) return null;
+          const currentSlideIndex = Math.min(presentationBlockIdx, total - 1);
+          const slide = slides[currentSlideIndex];
+          const progress = total > 0 ? ((currentSlideIndex + 1) / total) * 100 : 0;
 
           return (
-            <div className="fixed inset-0 z-[900] bg-[#07080a] text-white flex flex-col animate-fade-in">
+            <div className="fixed inset-0 z-[900] bg-[#f4f4f2] text-[#1d1d1f] flex flex-col animate-fade-in">
               {/* Top bar */}
-              <div className="relative flex items-center justify-between px-5 sm:px-8 py-4 border-b border-white/[0.08] bg-white/[0.03] backdrop-blur-xl">
-                <div className="absolute left-0 bottom-0 h-px bg-white transition-all duration-300" style={{ width: `${progress}%` }} />
+              <div className="relative flex items-center justify-between px-5 sm:px-8 py-3.5 border-b border-black/[0.06] bg-white/82 backdrop-blur-xl">
+                <div className="absolute left-0 bottom-0 h-px bg-[#1d1d1f] transition-all duration-300" style={{ width: `${progress}%` }} />
                 <div className="min-w-0">
-                  <p className="text-white/35 text-[9px] sm:text-[10px] font-bold tracking-[0.18em] uppercase">Lon Suite · Apresentação</p>
-                  <p className="max-w-[58vw] truncate text-white/70 text-[12px] sm:text-[13px] font-medium mt-0.5">{editingCase.title || 'Case científico'}</p>
+                  <p className="text-[#86868b] text-[9px] sm:text-[10px] font-bold tracking-[0.18em] uppercase">Lon Suite · Apresentação</p>
+                  <p className="max-w-[58vw] truncate text-[#1d1d1f] text-[12px] sm:text-[13px] font-semibold mt-0.5">{editingCase.title || 'Case científico'}</p>
                 </div>
                 <div className="flex items-center gap-2 sm:gap-4">
-                  <span className="text-white/45 text-[11px] tabular-nums">{presentationBlockIdx + 1} / {total}</span>
-                  <button onClick={() => setPresentationMode(false)} aria-label="Fechar apresentação" className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all active:scale-95">
+                  <span className="text-[#86868b] text-[11px] tabular-nums">{currentSlideIndex + 1} / {total}</span>
+                  <button onClick={() => setPresentationMode(false)} aria-label="Fechar apresentação" className="w-9 h-9 rounded-full bg-[#1d1d1f] hover:bg-[#333] flex items-center justify-center transition-all active:scale-95">
                     <X size={14} className="text-white" />
                   </button>
                 </div>
               </div>
 
               {/* Slide content */}
-              <div className="flex-1 flex items-center justify-center px-5 sm:px-10 py-8 sm:py-12 overflow-hidden">
-                {block.type === 'title' && (
-                  <div className="w-full max-w-5xl text-center">
-                    <div className="mx-auto mb-8 h-px w-24 bg-white/20" />
-                    <h1 className="text-4xl sm:text-6xl md:text-7xl font-extralight tracking-tight leading-[1.04]">
-                      {block.content || <span className="opacity-30">Sem título</span>}
-                    </h1>
-                    <p className="mt-8 text-[11px] font-semibold tracking-[0.18em] uppercase text-white/35">{editingCase.ownerName || ownerName || 'Lon Suite'}</p>
-                  </div>
-                )}
-                {block.type === 'subtitle' && (
-                  <div className="max-w-4xl text-center">
-                    <p className="mb-5 text-[10px] font-bold tracking-[0.2em] uppercase text-white/30">Seção</p>
-                    <h2 className="text-3xl sm:text-5xl md:text-6xl font-light text-white/90 tracking-tight leading-tight">
-                      {block.content}
-                    </h2>
-                  </div>
-                )}
-                {block.type === 'text' && (
-                  <div className="w-full max-w-4xl rounded-[28px] border border-white/[0.08] bg-white/[0.04] px-6 py-7 sm:px-10 sm:py-9 shadow-[0_30px_100px_rgba(0,0,0,0.35)]">
-                    <p className="text-[20px] sm:text-2xl md:text-3xl font-light text-white/82 leading-relaxed text-center whitespace-pre-wrap">
-                      {block.content}
-                    </p>
-                  </div>
-                )}
-                {block.type === 'image' && imageEntries.length > 0 && (
-                  <div className="w-full max-w-6xl max-h-full">
-                    <div className={`grid gap-4 ${imageEntries.length === 1 ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'}`}>
-                      {imageEntries.slice(0, 4).map((entry, idx) => (
-                        <figure key={`${entry.src}-${idx}`} className="flex min-h-0 flex-col items-center gap-3">
-                          <img
-                            src={entry.src}
-                            className="max-h-[62vh] w-full object-contain rounded-[22px] border border-white/[0.08] bg-black/30 shadow-[0_28px_80px_rgba(0,0,0,0.45)]"
-                            alt=""
-                          />
-                          {entry.caption && (
-                            <figcaption className="max-w-3xl text-center text-[12px] sm:text-[13px] italic text-white/48 leading-relaxed">{entry.caption}</figcaption>
-                          )}
-                        </figure>
-                      ))}
-                    </div>
-                    {imageEntries.length > 4 && (
-                      <p className="mt-4 text-center text-[11px] text-white/35">+{imageEntries.length - 4} imagens neste bloco</p>
-                    )}
-                  </div>
-                )}
-                {block.type === 'asset' && linkedAsset && (
-                  <div className="grid w-full max-w-5xl items-center gap-7 md:grid-cols-[0.95fr_1.05fr]">
-                    <div className="aspect-[4/3] overflow-hidden rounded-[28px] border border-white/[0.08] bg-white/[0.04] shadow-[0_28px_90px_rgba(0,0,0,0.45)]">
-                      {linkedAsset.thumbnail && linkedAsset.type !== 'pdf' ? (
-                        <img src={linkedAsset.thumbnail} className="h-full w-full object-cover" alt="" />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center">
-                          <BookOpen size={52} className="text-white/35" />
-                        </div>
+              <div className="flex-1 overflow-hidden px-4 py-5 sm:px-8 sm:py-8">
+                <div className="mx-auto flex h-full max-w-6xl items-center justify-center">
+                  {slide.kind === 'story' && (
+                    <section className="w-full max-h-full overflow-y-auto rounded-[30px] border border-black/[0.06] bg-white px-6 py-7 shadow-[0_28px_90px_rgba(0,0,0,0.08)] sm:px-10 sm:py-9 md:px-14 md:py-12">
+                      {slide.title && (
+                        <h1 className="max-w-5xl text-[clamp(32px,5.8vw,76px)] font-extralight leading-[1.02] tracking-tight text-[#111113]">
+                          {slide.title}
+                        </h1>
                       )}
-                    </div>
-                    <div>
-                      <p className="mb-4 text-[10px] font-bold tracking-[0.2em] uppercase text-white/35">Ativo vinculado</p>
-                      <h2 className="text-3xl sm:text-5xl font-light tracking-tight leading-tight">{linkedAsset.title}</h2>
-                      {linkedAsset.summary && (
-                        <p className="mt-6 text-lg sm:text-xl font-light leading-relaxed text-white/62">{linkedAsset.summary}</p>
+                      {slide.subtitle && (
+                        <h2 className={`${slide.title ? 'mt-5' : ''} max-w-4xl text-[clamp(22px,3vw,38px)] font-light leading-tight tracking-tight text-[#424245]`}>
+                          {slide.subtitle}
+                        </h2>
                       )}
-                      {(linkedAsset.tags || []).length > 0 && (
-                        <div className="mt-7 flex flex-wrap gap-2">
-                          {(linkedAsset.tags || []).slice(0, 5).map(tag => (
-                            <span key={tag} className="rounded-full border border-white/[0.08] bg-white/[0.06] px-3 py-1 text-[11px] font-semibold text-white/60">{tag}</span>
+                      {slide.texts.length > 0 && (
+                        <div className="mt-7 max-w-4xl space-y-4 text-[clamp(15px,1.7vw,22px)] font-light leading-relaxed text-[#424245]">
+                          {slide.texts.map((text, index) => (
+                            <p key={index} className="whitespace-pre-wrap text-justify">{text}</p>
                           ))}
                         </div>
                       )}
+                      <p className="mt-8 text-[10px] font-bold uppercase tracking-[0.2em] text-[#aeaeb2]">{editingCase.ownerName || ownerName || 'Lon Suite'}</p>
+                    </section>
+                  )}
+
+                  {slide.kind === 'image' && (
+                    <figure className="grid h-full w-full grid-rows-[minmax(0,1fr)_auto] items-center gap-4">
+                      <div className="flex min-h-0 items-center justify-center overflow-hidden rounded-[30px] border border-black/[0.06] bg-white p-3 shadow-[0_28px_90px_rgba(0,0,0,0.08)] sm:p-4">
+                        <img
+                          src={slide.src}
+                          className="max-h-[calc(100vh-230px)] w-full object-contain"
+                          alt=""
+                        />
+                      </div>
+                      {slide.caption && (
+                        <figcaption className="mx-auto max-h-[96px] max-w-4xl overflow-y-auto px-2 text-center text-[13px] italic leading-relaxed text-[#6e6e73] sm:text-[15px]">
+                          {slide.caption}
+                        </figcaption>
+                      )}
+                    </figure>
+                  )}
+
+                  {slide.kind === 'asset' && (
+                    <div className="grid w-full max-h-full items-center gap-6 overflow-y-auto rounded-[30px] border border-black/[0.06] bg-white p-5 shadow-[0_28px_90px_rgba(0,0,0,0.08)] md:grid-cols-[0.95fr_1.05fr] md:p-8">
+                      <div className="aspect-[4/3] overflow-hidden rounded-[24px] border border-black/[0.06] bg-[#f5f5f7]">
+                        {(slide.asset.thumbnail || slide.asset.content) && slide.asset.type !== 'pdf' ? (
+                          <img src={(slide.asset.thumbnail || slide.asset.content) as string} className="h-full w-full object-contain" alt="" />
+                        ) : slide.asset.type === 'pdf' ? (
+                          <div className="flex h-full w-full flex-col items-center justify-center gap-3 text-[#d92d20]">
+                            <FileText size={56} strokeWidth={1.2} />
+                            <span className="text-[10px] font-bold uppercase tracking-[0.18em]">PDF</span>
+                          </div>
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center">
+                            <BookOpen size={52} className="text-[#aeaeb2]" />
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <p className="mb-4 text-[10px] font-bold tracking-[0.2em] uppercase text-[#86868b]">Ativo vinculado</p>
+                        <h2 className="text-[clamp(28px,4vw,54px)] font-light tracking-tight leading-tight">{slide.asset.title}</h2>
+                        {slide.asset.summary && (
+                          <p className="mt-6 text-[16px] sm:text-xl font-light leading-relaxed text-[#6e6e73]">{slide.asset.summary}</p>
+                        )}
+                        {(slide.asset.tags || []).length > 0 && (
+                          <div className="mt-7 flex flex-wrap gap-2">
+                            {(slide.asset.tags || []).slice(0, 5).map(tag => (
+                              <span key={tag} className="rounded-full border border-black/[0.06] bg-[#f5f5f7] px-3 py-1 text-[11px] font-semibold text-[#6e6e73]">{tag}</span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
-                {block.type === 'reference' && (
-                  <div className="max-w-3xl rounded-[28px] border border-white/[0.08] bg-white/[0.035] p-8 sm:p-10">
-                    <p className="mb-4 text-[10px] font-bold tracking-[0.2em] uppercase text-white/30">Referência</p>
-                    <p className="text-lg sm:text-2xl italic text-white/62 leading-relaxed">{block.content}</p>
-                  </div>
-                )}
+                  )}
+
+                  {slide.kind === 'reference' && (
+                    <div className="max-h-full max-w-3xl overflow-y-auto rounded-[28px] border border-black/[0.06] bg-white p-8 shadow-[0_28px_90px_rgba(0,0,0,0.08)] sm:p-10">
+                      <p className="mb-4 text-[10px] font-bold tracking-[0.2em] uppercase text-[#86868b]">Referência</p>
+                      <p className="text-lg sm:text-2xl italic text-[#6e6e73] leading-relaxed">{slide.content}</p>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Navigation */}
-              <div className="flex items-center justify-center gap-4 px-5 pb-6 sm:pb-8">
+              <div className="flex items-center justify-center gap-4 px-5 pb-5 sm:pb-7">
                 <button
                   onClick={() => setPresentationBlockIdx(i => Math.max(0, i - 1))}
-                  disabled={presentationBlockIdx === 0}
+                  disabled={currentSlideIndex === 0}
                   aria-label="Slide anterior"
-                  className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 disabled:opacity-20 flex items-center justify-center transition-all active:scale-95"
+                  className="w-11 h-11 rounded-full bg-white border border-black/[0.06] hover:bg-[#f5f5f7] disabled:opacity-30 flex items-center justify-center transition-all active:scale-95 shadow-sm"
                 >
-                  <ChevronLeft size={20} className="text-white" />
+                  <ChevronLeft size={19} className="text-[#1d1d1f]" />
                 </button>
                 <div className="flex max-w-[55vw] gap-1.5 overflow-hidden">
-                  {blocks.map((_, i) => (
-                    <button key={i} onClick={() => setPresentationBlockIdx(i)}
+                  {slides.map((item, i) => (
+                    <button key={item.id} onClick={() => setPresentationBlockIdx(i)}
                       aria-label={`Ir para slide ${i + 1}`}
-                      className={`rounded-full transition-all ${i === presentationBlockIdx ? 'w-6 h-2 bg-white' : 'w-2 h-2 bg-white/25 hover:bg-white/50'}`} />
+                      className={`rounded-full transition-all ${i === currentSlideIndex ? 'w-6 h-2 bg-[#1d1d1f]' : 'w-2 h-2 bg-black/20 hover:bg-black/40'}`} />
                   ))}
                 </div>
                 <button
                   onClick={() => setPresentationBlockIdx(i => Math.min(total - 1, i + 1))}
-                  disabled={presentationBlockIdx === total - 1}
+                  disabled={currentSlideIndex === total - 1}
                   aria-label="Próximo slide"
-                  className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 disabled:opacity-20 flex items-center justify-center transition-all active:scale-95"
+                  className="w-11 h-11 rounded-full bg-white border border-black/[0.06] hover:bg-[#f5f5f7] disabled:opacity-30 flex items-center justify-center transition-all active:scale-95 shadow-sm"
                 >
-                  <ChevronRight size={20} className="text-white" />
+                  <ChevronRight size={19} className="text-[#1d1d1f]" />
                 </button>
               </div>
             </div>
@@ -1921,19 +1989,85 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
     setAssets([]);
   };
 
+  const handleProfileAvatarSelected = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    event.target.value = '';
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = typeof reader.result === 'string' ? reader.result : '';
+      const img = new Image();
+      img.onload = () => {
+        const size = 360;
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          setProfileDraft(prev => ({ ...prev, avatarUrl: result }));
+          return;
+        }
+        const scale = Math.max(size / img.width, size / img.height);
+        const width = img.width * scale;
+        const height = img.height * scale;
+        ctx.drawImage(img, (size - width) / 2, (size - height) / 2, width, height);
+        setProfileDraft(prev => ({ ...prev, avatarUrl: canvas.toDataURL('image/jpeg', 0.82) }));
+      };
+      img.onerror = () => setProfileDraft(prev => ({ ...prev, avatarUrl: result }));
+      img.src = result;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSaveProfile = async () => {
+    if (!currentUser) return;
+    const updatedUser: AuthUser = {
+      ...currentUser,
+      name: profileDraft.name.trim() || currentUser.email.split('@')[0],
+      specialty: profileDraft.specialty.trim(),
+      avatarUrl: profileDraft.avatarUrl,
+    };
+
+    storeUser(updatedUser);
+    setCurrentUser(updatedUser);
+
+    if (!updatedUser.id.startsWith('offline:')) {
+      const authUserId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(updatedUser.id)
+        ? updatedUser.id
+        : null;
+      withSupabaseTimeout(
+        supabase.from('profiles').upsert({
+          id: updatedUser.id,
+          auth_user_id: authUserId,
+          name: updatedUser.name,
+          email: updatedUser.email,
+          specialty: updatedUser.specialty,
+          avatar_url: updatedUser.avatarUrl,
+        }),
+        'Atualização do perfil no Supabase',
+      ).catch(error => console.warn('[Lon Suite] Perfil não sincronizado:', error));
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#fafbfc] text-[#1d1d1f] font-sans pb-20 md:pb-0 md:pl-[80px] transition-all duration-300">
       <Sidebar currentView={view} setView={(v) => { setSelectedAsset(null); setEditingCase(null); setNewAssetId(null); setView(v); }} trashCount={trashedAssets.length} />
 
-      <div className="sticky top-0 z-[210] flex justify-end px-4 pt-4 md:px-6 md:pt-5">
-        <div className="flex max-w-full items-center gap-1.5 rounded-[18px] border border-black/[0.06] bg-white/90 px-2 py-2 shadow-[0_10px_32px_rgba(0,0,0,0.08)] backdrop-blur-xl">
-          <div className="flex min-w-0 items-center gap-2 pl-2 pr-1">
-            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#1d1d1f] text-[10px] font-semibold text-white">
-              {(ownerName || currentUser.email || '?').charAt(0).toUpperCase()}
+      <div className="sticky top-0 z-[210] flex justify-end px-4 pt-3 md:px-6 md:pt-4">
+        <div className="flex max-w-full items-center gap-1 rounded-full border border-black/[0.055] bg-white/86 px-1.5 py-1.5 shadow-[0_8px_28px_rgba(0,0,0,0.07)] backdrop-blur-xl">
+          <div className="flex min-w-0 items-center gap-2 pl-1.5 pr-1">
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#1d1d1f] text-[10px] font-semibold text-white ring-1 ring-black/[0.04]">
+              {currentUser.avatarUrl ? (
+                <img src={currentUser.avatarUrl} alt="" className="h-full w-full object-cover" />
+              ) : (
+                (ownerName || currentUser.email || '?').charAt(0).toUpperCase()
+              )}
             </div>
-            <span className="max-w-[138px] truncate text-[12px] font-medium text-[#424245] sm:max-w-[220px] md:max-w-[280px]">
-              {currentUser.email}
-            </span>
+            <div className="hidden min-w-0 sm:block">
+              <p className="max-w-[180px] truncate text-[11px] font-semibold leading-tight text-[#1d1d1f] md:max-w-[240px]">{ownerName || currentUser.email}</p>
+              <p className="max-w-[180px] truncate text-[9px] leading-tight text-[#aeaeb2] md:max-w-[240px]">{currentUser.specialty || currentUser.email}</p>
+            </div>
           </div>
           <button
             onClick={() => openConfirmDialog({
@@ -1943,9 +2077,9 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
             })}
             aria-label="Sair da conta"
             title="Sair da conta"
-            className="flex h-8 w-8 items-center justify-center rounded-[12px] text-[#86868b] transition-all hover:bg-[#f5f5f7] hover:text-[#ff3b30] active:scale-95"
+            className="flex h-7 w-7 items-center justify-center rounded-full text-[#86868b] transition-all hover:bg-[#f5f5f7] hover:text-[#ff3b30] active:scale-95"
           >
-            <LogOut size={15} />
+            <LogOut size={13} />
           </button>
         </div>
       </div>
@@ -2661,24 +2795,50 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
 
                 {/* Identity */}
                 <div className="mb-6">
-                  <div className="bg-white rounded-apple-xl p-5 border border-black/[0.06] shadow-apple flex items-center justify-between gap-4">
+                  <SL>Perfil</SL>
+                  <div className="bg-white rounded-apple-xl p-5 border border-black/[0.06] shadow-apple">
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-full bg-[#1d1d1f] flex items-center justify-center text-white text-[14px] font-bold shrink-0">
-                        {(ownerName || '?').charAt(0).toUpperCase()}
-                      </div>
-                      <div>
-                        <p className="text-[14px] font-semibold text-[#1d1d1f]">{ownerName || 'Usuário'}</p>
-                        <p className="text-[10px] text-[#aeaeb2]">{currentUser?.email}</p>
+                      <label className="group relative h-14 w-14 shrink-0 cursor-pointer overflow-hidden rounded-full bg-[#1d1d1f] text-white ring-1 ring-black/[0.06]">
+                        {profileDraft.avatarUrl ? (
+                          <img src={profileDraft.avatarUrl} alt="" className="h-full w-full object-cover" />
+                        ) : (
+                          <span className="flex h-full w-full items-center justify-center text-[18px] font-semibold">
+                            {(profileDraft.name || ownerName || currentUser.email || '?').charAt(0).toUpperCase()}
+                          </span>
+                        )}
+                        <span className="absolute inset-0 flex items-center justify-center bg-black/40 text-[8px] font-bold uppercase tracking-[0.12em] opacity-0 transition-opacity group-hover:opacity-100">Foto</span>
+                        <input type="file" accept="image/*" className="hidden" onChange={handleProfileAvatarSelected} />
+                      </label>
+
+                      <div className="min-w-0 flex-1 space-y-3">
+                        <div>
+                          <label className="mb-1 block text-[9px] font-bold uppercase tracking-[0.18em] text-[#aeaeb2]">Nome</label>
+                          <input
+                            value={profileDraft.name}
+                            onChange={e => setProfileDraft(prev => ({ ...prev, name: e.target.value }))}
+                            placeholder="Seu nome profissional"
+                            className="w-full rounded-[12px] border border-black/[0.06] bg-[#fafafa] px-3 py-2 text-[13px] font-medium text-[#1d1d1f] outline-none transition-all placeholder:text-[#c7c7cc] focus:border-[#1d1d1f]/20 focus:bg-white"
+                          />
+                        </div>
+                        <div>
+                          <label className="mb-1 block text-[9px] font-bold uppercase tracking-[0.18em] text-[#aeaeb2]">Área de atuação</label>
+                          <input
+                            value={profileDraft.specialty}
+                            onChange={e => setProfileDraft(prev => ({ ...prev, specialty: e.target.value }))}
+                            placeholder="Ex: Cirurgia vascular, cardiologia..."
+                            className="w-full rounded-[12px] border border-black/[0.06] bg-[#fafafa] px-3 py-2 text-[13px] font-medium text-[#1d1d1f] outline-none transition-all placeholder:text-[#c7c7cc] focus:border-[#1d1d1f]/20 focus:bg-white"
+                          />
+                        </div>
                       </div>
                     </div>
-                    <button onClick={() => openConfirmDialog({
-                      title: 'Sair da conta?',
-                      message: 'Você será redirecionado para a tela de login.',
-                      onConfirm: handleLogout,
-                    })} className="flex items-center gap-1.5 px-3 py-1.5 rounded-apple text-[11px] font-medium text-[#86868b] hover:text-[#ff3b30] hover:bg-red-50 transition-all">
-                      <LogOut size={13} />
-                      Sair
-                    </button>
+
+                    <div className="mt-4 flex items-center justify-between gap-3 border-t border-black/[0.04] pt-4">
+                      <p className="min-w-0 truncate text-[10px] text-[#aeaeb2]">{currentUser?.email}</p>
+                      <button onClick={handleSaveProfile} className="flex shrink-0 items-center gap-1.5 rounded-full bg-[#1d1d1f] px-4 py-2 text-[10px] font-bold uppercase tracking-[0.14em] text-white transition-all hover:bg-[#333] active:scale-95">
+                        <Save size={12} />
+                        Salvar
+                      </button>
+                    </div>
                   </div>
                 </div>
 

@@ -598,8 +598,8 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
             <div className="relative min-h-[600px] xl:min-h-[650px]">
               <div className="absolute inset-x-0 top-0 h-[540px] overflow-hidden rounded-[36px] bg-[#f6f5f2] shadow-[0_34px_120px_rgba(0,0,0,0.34)] xl:h-[590px]">
                 <img
-                  src="/assets/lon-suite-physician-female-editorial.jpg"
-                  alt="Médica pesquisadora representando a Lon Suite"
+                  src="/assets/lon-suite-login-doctors-editorial.png"
+                  alt="Médicos pesquisadores representando a Lon Suite"
                   className="h-full w-full object-contain object-center"
                 />
                 <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(16,17,20,0.16)_0%,rgba(16,17,20,0)_30%,rgba(16,17,20,0.06)_100%)]" />
