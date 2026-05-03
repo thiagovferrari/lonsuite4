@@ -802,7 +802,6 @@ const App: React.FC = () => {
 
   const handleSaveAsset = (updatedAsset: Asset) => {
     setAssets(prev => prev.map(a => a.id === updatedAsset.id ? { ...updatedAsset, updatedAt: new Date().toISOString() } : a));
-    showAppToast('Alterações do ativo salvas.');
   };
 
   // Create New Case
@@ -850,7 +849,6 @@ const App: React.FC = () => {
     syncToCloud(withTimestamp);
     setSaveStatus('saved');
     setTimeout(() => setSaveStatus('idle'), 1800);
-    showAppToast('Case salvo.');
   };
 
   // Close editor and auto-generate semantic tags in background
@@ -1715,7 +1713,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
           </div>
 
           {/* Floating toolbar */}
-          <div className="fixed bottom-[88px] md:bottom-6 left-1/2 z-[150] flex max-w-[95vw] -translate-x-1/2 items-center gap-1.5 overflow-x-auto rounded-apple-xl border border-black/[0.04] bg-white px-3 py-3 shadow-apple-lg no-scrollbar md:gap-2 md:px-4 md:py-3.5">
+          <div className="fixed bottom-[88px] md:bottom-6 left-1/2 z-[150] flex max-w-[95vw] -translate-x-1/2 items-center gap-1.5 overflow-x-auto rounded-apple-xl border border-black/[0.04] bg-white px-3 py-3 shadow-apple-lg no-scrollbar md:gap-2 md:px-4 md:py-3.5 xl:max-w-[calc(100vw-420px)]">
             {/* Auto-save indicator */}
             <div className="hidden sm:flex w-32 items-center justify-center">
               {saveStatus === 'saving' && (
@@ -1750,13 +1748,13 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
             <button onClick={() => addBlock('reference')} className="shrink-0 p-2.5 md:p-3 hover:bg-[#f2f3f5] rounded-[10px] text-[#8e8e93] hover:text-[#1d1d1f] transition-all" title="Referência bibliográfica">
               <BookOpen size={17} />
             </button>
-            <div className="w-px h-6 md:h-8 bg-slate-200 mx-1 md:mx-2"></div>
+            <div className="h-6 w-px shrink-0 bg-slate-200 mx-1 md:h-8 md:mx-2"></div>
 
-            <button onClick={handleSaveCaseChanges} className="button-nowrap flex shrink-0 items-center gap-1.5 rounded-apple bg-[#1d1d1f] px-3.5 py-2.5 text-[10px] font-bold uppercase tracking-widest text-white transition-all hover:bg-[#333] md:px-4" title="Salvar alterações">
+            <button onClick={handleSaveCaseChanges} className="button-nowrap flex min-w-[104px] shrink-0 items-center justify-center gap-1.5 rounded-apple bg-[#1d1d1f] px-4 py-2.5 text-[10px] font-bold uppercase tracking-[0.12em] text-white transition-all hover:bg-[#333]" title="Salvar alterações">
               <Save size={13} />
-              <span className="hidden sm:inline">Salvar</span>
+              <span>Salvar</span>
             </button>
-            <button onClick={() => handleCloseCase()} className="button-nowrap hidden shrink-0 rounded-apple bg-[#f2f3f5] px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-[#8e8e93] transition-all hover:bg-[#e8e9eb] hover:text-[#1d1d1f] sm:block md:px-5" title="Fechar editor">
+            <button onClick={() => handleCloseCase()} className="button-nowrap min-w-[104px] shrink-0 rounded-apple bg-[#f2f3f5] px-4 py-2.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[#8e8e93] transition-all hover:bg-[#e8e9eb] hover:text-[#1d1d1f]" title="Fechar editor">
               Fechar
             </button>
           </div>
@@ -2204,7 +2202,6 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
 
     storeUser(updatedUser);
     setCurrentUser(updatedUser);
-    showAppToast('Salvando perfil...', 'info');
 
     if (!updatedUser.id.startsWith('offline:')) {
       const authUserId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(updatedUser.id)
@@ -2234,7 +2231,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
     <div className="min-h-screen bg-[#fafbfc] text-[#1d1d1f] font-sans pb-20 md:pb-0 md:pl-[80px] transition-all duration-300">
       <Sidebar currentView={view} setView={(v) => { setSelectedAsset(null); setEditingCase(null); setNewAssetId(null); setView(v); }} trashCount={trashedAssets.length} />
 
-      <div className="sticky top-0 z-[210] flex justify-end px-4 pt-3 md:px-6 md:pt-4">
+      <div className="sticky top-0 z-[210] flex justify-start px-4 pt-3 md:px-6 md:pt-4">
         <div className="flex max-w-full items-center gap-1 rounded-full border border-black/[0.055] bg-white/86 px-1.5 py-1.5 shadow-[0_8px_28px_rgba(0,0,0,0.07)] backdrop-blur-xl">
           <div className="flex min-w-0 items-center gap-2 pl-1.5 pr-1">
             <div className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#1d1d1f] text-[10px] font-semibold text-white ring-1 ring-black/[0.04]">
