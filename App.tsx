@@ -1790,7 +1790,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
           </div>
 
           {/* Floating toolbar */}
-          <div className="fixed bottom-[88px] left-1/2 z-[150] flex max-w-[95vw] -translate-x-1/2 items-center gap-1.5 overflow-x-auto rounded-[24px] border border-white/80 bg-white/78 px-3 py-3 shadow-[0_22px_80px_rgba(0,0,0,0.12)] backdrop-blur-2xl no-scrollbar md:bottom-7 md:gap-2 md:px-4 md:py-3.5 lg:left-[calc(50%-114px)] lg:max-w-[min(760px,calc(100vw-460px))]">
+          <div className="case-editor-toolbar z-[150] flex items-center gap-1.5 overflow-x-auto rounded-[24px] border border-white/80 bg-white/78 px-3 py-3 shadow-[0_22px_80px_rgba(0,0,0,0.12)] backdrop-blur-2xl no-scrollbar md:gap-2 md:px-4 md:py-3.5">
             {/* Auto-save indicator */}
             <div className="hidden sm:flex w-32 items-center justify-center">
               {saveStatus === 'saving' && (
