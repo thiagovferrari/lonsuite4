@@ -1413,11 +1413,11 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
             </button>
 
             {/* Mobile Action Bar — visible only when sidebar is hidden */}
-            <div className="flex lg:hidden items-center gap-2 mb-6 flex-wrap">
+            <div className="flex lg:hidden items-center gap-2 mb-6 overflow-x-auto no-scrollbar pb-1">
               <select
                 value={editingCase.caseStatus || 'em_andamento'}
                 onChange={e => syncCase({ ...editingCase, caseStatus: e.target.value as CaseStatus })}
-                className="px-3 py-2 bg-white border border-black/8 rounded-apple text-[11px] font-medium text-[#1d1d1f] shadow-apple outline-none"
+                className="shrink-0 px-3 py-2 bg-white border border-black/8 rounded-apple text-[11px] font-medium text-[#1d1d1f] shadow-apple outline-none"
               >
                 <option value="em_andamento">Em Andamento</option>
                 <option value="completo">Completo</option>
@@ -1429,20 +1429,20 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                   navigator.clipboard.writeText(shareUrl);
                   alert('Link do caso copiado!');
                 }}
-                className="flex items-center gap-1.5 px-3 py-2 bg-white border border-black/8 rounded-apple text-[11px] font-medium text-[#4285F4] shadow-apple"
+                className="button-nowrap flex shrink-0 items-center gap-1.5 px-3 py-2 bg-white border border-black/8 rounded-apple text-[11px] font-medium text-[#4285F4] shadow-apple"
               >
                 <Share2 size={12} /> Compartilhar
               </button>
               <button
                 onClick={handleSaveCaseChanges}
-                className="flex items-center gap-1.5 px-3 py-2 bg-[#1d1d1f] rounded-apple text-[11px] font-semibold text-white shadow-apple"
+                className="button-nowrap flex shrink-0 items-center gap-1.5 px-3 py-2 bg-[#1d1d1f] rounded-apple text-[11px] font-semibold text-white shadow-apple"
               >
                 <Save size={12} /> Salvar
               </button>
               <button
                 onClick={handleDownloadCasePDF}
                 disabled={isGeneratingCasePdf}
-                className="flex items-center gap-1.5 px-3 py-2 bg-white border border-black/8 rounded-apple text-[11px] font-medium text-[#1d1d1f] shadow-apple"
+                className="button-nowrap flex shrink-0 items-center gap-1.5 px-3 py-2 bg-white border border-black/8 rounded-apple text-[11px] font-medium text-[#1d1d1f] shadow-apple"
               >
                 {isGeneratingCasePdf ? <Loader2 size={12} className="animate-spin" /> : <Download size={12} />} PDF
               </button>
@@ -1715,7 +1715,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
           </div>
 
           {/* Floating toolbar */}
-          <div className="fixed bottom-[88px] md:bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 md:gap-4 bg-white px-4 md:px-6 py-3 md:py-3.5 rounded-apple-xl shadow-apple-lg border border-black/[0.04] z-[150] max-w-[95vw]">
+          <div className="fixed bottom-[88px] md:bottom-6 left-1/2 z-[150] flex max-w-[95vw] -translate-x-1/2 items-center gap-1.5 overflow-x-auto rounded-apple-xl border border-black/[0.04] bg-white px-3 py-3 shadow-apple-lg no-scrollbar md:gap-2 md:px-4 md:py-3.5">
             {/* Auto-save indicator */}
             <div className="hidden sm:flex w-32 items-center justify-center">
               {saveStatus === 'saving' && (
@@ -1732,31 +1732,31 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
               )}
             </div>
 
-            <button onClick={() => addBlock('title')} className="p-2.5 md:p-3 hover:bg-[#f2f3f5] rounded-[10px] text-[#8e8e93] hover:text-[#1d1d1f] transition-all" title="Adicionar título">
+            <button onClick={() => addBlock('title')} className="shrink-0 p-2.5 md:p-3 hover:bg-[#f2f3f5] rounded-[10px] text-[#8e8e93] hover:text-[#1d1d1f] transition-all" title="Adicionar título">
               <TypeIcon size={17} />
             </button>
-            <button onClick={() => addBlock('subtitle')} className="flex h-[38px] min-w-[38px] items-center justify-center rounded-[10px] px-2 text-[14px] font-semibold text-[#8e8e93] transition-all hover:bg-[#f2f3f5] hover:text-[#1d1d1f] md:h-[42px] md:min-w-[42px]" title="Adicionar subtítulo (T²)">
+            <button onClick={() => addBlock('subtitle')} className="flex h-[38px] min-w-[38px] shrink-0 items-center justify-center rounded-[10px] px-2 text-[14px] font-semibold text-[#8e8e93] transition-all hover:bg-[#f2f3f5] hover:text-[#1d1d1f] md:h-[42px] md:min-w-[42px]" title="Adicionar subtítulo (T²)">
               T<sup className="-ml-0.5 text-[9px]">2</sup>
             </button>
-            <button onClick={() => addBlock('text')} className="p-2.5 md:p-3 hover:bg-[#f2f3f5] rounded-[10px] text-[#8e8e93] hover:text-[#1d1d1f] transition-all" title="Adicionar texto">
+            <button onClick={() => addBlock('text')} className="shrink-0 p-2.5 md:p-3 hover:bg-[#f2f3f5] rounded-[10px] text-[#8e8e93] hover:text-[#1d1d1f] transition-all" title="Adicionar texto">
               <FileText size={17} />
             </button>
-            <button onClick={() => addBlock('image')} className="p-2.5 md:p-3 hover:bg-[#f2f3f5] rounded-[10px] text-[#8e8e93] hover:text-[#1d1d1f] transition-all" title="Adicionar evidência">
+            <button onClick={() => addBlock('image')} className="shrink-0 p-2.5 md:p-3 hover:bg-[#f2f3f5] rounded-[10px] text-[#8e8e93] hover:text-[#1d1d1f] transition-all" title="Adicionar evidência">
               <ImageIcon size={17} />
             </button>
-            <button onClick={() => setShowAssetPicker(true)} className="p-2.5 md:p-3 hover:bg-blue-50 rounded-[10px] text-[#4285F4] hover:text-blue-700 transition-all" title="Adicionar ativo">
+            <button onClick={() => setShowAssetPicker(true)} className="shrink-0 p-2.5 md:p-3 hover:bg-blue-50 rounded-[10px] text-[#4285F4] hover:text-blue-700 transition-all" title="Adicionar ativo">
               <LayoutGrid size={17} />
             </button>
-            <button onClick={() => addBlock('reference')} className="p-2.5 md:p-3 hover:bg-[#f2f3f5] rounded-[10px] text-[#8e8e93] hover:text-[#1d1d1f] transition-all" title="Referência bibliográfica">
+            <button onClick={() => addBlock('reference')} className="shrink-0 p-2.5 md:p-3 hover:bg-[#f2f3f5] rounded-[10px] text-[#8e8e93] hover:text-[#1d1d1f] transition-all" title="Referência bibliográfica">
               <BookOpen size={17} />
             </button>
             <div className="w-px h-6 md:h-8 bg-slate-200 mx-1 md:mx-2"></div>
 
-            <button onClick={handleSaveCaseChanges} className="px-4 py-2.5 bg-[#1d1d1f] text-white rounded-apple text-[10px] font-bold uppercase tracking-widest hover:bg-[#333] transition-all flex items-center gap-1.5" title="Salvar alterações">
+            <button onClick={handleSaveCaseChanges} className="button-nowrap flex shrink-0 items-center gap-1.5 rounded-apple bg-[#1d1d1f] px-3.5 py-2.5 text-[10px] font-bold uppercase tracking-widest text-white transition-all hover:bg-[#333] md:px-4" title="Salvar alterações">
               <Save size={13} />
               <span className="hidden sm:inline">Salvar</span>
             </button>
-            <button onClick={() => handleCloseCase()} className="hidden sm:block px-5 py-2.5 bg-[#f2f3f5] text-[#8e8e93] rounded-apple text-[10px] font-bold uppercase tracking-widest hover:bg-[#e8e9eb] hover:text-[#1d1d1f] transition-all" title="Fechar editor">
+            <button onClick={() => handleCloseCase()} className="button-nowrap hidden shrink-0 rounded-apple bg-[#f2f3f5] px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-[#8e8e93] transition-all hover:bg-[#e8e9eb] hover:text-[#1d1d1f] sm:block md:px-5" title="Fechar editor">
               Fechar
             </button>
           </div>
@@ -2718,28 +2718,28 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
           };
 
           return (
-            <div className="px-5 sm:px-10 md:px-12 pt-8 md:pt-10 pb-10 animate-fade-in">
+            <div className="px-5 sm:px-8 md:px-10 xl:px-12 pt-8 md:pt-10 pb-10 animate-fade-in">
               <header className="mb-8">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-7">
-                  <div>
+                <div className="flex flex-col gap-4 mb-7 lg:flex-row lg:items-center lg:justify-between">
+                  <div className="min-w-0">
                     <h1 className="text-3xl sm:text-4xl font-extralight tracking-tight text-[#1d1d1f]">Cases Científicos</h1>
                     <p className="text-[11px] font-medium text-[#86868b] tracking-wider mt-1.5">{filteredCases.length} {filteredCases.length === 1 ? 'caso' : 'casos'} · Documentação Editorial</p>
                   </div>
-                  <div className="flex items-center gap-2 w-full sm:w-auto">
-                    <div className="flex items-center bg-white border border-black/[0.06] rounded-apple-lg shadow-apple p-0.5">
-                      <button onClick={() => setCaseViewMode('list')} className={`p-2 rounded-[8px] transition-all ${caseViewMode === 'list' ? 'bg-[#1d1d1f] text-white' : 'text-[#86868b] hover:text-[#1d1d1f]'}`}><AlignJustify size={14} /></button>
-                      <button onClick={() => setCaseViewMode('grid')} className={`p-2 rounded-[8px] transition-all ${caseViewMode === 'grid' ? 'bg-[#1d1d1f] text-white' : 'text-[#86868b] hover:text-[#1d1d1f]'}`}><LayoutGrid size={14} /></button>
+                  <div className="flex w-full min-w-0 items-center gap-2 overflow-x-auto pb-1 no-scrollbar lg:w-auto lg:justify-end">
+                    <div className="flex shrink-0 items-center bg-white border border-black/[0.06] rounded-apple-lg shadow-apple p-0.5">
+                      <button onClick={() => setCaseViewMode('list')} className={`shrink-0 p-2 rounded-[8px] transition-all ${caseViewMode === 'list' ? 'bg-[#1d1d1f] text-white' : 'text-[#86868b] hover:text-[#1d1d1f]'}`} aria-label="Ver cases em lista"><AlignJustify size={14} /></button>
+                      <button onClick={() => setCaseViewMode('grid')} className={`shrink-0 p-2 rounded-[8px] transition-all ${caseViewMode === 'grid' ? 'bg-[#1d1d1f] text-white' : 'text-[#86868b] hover:text-[#1d1d1f]'}`} aria-label="Ver cases em grade"><LayoutGrid size={14} /></button>
                     </div>
                     <button onClick={handleCreateCase}
-                      className="btn-ai flex-1 sm:flex-none px-5 py-2.5 rounded-apple-lg font-semibold text-[13px] shadow-apple flex items-center justify-center gap-2 hover:-translate-y-0.5">
+                      className="button-nowrap btn-ai flex shrink-0 items-center justify-center gap-2 rounded-apple-lg px-5 py-2.5 text-[13px] font-semibold shadow-apple hover:-translate-y-0.5">
                       <Plus size={15} /> Novo Case
                     </button>
                   </div>
                 </div>
 
                 {/* Search + Date Filter */}
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                  <div className="relative flex-1 max-w-xl group">
+                <div className="flex flex-col items-stretch gap-3 xl:flex-row xl:items-center">
+                  <div className="relative min-w-0 flex-1 group">
                     <div className="absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
                       <Search size={15} className="text-[#86868b] group-focus-within:text-[#4285F4] transition-colors" />
                     </div>
@@ -2747,11 +2747,11 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                       value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
                       className="w-full pl-10 pr-4 py-2.5 bg-white border border-black/8 rounded-apple-lg text-[13px] outline-none focus:border-[#4285F4]/30 focus:shadow-[0_0_0_3px_rgba(0,113,227,0.08)] transition-all placeholder:text-[#aeaeb2] shadow-apple" />
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex min-w-0 items-center gap-2 overflow-x-auto pb-1 no-scrollbar xl:shrink-0 xl:pb-0">
                     <select
                       value={dateFilter.month}
                       onChange={e => setDateFilter(p => ({ ...p, month: e.target.value }))}
-                      className="px-3 py-2.5 bg-white border border-black/8 rounded-apple-lg text-[12px] font-medium text-[#1d1d1f] outline-none focus:border-[#4285F4]/30 shadow-apple appearance-none cursor-pointer"
+                      className="shrink-0 px-3 py-2.5 bg-white border border-black/8 rounded-apple-lg text-[12px] font-medium text-[#1d1d1f] outline-none focus:border-[#4285F4]/30 shadow-apple appearance-none cursor-pointer"
                     >
                       <option value="">Mês</option>
                       {['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'].map((m, i) => (
@@ -2761,7 +2761,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                     <select
                       value={dateFilter.year}
                       onChange={e => setDateFilter(p => ({ ...p, year: e.target.value }))}
-                      className="px-3 py-2.5 bg-white border border-black/8 rounded-apple-lg text-[12px] font-medium text-[#1d1d1f] outline-none focus:border-[#4285F4]/30 shadow-apple appearance-none cursor-pointer"
+                      className="shrink-0 px-3 py-2.5 bg-white border border-black/8 rounded-apple-lg text-[12px] font-medium text-[#1d1d1f] outline-none focus:border-[#4285F4]/30 shadow-apple appearance-none cursor-pointer"
                     >
                       <option value="">Ano</option>
                       {Array.from(new Set(activeAssets.filter(a => a.type === 'case').map(a => new Date(a.createdAt || a.date).getFullYear()))).sort((a: number, b: number) => b - a).map(y => (
@@ -2771,7 +2771,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                     {(dateFilter.month || dateFilter.year) && (
                       <button
                         onClick={() => setDateFilter({ month: '', year: '' })}
-                        className="px-2.5 py-2.5 text-[10px] font-bold text-[#86868b] hover:text-red-500 transition-colors uppercase tracking-widest"
+                        className="button-nowrap shrink-0 px-2.5 py-2.5 text-[10px] font-bold text-[#86868b] hover:text-red-500 transition-colors uppercase tracking-widest"
                       >
                         Limpar
                       </button>
@@ -2877,7 +2877,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                   <p className="text-[14px] font-medium mb-1">Nenhum case criado ainda</p>
                   <p className="text-[12px] text-[#aeaeb2] mb-5">Cases científicos editoriais aparecerão aqui</p>
                   <button onClick={handleCreateCase}
-                    className="btn-ai px-5 py-2.5 rounded-apple-lg text-[12px] font-semibold shadow-apple">
+                    className="button-nowrap btn-ai px-5 py-2.5 rounded-apple-lg text-[12px] font-semibold shadow-apple">
                     Criar Primeiro Case
                   </button>
                 </div>

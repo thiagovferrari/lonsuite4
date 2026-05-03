@@ -72,7 +72,6 @@ h6,
 p,
 span,
 a,
-button,
 label,
 figcaption,
 textarea,
@@ -81,6 +80,14 @@ input,
 .force-wrap {
   overflow-wrap: anywhere;
   word-break: break-word;
+}
+
+button,
+.button-nowrap,
+.button-nowrap * {
+  overflow-wrap: normal;
+  word-break: normal;
+  white-space: nowrap;
 }
 
 textarea,
