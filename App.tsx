@@ -9,7 +9,7 @@ import { saveAttachmentData, getAttachmentData, deleteAttachmentData } from './s
 import { supabase } from './services/supabase';
 import { clearStoredUser, getStoredUser, storeUser, signOut as authSignOut } from './services/authService';
 import type { AuthUser } from './services/authService';
-import { Plus, Brain, FileText, Image as ImageIcon, Type as TypeIcon, Loader2, ChevronLeft, Trash2, Search, LayoutGrid, RotateCcw, ChevronRight, Briefcase, X, AlertCircle, Stethoscope, Download, Home, Lock, Award, Zap, Copy, CheckCircle2, Maximize2, Minimize2, Sparkles, AlignJustify, LogOut, TrendingUp, Share2, BookOpen, Link2, ExternalLink, Clock, Save, ArrowUp, ArrowDown, Activity } from 'lucide-react';
+import { Plus, Brain, FileText, Image as ImageIcon, Type as TypeIcon, Loader2, ChevronLeft, Trash2, Search, LayoutGrid, RotateCcw, ChevronRight, Briefcase, X, AlertCircle, Stethoscope, Download, Home, Lock, Award, Zap, Copy, CheckCircle2, Maximize2, Minimize2, Sparkles, AlignJustify, LogOut, TrendingUp, Share2, BookOpen, Link2, ExternalLink, Clock, Save, ArrowUp, ArrowDown } from 'lucide-react';
 
 const ASSET_STORAGE_PREFIX = 'lon_assets_';
 const ASSET_BACKUP_PREFIX = 'lon_assets_backup_';
@@ -1473,10 +1473,10 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
     ];
 
     return (
-      <div className="h-screen w-full overflow-hidden bg-transparent p-0 lg:flex lg:gap-4 lg:p-4">
+      <div className="w-full h-screen flex flex-col md:flex-row overflow-hidden bg-white">
         {/* Main Editor */}
-        <div className="h-full flex-1 overflow-y-auto border-white/70 bg-white/64 pb-40 shadow-[0_28px_110px_rgba(0,0,0,0.075)] backdrop-blur-2xl no-scrollbar md:pb-60 lg:rounded-[36px] lg:border">
-          <div className="mx-auto max-w-[1000px] px-5 pt-6 sm:px-8 md:px-10 md:pt-12">
+        <div className="flex-1 overflow-y-auto no-scrollbar pb-40 md:pb-60">
+          <div className="max-w-[1000px] mx-auto pt-6 md:pt-16 px-4 sm:px-6 md:px-8">
             <button onClick={() => handleCloseCase()} className="mb-4 md:mb-12 flex items-center gap-2 text-slate-400 hover:text-slate-900 transition-all text-[10px] font-bold uppercase tracking-[0.3em] group">
               <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Voltar aos Cases
             </button>
@@ -1790,7 +1790,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
           </div>
 
           {/* Floating toolbar */}
-          <div className="fixed bottom-[88px] md:bottom-7 left-1/2 z-[150] flex max-w-[95vw] -translate-x-1/2 items-center gap-1.5 overflow-x-auto rounded-[24px] border border-white/80 bg-white/78 px-3 py-3 shadow-[0_22px_80px_rgba(0,0,0,0.12)] backdrop-blur-2xl no-scrollbar md:gap-2 md:px-4 md:py-3.5 xl:max-w-[calc(100vw-420px)]">
+          <div className="fixed bottom-[88px] md:bottom-6 left-1/2 z-[150] flex max-w-[95vw] -translate-x-1/2 items-center gap-1.5 overflow-x-auto rounded-apple-xl border border-black/[0.04] bg-white px-3 py-3 shadow-apple-lg no-scrollbar md:gap-2 md:px-4 md:py-3.5 xl:max-w-[calc(100vw-420px)]">
             {/* Auto-save indicator */}
             <div className="hidden sm:flex w-32 items-center justify-center">
               {saveStatus === 'saving' && (
@@ -1897,7 +1897,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
         </div>
 
         {/* Metadata Sidebar — Mobile: drawer at bottom; Desktop: side panel */}
-        <div className="hidden h-full w-[292px] shrink-0 flex-col overflow-y-auto rounded-[30px] border border-white/72 bg-white/62 shadow-[0_24px_90px_rgba(0,0,0,0.075)] backdrop-blur-2xl custom-scrollbar lg:flex">
+        <div className="hidden lg:flex w-[280px] shrink-0 border-l border-black/5 bg-[#fafafa] flex-col overflow-y-auto custom-scrollbar">
           <div className="p-5 space-y-5">
             <div>
               <h3 className="text-[10px] font-bold text-[#86868b] uppercase tracking-widest mb-3">Status</h3>

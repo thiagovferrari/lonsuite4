@@ -173,9 +173,9 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
                   ))}
                 </div>
               </div>
-              <div className="absolute right-8 top-[470px] rounded-[24px] border border-white/16 bg-[#111113]/82 p-5 text-white shadow-[0_26px_80px_rgba(0,0,0,0.24)] backdrop-blur-xl">
-                <p className="text-[44px] font-extralight leading-none text-white">4x</p>
-                <p className="mt-2 max-w-[150px] text-[11px] font-semibold leading-relaxed text-white/68">mais reaproveitamento do acervo científico</p>
+              <div className="absolute right-8 top-[470px] rounded-[24px] border border-white/72 bg-white/72 p-5 shadow-[0_26px_80px_rgba(0,0,0,0.12)] backdrop-blur-xl">
+                <p className="text-[44px] font-extralight leading-none">4x</p>
+                <p className="mt-2 max-w-[150px] text-[11px] font-semibold leading-relaxed text-[#86868b]">mais reaproveitamento do acervo científico</p>
               </div>
             </div>
           </div>
