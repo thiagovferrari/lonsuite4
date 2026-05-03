@@ -7,13 +7,13 @@ import LoginPage from './components/LoginPage';
 import { analyzeAsset, searchAssetsWithAI, searchCasesWithAI, generateCaseSemanticTags, getAIUsage } from './services/geminiService';
 import { saveAttachmentData, getAttachmentData, deleteAttachmentData } from './services/storageService';
 import { supabase } from './services/supabase';
-import { getStoredUser, storeUser, signOut as authSignOut } from './services/authService';
+import { clearStoredUser, getStoredUser, storeUser, signOut as authSignOut } from './services/authService';
 import type { AuthUser } from './services/authService';
 import { Plus, Brain, FileText, Image as ImageIcon, Type as TypeIcon, Loader2, ChevronLeft, Trash2, Search, LayoutGrid, RotateCcw, ChevronRight, Briefcase, X, AlertCircle, Stethoscope, Download, Home, Lock, Award, Zap, Copy, CheckCircle2, Maximize2, Minimize2, Sparkles, AlignJustify, LogOut, TrendingUp, Share2, BookOpen, Link2, ExternalLink, Clock, Save, ArrowUp, ArrowDown } from 'lucide-react';
 
 const ASSET_STORAGE_PREFIX = 'lon_assets_';
 const ASSET_BACKUP_PREFIX = 'lon_assets_backup_';
-const SUPABASE_TIMEOUT_MS = 10000;
+const SUPABASE_TIMEOUT_MS = 18000;
 
 async function withSupabaseTimeout<T>(promise: PromiseLike<T>, label: string): Promise<T> {
   let timeoutId: number | undefined;
@@ -175,6 +175,7 @@ const App: React.FC = () => {
     message: string;
     onConfirm: () => void;
   } | null>(null);
+  const [appToast, setAppToast] = useState<{ message: string; tone?: 'success' | 'info' | 'warning' } | null>(null);
 
   // Auth
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => getStoredUser());
@@ -188,6 +189,11 @@ const App: React.FC = () => {
   const ownerId  = currentUser?.id  ?? 'guest';
   const ownerName = currentUser?.name ?? '';
   const isOfflineUser = ownerId.startsWith('offline:');
+
+  const showAppToast = useCallback((message: string, tone: 'success' | 'info' | 'warning' = 'success') => {
+    setAppToast({ message, tone });
+    window.setTimeout(() => setAppToast(current => current?.message === message ? null : current), 2400);
+  }, []);
 
   // Homepage Search State
   const [homeSearchQuery, setHomeSearchQuery] = useState('');
@@ -216,6 +222,24 @@ const App: React.FC = () => {
       specialty: currentUser?.specialty || '',
       avatarUrl: currentUser?.avatarUrl || '',
     });
+  }, [currentUser]);
+
+  useEffect(() => {
+    if (!currentUser || currentUser.id.startsWith('offline:')) return;
+    let cancelled = false;
+
+    withSupabaseTimeout(supabase.auth.getSession(), 'Verificação de sessão no Supabase')
+      .then(({ data }) => {
+        if (cancelled || data.session) return;
+        clearStoredUser();
+        setCurrentUser(null);
+        setAssets([]);
+      })
+      .catch(() => {
+        // Keep the current user during transient network failures.
+      });
+
+    return () => { cancelled = true; };
   }, [currentUser]);
 
   // Persist assets to localStorage whenever they change
@@ -671,7 +695,7 @@ const App: React.FC = () => {
       }
     } catch (criticalError) {
       console.error('Critical error in processUpload:', criticalError);
-      alert('Houve um erro crítico ao processar seus arquivos na nuvem.');
+      showAppToast('Não consegui concluir o upload agora. Tente novamente.', 'warning');
     } finally {
       setPendingUpload(null);
       setIsProcessing(false);
@@ -682,6 +706,7 @@ const App: React.FC = () => {
         setNewAssetId(firstNewAsset.id);
         setSelectedAsset(firstNewAsset);
       }
+      if (firstNewAsset) showAppToast('Upload concluído e ativo salvo.');
     }
   };
 
@@ -700,6 +725,7 @@ const App: React.FC = () => {
     });
 
     if (selectedAsset?.id === id) setSelectedAsset(null);
+    showAppToast('Item enviado para a lixeira.', 'info');
   };
 
 
@@ -728,7 +754,10 @@ const App: React.FC = () => {
       }
     } catch (err) {
       console.error('Erro ao deletar permanente:', err);
+      showAppToast('Não consegui confirmar a exclusão na nuvem.', 'warning');
+      return;
     }
+    showAppToast('Item excluído permanentemente.', 'info');
   };
 
 
@@ -742,6 +771,7 @@ const App: React.FC = () => {
       if (asset) syncToCloud(asset);
       return updated;
     });
+    showAppToast('Item restaurado.');
   };
 
 
@@ -765,12 +795,14 @@ const App: React.FC = () => {
             'Exclusão permanente no Supabase',
           ).catch(err => console.error('Erro ao deletar item da lixeira:', err));
         });
+        showAppToast('Lixeira esvaziada.', 'info');
       }
     });
   };
 
   const handleSaveAsset = (updatedAsset: Asset) => {
     setAssets(prev => prev.map(a => a.id === updatedAsset.id ? { ...updatedAsset, updatedAt: new Date().toISOString() } : a));
+    showAppToast('Alterações do ativo salvas.');
   };
 
   // Create New Case
@@ -797,6 +829,7 @@ const App: React.FC = () => {
     setAssets(prev => [newCase, ...prev]);
     setEditingCase(newCase);
     setFocusBlockId(titleBlockId);
+    showAppToast('Novo case criado.');
   };
 
   // Case Editor Functions
@@ -817,6 +850,7 @@ const App: React.FC = () => {
     syncToCloud(withTimestamp);
     setSaveStatus('saved');
     setTimeout(() => setSaveStatus('idle'), 1800);
+    showAppToast('Case salvo.');
   };
 
   // Close editor and auto-generate semantic tags in background
@@ -1058,9 +1092,45 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
       if (y + needed > 280) { doc.addPage(); y = margin; }
     };
 
+    const normalizeImageForPdf = async (src: string): Promise<string> => {
+      if (!src.startsWith('data:image')) return src;
+
+      return new Promise(resolve => {
+        const img = new Image();
+        img.onload = () => {
+          try {
+            const width = img.naturalWidth || img.width;
+            const height = img.naturalHeight || img.height;
+            if (!width || !height) {
+              resolve(src);
+              return;
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+              resolve(src);
+              return;
+            }
+
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, width, height);
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', 0.94));
+          } catch {
+            resolve(src);
+          }
+        };
+        img.onerror = () => resolve(src);
+        img.src = src;
+      });
+    };
+
     const sourceToDataUrl = async (src: string, fallbackMime = 'image/jpeg'): Promise<string> => {
       if (!src) return '';
-      if (src.startsWith('data:image')) return src;
+      if (src.startsWith('data:image')) return normalizeImageForPdf(src);
       if (src.startsWith('data:application/pdf')) return '';
       if (!src.startsWith('http')) return src.startsWith('data:') ? src : '';
 
@@ -1072,7 +1142,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
         const blob = await res.blob();
         return await new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result as string);
+          reader.onloadend = async () => resolve(await normalizeImageForPdf(reader.result as string));
           reader.onerror = reject;
           reader.readAsDataURL(blob.type ? blob : new Blob([blob], { type: fallbackMime }));
         });
@@ -2119,6 +2189,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
 
     storeUser(updatedUser);
     setCurrentUser(updatedUser);
+    showAppToast('Salvando perfil...', 'info');
 
     if (!updatedUser.id.startsWith('offline:')) {
       const authUserId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(updatedUser.id)
@@ -2134,7 +2205,13 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
           avatar_url: updatedUser.avatarUrl,
         }),
         'Atualização do perfil no Supabase',
-      ).catch(error => console.warn('[Lon Suite] Perfil não sincronizado:', error));
+      ).then(() => showAppToast('Perfil salvo com segurança.'))
+        .catch(error => {
+          console.warn('[Lon Suite] Perfil não sincronizado:', error);
+          showAppToast('Perfil salvo localmente. A nuvem sincroniza quando responder.', 'warning');
+        });
+    } else {
+      showAppToast('Perfil salvo neste dispositivo.', 'info');
     }
   };
 
@@ -3246,6 +3323,21 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                 Confirmar
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {appToast && (
+        <div className="pointer-events-none fixed bottom-24 left-1/2 z-[700] w-[calc(100vw-32px)] max-w-sm -translate-x-1/2 animate-save-toast md:bottom-8">
+          <div className={`mx-auto flex items-center justify-center gap-2 rounded-full px-4 py-3 text-[12px] font-semibold shadow-[0_18px_60px_rgba(0,0,0,0.18)] backdrop-blur-xl ${
+            appToast.tone === 'warning'
+              ? 'border border-amber-200 bg-amber-50 text-amber-800'
+              : appToast.tone === 'info'
+                ? 'border border-black/[0.06] bg-white/94 text-[#1d1d1f]'
+                : 'bg-[#1d1d1f] text-white'
+          }`}>
+            {appToast.tone === 'warning' ? <AlertCircle size={14} /> : <CheckCircle2 size={14} />}
+            <span>{appToast.message}</span>
           </div>
         </div>
       )}

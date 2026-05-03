@@ -269,6 +269,52 @@ select:focus-visible {
   animation-direction: reverse;
 }
 
+.plans-global-globe {
+  animation: plansGlobalPulse 6.5s ease-in-out infinite;
+  overflow: hidden;
+}
+
+.plans-global-globe::after {
+  content: '';
+  position: absolute;
+  inset: -35%;
+  background:
+    radial-gradient(circle at 36% 30%, rgba(255,255,255,0.72), transparent 8%),
+    radial-gradient(circle at 64% 42%, rgba(255,255,255,0.55), transparent 7%),
+    radial-gradient(circle at 48% 68%, rgba(255,255,255,0.46), transparent 8%);
+  animation: plansGlobeDrift 12s linear infinite;
+}
+
+.plans-globe-lat,
+.plans-globe-lon {
+  position: absolute;
+  pointer-events: none;
+  border-color: rgba(255,255,255,0.42);
+}
+
+.plans-globe-lat {
+  left: 8%;
+  right: 8%;
+  height: 1px;
+  border-top: 1px solid rgba(255,255,255,0.45);
+}
+
+.plans-globe-lon {
+  top: 8%;
+  bottom: 8%;
+  width: 1px;
+  border-left: 1px solid rgba(255,255,255,0.42);
+}
+
+.plans-global-ring {
+  animation: plansGlobalRing 16s linear infinite;
+}
+
+.plans-global-ring-slow {
+  animation-duration: 26s;
+  animation-direction: reverse;
+}
+
 @keyframes loginStoryEnter {
   from { opacity: 0; transform: translateY(16px); filter: blur(8px); }
   to   { opacity: 1; transform: translateY(0); filter: blur(0); }
@@ -345,6 +391,22 @@ select:focus-visible {
   to   { transform: rotate(360deg) translateX(12px) rotate(-360deg); }
 }
 
+@keyframes plansGlobalPulse {
+  0%, 100% { transform: scale(1); filter: saturate(0.8); }
+  50%      { transform: scale(1.025); filter: saturate(1); }
+}
+
+@keyframes plansGlobeDrift {
+  from { transform: rotate(0deg) translateX(-4%); }
+  to   { transform: rotate(360deg) translateX(-4%); }
+}
+
+@keyframes plansGlobalRing {
+  from { transform: rotate(0deg) scale(1); opacity: 0.8; }
+  50%  { transform: rotate(180deg) scale(1.035); opacity: 0.48; }
+  to   { transform: rotate(360deg) scale(1); opacity: 0.8; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .login-story-enter,
   .login-feature-card,
@@ -360,7 +422,10 @@ select:focus-visible {
   .plans-metric,
   .plans-demo-enter,
   .plans-product-stack,
-  .plans-orbit {
+  .plans-orbit,
+  .plans-global-globe,
+  .plans-global-globe::after,
+  .plans-global-ring {
     animation: none !important;
   }
 }

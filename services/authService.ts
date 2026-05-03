@@ -10,7 +10,7 @@ export interface AuthUser {
 
 const AUTH_KEY = 'lon_suite_auth_v1';
 const LAST_ONLINE_AUTH_KEY = 'lon_suite_last_online_auth_v1';
-const AUTH_TIMEOUT_MS = 12000;
+const AUTH_TIMEOUT_MS = 20000;
 const OFFLINE_AUTH_PREFIX = 'offline:';
 
 async function withTimeout<T>(promise: Promise<T>, message: string): Promise<T> {
@@ -87,9 +87,7 @@ export async function signIn(email: string, password: string): Promise<AuthUser>
         storeUser(lastOnlineUser);
         return lastOnlineUser;
       }
-      const offlineUser = createOfflineUser(email);
-      storeUser(offlineUser);
-      return offlineUser;
+      throw new Error('O Supabase demorou para responder. Seus dados não foram apagados; tente novamente em alguns segundos.');
     }
     throw error;
   }

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, ArrowRight, Award, Brain, Building2, Check, Crown, Database, FileText, Images, LockKeyhole, Presentation, Search, ShieldCheck, Sparkles, Zap } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Award, Brain, Building2, Check, Crown, Database, FileText, Fingerprint, Globe2, Images, KeyRound, LockKeyhole, Network, Presentation, Search, Server, ShieldCheck, Sparkles, Zap } from 'lucide-react';
 import { signIn } from '../services/authService';
 import type { AuthUser } from '../services/authService';
 
@@ -338,6 +338,98 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
             })}
           </section>
 
+          <section className="mt-24 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+            <article className="plans-card overflow-hidden rounded-[38px] bg-[#111113] text-white shadow-[0_38px_120px_rgba(0,0,0,0.25)]">
+              <div className="grid min-h-[620px] lg:grid-cols-[0.92fr_1.08fr]">
+                <div className="relative overflow-hidden bg-[#050506]">
+                  <img
+                    src="/assets/lon-suite-security-editorial.png"
+                    alt=""
+                    className="h-full min-h-[360px] w-full object-cover grayscale opacity-90"
+                  />
+                  <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,5,6,0.12),rgba(5,5,6,0.82))]" />
+                </div>
+                <div className="flex flex-col justify-between p-8 sm:p-10 lg:p-12">
+                  <div>
+                    <div className="mb-8 flex h-12 w-12 items-center justify-center rounded-[18px] border border-white/10 bg-white/[0.08] p-3 text-white">
+                      <ShieldCheck size={24} strokeWidth={1.4} />
+                    </div>
+                    <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.2em] text-white/38">Proteção e confiança</p>
+                    <h2 className="text-[42px] font-extralight leading-tight tracking-tight sm:text-[58px]">Um ambiente pensado para acervo clínico sensível.</h2>
+                    <p className="mt-7 text-[15px] font-light leading-relaxed text-white/58">
+                      A Lon Suite organiza cada ativo com dono, contexto e acesso individual. O sistema foi desenhado para preservar a privacidade do acervo e manter a experiência limpa, rastreável e profissional.
+                    </p>
+                  </div>
+                  <div className="mt-10 grid gap-3 sm:grid-cols-3">
+                    {[
+                      { icon: LockKeyhole, label: 'Acesso individual' },
+                      { icon: Fingerprint, label: 'Conta por usuário' },
+                      { icon: Server, label: 'Base protegida' },
+                    ].map(item => {
+                      const Icon = item.icon;
+                      return (
+                        <div key={item.label} className="rounded-[22px] border border-white/10 bg-white/[0.06] p-4 backdrop-blur">
+                          <Icon size={18} className="mb-7 text-white/70" strokeWidth={1.4} />
+                          <p className="text-[12px] font-semibold leading-snug text-white/72">{item.label}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <article className="plans-card relative min-h-[620px] overflow-hidden rounded-[38px] bg-white p-8 shadow-[0_30px_100px_rgba(0,0,0,0.10)] sm:p-10">
+              <img
+                src="/assets/lon-suite-global-editorial.png"
+                alt=""
+                className="absolute inset-0 h-full w-full object-cover grayscale"
+              />
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(255,255,255,0.58)_42%,rgba(17,17,19,0.78))]" />
+              <div className="relative z-10 flex h-full min-h-[560px] flex-col justify-between">
+                <div>
+                  <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.2em] text-[#6e6e73]">Alcance global</p>
+                  <h2 className="max-w-xl text-[42px] font-semibold leading-tight tracking-tight sm:text-[58px]">Criado para uma prática médica sem fronteiras.</h2>
+                  <p className="mt-6 max-w-lg text-[15px] font-light leading-relaxed text-[#424245]">
+                    O conhecimento clínico não termina na sala de cirurgia. Ele vira aula, discussão, segunda opinião, conferência e colaboração científica.
+                  </p>
+                </div>
+
+                <div className="relative mx-auto my-8 h-[270px] w-[270px] sm:h-[330px] sm:w-[330px]">
+                  <div className="plans-global-globe absolute inset-0 rounded-full border border-white/50 bg-black/[0.08] shadow-[inset_0_0_70px_rgba(255,255,255,0.70),0_28px_90px_rgba(0,0,0,0.18)] backdrop-blur-sm">
+                    <div className="plans-globe-lat top-[24%]" />
+                    <div className="plans-globe-lat top-[50%]" />
+                    <div className="plans-globe-lat top-[76%]" />
+                    <div className="plans-globe-lon left-[25%]" />
+                    <div className="plans-globe-lon left-[50%]" />
+                    <div className="plans-globe-lon left-[75%]" />
+                  </div>
+                  <div className="plans-global-ring absolute inset-[-18px] rounded-full border border-white/55" />
+                  <div className="plans-global-ring plans-global-ring-slow absolute inset-[-42px] rounded-full border border-white/30" />
+                  {['São Paulo', 'Boston', 'Lisboa', 'Tokyo'].map((city, index) => (
+                    <span
+                      key={city}
+                      className="absolute rounded-full border border-white/50 bg-white/80 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-[#1d1d1f] shadow-[0_12px_34px_rgba(0,0,0,0.12)]"
+                      style={[
+                        { left: '4%', top: '58%' },
+                        { right: '-6%', top: '28%' },
+                        { left: '18%', top: '6%' },
+                        { right: '8%', bottom: '8%' },
+                      ][index]}
+                    >
+                      {city}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="rounded-[28px] border border-white/14 bg-[#111113]/82 p-6 text-white shadow-[0_24px_80px_rgba(0,0,0,0.25)] backdrop-blur-xl">
+                  <Network size={18} className="mb-6 text-white/60" />
+                  <p className="text-[24px] font-extralight leading-tight">Ativos científicos prontos para circular com clareza, contexto e autoridade.</p>
+                </div>
+              </div>
+            </article>
+          </section>
+
           <section className="mt-24 grid items-center gap-8 rounded-[38px] bg-[#ededeb] p-6 sm:p-10 lg:grid-cols-[0.95fr_1.05fr] lg:p-12">
             <div>
               <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Valor prático</p>
@@ -358,18 +450,26 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
             </div>
           </section>
 
-          <section className="mt-24 rounded-[38px] bg-white p-8 text-center shadow-[0_28px_90px_rgba(0,0,0,0.08)] sm:p-14">
-            <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Comece pela decisão certa</p>
-            <h2 className="mx-auto max-w-4xl text-[42px] font-semibold leading-tight tracking-tight sm:text-[64px]">O próximo ativo científico que você perder pode ser justamente o que mais precisava encontrar.</h2>
-            <p className="mx-auto mt-6 max-w-2xl text-[16px] leading-relaxed text-[#6e6e73]">Escolha um plano e comece a transformar seu acervo em vantagem intelectual.</p>
-            <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
-              <a href={planMailto('Personal')} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#111113] px-7 py-3 text-[13px] font-semibold text-white hover:bg-[#2d2d2f]">
+          <section className="relative mt-24 overflow-hidden rounded-[42px] bg-[#111113] px-7 py-16 text-center text-white shadow-[0_38px_130px_rgba(0,0,0,0.26)] sm:px-12 sm:py-20">
+            <img
+              src="/assets/lon-suite-security-editorial.png"
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover grayscale opacity-52"
+            />
+            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(17,17,19,0.94),rgba(17,17,19,0.58),rgba(17,17,19,0.92))]" />
+            <div className="relative z-10">
+              <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.2em] text-white/44">Comece pela decisão certa</p>
+              <h2 className="mx-auto max-w-4xl text-[42px] font-extralight leading-tight tracking-tight sm:text-[66px]">Seu acervo já existe. Agora ele precisa trabalhar no nível da sua carreira.</h2>
+              <p className="mx-auto mt-7 max-w-2xl text-[16px] font-light leading-relaxed text-white/62">Escolha um plano e transforme imagens, PDFs e casos em uma biblioteca científica viva, pesquisável e pronta para apresentação.</p>
+              <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
+              <a href={planMailto('Personal')} className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-7 py-3 text-[13px] font-semibold text-[#111113] hover:bg-white/90">
                 Assinar Personal
                 <ArrowRight size={15} />
               </a>
-              <a href={planMailto('Enterprise')} className="inline-flex items-center justify-center gap-2 rounded-full border border-black/[0.08] px-7 py-3 text-[13px] font-semibold text-[#424245] hover:bg-[#f5f5f7]">
+              <a href={planMailto('Enterprise')} className="inline-flex items-center justify-center gap-2 rounded-full border border-white/20 bg-white/10 px-7 py-3 text-[13px] font-semibold text-white backdrop-blur hover:bg-white/16">
                 Falar com a equipe
               </a>
+              </div>
             </div>
           </section>
         </div>
