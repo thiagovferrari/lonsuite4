@@ -1444,6 +1444,12 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
               >
                 {isGeneratingCasePdf ? <Loader2 size={12} className="animate-spin" /> : <Download size={12} />} PDF
               </button>
+              <button
+                onClick={() => { setPresentationMode(true); setPresentationBlockIdx(0); setCaseCertHash(null); }}
+                className="button-nowrap flex shrink-0 items-center gap-1.5 px-3 py-2 bg-white border border-black/8 rounded-apple text-[11px] font-medium text-[#1d1d1f] shadow-apple"
+              >
+                <Maximize2 size={12} /> Apresentar
+              </button>
             </div>
 
           <div className="space-y-8">
@@ -1829,7 +1835,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                   <button
                     key={opt.value}
                     onClick={() => syncCase({ ...editingCase, caseStatus: opt.value })}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-apple-lg text-[12px] font-medium transition-all ${
+                    className={`button-nowrap w-full flex items-center gap-2.5 px-3 py-2 rounded-apple-lg text-[12px] font-medium transition-all ${
                       (editingCase.caseStatus || 'em_andamento') === opt.value
                         ? 'bg-white shadow-apple border border-black/6 text-[#1d1d1f]'
                         : 'text-[#86868b] hover:bg-white/80 hover:text-[#1d1d1f]'
@@ -1884,7 +1890,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
             <button
               onClick={handleDownloadCasePDF}
               disabled={isGeneratingCasePdf}
-              className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-apple-lg text-[11px] font-semibold bg-[#1d1d1f] text-white hover:bg-[#333] shadow-apple transition-all disabled:opacity-60"
+              className="button-nowrap w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-apple-lg text-[11px] font-semibold bg-[#1d1d1f] text-white hover:bg-[#333] shadow-apple transition-all disabled:opacity-60"
             >
               {isGeneratingCasePdf ? <Loader2 size={12} className="animate-spin" /> : <Download size={12} />}
               {isGeneratingCasePdf ? 'Gerando PDF...' : 'Baixar PDF'}
@@ -1892,7 +1898,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
 
             <button
               onClick={() => { setPresentationMode(true); setPresentationBlockIdx(0); setCaseCertHash(null); }}
-              className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-apple-lg text-[11px] font-semibold bg-[#f2f3f5] text-[#1d1d1f] hover:bg-[#e5e5ea] shadow-apple transition-all"
+              className="button-nowrap w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-apple-lg text-[11px] font-semibold bg-[#f2f3f5] text-[#1d1d1f] hover:bg-[#e5e5ea] shadow-apple transition-all"
             >
               <Maximize2 size={12} />
               Modo Apresentação
@@ -1916,7 +1922,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                       setCopiedCert(true);
                       setTimeout(() => setCopiedCert(false), 2000);
                     }}
-                    className="flex items-center gap-1 text-[9px] font-bold text-emerald-600 hover:text-emerald-700 transition-colors"
+                    className="button-nowrap flex items-center gap-1 text-[9px] font-bold text-emerald-600 hover:text-emerald-700 transition-colors"
                   >
                     {copiedCert ? <CheckCircle2 size={10} /> : <Copy size={10} />}
                     {copiedCert ? 'Copiado!' : 'Copiar certificado'}
@@ -1925,7 +1931,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
               ) : (
                 <button
                   onClick={() => setCaseCertHash(generateCertHash(editingCase))}
-                  className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-apple-lg text-[11px] font-semibold bg-[#f0fdf4] text-emerald-600 hover:bg-emerald-100 border border-emerald-100 transition-all"
+                  className="button-nowrap w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-apple-lg text-[11px] font-semibold bg-[#f0fdf4] text-emerald-600 hover:bg-emerald-100 border border-emerald-100 transition-all"
                 >
                   <Award size={12} />
                   Certificar Autoria
@@ -2564,21 +2570,21 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
             <div className="max-w-[1920px] mx-auto">
               <header className="mb-8">
                 {/* Title row */}
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-7">
-                  <div>
+                <div className="flex flex-col gap-4 mb-7 lg:flex-row lg:items-center lg:justify-between">
+                  <div className="min-w-0">
                     <h1 className="text-3xl sm:text-4xl font-extralight tracking-tight text-[#1d1d1f]">Ativos</h1>
                     <p className="text-[11px] font-medium text-[#86868b] tracking-wider mt-1.5">
                       {isRefreshing ? 'Sincronizando acervo...' : `${filteredAssets.length} ativos visíveis · ${activeAssets.filter(a => a.type === 'case').length} cases`}
                     </p>
                   </div>
                   <button onClick={() => setShowUploadModal(true)}
-                    className="btn-ai w-full sm:w-auto px-5 py-2.5 rounded-apple-lg font-semibold text-[13px] shadow-apple flex items-center justify-center gap-2 hover:-translate-y-0.5">
+                    className="button-nowrap btn-ai flex w-full items-center justify-center gap-2 rounded-apple-lg px-5 py-2.5 text-[13px] font-semibold shadow-apple hover:-translate-y-0.5 sm:w-auto lg:shrink-0">
                     <Plus size={15} /> Novo Ativo
                   </button>
                 </div>
 
                 {/* Filter row */}
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <div className="flex flex-col items-stretch gap-3 xl:flex-row xl:items-center">
                   {/* Search */}
                   <div className="relative flex-1 min-w-0 group">
                     <div className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
@@ -2605,11 +2611,11 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                   </div>
 
                   {/* Date filters */}
-                  <div className="flex items-center gap-2">
+                  <div className="flex min-w-0 items-center gap-2 overflow-x-auto pb-1 no-scrollbar xl:shrink-0 xl:pb-0">
                     <select
                       value={dateFilter.month}
                       onChange={e => setDateFilter(p => ({ ...p, month: e.target.value }))}
-                      className="px-3 py-2.5 bg-white border border-black/8 rounded-apple-lg text-[12px] font-medium text-[#1d1d1f] outline-none focus:border-[#4285F4]/30 shadow-apple appearance-none cursor-pointer"
+                      className="shrink-0 px-3 py-2.5 bg-white border border-black/8 rounded-apple-lg text-[12px] font-medium text-[#1d1d1f] outline-none focus:border-[#4285F4]/30 shadow-apple appearance-none cursor-pointer"
                     >
                       <option value="">Mês</option>
                       {['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'].map((m, i) => (
@@ -2619,7 +2625,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                     <select
                       value={dateFilter.year}
                       onChange={e => setDateFilter(p => ({ ...p, year: e.target.value }))}
-                      className="px-3 py-2.5 bg-white border border-black/8 rounded-apple-lg text-[12px] font-medium text-[#1d1d1f] outline-none focus:border-[#4285F4]/30 shadow-apple appearance-none cursor-pointer"
+                      className="shrink-0 px-3 py-2.5 bg-white border border-black/8 rounded-apple-lg text-[12px] font-medium text-[#1d1d1f] outline-none focus:border-[#4285F4]/30 shadow-apple appearance-none cursor-pointer"
                     >
                       <option value="">Ano</option>
                       {Array.from(new Set(assets.map(a => new Date(a.createdAt || a.date).getFullYear()))).sort((a: number, b: number) => b - a).map(y => (
@@ -2629,15 +2635,15 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                     {(dateFilter.month || dateFilter.year) && (
                       <button
                         onClick={() => setDateFilter({ month: '', year: '' })}
-                        className="px-2.5 py-2.5 text-[10px] font-bold text-[#86868b] hover:text-red-500 transition-colors uppercase tracking-widest"
+                        className="button-nowrap shrink-0 px-2.5 py-2.5 text-[10px] font-bold text-[#86868b] hover:text-red-500 transition-colors uppercase tracking-widest"
                       >
                         Limpar
                       </button>
                     )}
                   </div>
 
-                  <div className="flex items-center justify-between sm:justify-start gap-2">
-                    <div className="flex items-center bg-white border border-black/[0.06] rounded-apple-lg shadow-apple p-0.5">
+                  <div className="flex items-center justify-between gap-2 sm:justify-start xl:shrink-0">
+                    <div className="flex shrink-0 items-center bg-white border border-black/[0.06] rounded-apple-lg shadow-apple p-0.5">
                       {([
                         { id: 'small', label: 'P', title: 'Miniaturas pequenas' },
                         { id: 'medium', label: 'M', title: 'Miniaturas médias' },
@@ -2775,6 +2781,17 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                     )}
                   </div>
                 </div>
+
+                {(dataLoadNotice || isRefreshing) && (
+                  <div className={`mt-4 flex items-start gap-2 rounded-[18px] px-4 py-3 text-[12px] font-medium leading-relaxed ${
+                    dataLoadNotice
+                      ? 'border border-amber-200/70 bg-amber-50 text-amber-800'
+                      : 'border border-blue-100 bg-blue-50 text-blue-800'
+                  }`}>
+                    {dataLoadNotice ? <AlertCircle size={15} className="mt-0.5 shrink-0" /> : <Loader2 size={15} className="mt-0.5 shrink-0 animate-spin" />}
+                    <span>{dataLoadNotice || 'Sincronizando seus cases com a nuvem. Seus dados continuam vinculados à sua conta.'}</span>
+                  </div>
+                )}
               </header>
 
               {/* Cases — List or Grid */}
@@ -2869,14 +2886,24 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                 </div>
               )
             ) : (
-                <div className="text-center py-24 text-[#86868b]">
-                  <Stethoscope size={40} className="mx-auto mb-4 opacity-25" />
-                  <p className="text-[14px] font-medium mb-1">Nenhum case criado ainda</p>
-                  <p className="text-[12px] text-[#aeaeb2] mb-5">Cases científicos editoriais aparecerão aqui</p>
-                  <button onClick={handleCreateCase}
-                    className="button-nowrap btn-ai px-5 py-2.5 rounded-apple-lg text-[12px] font-semibold shadow-apple">
-                    Criar Primeiro Case
-                  </button>
+                <div className="mx-auto max-w-md rounded-[30px] border border-black/[0.05] bg-white px-6 py-14 text-center text-[#86868b] shadow-[0_24px_80px_rgba(0,0,0,0.06)]">
+                  {isRefreshing ? (
+                    <>
+                      <Loader2 size={38} className="mx-auto mb-4 animate-spin text-[#1d1d1f]/30" />
+                      <p className="text-[14px] font-medium mb-1">Carregando cases científicos</p>
+                      <p className="text-[12px] text-[#aeaeb2]">Consultando seu cache local e sua conta na nuvem.</p>
+                    </>
+                  ) : (
+                    <>
+                      <Stethoscope size={40} className="mx-auto mb-4 opacity-25" />
+                      <p className="text-[14px] font-medium mb-1">Nenhum case criado ainda</p>
+                      <p className="text-[12px] text-[#aeaeb2] mb-5">Cases científicos editoriais aparecerão aqui</p>
+                      <button onClick={handleCreateCase}
+                        className="button-nowrap btn-ai px-5 py-2.5 rounded-apple-lg text-[12px] font-semibold shadow-apple">
+                        Criar Primeiro Case
+                      </button>
+                    </>
+                  )}
                 </div>
               )}
             </div>

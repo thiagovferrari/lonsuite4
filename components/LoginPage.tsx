@@ -121,7 +121,7 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
               <a href="#case-builder" className="transition-colors hover:text-[#1d1d1f]">Case Builder</a>
               <a href="#planos" className="transition-colors hover:text-[#1d1d1f]">Planos</a>
             </div>
-            <a href="#planos" className="rounded-full bg-[#1d1d1f] px-4 py-2 text-[12px] font-semibold text-white hover:bg-[#2d2d2f]">
+            <a href="#planos" className="button-nowrap rounded-full bg-[#1d1d1f] px-4 py-2 text-[12px] font-semibold text-white hover:bg-[#2d2d2f]">
               Ver planos
             </a>
           </nav>
@@ -132,14 +132,14 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
                 <Award size={13} className="text-[#1d1d1f]" />
                 Lon Suite Pricing
               </p>
-              <h1 className="max-w-4xl text-[48px] font-extralight leading-[0.98] tracking-tight text-[#111113] sm:text-[76px] lg:text-[92px]">
+              <h1 className="max-w-4xl text-[48px] font-extralight leading-[0.98] tracking-tight text-[#111113] sm:text-[76px] lg:text-[78px] xl:text-[92px]">
                 O acervo científico que trabalha por você.
               </h1>
               <p className="mt-8 max-w-2xl text-[18px] font-light leading-relaxed text-[#6e6e73] sm:text-[21px]">
                 A Lon Suite transforma imagens, fotos e documentos em ativos científicos pesquisáveis. O que antes era arquivo esquecido passa a gerar aula, case, apresentação, memória e autoridade.
               </p>
               <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-                <a href="#planos" className="inline-flex items-center justify-center gap-2 rounded-full bg-[#1d1d1f] px-6 py-3 text-[13px] font-semibold text-white shadow-[0_18px_44px_rgba(0,0,0,0.18)] hover:bg-[#2d2d2f]">
+                <a href="#planos" className="button-nowrap inline-flex items-center justify-center gap-2 rounded-full bg-[#1d1d1f] px-6 py-3 text-[13px] font-semibold text-white shadow-[0_18px_44px_rgba(0,0,0,0.18)] hover:bg-[#2d2d2f]">
                   Ver planos
                   <ArrowRight size={15} />
                 </a>
@@ -186,13 +186,13 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
               <h2 className="text-[38px] font-semibold leading-tight tracking-tight sm:text-[56px]">Planos para transformar acervo em presença científica.</h2>
             </div>
 
-            <div className="grid gap-5 lg:grid-cols-4">
+            <div className="grid gap-5 lg:grid-cols-2 xl:grid-cols-4">
               {plans.map((plan, index) => {
                 const Icon = plan.icon;
                 return (
                   <article
                     key={plan.name}
-                    className={`plans-card group relative min-h-[560px] overflow-hidden rounded-[34px] border p-5 transition-all hover:-translate-y-1 ${plan.highlight ? 'border-[#111113] bg-[#111113] text-white shadow-[0_38px_100px_rgba(0,0,0,0.30)] lg:-translate-y-4' : 'border-white bg-white text-[#111113] shadow-[0_22px_70px_rgba(0,0,0,0.08)]'}`}
+                    className={`plans-card group relative min-h-[540px] overflow-hidden rounded-[34px] border p-5 transition-all hover:-translate-y-1 ${plan.highlight ? 'border-[#111113] bg-[#111113] text-white shadow-[0_38px_100px_rgba(0,0,0,0.30)] xl:-translate-y-4' : 'border-white bg-white text-[#111113] shadow-[0_22px_70px_rgba(0,0,0,0.08)]'}`}
                     style={{ animationDelay: `${index * 120}ms` }}
                   >
                     <div className={`mb-6 rounded-[26px] p-5 ${plan.highlight ? 'bg-[linear-gradient(135deg,rgba(255,255,255,0.18),rgba(58,123,213,0.18))]' : 'bg-[#f0f0ef]'}`}>
@@ -218,7 +218,7 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
                       ))}
                     </div>
 
-                    <a href={plan.href} className={`absolute bottom-5 left-5 right-5 flex items-center justify-center gap-2 rounded-full px-4 py-3 text-[13px] font-semibold transition-all active:scale-[0.98] ${plan.highlight ? 'bg-white text-[#111113] hover:bg-white/90' : 'bg-[#111113] text-white hover:bg-[#2d2d2f]'}`}>
+                    <a href={plan.href} className={`button-nowrap absolute bottom-5 left-5 right-5 flex items-center justify-center gap-2 rounded-full px-4 py-3 text-[13px] font-semibold transition-all active:scale-[0.98] ${plan.highlight ? 'bg-white text-[#111113] hover:bg-white/90' : 'bg-[#111113] text-white hover:bg-[#2d2d2f]'}`}>
                       {plan.cta}
                       <ArrowRight size={14} />
                     </a>
@@ -496,11 +496,11 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
               <h2 className="mx-auto max-w-4xl text-[42px] font-extralight leading-tight tracking-tight sm:text-[66px]">Seu acervo já existe. Agora ele precisa trabalhar no nível da sua carreira.</h2>
               <p className="mx-auto mt-7 max-w-2xl text-[16px] font-light leading-relaxed text-white/62">Escolha um plano e transforme imagens, PDFs e casos em uma biblioteca científica viva, pesquisável e pronta para apresentação.</p>
               <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
-              <a href={planMailto('Personal')} className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-7 py-3 text-[13px] font-semibold text-[#111113] hover:bg-white/90">
+              <a href={planMailto('Personal')} className="button-nowrap inline-flex items-center justify-center gap-2 rounded-full bg-white px-7 py-3 text-[13px] font-semibold text-[#111113] hover:bg-white/90">
                 Assinar Personal
                 <ArrowRight size={15} />
               </a>
-              <a href={planMailto('Enterprise')} className="inline-flex items-center justify-center gap-2 rounded-full border border-white/20 bg-white/10 px-7 py-3 text-[13px] font-semibold text-white backdrop-blur hover:bg-white/16">
+              <a href={planMailto('Enterprise')} className="button-nowrap inline-flex items-center justify-center gap-2 rounded-full border border-white/20 bg-white/10 px-7 py-3 text-[13px] font-semibold text-white backdrop-blur hover:bg-white/16">
                 Falar com a equipe
               </a>
               </div>
@@ -640,7 +640,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
                 <button
                   type="submit"
                   disabled={loading || !email || !password}
-                  className="mt-2 flex w-full items-center justify-center gap-2 rounded-[14px] bg-[#1d1d1f] py-3 text-[14px] font-semibold text-white shadow-[0_10px_26px_rgba(0,0,0,0.16)] transition-all hover:bg-[#2d2d2f] active:scale-[0.98] disabled:opacity-40"
+                  className="button-nowrap mt-2 flex w-full items-center justify-center gap-2 rounded-[14px] bg-[#1d1d1f] py-3 text-[14px] font-semibold text-white shadow-[0_10px_26px_rgba(0,0,0,0.16)] transition-all hover:bg-[#2d2d2f] active:scale-[0.98] disabled:opacity-40"
                 >
                   {loading ? (
                     <>
@@ -669,7 +669,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
               <button
                 type="button"
                 onClick={() => setShowPlans(true)}
-                className="mt-4 flex w-full items-center justify-center gap-2 rounded-[14px] border border-black/[0.06] bg-[#f9f9fb] px-4 py-3 text-[12px] font-semibold text-[#424245] hover:bg-[#1d1d1f] hover:text-white"
+                className="button-nowrap mt-4 flex w-full items-center justify-center gap-2 rounded-[14px] border border-black/[0.06] bg-[#f9f9fb] px-4 py-3 text-[12px] font-semibold text-[#424245] hover:bg-[#1d1d1f] hover:text-white"
               >
                 Confira nossos planos
                 <ArrowRight size={14} />

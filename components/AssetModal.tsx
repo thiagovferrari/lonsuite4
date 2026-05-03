@@ -332,11 +332,11 @@ const AssetModal: React.FC<AssetModalProps> = ({
                 <div className="w-full h-full bg-white relative flex flex-col">
                     <div className="absolute top-5 right-6 z-20 flex gap-2">
                         {(isEditingContent || isEditingTitle) ? (
-                            <button onClick={handleSaveAll} className="flex items-center gap-2 px-4 py-2 btn-ai rounded-full text-[11px] font-semibold hover:shadow-apple transition-all">
+                            <button onClick={handleSaveAll} className="button-nowrap flex items-center gap-2 px-4 py-2 btn-ai rounded-full text-[11px] font-semibold hover:shadow-apple transition-all">
                                 <Save size={13} /> Salvar
                             </button>
                         ) : (
-                            <button onClick={handleEditClick} className="flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur border border-black/10 text-[#1d1d1f] rounded-full text-[11px] font-semibold hover:bg-white shadow-apple transition-all">
+                            <button onClick={handleEditClick} className="button-nowrap flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur border border-black/10 text-[#1d1d1f] rounded-full text-[11px] font-semibold hover:bg-white shadow-apple transition-all">
                                 <PenLine size={13} /> Editar
                             </button>
                         )}
@@ -383,7 +383,7 @@ const AssetModal: React.FC<AssetModalProps> = ({
                                 <FileText size={48} strokeWidth={1} />
                                 <p className="text-sm font-medium">Visualização não disponível</p>
                                 <button onClick={activeAttachment ? () => handleAttachmentDownload(activeAttachment) : undefined}
-                                    className="text-[#4285F4] text-xs font-semibold hover:underline">
+                                    className="button-nowrap text-[#4285F4] text-xs font-semibold hover:underline">
                                     Baixar arquivo
                                 </button>
                             </div>
@@ -464,7 +464,7 @@ const AssetModal: React.FC<AssetModalProps> = ({
                     {pdfBlobUrl && (
                         <div className="absolute bottom-5 left-1/2 -translate-x-1/2">
                             <button onClick={() => window.open(pdfBlobUrl, '_blank')}
-                                className="px-5 py-2.5 bg-[#1d1d1f]/90 backdrop-blur text-white rounded-full shadow-apple-lg hover:bg-[#1d1d1f] transition-all flex items-center gap-2 text-[11px] font-semibold active:scale-95">
+                                className="button-nowrap px-5 py-2.5 bg-[#1d1d1f]/90 backdrop-blur text-white rounded-full shadow-apple-lg hover:bg-[#1d1d1f] transition-all flex items-center gap-2 text-[11px] font-semibold active:scale-95">
                                 <ExternalLink size={13} /> Abrir em Nova Aba
                             </button>
                         </div>
@@ -482,7 +482,7 @@ const AssetModal: React.FC<AssetModalProps> = ({
             <div className="w-full h-full flex flex-col items-center justify-center text-[#86868b] gap-4 bg-[#f2f3f5]">
                 <MonitorPlay size={40} strokeWidth={1} className="opacity-40" />
                 <p className="text-sm font-light">Visualização não disponível</p>
-                <button onClick={handleDownload} className="text-[#4285F4] text-xs font-semibold hover:underline">Baixar Arquivo</button>
+                <button onClick={handleDownload} className="button-nowrap text-[#4285F4] text-xs font-semibold hover:underline">Baixar Arquivo</button>
             </div>
         );
     };
@@ -505,13 +505,13 @@ const AssetModal: React.FC<AssetModalProps> = ({
 
                 {/* Mobile top bar — clear close affordance */}
                 <div className="md:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-black/6 shrink-0 z-30">
-                    <button onClick={onClose} className="flex items-center gap-1.5 text-[#4285F4] active:opacity-60 transition-opacity">
+                    <button onClick={onClose} className="button-nowrap flex items-center gap-1.5 text-[#4285F4] active:opacity-60 transition-opacity">
                         <ChevronLeft size={20} strokeWidth={2.5} />
                         <span className="text-[14px] font-semibold">Voltar</span>
                     </button>
                     <div className="flex items-center gap-2">
                         {!isTrashMode && (
-                            <button onClick={handleSaveAll} className="flex items-center gap-1.5 rounded-full bg-[#1d1d1f] px-3 py-2 text-[11px] font-semibold text-white shadow-apple active:scale-95">
+                            <button onClick={handleSaveAll} className="button-nowrap flex items-center gap-1.5 rounded-full bg-[#1d1d1f] px-3 py-2 text-[11px] font-semibold text-white shadow-apple active:scale-95">
                                 <Save size={13} /> Salvar
                             </button>
                         )}
@@ -578,7 +578,7 @@ const AssetModal: React.FC<AssetModalProps> = ({
                         {/* Action buttons */}
                         <div className="flex gap-2.5">
                             <button onClick={handleDownload}
-                                className="w-full py-2.5 rounded-apple bg-[#f2f3f5] text-[#1d1d1f] text-[11px] font-semibold hover:bg-black/8 transition-colors flex items-center justify-center gap-1.5">
+                                className="button-nowrap w-full py-2.5 rounded-apple bg-[#f2f3f5] text-[#1d1d1f] text-[11px] font-semibold hover:bg-black/8 transition-colors flex items-center justify-center gap-1.5">
                                 <Download size={13} /> Baixar Ativo
                             </button>
                         </div>
@@ -587,7 +587,7 @@ const AssetModal: React.FC<AssetModalProps> = ({
                         {/* Process with AI (manual assets only) */}
                         {editedAsset.tags?.length === 0 && !isTrashMode && (
                             <button onClick={handleProcessWithAI} disabled={isProcessingManual}
-                                className="w-full py-2.5 btn-ai rounded-apple font-semibold text-[11px] disabled:opacity-50">
+                                className="button-nowrap w-full py-2.5 btn-ai rounded-apple font-semibold text-[11px] disabled:opacity-50">
                                 {isProcessingManual ? <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Brain size={13} className="text-blue-300" />}
                                 {isProcessingManual ? 'Analisando...' : 'Processar com IA'}
                             </button>
@@ -735,11 +735,11 @@ const AssetModal: React.FC<AssetModalProps> = ({
                         {isTrashMode ? (
                             <>
                                 <button onClick={onRestore}
-                                    className="flex-1 py-2.5 bg-[#e8f2fc] text-[#4285F4] rounded-apple font-semibold text-[11px] hover:bg-[#d4eafb] transition-colors flex items-center justify-center gap-1.5">
+                                    className="button-nowrap flex-1 py-2.5 bg-[#e8f2fc] text-[#4285F4] rounded-apple font-semibold text-[11px] hover:bg-[#d4eafb] transition-colors flex items-center justify-center gap-1.5">
                                     <RotateCcw size={13} /> Restaurar
                                 </button>
                                 <button onClick={handleDeleteClick}
-                                    className={`flex-1 py-2.5 rounded-apple font-semibold text-[11px] transition-all flex items-center justify-center gap-1.5 ${deleteConfirm ? 'bg-red-50 text-red-600 border border-red-300' : 'bg-transparent text-red-500 border border-red-500/30 hover:bg-red-50'}`}>
+                                    className={`button-nowrap flex-1 py-2.5 rounded-apple font-semibold text-[11px] transition-all flex items-center justify-center gap-1.5 ${deleteConfirm ? 'bg-red-50 text-red-600 border border-red-300' : 'bg-transparent text-red-500 border border-red-500/30 hover:bg-red-50'}`}>
                                     {deleteConfirm ? <AlertTriangle size={13} /> : <Trash2 size={13} />}
                                     {deleteConfirm ? 'Confirmar?' : 'Excluir'}
                                 </button>
@@ -747,11 +747,11 @@ const AssetModal: React.FC<AssetModalProps> = ({
                         ) : (
                             <>
                                 <button onClick={handleSaveAll}
-                                    className="flex-[1.4] py-2.5 btn-ai rounded-apple font-semibold text-[11px] shadow-apple transition-all flex items-center justify-center gap-1.5">
+                                    className="button-nowrap flex-[1.4] py-2.5 btn-ai rounded-apple font-semibold text-[11px] shadow-apple transition-all flex items-center justify-center gap-1.5">
                                     <Save size={13} /> Salvar Alterações
                                 </button>
                                 <button onClick={handleDeleteClick}
-                                    className={`flex-1 py-2.5 rounded-apple font-semibold text-[11px] transition-all flex items-center justify-center gap-1.5 ${deleteConfirm ? 'bg-red-500 text-white shadow-md' : 'bg-red-50 text-red-500 border border-red-200/60 hover:bg-red-100 hover:border-red-300'}`}>
+                                    className={`button-nowrap flex-1 py-2.5 rounded-apple font-semibold text-[11px] transition-all flex items-center justify-center gap-1.5 ${deleteConfirm ? 'bg-red-500 text-white shadow-md' : 'bg-red-50 text-red-500 border border-red-200/60 hover:bg-red-100 hover:border-red-300'}`}>
                                     {deleteConfirm ? <><AlertTriangle size={13} /> Confirmar</> : <><Trash2 size={13} /> Remover</>}
                                 </button>
                             </>
