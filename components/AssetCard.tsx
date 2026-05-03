@@ -67,7 +67,7 @@ const AssetCard: React.FC<AssetCardProps> = ({ asset, onClick, ownerName }) => {
   return (
     <div
       onClick={() => onClick(asset)}
-      className="group relative cursor-pointer animate-fade-in"
+      className="asset-card group relative cursor-pointer animate-fade-in"
       role="button"
       tabIndex={0}
       onKeyDown={(e) => e.key === 'Enter' && onClick(asset)}
@@ -127,9 +127,9 @@ const AssetCard: React.FC<AssetCardProps> = ({ asset, onClick, ownerName }) => {
 
           {/* Owner name badge */}
           {ownerName && (
-            <div className="absolute top-1 right-1 sm:top-2 sm:right-2 flex items-center gap-0.5 sm:gap-1 bg-white/80 backdrop-blur-sm px-1 sm:px-1.5 py-0.5 rounded-md shadow-sm border border-black/5">
+            <div className="asset-card-owner absolute top-1 right-1 sm:top-2 sm:right-2 flex max-w-[72%] items-center gap-0.5 sm:gap-1 bg-white/80 backdrop-blur-sm px-1 sm:px-1.5 py-0.5 rounded-md shadow-sm border border-black/5">
               <div className="w-2.5 sm:w-3 h-2.5 sm:h-3 rounded-full bg-[#1d1d1f] flex items-center justify-center text-white text-[5px] sm:text-[6px] font-bold">{ownerName.charAt(0).toUpperCase()}</div>
-              <span className="text-[6px] sm:text-[8px] font-semibold text-[#424245] truncate max-w-[40px] sm:max-w-[60px] hidden sm:inline">{ownerName.split(' ')[0]}</span>
+              <span className="hidden max-w-[54px] truncate text-[6px] font-semibold text-[#424245] sm:inline sm:text-[8px]">{ownerName.split(' ')[0]}</span>
             </div>
           )}
 
@@ -160,32 +160,34 @@ const AssetCard: React.FC<AssetCardProps> = ({ asset, onClick, ownerName }) => {
         </div>
 
         {/* Info */}
-        <div className="px-2.5 py-2.5 sm:px-3 sm:py-3 flex min-h-[82px] flex-col gap-1.5">
-          <h3 className="text-[10px] sm:text-[11.5px] font-semibold text-[#1d1d1f] leading-tight sm:leading-snug group-hover:text-[#4285F4] transition-colors break-words" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
+        <div className="flex min-h-[82px] flex-col gap-1.5 px-2.5 py-2.5 sm:px-3 sm:py-3">
+          <h3 className="asset-card-title text-[10px] font-semibold leading-tight text-[#1d1d1f] transition-colors group-hover:text-[#4285F4] sm:text-[11.5px] sm:leading-snug" title={asset.title || '—'}>
             {asset.title || '—'}
           </h3>
-          <div className="mt-auto flex items-center justify-between gap-1">
+          <div className="asset-card-meta mt-auto flex min-w-0 items-center gap-1 overflow-hidden">
             {displayTags.map((tag, idx) => (
               <span
                 key={`${tag}-${idx}`}
-                className="inline-block self-start px-1.5 py-0.5 rounded-md bg-[#f2f3f5] text-[#86868b] text-[8px] sm:text-[9px] font-semibold truncate max-w-[70%]"
+                className="asset-card-chip inline-block max-w-[54%] truncate rounded-md bg-[#f2f3f5] px-1.5 py-0.5 text-[8px] font-semibold text-[#86868b] sm:text-[9px]"
+                title={tag}
               >
                 {tag}
               </span>
             ))}
             {displayTags.length === 0 && (
               <span
-                className="inline-block self-start px-1.5 py-0.5 rounded-md text-[8px] sm:text-[9px] font-semibold"
+                className="asset-card-chip inline-block max-w-[54%] truncate rounded-md px-1.5 py-0.5 text-[8px] font-semibold sm:text-[9px]"
                 style={{ backgroundColor: `${fileInfo.color}14`, color: fileInfo.color }}
+                title={fileInfo.label}
               >
                 {fileInfo.label}
               </span>
             )}
-            <span className={`ml-auto hidden items-center gap-1 rounded-full px-1.5 py-0.5 text-[8px] font-bold sm:flex ${evidence.bg} ${evidence.text}`}>
+            <span className={`asset-card-chip asset-card-evidence ml-auto hidden items-center gap-1 rounded-full px-1.5 py-0.5 text-[8px] font-bold ${evidence.bg} ${evidence.text}`}>
               <EvidenceIcon size={9} />
               {evidence.label}
             </span>
-            <span className="flex items-center gap-1 text-[7px] sm:text-[8px] text-[#aeaeb2] font-medium shrink-0 truncate max-w-[54px] sm:max-w-[66px]">
+            <span className="asset-card-chip asset-card-date hidden shrink-0 items-center gap-1 truncate text-[7px] font-medium text-[#aeaeb2] sm:text-[8px]">
               <Calendar size={9} />
               {formatDate(asset.createdAt || asset.date)}
             </span>

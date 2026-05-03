@@ -1,6 +1,6 @@
 import React from 'react';
 import { ViewState } from '../types';
-import { LayoutGrid, Stethoscope, Settings, Trash2, Home } from 'lucide-react';
+import { LayoutGrid, Sparkles, Stethoscope, Settings, Trash2, Home } from 'lucide-react';
 
 interface SidebarProps {
   currentView: ViewState;
@@ -60,6 +60,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, trashCount = 0 
         <div className="flex flex-col items-center gap-5 flex-1">
           <NavItem view={ViewState.HOME} icon={Home} label="Início" />
           <NavItem view={ViewState.ATIVOS} icon={LayoutGrid} label="Ativos" />
+          <NavItem view={ViewState.SMART_COLLECTIONS} icon={Sparkles} label="Smart Collections" />
           <NavItem view={ViewState.CASES} icon={Stethoscope} label="Cases Científicos" />
         </div>
 
@@ -77,6 +78,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, trashCount = 0 
           <div className="flex h-[76px] max-w-lg items-center justify-around px-3 pb-safe mx-auto">
             <NavItem view={ViewState.HOME} icon={Home} label="Início" />
             <NavItem view={ViewState.ATIVOS} icon={LayoutGrid} label="Ativos" />
+            <NavItem view={ViewState.SMART_COLLECTIONS} icon={Sparkles} label="Smart" />
             <NavItem view={ViewState.CASES} icon={Stethoscope} label="Cases" />
             <NavItem view={ViewState.TRASH} icon={Trash2} label="Lixeira" badge={trashCount} />
             <NavItem view={ViewState.SETTINGS} icon={Settings} label="Ajustes" />

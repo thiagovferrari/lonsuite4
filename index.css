@@ -90,6 +90,45 @@ button,
   white-space: nowrap;
 }
 
+.asset-card,
+.asset-card * {
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+.asset-card-title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  hyphens: none;
+}
+
+.asset-card-chip,
+.asset-card-owner {
+  white-space: nowrap;
+  min-width: 0;
+}
+
+@media (min-width: 640px) {
+  .asset-card-evidence,
+  .asset-card-date {
+    display: inline-flex;
+  }
+}
+
+@media (max-width: 1320px) {
+  .asset-card-evidence {
+    display: none;
+  }
+}
+
+@media (max-width: 1180px) {
+  .asset-card-date {
+    display: none;
+  }
+}
+
 textarea,
 input,
 [contenteditable="true"] {
