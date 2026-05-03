@@ -2722,25 +2722,41 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
         {view === ViewState.SMART_COLLECTIONS && (() => {
           const smartAssets = activeAssets.filter(a => a.type !== 'case');
           const normalizedQuery = smartSearchQuery.trim().toLowerCase();
+          const queryTokens = normalizedQuery.split(/\s+/).filter(token => token.length > 2);
+          const getSmartSearchable = (asset: Asset) => [
+            asset.title,
+            asset.summary,
+            asset.scientificContext,
+            asset.keyFindings,
+            asset.evidenceLevel,
+            ...(asset.tags || []),
+            ...(asset.attachments || []).map(att => att.name),
+          ].filter(Boolean).join(' ').toLowerCase();
+          const scoreSmartAsset = (asset: Asset) => {
+            if (!normalizedQuery) return 0;
+            const searchable = getSmartSearchable(asset);
+            const title = (asset.title || '').toLowerCase();
+            let score = searchable.includes(normalizedQuery) ? 24 : 0;
+            queryTokens.forEach(token => {
+              if (title.includes(token)) score += 8;
+              if ((asset.tags || []).some(tag => tag.toLowerCase().includes(token))) score += 6;
+              if (searchable.includes(token)) score += 3;
+            });
+            return score;
+          };
           const smartResults = normalizedQuery
-            ? smartAssets.filter(asset => {
-                const searchable = [
-                  asset.title,
-                  asset.summary,
-                  asset.scientificContext,
-                  asset.keyFindings,
-                  ...(asset.tags || []),
-                  ...(asset.attachments || []).map(att => att.name),
-                ].filter(Boolean).join(' ').toLowerCase();
-                return searchable.includes(normalizedQuery);
-              })
-            : smartAssets;
-          const sortedSmartResults = [...smartResults].sort((a, b) => new Date(b.updatedAt || b.createdAt || b.date).getTime() - new Date(a.updatedAt || a.createdAt || a.date).getTime());
+            ? smartAssets
+                .map(asset => ({ asset, score: scoreSmartAsset(asset) }))
+                .filter(item => item.score > 0)
+            : smartAssets.map(asset => ({ asset, score: 0 }));
+          const sortedSmartResults = smartResults
+            .sort((a, b) => b.score - a.score || new Date(b.asset.updatedAt || b.asset.createdAt || b.asset.date).getTime() - new Date(a.asset.updatedAt || a.asset.createdAt || a.asset.date).getTime())
+            .map(item => item.asset);
           const selectedSmartAsset = sortedSmartResults.find(asset => asset.id === smartSelectedAssetId) || sortedSmartResults[0] || null;
           const aiDescribedAssets = smartAssets
             .filter(asset => asset.summary || asset.scientificContext)
             .sort((a, b) => new Date(b.updatedAt || b.createdAt || b.date).getTime() - new Date(a.updatedAt || a.createdAt || a.date).getTime())
-            .slice(0, 5);
+            .slice(0, 6);
           const tagCounts = smartAssets.reduce<Record<string, number>>((acc, asset) => {
             const tags = (asset.tags || []).filter(tag => typeof tag === 'string' && tag.trim()).slice(0, 4);
             (tags.length ? tags : [asset.type === 'pdf' ? 'Documentos científicos' : asset.type === 'image' ? 'Imagens científicas' : 'Materiais recentes']).forEach(tag => {
@@ -2763,7 +2779,21 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
             'slides de congresso recentes',
             'diretrizes e protocolos',
           ];
+          const smartIntents = [
+            { label: 'Achar imagem', description: 'Fotos, exames e figuras', icon: ImageIcon, query: 'imagens científicas exames fotos' },
+            { label: 'Encontrar caso', description: 'Casos e materiais ligados', icon: Stethoscope, query: 'caso clínico apresentação cirurgia' },
+            { label: 'Montar aula', description: 'Slides e referências úteis', icon: BookOpen, query: 'slides aula congresso apresentação' },
+            { label: 'Revisar protocolo', description: 'PDFs, diretrizes e condutas', icon: FileText, query: 'diretrizes protocolos artigos pdf' },
+          ];
+          const formatAssetDate = (asset: Asset) => formatRelativeTime(asset.updatedAt || asset.createdAt || asset.date);
           const formatType = (asset: Asset) => asset.type === 'pdf' ? 'PDF' : asset.type === 'image' ? 'Imagem' : asset.type === 'document' ? 'Documento' : 'Ativo';
+          const smartMatchLabel = (asset: Asset) => {
+            const score = scoreSmartAsset(asset);
+            if (!score) return 'recente';
+            if (score >= 32) return 'alta conexão';
+            if (score >= 16) return 'boa conexão';
+            return 'possível relação';
+          };
           const selectedPreview = selectedSmartAsset ? getAssetPreviewSource(selectedSmartAsset) : null;
           const commitSmartSearch = (query = smartSearchQuery) => {
             const clean = query.trim();
@@ -2776,21 +2806,24 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
             });
           };
           const displayRecentSearches = (smartRecentSearches.length ? smartRecentSearches : suggestions).slice(0, 5);
+          const panelMatchReason = selectedSmartAsset && smartSearchQuery
+            ? `Apareceu porque combina com "${smartSearchQuery}" em título, tags, resumo ou contexto.`
+            : 'Apareceu por recência, tipo de ativo e metadados disponíveis.';
 
           return (
-            <div className="min-h-screen bg-[#f2f1ef] px-5 pt-8 pb-24 animate-fade-in sm:px-8 md:px-10 lg:px-12">
+            <div className="min-h-screen bg-[#f2f1ef] px-5 pt-7 pb-24 animate-fade-in sm:px-8 md:px-10 lg:px-12">
               <div className="pointer-events-none fixed inset-0 -z-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.96),rgba(242,241,239,0.84)_36%,rgba(228,226,222,0.86)_100%)]" />
               <div className="relative mx-auto max-w-[1720px]">
-                <header className="mb-8">
-                  <div className="mb-7 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                <header className="mb-7">
+                  <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                     <div>
                       <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/70 bg-white/70 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#8e8e93] shadow-[0_14px_44px_rgba(0,0,0,0.05)] backdrop-blur">
                         <Sparkles size={12} className="text-[#6e6e73]" />
                         Memória científica inteligente
                       </p>
-                      <h1 className="text-[42px] font-extralight leading-none tracking-tight text-[#171719] sm:text-[58px]">O que você lembra?</h1>
+                      <h1 className="text-[40px] font-extralight leading-none tracking-tight text-[#171719] sm:text-[56px]">O que você lembra?</h1>
                       <p className="mt-3 max-w-2xl text-[14px] font-light leading-relaxed text-[#6e6e73]">
-                        Busque por memória, conceito, técnica, nome ou frase. A Lon Suite organiza os ativos por significado e mostra o contexto certo ao lado.
+                        Descreva do seu jeito: patologia, exame, cirurgia, congresso, aula, paciente anonimizado ou trecho que ficou na memória.
                       </p>
                     </div>
                     <button
@@ -2808,11 +2841,11 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                       <input
                         value={smartSearchQuery}
                         onChange={e => setSmartSearchQuery(e.target.value)}
-                        placeholder="Busque por conceitos, lembranças, nomes, técnicas ou frases. Busca semântica inteligente..."
+                        placeholder="Ex.: foto de safena, slide de congresso, complicação pós-operatória, diretriz vascular..."
                         className="min-w-0 flex-1 bg-transparent text-[14px] font-medium text-[#1d1d1f] outline-none placeholder:text-[#a1a1aa] sm:text-[16px]"
                       />
                       {smartSearchQuery && (
-                        <button onClick={() => setSmartSearchQuery('')} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#f5f5f7] text-[#8e8e93] hover:bg-[#ececef] hover:text-[#1d1d1f]" aria-label="Limpar busca">
+                        <button type="button" onClick={() => setSmartSearchQuery('')} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#f5f5f7] text-[#8e8e93] hover:bg-[#ececef] hover:text-[#1d1d1f]" aria-label="Limpar busca">
                           <X size={14} />
                         </button>
                       )}
@@ -2843,6 +2876,27 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
 
                 <div className="grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(420px,1fr)] 2xl:grid-cols-[minmax(0,2fr)_minmax(500px,1fr)]">
                   <div className="min-w-0 space-y-7">
+                    <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                      {smartIntents.map(intent => {
+                        const Icon = intent.icon;
+                        return (
+                          <button
+                            key={intent.label}
+                            onClick={() => commitSmartSearch(intent.query)}
+                            className="group flex min-w-0 items-center gap-3 rounded-[24px] border border-white/72 bg-white/64 p-4 text-left shadow-[0_14px_50px_rgba(0,0,0,0.05)] backdrop-blur-xl hover:bg-white"
+                          >
+                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[18px] bg-[#f7f7f5] text-[#424245] shadow-sm">
+                              <Icon size={20} strokeWidth={1.4} />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="truncate text-[14px] font-semibold text-[#1d1d1f]">{intent.label}</p>
+                              <p className="mt-1 truncate text-[11px] text-[#8e8e93]">{intent.description}</p>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </section>
+
                     <section>
                       <div className="mb-4 flex items-end justify-between gap-4">
                         <div>
@@ -2850,14 +2904,14 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                             <Sparkles size={18} className="text-[#6e6e73]" />
                             Ativos mais relevantes
                           </h2>
-                          <p className="mt-1 text-[12px] text-[#86868b]">Resultados compactos, limpos e conectados à sua busca.</p>
+                          <p className="mt-1 text-[12px] text-[#86868b]">Clique em um ativo para ver resumo, motivo e ações no painel lateral.</p>
                         </div>
                         <span className="button-nowrap hidden rounded-full border border-white/70 bg-white/70 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#8e8e93] sm:inline-flex">
                           {sortedSmartResults.length} ativos
                         </span>
                       </div>
                       <div className="grid gap-3 lg:grid-cols-2">
-                        {(aiDescribedAssets.length ? aiDescribedAssets : sortedSmartResults.slice(0, 5)).map(asset => {
+                        {(normalizedQuery ? sortedSmartResults : (aiDescribedAssets.length ? aiDescribedAssets : sortedSmartResults)).slice(0, 6).map(asset => {
                           const preview = getAssetPreviewSource(asset);
                           return (
                             <button
@@ -2880,12 +2934,24 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                                 <p className="mt-2 line-clamp-2 text-[11px] font-light leading-relaxed text-[#6e6e73]">
                                   <strong className="font-semibold text-[#424245]">Resumo:</strong> {asset.summary || asset.scientificContext || 'A IA ainda pode descrever este ativo para deixá-lo mais encontrável.'}
                                 </p>
-                                <p className="mt-3 text-[10px] font-medium text-[#a1a1aa]">{formatRelativeTime(asset.updatedAt || asset.createdAt || asset.date)}</p>
+                                <div className="mt-3 flex items-center justify-between gap-2">
+                                  <p className="min-w-0 truncate text-[10px] font-medium text-[#a1a1aa]">{formatAssetDate(asset)}</p>
+                                  <span className="button-nowrap rounded-full bg-[#f5f5f3] px-2 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-[#86868b]">
+                                    {smartMatchLabel(asset)}
+                                  </span>
+                                </div>
                               </div>
                             </button>
                           );
                         })}
                       </div>
+                      {normalizedQuery && sortedSmartResults.length === 0 && (
+                        <div className="rounded-[28px] border border-white/72 bg-white/70 p-8 text-center shadow-[0_18px_70px_rgba(0,0,0,0.055)] backdrop-blur-xl">
+                          <Search size={28} className="mx-auto mb-3 text-[#a1a1aa]" />
+                          <p className="text-[15px] font-semibold text-[#1d1d1f]">Nada encontrado com esses termos.</p>
+                          <p className="mt-2 text-[12px] leading-relaxed text-[#86868b]">Tente uma palavra mais ampla, como especialidade, exame, técnica ou tipo de material.</p>
+                        </div>
+                      )}
                     </section>
 
                     <section>
@@ -2941,7 +3007,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                           commitSmartSearch('conteúdos para revisão e apresentação');
                           showAppToast('A IA priorizou ativos úteis para revisão.', 'info');
                         }}
-                        className="group flex min-h-[220px] flex-col justify-between rounded-[30px] border border-white/72 bg-white/62 p-6 text-left shadow-[0_18px_70px_rgba(0,0,0,0.055)] backdrop-blur-xl hover:-translate-y-0.5 hover:bg-white"
+                        className="group flex min-h-[190px] flex-col justify-between rounded-[30px] border border-white/72 bg-white/62 p-6 text-left shadow-[0_18px_70px_rgba(0,0,0,0.055)] backdrop-blur-xl hover:-translate-y-0.5 hover:bg-white"
                       >
                         <div className="flex h-12 w-12 items-center justify-center rounded-[18px] bg-[#f5f4f2] text-[#424245] shadow-sm">
                           <Brain size={22} strokeWidth={1.4} />
@@ -2954,13 +3020,13 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                     </section>
 
                     <section className="rounded-[30px] border border-white/72 bg-white/72 p-5 shadow-[0_18px_70px_rgba(0,0,0,0.06)] backdrop-blur-xl">
-                      <h2 className="mb-5 text-[17px] font-semibold text-[#1d1d1f]">Como a IA cria coleções que fazem sentido</h2>
+                      <h2 className="mb-5 text-[17px] font-semibold text-[#1d1d1f]">Como usar sem aprender nada novo</h2>
                       <div className="grid gap-4 md:grid-cols-4">
                         {[
-                          ['1', 'Entende o significado', 'Lê títulos, resumos, tags e contexto científico.'],
-                          ['2', 'Cria conexões', 'Relaciona temas, formatos, eventos, casos e autores.'],
-                          ['3', 'Gera coleções úteis', 'Organiza grupos relevantes para sua rotina clínica.'],
-                          ['4', 'Aprende com você', 'Refina sugestões conforme busca, abre e salva ativos.'],
+                          ['1', 'Digite como lembra', 'Use linguagem natural, sem nome exato de arquivo.'],
+                          ['2', 'Veja os melhores ativos', 'Resultados compactos aparecem com contexto.'],
+                          ['3', 'Confira o motivo', 'O painel mostra por que aquele ativo apareceu.'],
+                          ['4', 'Abra ou refine', 'Abra o ativo ou clique em tags para continuar.'],
                         ].map(([n, title, body]) => (
                           <div key={title} className="rounded-[22px] border border-black/[0.04] bg-white/64 p-4">
                             <span className="mb-4 flex h-7 w-7 items-center justify-center rounded-full bg-[#f5f4f2] text-[11px] font-bold text-[#424245]">{n}</span>
@@ -3016,11 +3082,24 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                             </div>
                           )}
 
-                          <div className="mt-6 space-y-3 border-t border-black/[0.06] pt-5">
+                          <div className="mt-6 grid grid-cols-3 gap-2">
                             {[
-                              ['Por que apareceu?', smartSearchQuery ? `Relacionado à busca "${smartSearchQuery}".` : 'Selecionado por recência, contexto e metadados disponíveis.'],
+                              ['Tipo', formatType(selectedSmartAsset)],
+                              ['Relação', smartMatchLabel(selectedSmartAsset)],
+                              ['Atualizado', formatAssetDate(selectedSmartAsset)],
+                            ].map(([title, body]) => (
+                              <div key={title} className="rounded-[16px] bg-[#f7f7f5] p-3">
+                                <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-[#a1a1aa]">{title}</p>
+                                <p className="mt-1 truncate text-[11px] font-semibold text-[#424245]">{body}</p>
+                              </div>
+                            ))}
+                          </div>
+
+                          <div className="mt-5 space-y-3 border-t border-black/[0.06] pt-5">
+                            {[
+                              ['Por que apareceu?', panelMatchReason],
                               ['Contexto científico', selectedSmartAsset.scientificContext || selectedSmartAsset.keyFindings || 'Aguardando enriquecimento semântico.'],
-                              ['Última atividade', formatRelativeTime(selectedSmartAsset.updatedAt || selectedSmartAsset.createdAt || selectedSmartAsset.date)],
+                              ['O que fazer agora?', 'Abra o ativo para visualizar, editar descrição, vincular a cases ou usar em apresentação.'],
                             ].map(([title, body]) => (
                               <div key={title} className="rounded-[18px] bg-[#f7f7f5] p-3">
                                 <p className="text-[11px] font-semibold text-[#1d1d1f]">{title}</p>
