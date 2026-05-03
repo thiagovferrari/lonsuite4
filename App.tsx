@@ -118,11 +118,6 @@ const App: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [smartSearchQuery, setSmartSearchQuery] = useState('');
   const [smartSelectedAssetId, setSmartSelectedAssetId] = useState<string | null>(null);
-  const [smartSelectedCollection, setSmartSelectedCollection] = useState<string>('Todos');
-  const [smartPanelDraft, setSmartPanelDraft] = useState<Asset | null>(null);
-  const [smartPanelSaveStatus, setSmartPanelSaveStatus] = useState<'' | 'salvando' | 'salvo'>('');
-  const [smartPdfUrl, setSmartPdfUrl] = useState<string | null>(null);
-  const [smartPdfLoading, setSmartPdfLoading] = useState(false);
   const [smartRecentSearches, setSmartRecentSearches] = useState<string[]>(() => {
     try {
       const stored = localStorage.getItem('lon_suite_smart_recent_searches');
@@ -817,49 +812,6 @@ const App: React.FC = () => {
     setAssets(prev => prev.map(a => a.id === updatedAsset.id ? { ...updatedAsset, updatedAt: new Date().toISOString() } : a));
   };
 
-  useEffect(() => {
-    if (!smartSelectedAssetId) {
-      setSmartPanelDraft(null);
-      return;
-    }
-    const nextAsset = assets.find(asset => asset.id === smartSelectedAssetId) || null;
-    setSmartPanelDraft(nextAsset);
-  }, [smartSelectedAssetId, assets]);
-
-  useEffect(() => {
-    let url: string | null = null;
-    let cancelled = false;
-    const asset = smartSelectedAssetId ? assets.find(item => item.id === smartSelectedAssetId) : null;
-
-    setSmartPdfUrl(null);
-    if (!asset || asset.type !== 'pdf') {
-      setSmartPdfLoading(false);
-      return () => {};
-    }
-
-    const loadPdf = async () => {
-      setSmartPdfLoading(true);
-      const pdfAttachment = asset.attachments?.find(att => typeof att.type === 'string' && att.type.includes('pdf'));
-      const src = asset.thumbnail || asset.content || pdfAttachment?.data || (pdfAttachment ? await getAttachmentData(pdfAttachment.id) : null) || await getAttachmentData(asset.id);
-      if (!src || cancelled) {
-        if (!cancelled) setSmartPdfLoading(false);
-        return;
-      }
-      const blob = await dataSourceToBlob(src, 'application/pdf');
-      if (blob && !cancelled) {
-        url = URL.createObjectURL(blob);
-        setSmartPdfUrl(url);
-      }
-      if (!cancelled) setSmartPdfLoading(false);
-    };
-
-    loadPdf();
-    return () => {
-      cancelled = true;
-      if (url) URL.revokeObjectURL(url);
-    };
-  }, [smartSelectedAssetId, assets]);
-
   // Create New Case
   const handleCreateCase = () => {
     const titleBlockId = crypto.randomUUID();
@@ -1113,21 +1065,6 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
     }
 
     return '';
-  };
-
-  const dataSourceToBlob = async (src: string, fallbackMime = 'application/octet-stream'): Promise<Blob | null> => {
-    try {
-      if (src.startsWith('http') || src.startsWith('blob:')) {
-        const response = await fetch(src);
-        return await response.blob();
-      }
-      const dataUrl = src.startsWith('data:') ? src : `data:${fallbackMime};base64,${src}`;
-      const response = await fetch(dataUrl);
-      return await response.blob();
-    } catch (error) {
-      console.warn('[Lon Suite] Não foi possível preparar visualização do arquivo.', error);
-      return null;
-    }
   };
 
   // Format relative time
@@ -2080,7 +2017,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
           const progress = total > 0 ? ((currentSlideIndex + 1) / total) * 100 : 0;
 
           return (
-            <div className="lon-system-bg fixed inset-0 z-[900] text-[#1d1d1f] flex flex-col animate-fade-in">
+            <div className="fixed inset-0 z-[900] bg-[#f4f4f2] text-[#1d1d1f] flex flex-col animate-fade-in">
               {/* Top bar */}
               <div className="relative flex items-center justify-between px-5 sm:px-8 py-3.5 border-b border-black/[0.06] bg-white/82 backdrop-blur-xl">
                 <div className="absolute left-0 bottom-0 h-px bg-[#1d1d1f] transition-all duration-300" style={{ width: `${progress}%` }} />
@@ -2305,11 +2242,11 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
   };
 
   return (
-    <div className="lon-system-bg min-h-screen text-[#1d1d1f] font-sans pb-20 md:pb-0 md:pl-[80px] transition-all duration-300">
+    <div className="min-h-screen bg-[#fafbfc] text-[#1d1d1f] font-sans pb-20 md:pb-0 md:pl-[80px] transition-all duration-300">
       <Sidebar currentView={view} setView={(v) => { setSelectedAsset(null); setEditingCase(null); setNewAssetId(null); setSmartSelectedAssetId(null); setView(v); }} trashCount={trashedAssets.length} />
 
       <div className="sticky top-0 z-[210] flex justify-start px-4 pt-3 md:px-6 md:pt-4">
-            <div className="flex max-w-full items-center gap-1 rounded-full border border-white/70 bg-white/68 px-1.5 py-1.5 shadow-[0_14px_44px_rgba(0,0,0,0.06)] backdrop-blur-2xl">
+        <div className="flex max-w-full items-center gap-1 rounded-full border border-black/[0.055] bg-white/86 px-1.5 py-1.5 shadow-[0_8px_28px_rgba(0,0,0,0.07)] backdrop-blur-xl">
           <div className="flex min-w-0 items-center gap-2 pl-1.5 pr-1">
             <div className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#1d1d1f] text-[10px] font-semibold text-white ring-1 ring-black/[0.04]">
               {currentUser.avatarUrl ? (
@@ -2815,37 +2752,39 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
           const sortedSmartResults = smartResults
             .sort((a, b) => b.score - a.score || new Date(b.asset.updatedAt || b.asset.createdAt || b.asset.date).getTime() - new Date(a.asset.updatedAt || a.asset.createdAt || a.asset.date).getTime())
             .map(item => item.asset);
-          let selectedSmartAsset: Asset | null = null;
+          const selectedSmartAsset = sortedSmartResults.find(asset => asset.id === smartSelectedAssetId) || sortedSmartResults[0] || null;
           const aiDescribedAssets = smartAssets
             .filter(asset => asset.summary || asset.scientificContext)
             .sort((a, b) => new Date(b.updatedAt || b.createdAt || b.date).getTime() - new Date(a.updatedAt || a.createdAt || a.date).getTime())
             .slice(0, 6);
-          const ignoredCollectionTags = new Set(['manual', 'grupo', 'ano', 'baixo', 'moderado', 'alto']);
-          const topTagCollections = Object.entries(smartAssets.reduce<Record<string, Asset[]>>((acc, asset) => {
-            (asset.tags || [])
-              .filter(tag => typeof tag === 'string' && tag.trim().length > 2 && !ignoredCollectionTags.has(tag.trim().toLowerCase()))
-              .slice(0, 3)
-              .forEach(tag => {
-                const clean = tag.trim();
-                acc[clean] = [...(acc[clean] || []), asset];
-              });
+          const tagCounts = smartAssets.reduce<Record<string, number>>((acc, asset) => {
+            const tags = (asset.tags || []).filter(tag => typeof tag === 'string' && tag.trim()).slice(0, 4);
+            (tags.length ? tags : [asset.type === 'pdf' ? 'Documentos científicos' : asset.type === 'image' ? 'Imagens científicas' : 'Materiais recentes']).forEach(tag => {
+              const clean = tag.trim();
+              acc[clean] = (acc[clean] || 0) + 1;
+            });
             return acc;
-          }, {}))
-            .sort((a, b) => b[1].length - a[1].length)
-            .slice(0, 3)
-            .map(([label, assets]) => ({ label, description: 'Contexto recorrente no seu acervo', assets }));
-          const smartCollections = [
-            { label: 'Todos', description: 'Seu acervo científico visível', assets: smartAssets },
-            { label: 'Imagens científicas', description: 'Fotos, exames e registros visuais', assets: smartAssets.filter(asset => asset.type === 'image') },
-            { label: 'PDFs e documentos', description: 'Artigos, diretrizes e arquivos técnicos', assets: smartAssets.filter(asset => asset.type === 'pdf' || asset.type === 'document') },
-            { label: 'Descritos pela IA', description: 'Ativos com resumo ou contexto científico', assets: smartAssets.filter(asset => asset.summary || asset.scientificContext || asset.keyFindings) },
-            ...topTagCollections,
-          ].filter(collection => collection.assets.length > 0).slice(0, 6);
-          const selectedCollection = smartCollections.find(collection => collection.label === smartSelectedCollection) || smartCollections[0];
-          const collectionAssetIds = new Set((selectedCollection?.assets || []).map(asset => asset.id));
-          const visibleSmartResults = (normalizedQuery ? sortedSmartResults : (selectedCollection?.assets || sortedSmartResults))
-            .filter(asset => !normalizedQuery || collectionAssetIds.size === 0 || collectionAssetIds.has(asset.id));
-          selectedSmartAsset = visibleSmartResults.find(asset => asset.id === smartSelectedAssetId) || visibleSmartResults[0] || null;
+          }, {});
+          const smartCollections = Object.entries(tagCounts)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 6)
+            .map(([tag, count]) => ({
+              tag,
+              count,
+              assets: smartAssets.filter(asset => (asset.tags || []).includes(tag)).slice(0, 3),
+            }));
+          const suggestions = [
+            'complicações pós-operatórias',
+            'imagens com ultrassom vascular',
+            'slides de congresso recentes',
+            'diretrizes e protocolos',
+          ];
+          const smartIntents = [
+            { label: 'Achar imagem', description: 'Fotos, exames e figuras', icon: ImageIcon, query: 'imagens científicas exames fotos' },
+            { label: 'Encontrar caso', description: 'Casos e materiais ligados', icon: Stethoscope, query: 'caso clínico apresentação cirurgia' },
+            { label: 'Montar aula', description: 'Slides e referências úteis', icon: BookOpen, query: 'slides aula congresso apresentação' },
+            { label: 'Revisar protocolo', description: 'PDFs, diretrizes e condutas', icon: FileText, query: 'diretrizes protocolos artigos pdf' },
+          ];
           const formatAssetDate = (asset: Asset) => formatRelativeTime(asset.updatedAt || asset.createdAt || asset.date);
           const formatType = (asset: Asset) => asset.type === 'pdf' ? 'PDF' : asset.type === 'image' ? 'Imagem' : asset.type === 'document' ? 'Documento' : 'Ativo';
           const smartMatchLabel = (asset: Asset) => {
@@ -2866,27 +2805,14 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
               return next;
             });
           };
+          const displayRecentSearches = (smartRecentSearches.length ? smartRecentSearches : suggestions).slice(0, 5);
           const panelMatchReason = selectedSmartAsset && smartSearchQuery
             ? `Apareceu porque combina com "${smartSearchQuery}" em título, tags, resumo ou contexto.`
-            : selectedCollection
-              ? `Faz parte da coleção "${selectedCollection.label}".`
-              : 'Apareceu por recência, tipo de ativo e metadados disponíveis.';
-          const panelAsset = smartPanelDraft && smartPanelDraft.id === selectedSmartAsset?.id ? smartPanelDraft : selectedSmartAsset;
-          const saveSmartPanelDraft = () => {
-            if (!panelAsset) return;
-            setSmartPanelSaveStatus('salvando');
-            handleSaveAsset(panelAsset);
-            setSmartPanelSaveStatus('salvo');
-            showAppToast('Ativo salvo.');
-            setTimeout(() => setSmartPanelSaveStatus(''), 1800);
-          };
-          const updateSmartDraft = (patch: Partial<Asset>) => {
-            if (!panelAsset) return;
-            setSmartPanelDraft({ ...panelAsset, ...patch });
-          };
+            : 'Apareceu por recência, tipo de ativo e metadados disponíveis.';
 
           return (
-            <div className="min-h-screen px-5 pt-7 pb-24 animate-fade-in sm:px-8 md:px-10 lg:px-12">
+            <div className="min-h-screen bg-[#f2f1ef] px-5 pt-7 pb-24 animate-fade-in sm:px-8 md:px-10 lg:px-12">
+              <div className="pointer-events-none fixed inset-0 -z-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.96),rgba(242,241,239,0.84)_36%,rgba(228,226,222,0.86)_100%)]" />
               <div className="relative mx-auto max-w-[1720px]">
                 <header className="mb-7">
                   <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -2902,7 +2828,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                     </div>
                     <button
                       onClick={() => setShowUploadModal(true)}
-                      className="button-nowrap flex w-full items-center justify-center gap-2 rounded-full border border-white/70 bg-white/80 px-5 py-3 text-[13px] font-semibold text-[#1d1d1f] shadow-[0_18px_60px_rgba(0,0,0,0.08)] backdrop-blur-xl hover:bg-[#1d1d1f] hover:text-white sm:w-auto xl:mr-[calc(33.333%+24px)]"
+                      className="button-nowrap flex w-full items-center justify-center gap-2 rounded-full border border-white/70 bg-white/80 px-5 py-3 text-[13px] font-semibold text-[#1d1d1f] shadow-[0_18px_60px_rgba(0,0,0,0.08)] backdrop-blur-xl hover:bg-[#1d1d1f] hover:text-white sm:w-auto"
                     >
                       <Plus size={15} /> Novo Ativo
                     </button>
@@ -2933,10 +2859,44 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                     </div>
                   </div>
                   </form>
+
+                  <div className="mt-4 flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+                    <span className="button-nowrap shrink-0 px-1 py-2 text-[11px] font-semibold text-[#8e8e93]">Sugestões:</span>
+                    {suggestions.map(item => (
+                      <button
+                        key={item}
+                        onClick={() => commitSmartSearch(item)}
+                        className="button-nowrap shrink-0 rounded-full border border-white/70 bg-white/70 px-4 py-2 text-[11px] font-semibold text-[#5f6368] shadow-sm backdrop-blur hover:bg-white hover:text-[#1d1d1f]"
+                      >
+                        {item}
+                      </button>
+                    ))}
+                  </div>
                 </header>
 
                 <div className="grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(420px,1fr)] 2xl:grid-cols-[minmax(0,2fr)_minmax(500px,1fr)]">
                   <div className="min-w-0 space-y-7">
+                    <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                      {smartIntents.map(intent => {
+                        const Icon = intent.icon;
+                        return (
+                          <button
+                            key={intent.label}
+                            onClick={() => commitSmartSearch(intent.query)}
+                            className="group flex min-w-0 items-center gap-3 rounded-[24px] border border-white/72 bg-white/64 p-4 text-left shadow-[0_14px_50px_rgba(0,0,0,0.05)] backdrop-blur-xl hover:bg-white"
+                          >
+                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[18px] bg-[#f7f7f5] text-[#424245] shadow-sm">
+                              <Icon size={20} strokeWidth={1.4} />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="truncate text-[14px] font-semibold text-[#1d1d1f]">{intent.label}</p>
+                              <p className="mt-1 truncate text-[11px] text-[#8e8e93]">{intent.description}</p>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </section>
+
                     <section>
                       <div className="mb-4 flex items-end justify-between gap-4">
                         <div>
@@ -2947,11 +2907,11 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                           <p className="mt-1 text-[12px] text-[#86868b]">Clique em um ativo para ver resumo, motivo e ações no painel lateral.</p>
                         </div>
                         <span className="button-nowrap hidden rounded-full border border-white/70 bg-white/70 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#8e8e93] sm:inline-flex">
-                          {visibleSmartResults.length} ativos
+                          {sortedSmartResults.length} ativos
                         </span>
                       </div>
                       <div className="grid gap-3 lg:grid-cols-2">
-                        {visibleSmartResults.slice(0, 6).map(asset => {
+                        {(normalizedQuery ? sortedSmartResults : (aiDescribedAssets.length ? aiDescribedAssets : sortedSmartResults)).slice(0, 6).map(asset => {
                           const preview = getAssetPreviewSource(asset);
                           return (
                             <button
@@ -2985,7 +2945,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                           );
                         })}
                       </div>
-                      {normalizedQuery && visibleSmartResults.length === 0 && (
+                      {normalizedQuery && sortedSmartResults.length === 0 && (
                         <div className="rounded-[28px] border border-white/72 bg-white/70 p-8 text-center shadow-[0_18px_70px_rgba(0,0,0,0.055)] backdrop-blur-xl">
                           <Search size={28} className="mx-auto mb-3 text-[#a1a1aa]" />
                           <p className="text-[15px] font-semibold text-[#1d1d1f]">Nada encontrado com esses termos.</p>
@@ -3007,65 +2967,56 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                         {smartCollections.map(collection => (
                           <button
-                            key={collection.label}
-                            onClick={() => {
-                              setSmartSelectedCollection(collection.label);
-                              setSmartSearchQuery('');
-                              const firstAsset = collection.assets[0];
-                              if (firstAsset) {
-                                setSmartSelectedAssetId(firstAsset.id);
-                                setSmartPanelDraft(firstAsset);
-                              }
-                            }}
-                            className={`group flex min-w-0 items-center gap-4 overflow-hidden rounded-[24px] border p-4 text-left shadow-[0_14px_50px_rgba(0,0,0,0.055)] backdrop-blur-xl hover:-translate-y-0.5 hover:bg-white ${selectedCollection?.label === collection.label ? 'border-[#1d1d1f]/18 bg-white ring-4 ring-black/[0.035]' : 'border-white/72 bg-white/72'}`}
+                            key={collection.tag}
+                            onClick={() => commitSmartSearch(collection.tag)}
+                            className="group flex min-w-0 items-center gap-4 overflow-hidden rounded-[24px] border border-white/72 bg-white/72 p-4 text-left shadow-[0_14px_50px_rgba(0,0,0,0.055)] backdrop-blur-xl hover:-translate-y-0.5 hover:bg-white"
                           >
                             <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[20px] bg-[#f5f4f2] text-[#6e6e73]">
                               <Link2 size={21} strokeWidth={1.5} />
                             </div>
                             <div className="min-w-0 flex-1">
-                              <p className="truncate text-[14px] font-semibold text-[#1d1d1f]">{collection.label}</p>
-                              <p className="mt-1 truncate text-[11px] text-[#8e8e93]">{collection.description}</p>
-                              <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#a1a1aa]">{collection.assets.length} {collection.assets.length === 1 ? 'ativo' : 'ativos'}</p>
+                              <p className="truncate text-[14px] font-semibold text-[#1d1d1f]">{collection.tag}</p>
+                              <p className="mt-1 text-[11px] text-[#8e8e93]">{collection.count} {collection.count === 1 ? 'ativo' : 'ativos'} conectados</p>
                             </div>
                             <ChevronRight size={15} className="shrink-0 text-[#c7c7cc] transition-transform group-hover:translate-x-1 group-hover:text-[#1d1d1f]" />
                           </button>
                         ))}
                       </div>
-                      {selectedCollection && (
-                        <div className="mt-4 rounded-[28px] border border-white/72 bg-white/56 p-4 shadow-[0_18px_70px_rgba(0,0,0,0.055)] backdrop-blur-xl">
-                          <div className="mb-3 flex items-center justify-between gap-3">
-                            <p className="text-[13px] font-semibold text-[#1d1d1f]">{selectedCollection.label}</p>
-                            <span className="button-nowrap text-[10px] font-bold uppercase tracking-[0.14em] text-[#a1a1aa]">miniaturas</span>
-                          </div>
-                          <div className="flex gap-3 overflow-x-auto pb-1 no-scrollbar">
-                            {selectedCollection.assets.slice(0, 12).map(asset => {
-                              const preview = getAssetPreviewSource(asset);
-                              return (
-                                <button
-                                  key={asset.id}
-                                  onClick={() => {
-                                    setSmartSelectedAssetId(asset.id);
-                                    setSmartPanelDraft(asset);
-                                  }}
-                                  className={`w-[118px] shrink-0 overflow-hidden rounded-[18px] border bg-white/76 text-left shadow-sm transition-all hover:bg-white ${selectedSmartAsset?.id === asset.id ? 'border-[#1d1d1f]/18 ring-4 ring-black/[0.035]' : 'border-white/72'}`}
-                                >
-                                  <div className="flex h-[86px] items-center justify-center overflow-hidden bg-[#ecebea]">
-                                    {preview ? (
-                                      <img src={preview} alt="" className="h-full w-full object-cover" />
-                                    ) : (
-                                      asset.type === 'pdf' ? <FileText size={26} className="text-[#6e6e73]" /> : <ImageIcon size={26} className="text-[#8e8e93]" />
-                                    )}
-                                  </div>
-                                  <div className="p-2.5">
-                                    <p className="line-clamp-2 text-[11px] font-semibold leading-snug text-[#1d1d1f]">{asset.title}</p>
-                                    <p className="mt-1 text-[9px] font-bold uppercase tracking-[0.12em] text-[#a1a1aa]">{formatType(asset)}</p>
-                                  </div>
-                                </button>
-                              );
-                            })}
-                          </div>
+                    </section>
+
+                    <section className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
+                      <div className="rounded-[30px] border border-white/72 bg-white/72 p-5 shadow-[0_18px_70px_rgba(0,0,0,0.06)] backdrop-blur-xl">
+                        <h2 className="mb-4 flex items-center gap-2 text-[17px] font-semibold text-[#1d1d1f]">
+                          <Clock size={17} className="text-[#8e8e93]" />
+                          Buscas recentes e memória
+                        </h2>
+                        <div className="space-y-1.5">
+                          {displayRecentSearches.map((item, index) => (
+                            <button key={`${item}-${index}`} onClick={() => commitSmartSearch(item)}
+                              className="flex w-full items-center gap-3 rounded-[14px] px-3 py-2.5 text-left hover:bg-white">
+                              <Search size={13} className="shrink-0 text-[#a1a1aa]" />
+                              <span className="min-w-0 flex-1 truncate text-[12px] font-medium text-[#5f6368]">{item}</span>
+                              <span className="button-nowrap text-[10px] text-[#a1a1aa]">{smartRecentSearches.length ? (index === 0 ? 'recente' : `${index + 1}`) : 'sugestão'}</span>
+                            </button>
+                          ))}
                         </div>
-                      )}
+                      </div>
+
+                      <button
+                        onClick={() => {
+                          commitSmartSearch('conteúdos para revisão e apresentação');
+                          showAppToast('A IA priorizou ativos úteis para revisão.', 'info');
+                        }}
+                        className="group flex min-h-[190px] flex-col justify-between rounded-[30px] border border-white/72 bg-white/62 p-6 text-left shadow-[0_18px_70px_rgba(0,0,0,0.055)] backdrop-blur-xl hover:-translate-y-0.5 hover:bg-white"
+                      >
+                        <div className="flex h-12 w-12 items-center justify-center rounded-[18px] bg-[#f5f4f2] text-[#424245] shadow-sm">
+                          <Brain size={22} strokeWidth={1.4} />
+                        </div>
+                        <div>
+                          <h3 className="text-[22px] font-extralight leading-tight tracking-tight text-[#1d1d1f]">Suas buscas e interações alimentam coleções personalizadas.</h3>
+                          <p className="mt-3 text-[13px] font-light leading-relaxed text-[#6e6e73]">A IA trabalha para você: encontra padrões, agrupa contextos e destaca o que merece revisão.</p>
+                        </div>
+                      </button>
                     </section>
 
                     <section className="rounded-[30px] border border-white/72 bg-white/72 p-5 shadow-[0_18px_70px_rgba(0,0,0,0.06)] backdrop-blur-xl">
@@ -3087,73 +3038,55 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                     </section>
                   </div>
 
-                  <aside className="xl:sticky xl:top-7 xl:-mt-[205px] xl:self-start">
-                    <div className="min-h-[calc(100vh-56px)] rounded-[34px] border border-white/80 bg-white/74 p-5 shadow-[0_28px_110px_rgba(0,0,0,0.11)] backdrop-blur-2xl">
+                  <aside className="xl:sticky xl:top-24 xl:self-start">
+                    <div className="min-h-[72vh] rounded-[34px] border border-white/80 bg-white/74 p-6 shadow-[0_28px_110px_rgba(0,0,0,0.11)] backdrop-blur-2xl">
                       <div className="mb-5 flex items-center justify-between gap-3">
                         <div>
                           <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#a1a1aa]">Painel do ativo</p>
-                          <h2 className="mt-1 text-[20px] font-semibold tracking-tight text-[#1d1d1f]">Editar e ler</h2>
+                          <h2 className="mt-1 text-[20px] font-semibold tracking-tight text-[#1d1d1f]">Descrição inteligente</h2>
                         </div>
-                        {panelAsset && (
-                          <div className="flex items-center gap-2">
-                            {smartPanelSaveStatus === 'salvando' && <Loader2 size={15} className="animate-spin text-[#8e8e93]" />}
-                            {smartPanelSaveStatus === 'salvo' && <CheckCircle2 size={15} className="text-emerald-500" />}
-                            <button onClick={saveSmartPanelDraft}
-                              className="button-nowrap rounded-full bg-[#1d1d1f] px-3 py-2 text-[11px] font-semibold text-white hover:bg-[#333]">
-                              Salvar
-                            </button>
-                          </div>
+                        {selectedSmartAsset && (
+                          <button onClick={() => handleOpenAsset(selectedSmartAsset)}
+                            className="button-nowrap rounded-full bg-[#1d1d1f] px-3 py-2 text-[11px] font-semibold text-white hover:bg-[#333]">
+                            Abrir
+                          </button>
                         )}
                       </div>
 
-                      {panelAsset ? (
-                        <div className="max-h-[calc(100vh-150px)] overflow-y-auto pr-1 custom-scrollbar">
-                          <div className="mb-4 min-h-[300px] overflow-hidden rounded-[24px] border border-black/[0.05] bg-[#ecebea]">
-                            {panelAsset.type === 'pdf' ? (
-                              smartPdfLoading ? (
-                                <div className="flex h-[360px] flex-col items-center justify-center gap-3 text-[#8e8e93]">
-                                  <Loader2 size={28} className="animate-spin" />
-                                  <p className="text-[12px] font-semibold">Carregando PDF...</p>
-                                </div>
-                              ) : smartPdfUrl ? (
-                                <iframe src={smartPdfUrl} title={panelAsset.title} className="h-[520px] w-full border-0 bg-white" />
-                              ) : (
-                                <div className="flex h-[360px] flex-col items-center justify-center gap-3 text-[#8e8e93]">
-                                  <FileText size={44} />
-                                  <p className="text-[12px] font-semibold">PDF indisponível no painel.</p>
-                                  <button onClick={() => handleOpenAsset(panelAsset)} className="button-nowrap rounded-full bg-[#1d1d1f] px-4 py-2 text-[11px] font-semibold text-white">Abrir ativo</button>
-                                </div>
-                              )
-                            ) : selectedPreview ? (
-                              <img src={selectedPreview} alt="" className="h-full max-h-[420px] min-h-[300px] w-full object-contain bg-[#f7f7f5]" />
+                      {selectedSmartAsset ? (
+                        <div>
+                          <div className="mb-5 aspect-[4/3] overflow-hidden rounded-[24px] border border-black/[0.05] bg-[#ecebea]">
+                            {selectedPreview ? (
+                              <img src={selectedPreview} alt="" className="h-full w-full object-cover" />
                             ) : (
-                              <div className="flex h-[320px] w-full flex-col items-center justify-center gap-3 bg-[linear-gradient(145deg,#ffffff,#ecebea)] text-[#8e8e93]">
-                                {panelAsset.type === 'pdf' ? <FileText size={44} className="text-[#6e6e73]" /> : <ImageIcon size={44} />}
-                                <span className="button-nowrap text-[10px] font-bold uppercase tracking-[0.18em]">{formatType(panelAsset)}</span>
+                              <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-[linear-gradient(145deg,#ffffff,#ecebea)] text-[#8e8e93]">
+                                {selectedSmartAsset.type === 'pdf' ? <FileText size={44} className="text-[#6e6e73]" /> : <ImageIcon size={44} />}
+                                <span className="button-nowrap text-[10px] font-bold uppercase tracking-[0.18em]">{formatType(selectedSmartAsset)}</span>
                               </div>
                             )}
                           </div>
+                          <span className="button-nowrap rounded-full bg-[#f5f5f7] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[#6e6e73]">{formatType(selectedSmartAsset)}</span>
+                          <h3 className="preserve-lines mt-4 text-[25px] font-light leading-tight tracking-tight text-[#1d1d1f]">{selectedSmartAsset.title}</h3>
+                          <p className="preserve-lines mt-4 text-[13px] font-light leading-relaxed text-[#5f6368]">
+                            {selectedSmartAsset.summary || selectedSmartAsset.scientificContext || 'Este ativo ainda não possui uma descrição completa. Ao processar com IA, ele ganha resumo, tags e contexto para aparecer em coleções mais inteligentes.'}
+                          </p>
 
-                          <div className="mb-4 flex items-center justify-between gap-3">
-                            <span className="button-nowrap rounded-full bg-[#f5f5f7] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[#6e6e73]">{formatType(panelAsset)}</span>
-                            <button onClick={() => handleOpenAsset(panelAsset)} className="button-nowrap rounded-full border border-black/[0.06] bg-white/78 px-3 py-1.5 text-[10px] font-semibold text-[#424245] hover:bg-[#1d1d1f] hover:text-white">
-                              Abrir pop-up
-                            </button>
-                          </div>
+                          {(selectedSmartAsset.tags || []).length > 0 && (
+                            <div className="mt-5 flex flex-wrap gap-2">
+                              {(selectedSmartAsset.tags || []).slice(0, 8).map(tag => (
+                                <button key={tag} onClick={() => commitSmartSearch(tag)}
+                                  className="button-nowrap rounded-full border border-black/[0.05] bg-white px-3 py-1.5 text-[10px] font-semibold text-[#6e6e73] hover:border-black/[0.16] hover:text-[#1d1d1f]">
+                                  {tag}
+                                </button>
+                              ))}
+                            </div>
+                          )}
 
-                          <textarea
-                            value={panelAsset.title}
-                            onChange={e => updateSmartDraft({ title: e.target.value })}
-                            rows={2}
-                            className="preserve-lines w-full resize-none rounded-[18px] border border-transparent bg-transparent px-2 py-1 text-[24px] font-light leading-tight tracking-tight text-[#1d1d1f] outline-none hover:border-black/[0.06] hover:bg-white/60 focus:border-black/[0.12] focus:bg-white"
-                            placeholder="Título do ativo"
-                          />
-
-                          <div className="mt-4 grid grid-cols-3 gap-2">
+                          <div className="mt-6 grid grid-cols-3 gap-2">
                             {[
-                              ['Tipo', formatType(panelAsset)],
-                              ['Relação', smartMatchLabel(panelAsset)],
-                              ['Atualizado', formatAssetDate(panelAsset)],
+                              ['Tipo', formatType(selectedSmartAsset)],
+                              ['Relação', smartMatchLabel(selectedSmartAsset)],
+                              ['Atualizado', formatAssetDate(selectedSmartAsset)],
                             ].map(([title, body]) => (
                               <div key={title} className="rounded-[16px] bg-[#f7f7f5] p-3">
                                 <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-[#a1a1aa]">{title}</p>
@@ -3162,82 +3095,18 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                             ))}
                           </div>
 
-                          <div className="mt-5 rounded-[20px] border border-black/[0.04] bg-white/66 p-4">
-                            <div className="mb-3 flex items-center gap-2">
-                              <Activity size={14} className="text-[#86868b]" />
-                              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#86868b]">Painel de Evidências</p>
-                            </div>
-                            <div className="grid gap-3 sm:grid-cols-2">
-                              <label className="block">
-                                <span className="mb-1.5 block text-[10px] font-semibold uppercase tracking-[0.14em] text-[#8e8e93]">Nível</span>
-                                <select
-                                  value={panelAsset.evidenceLevel || 'Baixo'}
-                                  onChange={e => updateSmartDraft({ evidenceLevel: e.target.value as EvidenceLevel })}
-                                  className="w-full rounded-[14px] border border-black/[0.06] bg-white/78 px-3 py-2 text-[12px] font-semibold text-[#424245] outline-none"
-                                >
-                                  <option>Baixo</option>
-                                  <option>Moderado</option>
-                                  <option>Alto</option>
-                                </select>
-                              </label>
-                              <label className="block">
-                                <span className="mb-1.5 block text-[10px] font-semibold uppercase tracking-[0.14em] text-[#8e8e93]">Ano</span>
-                                <input
-                                  value={panelAsset.publicationYear || ''}
-                                  onChange={e => updateSmartDraft({ publicationYear: e.target.value })}
-                                  className="w-full rounded-[14px] border border-black/[0.06] bg-white/78 px-3 py-2 text-[12px] font-semibold text-[#424245] outline-none"
-                                  placeholder="—"
-                                />
-                              </label>
-                            </div>
-                            <label className="mt-3 block">
-                              <span className="mb-1.5 block text-[10px] font-semibold uppercase tracking-[0.14em] text-[#8e8e93]">Achados principais</span>
-                              <textarea
-                                value={panelAsset.keyFindings || ''}
-                                onChange={e => updateSmartDraft({ keyFindings: e.target.value })}
-                                rows={3}
-                                className="preserve-lines w-full resize-none rounded-[14px] border border-black/[0.06] bg-white/78 px-3 py-2 text-[12px] leading-relaxed text-[#424245] outline-none"
-                                placeholder="Nenhum dado extraído ainda."
-                              />
-                            </label>
+                          <div className="mt-5 space-y-3 border-t border-black/[0.06] pt-5">
+                            {[
+                              ['Por que apareceu?', panelMatchReason],
+                              ['Contexto científico', selectedSmartAsset.scientificContext || selectedSmartAsset.keyFindings || 'Aguardando enriquecimento semântico.'],
+                              ['O que fazer agora?', 'Abra o ativo para visualizar, editar descrição, vincular a cases ou usar em apresentação.'],
+                            ].map(([title, body]) => (
+                              <div key={title} className="rounded-[18px] bg-[#f7f7f5] p-3">
+                                <p className="text-[11px] font-semibold text-[#1d1d1f]">{title}</p>
+                                <p className="mt-1 text-[11px] leading-relaxed text-[#86868b]">{body}</p>
+                              </div>
+                            ))}
                           </div>
-
-                          <div className="mt-4 rounded-[20px] bg-[#f7f7f5] p-4">
-                            <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[#86868b]">Por que apareceu?</p>
-                            <p className="text-[11px] leading-relaxed text-[#6e6e73]">{panelMatchReason}</p>
-                          </div>
-
-                          <label className="mt-4 block rounded-[20px] border border-black/[0.04] bg-white/66 p-4">
-                            <span className="mb-2 block text-[10px] font-bold uppercase tracking-[0.16em] text-[#4285F4]">Contexto Científico</span>
-                            <textarea
-                              value={panelAsset.scientificContext || ''}
-                              onChange={e => updateSmartDraft({ scientificContext: e.target.value })}
-                              rows={4}
-                              className="preserve-lines w-full resize-none rounded-[14px] border border-transparent bg-transparent p-2 text-[12px] leading-relaxed text-[#424245] outline-none hover:bg-white/78 focus:bg-white"
-                              placeholder="Adicione referências científicas aqui..."
-                            />
-                          </label>
-
-                          <label className="mt-4 block rounded-[20px] border border-black/[0.04] bg-white/66 p-4">
-                            <span className="mb-2 block text-[10px] font-bold uppercase tracking-[0.16em] text-[#86868b]">Resumo Visual</span>
-                            <textarea
-                              value={panelAsset.summary || ''}
-                              onChange={e => updateSmartDraft({ summary: e.target.value })}
-                              rows={4}
-                              className="preserve-lines w-full resize-none rounded-[14px] border border-transparent bg-transparent p-2 text-[12px] leading-relaxed text-[#424245] outline-none hover:bg-white/78 focus:bg-white"
-                              placeholder="Descreva visualmente o ativo..."
-                            />
-                          </label>
-
-                          <label className="mt-4 block rounded-[20px] border border-black/[0.04] bg-white/66 p-4">
-                            <span className="mb-2 block text-[10px] font-bold uppercase tracking-[0.16em] text-[#86868b]">Tags</span>
-                            <input
-                              value={(panelAsset.tags || []).join(', ')}
-                              onChange={e => updateSmartDraft({ tags: e.target.value.split(',').map(tag => tag.trim()).filter(Boolean) })}
-                              className="w-full rounded-[14px] border border-black/[0.06] bg-white/78 px-3 py-2 text-[12px] text-[#424245] outline-none"
-                              placeholder="tag 1, tag 2, tag 3"
-                            />
-                          </label>
                         </div>
                       ) : (
                         <div className="rounded-[24px] border border-dashed border-black/[0.10] p-8 text-center text-[#8e8e93]">
