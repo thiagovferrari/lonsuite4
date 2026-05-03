@@ -210,34 +210,6 @@ select:focus-visible {
   -webkit-backdrop-filter: saturate(160%) blur(24px);
 }
 
-.case-editor-toolbar {
-  position: fixed;
-  right: 16px;
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 84px);
-  left: 16px;
-  max-width: calc(100vw - 32px);
-  margin: 0 auto;
-}
-
-@media (min-width: 768px) {
-  .case-editor-toolbar {
-    right: auto;
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 14px);
-    left: calc(80px + ((100vw - 80px - 292px - 32px) / 2));
-    width: min(760px, calc(100vw - 80px - 292px - 80px));
-    max-width: min(760px, calc(100vw - 452px));
-    transform: translateX(-50%);
-  }
-}
-
-@media (min-width: 1024px) {
-  .case-editor-toolbar {
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 18px);
-    left: calc(80px + 16px + ((100vw - 80px - 292px - 48px) / 2));
-    width: min(760px, calc(100vw - 80px - 292px - 96px));
-  }
-}
-
 /* Fade in animation */
 .animate-fade-in {
   animation: fadeIn 0.3s ease-out;
