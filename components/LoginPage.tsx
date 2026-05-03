@@ -338,29 +338,36 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
             })}
           </section>
 
-          <section className="mt-24 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-            <article className="plans-card overflow-hidden rounded-[38px] bg-[#111113] text-white shadow-[0_38px_120px_rgba(0,0,0,0.25)]">
-              <div className="grid min-h-[620px] lg:grid-cols-[0.92fr_1.08fr]">
-                <div className="relative overflow-hidden bg-[#050506]">
+          <section className="mt-24 space-y-7">
+            <article className="plans-card overflow-hidden rounded-[42px] bg-[#111113] text-white shadow-[0_38px_120px_rgba(0,0,0,0.25)]">
+              <div className="grid min-h-[620px] lg:grid-cols-[1.08fr_0.92fr]">
+                <div className="relative min-h-[420px] overflow-hidden bg-[#050506] lg:min-h-full">
                   <img
                     src="/assets/lon-suite-security-editorial.png"
                     alt=""
-                    className="h-full min-h-[360px] w-full object-cover grayscale opacity-90"
+                    className="h-full w-full object-cover object-[42%_38%] grayscale opacity-95"
                   />
-                  <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,5,6,0.12),rgba(5,5,6,0.82))]" />
+                  <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,5,6,0.05),rgba(5,5,6,0.16)_44%,rgba(5,5,6,0.72))]" />
+                  <div className="absolute bottom-6 left-6 right-6 rounded-[26px] border border-white/12 bg-black/35 p-5 backdrop-blur-xl sm:left-8 sm:right-auto sm:w-[330px]">
+                    <div className="mb-8 flex items-center gap-2 text-[9px] font-bold uppercase tracking-[0.18em] text-white/50">
+                      <KeyRound size={13} />
+                      Camada privada
+                    </div>
+                    <p className="text-[28px] font-extralight leading-tight tracking-tight">Cada acervo pertence ao seu usuário.</p>
+                  </div>
                 </div>
-                <div className="flex flex-col justify-between p-8 sm:p-10 lg:p-12">
+                <div className="flex flex-col justify-between p-8 sm:p-10 lg:p-14 xl:p-16">
                   <div>
                     <div className="mb-8 flex h-12 w-12 items-center justify-center rounded-[18px] border border-white/10 bg-white/[0.08] p-3 text-white">
                       <ShieldCheck size={24} strokeWidth={1.4} />
                     </div>
                     <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.2em] text-white/38">Proteção e confiança</p>
-                    <h2 className="text-[42px] font-extralight leading-tight tracking-tight sm:text-[58px]">Um ambiente pensado para acervo clínico sensível.</h2>
-                    <p className="mt-7 text-[15px] font-light leading-relaxed text-white/58">
+                    <h2 className="max-w-[560px] text-[36px] font-extralight leading-[1.04] tracking-tight sm:text-[52px] xl:text-[62px]">Um ambiente pensado para acervo clínico sensível.</h2>
+                    <p className="mt-7 max-w-[520px] text-[15px] font-light leading-relaxed text-white/62 sm:text-[16px]">
                       A Lon Suite organiza cada ativo com dono, contexto e acesso individual. O sistema foi desenhado para preservar a privacidade do acervo e manter a experiência limpa, rastreável e profissional.
                     </p>
                   </div>
-                  <div className="mt-10 grid gap-3 sm:grid-cols-3">
+                  <div className="mt-12 grid gap-3 sm:grid-cols-3">
                     {[
                       { icon: LockKeyhole, label: 'Acesso individual' },
                       { icon: Fingerprint, label: 'Conta por usuário' },
@@ -379,24 +386,45 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
               </div>
             </article>
 
-            <article className="plans-card relative min-h-[620px] overflow-hidden rounded-[38px] bg-white p-8 shadow-[0_30px_100px_rgba(0,0,0,0.10)] sm:p-10">
+            <article className="plans-card relative min-h-[760px] overflow-hidden rounded-[42px] bg-white shadow-[0_30px_100px_rgba(0,0,0,0.10)]">
               <img
                 src="/assets/lon-suite-global-editorial.png"
                 alt=""
                 className="absolute inset-0 h-full w-full object-cover grayscale"
               />
-              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(255,255,255,0.58)_42%,rgba(17,17,19,0.78))]" />
-              <div className="relative z-10 flex h-full min-h-[560px] flex-col justify-between">
-                <div>
+              <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.94),rgba(255,255,255,0.82)_36%,rgba(17,17,19,0.36)_68%,rgba(17,17,19,0.82))]" />
+              <div className="relative z-10 grid min-h-[760px] items-center gap-8 p-8 sm:p-10 lg:grid-cols-[0.82fr_1.18fr] lg:p-14 xl:p-16">
+                <div className="max-w-xl">
                   <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.2em] text-[#6e6e73]">Alcance global</p>
-                  <h2 className="max-w-xl text-[42px] font-semibold leading-tight tracking-tight sm:text-[58px]">Criado para uma prática médica sem fronteiras.</h2>
-                  <p className="mt-6 max-w-lg text-[15px] font-light leading-relaxed text-[#424245]">
+                  <h2 className="text-[40px] font-semibold leading-[1.02] tracking-tight sm:text-[64px]">Criado para uma prática médica sem fronteiras.</h2>
+                  <p className="mt-7 text-[16px] font-light leading-relaxed text-[#424245]">
                     O conhecimento clínico não termina na sala de cirurgia. Ele vira aula, discussão, segunda opinião, conferência e colaboração científica.
                   </p>
+                  <div className="mt-9 grid gap-3 sm:grid-cols-2">
+                    {[
+                      { icon: Globe2, label: 'Biblioteca pronta para circular' },
+                      { icon: Network, label: 'Colaboração com contexto' },
+                    ].map(item => {
+                      const Icon = item.icon;
+                      return (
+                        <div key={item.label} className="rounded-[22px] border border-black/[0.06] bg-white/72 p-4 shadow-[0_18px_50px_rgba(0,0,0,0.08)] backdrop-blur-xl">
+                          <Icon size={18} className="mb-7 text-[#1d1d1f]/70" strokeWidth={1.4} />
+                          <p className="text-[12px] font-semibold leading-snug text-[#424245]">{item.label}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
 
-                <div className="relative mx-auto my-8 h-[270px] w-[270px] sm:h-[330px] sm:w-[330px]">
-                  <div className="plans-global-globe absolute inset-0 rounded-full border border-white/50 bg-black/[0.08] shadow-[inset_0_0_70px_rgba(255,255,255,0.70),0_28px_90px_rgba(0,0,0,0.18)] backdrop-blur-sm">
+                <div className="relative mx-auto h-[360px] w-[360px] max-w-[86vw] sm:h-[500px] sm:w-[500px] lg:h-[560px] lg:w-[560px]">
+                  <div className="plans-global-aura absolute inset-[-12%] rounded-full" />
+                  <div className="plans-global-ring absolute inset-[-30px] rounded-full border border-white/50" />
+                  <div className="plans-global-ring plans-global-ring-slow absolute inset-[-72px] rounded-full border border-white/24" />
+                  <div className="plans-global-orbit plans-global-orbit-one absolute inset-[-44px] rounded-full border border-white/28" />
+                  <div className="plans-global-orbit plans-global-orbit-two absolute inset-[-22px] rounded-full border border-white/22" />
+                  <div className="plans-global-globe absolute inset-0 rounded-full border border-white/55 bg-black/[0.08] shadow-[inset_0_0_90px_rgba(255,255,255,0.74),inset_-42px_-30px_90px_rgba(17,17,19,0.28),0_36px_120px_rgba(0,0,0,0.24)] backdrop-blur-sm">
+                    <div className="plans-globe-map" />
+                    <div className="plans-globe-shine" />
                     <div className="plans-globe-lat top-[24%]" />
                     <div className="plans-globe-lat top-[50%]" />
                     <div className="plans-globe-lat top-[76%]" />
@@ -404,27 +432,26 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
                     <div className="plans-globe-lon left-[50%]" />
                     <div className="plans-globe-lon left-[75%]" />
                   </div>
-                  <div className="plans-global-ring absolute inset-[-18px] rounded-full border border-white/55" />
-                  <div className="plans-global-ring plans-global-ring-slow absolute inset-[-42px] rounded-full border border-white/30" />
-                  {['São Paulo', 'Boston', 'Lisboa', 'Tokyo'].map((city, index) => (
+                  {[
+                    ['São Paulo', '4%', '57%'],
+                    ['Boston', '78%', '28%'],
+                    ['Lisboa', '20%', '9%'],
+                    ['Tokyo', '74%', '75%'],
+                    ['Zurich', '47%', '-1%'],
+                    ['Dubai', '56%', '52%'],
+                  ].map(([city, left, top]) => (
                     <span
                       key={city}
-                      className="absolute rounded-full border border-white/50 bg-white/80 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-[#1d1d1f] shadow-[0_12px_34px_rgba(0,0,0,0.12)]"
-                      style={[
-                        { left: '4%', top: '58%' },
-                        { right: '-6%', top: '28%' },
-                        { left: '18%', top: '6%' },
-                        { right: '8%', bottom: '8%' },
-                      ][index]}
+                      className="absolute z-10 rounded-full border border-white/60 bg-white/86 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-[#1d1d1f] shadow-[0_12px_34px_rgba(0,0,0,0.14)] backdrop-blur"
+                      style={{ left, top }}
                     >
                       {city}
                     </span>
                   ))}
-                </div>
-
-                <div className="rounded-[28px] border border-white/14 bg-[#111113]/82 p-6 text-white shadow-[0_24px_80px_rgba(0,0,0,0.25)] backdrop-blur-xl">
-                  <Network size={18} className="mb-6 text-white/60" />
-                  <p className="text-[24px] font-extralight leading-tight">Ativos científicos prontos para circular com clareza, contexto e autoridade.</p>
+                  <div className="absolute bottom-2 left-1/2 z-20 w-[78%] -translate-x-1/2 rounded-[28px] border border-white/18 bg-[#111113]/82 p-5 text-white shadow-[0_24px_80px_rgba(0,0,0,0.25)] backdrop-blur-xl sm:p-6">
+                    <Network size={18} className="mb-6 text-white/60" />
+                    <p className="text-[22px] font-extralight leading-tight sm:text-[26px]">Ativos científicos prontos para circular com clareza, contexto e autoridade.</p>
+                  </div>
                 </div>
               </div>
             </article>

@@ -269,20 +269,58 @@ select:focus-visible {
   animation-direction: reverse;
 }
 
+.plans-global-aura {
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.42), transparent 48%),
+    radial-gradient(circle at 58% 42%, rgba(17,17,19,0.18), transparent 58%);
+  filter: blur(6px);
+  animation: plansGlobalAura 7.5s ease-in-out infinite;
+}
+
 .plans-global-globe {
   animation: plansGlobalPulse 6.5s ease-in-out infinite;
   overflow: hidden;
+  isolation: isolate;
 }
 
 .plans-global-globe::after {
   content: '';
   position: absolute;
-  inset: -35%;
+  inset: -28%;
   background:
-    radial-gradient(circle at 36% 30%, rgba(255,255,255,0.72), transparent 8%),
-    radial-gradient(circle at 64% 42%, rgba(255,255,255,0.55), transparent 7%),
-    radial-gradient(circle at 48% 68%, rgba(255,255,255,0.46), transparent 8%);
+    radial-gradient(circle at 28% 30%, rgba(255,255,255,0.74), transparent 5%),
+    radial-gradient(circle at 58% 36%, rgba(255,255,255,0.52), transparent 5%),
+    radial-gradient(circle at 72% 62%, rgba(255,255,255,0.46), transparent 5%),
+    radial-gradient(circle at 42% 70%, rgba(255,255,255,0.42), transparent 6%);
+  mix-blend-mode: screen;
+  opacity: 0.8;
   animation: plansGlobeDrift 12s linear infinite;
+}
+
+.plans-globe-map {
+  position: absolute;
+  inset: 6%;
+  border-radius: 999px;
+  background:
+    radial-gradient(ellipse at 30% 36%, rgba(17,17,19,0.24) 0 9%, transparent 10%),
+    radial-gradient(ellipse at 47% 31%, rgba(17,17,19,0.18) 0 7%, transparent 8%),
+    radial-gradient(ellipse at 63% 44%, rgba(17,17,19,0.22) 0 13%, transparent 14%),
+    radial-gradient(ellipse at 41% 58%, rgba(17,17,19,0.17) 0 10%, transparent 11%),
+    radial-gradient(ellipse at 70% 64%, rgba(17,17,19,0.20) 0 8%, transparent 9%);
+  filter: blur(1px);
+  opacity: 0.62;
+  animation: plansGlobeMap 18s linear infinite;
+}
+
+.plans-globe-shine {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    linear-gradient(128deg, rgba(255,255,255,0.72), transparent 26%, transparent 62%, rgba(255,255,255,0.16)),
+    radial-gradient(circle at 30% 20%, rgba(255,255,255,0.78), transparent 22%);
+  mix-blend-mode: screen;
+  opacity: 0.62;
 }
 
 .plans-globe-lat,
@@ -296,14 +334,16 @@ select:focus-visible {
   left: 8%;
   right: 8%;
   height: 1px;
-  border-top: 1px solid rgba(255,255,255,0.45);
+  border-top: 1px solid rgba(255,255,255,0.42);
+  box-shadow: 0 0 18px rgba(255,255,255,0.26);
 }
 
 .plans-globe-lon {
   top: 8%;
   bottom: 8%;
   width: 1px;
-  border-left: 1px solid rgba(255,255,255,0.42);
+  border-left: 1px solid rgba(255,255,255,0.38);
+  box-shadow: 0 0 18px rgba(255,255,255,0.22);
 }
 
 .plans-global-ring {
@@ -312,6 +352,18 @@ select:focus-visible {
 
 .plans-global-ring-slow {
   animation-duration: 26s;
+  animation-direction: reverse;
+}
+
+.plans-global-orbit {
+  transform: rotateX(68deg) rotateZ(-18deg);
+  animation: plansGlobalOrbit 15s linear infinite;
+  box-shadow: 0 0 34px rgba(255,255,255,0.14);
+}
+
+.plans-global-orbit-two {
+  transform: rotateX(54deg) rotateZ(34deg);
+  animation-duration: 21s;
   animation-direction: reverse;
 }
 
@@ -392,19 +444,34 @@ select:focus-visible {
 }
 
 @keyframes plansGlobalPulse {
-  0%, 100% { transform: scale(1); filter: saturate(0.8); }
-  50%      { transform: scale(1.025); filter: saturate(1); }
+  0%, 100% { transform: scale(1); filter: saturate(0.82) contrast(1); }
+  50%      { transform: scale(1.022); filter: saturate(1) contrast(1.04); }
+}
+
+@keyframes plansGlobalAura {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50%      { transform: scale(1.05); opacity: 1; }
 }
 
 @keyframes plansGlobeDrift {
-  from { transform: rotate(0deg) translateX(-4%); }
-  to   { transform: rotate(360deg) translateX(-4%); }
+  from { transform: rotate(0deg) translateX(-3%); }
+  to   { transform: rotate(360deg) translateX(-3%); }
+}
+
+@keyframes plansGlobeMap {
+  from { transform: rotate(0deg) scale(1.02); }
+  to   { transform: rotate(360deg) scale(1.02); }
 }
 
 @keyframes plansGlobalRing {
   from { transform: rotate(0deg) scale(1); opacity: 0.8; }
   50%  { transform: rotate(180deg) scale(1.035); opacity: 0.48; }
   to   { transform: rotate(360deg) scale(1); opacity: 0.8; }
+}
+
+@keyframes plansGlobalOrbit {
+  from { transform: rotateX(68deg) rotateZ(0deg); }
+  to   { transform: rotateX(68deg) rotateZ(360deg); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -423,8 +490,10 @@ select:focus-visible {
   .plans-demo-enter,
   .plans-product-stack,
   .plans-orbit,
+  .plans-global-aura,
   .plans-global-globe,
   .plans-global-globe::after,
+  .plans-globe-map,
   .plans-global-ring {
     animation: none !important;
   }

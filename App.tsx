@@ -1691,10 +1691,25 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                     <ArrowDown size={13} />
                   </button>
                 </div>
-                <button onClick={() => {
-                  const nb = editingCase.blocks?.filter(b => b.id !== block.id);
-                  syncCase({ ...editingCase, blocks: nb });
-                }} className="absolute top-2 right-2 md:top-2 md:-right-14 p-2 md:p-2.5 text-red-300 hover:text-red-500 bg-red-50/80 hover:bg-red-100 rounded-xl md:opacity-0 group-hover:opacity-100 transition-all z-10 shadow-sm"><Trash2 size={16} /></button>
+                <button
+                  onClick={() => {
+                    const blockLabel = block.type === 'title' ? 'título' : block.type === 'subtitle' ? 'subtítulo' : block.type === 'image' ? 'imagem' : block.type === 'asset' ? 'ativo vinculado' : block.type === 'reference' ? 'referência' : 'texto';
+                    openConfirmDialog({
+                      title: 'Excluir elemento do case?',
+                      message: `Você está prestes a remover este bloco de ${blockLabel}. Essa ação altera o case imediatamente após a confirmação.`,
+                      onConfirm: () => {
+                        const nb = editingCase.blocks?.filter(b => b.id !== block.id);
+                        syncCase({ ...editingCase, blocks: nb });
+                        showAppToast('Elemento removido do case.', 'info');
+                      },
+                    });
+                  }}
+                  className="absolute top-2 right-2 z-10 rounded-xl border border-black/[0.05] bg-white/86 p-2 text-[#aeaeb2] shadow-sm backdrop-blur transition-all hover:border-red-200 hover:bg-red-50 hover:text-red-500 hover:shadow-apple md:top-2 md:-right-14 md:p-2.5"
+                  title="Excluir elemento"
+                  aria-label="Excluir elemento"
+                >
+                  <Trash2 size={16} />
+                </button>
               </div>
             ))}
           </div>
