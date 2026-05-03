@@ -423,7 +423,14 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
                   <div className="plans-global-orbit plans-global-orbit-one absolute inset-[-44px] rounded-full border border-white/28" />
                   <div className="plans-global-orbit plans-global-orbit-two absolute inset-[-22px] rounded-full border border-white/22" />
                   <div className="plans-global-globe absolute inset-0 rounded-full border border-white/55 bg-black/[0.08] shadow-[inset_0_0_90px_rgba(255,255,255,0.74),inset_-42px_-30px_90px_rgba(17,17,19,0.28),0_36px_120px_rgba(0,0,0,0.24)] backdrop-blur-sm">
-                    <div className="plans-globe-map" />
+                    <div className="plans-globe-grid" />
+                    <div className="plans-globe-map">
+                      <span className="plans-continent plans-continent-americas" />
+                      <span className="plans-continent plans-continent-europe" />
+                      <span className="plans-continent plans-continent-africa" />
+                      <span className="plans-continent plans-continent-asia" />
+                      <span className="plans-continent plans-continent-australia" />
+                    </div>
                     <div className="plans-globe-shine" />
                     <div className="plans-globe-lat top-[24%]" />
                     <div className="plans-globe-lat top-[50%]" />
@@ -479,9 +486,9 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
 
           <section className="relative mt-24 overflow-hidden rounded-[42px] bg-[#111113] px-7 py-16 text-center text-white shadow-[0_38px_130px_rgba(0,0,0,0.26)] sm:px-12 sm:py-20">
             <img
-              src="/assets/lon-suite-security-editorial.png"
+              src="/assets/lon-suite-tablet-doctor-editorial.png"
               alt=""
-              className="absolute inset-0 h-full w-full object-cover grayscale opacity-52"
+              className="absolute inset-0 h-full w-full object-cover object-[50%_42%] grayscale opacity-54"
             />
             <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(17,17,19,0.94),rgba(17,17,19,0.58),rgba(17,17,19,0.92))]" />
             <div className="relative z-10">
