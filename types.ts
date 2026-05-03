@@ -3,7 +3,6 @@
 export enum ViewState {
   HOME = 'HOME',
   ATIVOS = 'ATIVOS',
-  SMART_COLLECTIONS = 'SMART_COLLECTIONS',
   CASES = 'CASES',
   TRASH = 'TRASH',
   SETTINGS = 'SETTINGS',
