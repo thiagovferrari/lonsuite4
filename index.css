@@ -102,6 +102,13 @@ button,
   white-space: nowrap;
 }
 
+.upload-choice-card,
+.upload-choice-card * {
+  overflow-wrap: break-word;
+  word-break: normal;
+  white-space: normal;
+}
+
 textarea,
 input,
 [contenteditable="true"] {

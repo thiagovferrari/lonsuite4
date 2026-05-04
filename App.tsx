@@ -3208,7 +3208,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                     fileInputRef.current.click();
                   }
                 }}
-                className="group flex min-h-[198px] min-w-0 flex-col items-center justify-center rounded-[24px] border border-black/[0.055] bg-white p-5 text-center shadow-[0_10px_34px_rgba(29,29,31,0.06)] transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_48px_rgba(29,29,31,0.10)] sm:min-h-[220px] sm:p-6"
+                className="upload-choice-card group flex min-h-[198px] min-w-0 flex-col items-center justify-center rounded-[24px] border border-black/[0.055] bg-white p-5 text-center shadow-[0_10px_34px_rgba(29,29,31,0.06)] transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_48px_rgba(29,29,31,0.10)] sm:min-h-[220px] sm:p-6"
               >
                 <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-[18px] bg-[#1d1d1f] text-white transition-transform duration-200 group-hover:scale-105 sm:h-16 sm:w-16">
                   <FileText size={28} strokeWidth={1.5} />
@@ -3229,7 +3229,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                     fileInputRef.current.click();
                   }
                 }}
-                className="group flex min-h-[198px] min-w-0 flex-col items-center justify-center rounded-[24px] border border-black/[0.055] bg-white p-5 text-center shadow-[0_10px_34px_rgba(29,29,31,0.045)] transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_48px_rgba(29,29,31,0.09)] sm:min-h-[220px] sm:p-6"
+                className="upload-choice-card group flex min-h-[198px] min-w-0 flex-col items-center justify-center rounded-[24px] border border-black/[0.055] bg-white p-5 text-center shadow-[0_10px_34px_rgba(29,29,31,0.045)] transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_48px_rgba(29,29,31,0.09)] sm:min-h-[220px] sm:p-6"
               >
                 <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-[18px] bg-[#f2f3f5] text-[#1d1d1f] ring-1 ring-black/[0.055] transition-transform duration-200 group-hover:scale-105 sm:h-16 sm:w-16">
                   <Briefcase size={27} strokeWidth={1.5} />
