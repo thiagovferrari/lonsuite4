@@ -1396,8 +1396,8 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
     const assetCount = caseBlocks.filter(b => b.type === 'asset').length;
 
     const statusOptions: { value: CaseStatus; label: string; dot: string }[] = [
-      { value: 'em_andamento', label: 'Em Andamento', dot: 'bg-blue-500' },
-      { value: 'completo', label: 'Completo', dot: 'bg-emerald-500' },
+      { value: 'em_andamento', label: 'Em Andamento', dot: 'bg-[#1d1d1f]' },
+      { value: 'completo', label: 'Completo', dot: 'bg-[#6e6e73]' },
       { value: 'arquivado', label: 'Arquivado', dot: 'bg-slate-400' },
     ];
 
@@ -1427,7 +1427,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                   navigator.clipboard.writeText(shareUrl);
                   alert('Link do caso copiado!');
                 }}
-                className="button-nowrap flex shrink-0 items-center gap-1.5 px-3 py-2 bg-white border border-black/8 rounded-apple text-[11px] font-medium text-[#4285F4] shadow-apple"
+                className="button-nowrap flex shrink-0 items-center gap-1.5 px-3 py-2 bg-white border border-black/8 rounded-apple text-[11px] font-medium text-[#1d1d1f] shadow-apple"
               >
                 <Share2 size={12} /> Compartilhar
               </button>
@@ -1509,7 +1509,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                         <div className="flex flex-wrap gap-2 mt-2">
                           {urls.map((url, i) => (
                             <a key={i} href={url} target="_blank" rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 text-[10px] font-medium text-[#4285F4] hover:underline">
+                              className="inline-flex items-center gap-1 text-[10px] font-medium text-[#1d1d1f] hover:underline">
                               <Link2 size={10} />{url.length > 50 ? url.substring(0, 50) + '...' : url}
                             </a>
                           ))}
@@ -1562,7 +1562,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                           )}
                         </div>
                         <button onClick={() => handleOpenAsset(linkedAsset)}
-                          className="flex items-center gap-1 px-3 py-1.5 rounded-apple text-[10px] font-semibold text-[#4285F4] hover:bg-blue-50 transition-all shrink-0">
+                          className="flex items-center gap-1 px-3 py-1.5 rounded-apple text-[10px] font-semibold text-[#1d1d1f] hover:bg-[#f2f3f5] transition-all shrink-0">
                           <ExternalLink size={11} /> Ver
                         </button>
                       </div>
@@ -1724,7 +1724,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
             <div className="hidden sm:flex w-32 items-center justify-center">
               {saveStatus === 'saving' && (
                 <div className="flex items-center gap-2 text-slate-400 animate-fade-in">
-                  <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse"></div>
+                  <div className="w-1.5 h-1.5 bg-[#1d1d1f] rounded-full animate-pulse"></div>
                   <span className="text-[9px] font-medium uppercase tracking-widest">Salvando...</span>
                 </div>
               )}
@@ -1748,7 +1748,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
             <button onClick={() => addBlock('image')} className="shrink-0 p-2.5 md:p-3 hover:bg-[#f2f3f5] rounded-[10px] text-[#8e8e93] hover:text-[#1d1d1f] transition-all" title="Adicionar evidência">
               <ImageIcon size={17} />
             </button>
-            <button onClick={() => setShowAssetPicker(true)} className="shrink-0 p-2.5 md:p-3 hover:bg-blue-50 rounded-[10px] text-[#4285F4] hover:text-blue-700 transition-all" title="Adicionar ativo">
+            <button onClick={() => setShowAssetPicker(true)} className="shrink-0 p-2.5 md:p-3 hover:bg-[#f2f3f5] rounded-[10px] text-[#8e8e93] hover:text-[#1d1d1f] transition-all" title="Adicionar ativo">
               <LayoutGrid size={17} />
             </button>
             <button onClick={() => addBlock('reference')} className="shrink-0 p-2.5 md:p-3 hover:bg-[#f2f3f5] rounded-[10px] text-[#8e8e93] hover:text-[#1d1d1f] transition-all" title="Referência bibliográfica">
@@ -1795,7 +1795,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                       <div
                         key={asset.id}
                         onClick={() => addBlock('asset', asset.id)}
-                        className="group cursor-pointer bg-slate-50 rounded-2xl overflow-hidden border border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all"
+                        className="group cursor-pointer bg-slate-50 rounded-2xl overflow-hidden border border-slate-100 hover:border-black/10 hover:shadow-lg transition-all"
                       >
                         <div className="aspect-square bg-white overflow-hidden">
                           {getAssetPreviewSource(asset) ? (
@@ -2009,7 +2009,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
           const progress = total > 0 ? ((currentSlideIndex + 1) / total) * 100 : 0;
 
           return (
-            <div className="fixed inset-0 z-[900] bg-[#f4f4f2] text-[#1d1d1f] flex flex-col animate-fade-in">
+            <div className="fixed inset-0 z-[900] lon-soft-bg text-[#1d1d1f] flex flex-col animate-fade-in">
               {/* Top bar */}
               <div className="relative flex items-center justify-between px-5 sm:px-8 py-3.5 border-b border-black/[0.06] bg-white/82 backdrop-blur-xl">
                 <div className="absolute left-0 bottom-0 h-px bg-[#1d1d1f] transition-all duration-300" style={{ width: `${progress}%` }} />
@@ -2234,11 +2234,11 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
   };
 
   return (
-    <div className="min-h-screen bg-[#fafbfc] text-[#1d1d1f] font-sans pb-20 md:pb-0 md:pl-[80px] transition-all duration-300">
+    <div className="lon-soft-bg min-h-screen text-[#1d1d1f] font-sans pb-20 md:pb-0 md:pl-[80px] transition-all duration-300">
       <Sidebar currentView={view} setView={(v) => { setSelectedAsset(null); setEditingCase(null); setNewAssetId(null); setView(v); }} trashCount={trashedAssets.length} />
 
       <div className="sticky top-0 z-[210] flex justify-start px-4 pt-3 md:px-6 md:pt-4">
-        <div className="flex max-w-full items-center gap-1 rounded-full border border-black/[0.055] bg-white/86 px-1.5 py-1.5 shadow-[0_8px_28px_rgba(0,0,0,0.07)] backdrop-blur-xl">
+        <div className="lon-glass-panel flex max-w-full items-center gap-1 rounded-full px-1.5 py-1.5">
           <div className="flex min-w-0 items-center gap-2 pl-1.5 pr-1">
             <div className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#1d1d1f] text-[10px] font-semibold text-white ring-1 ring-black/[0.04]">
               {currentUser.avatarUrl ? (
@@ -2260,7 +2260,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
             })}
             aria-label="Sair da conta"
             title="Sair da conta"
-            className="flex h-7 w-7 items-center justify-center rounded-full text-[#86868b] transition-all hover:bg-[#f5f5f7] hover:text-[#ff3b30] active:scale-95"
+            className="flex h-7 w-7 items-center justify-center rounded-full text-[#86868b] transition-all hover:bg-white/70 hover:text-[#1d1d1f] active:scale-95"
           >
             <LogOut size={13} />
           </button>
@@ -2273,7 +2273,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
       {/* Pending Upload Modal */}
       {pendingUpload && (
         <div className="fixed inset-0 z-[500] bg-black/25 backdrop-blur-md flex items-center justify-center animate-fade-in p-4">
-          <div className="bg-white rounded-apple-2xl p-10 max-w-sm w-full shadow-apple-xl text-center animate-scale-in">
+          <div className="lon-glass-panel-strong rounded-apple-2xl p-10 max-w-sm w-full text-center animate-scale-in">
             <div className="w-16 h-16 bg-[#1d1d1f] text-white rounded-apple-lg flex items-center justify-center mx-auto mb-6 shadow-apple-md">
               <Brain size={28} />
             </div>
@@ -2411,12 +2411,12 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
 
               {/* Search Bar — Google style */}
               <div className="w-full max-w-xl mb-8">
-                <div className="relative group">
+                <div className="lon-soft-search relative group rounded-full">
                   <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
                     {homeSearchLoading ? (
-                      <Loader2 size={18} className="text-[#4285F4] animate-spin" />
+                      <Loader2 size={18} className="text-[#1d1d1f] animate-spin" />
                     ) : (
-                      <Search size={18} className="text-[#aeaeb2] group-focus-within:text-[#4285F4] transition-colors" />
+                      <Search size={18} className="text-[#8e8e93] group-focus-within:text-[#1d1d1f] transition-colors" />
                     )}
                   </div>
                   <input
@@ -2430,12 +2430,12 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                       if (!v.trim()) { setHomeHasSearched(false); setHomeSearchResults([]); }
                     }}
                     onKeyDown={handleHomeKeyDown}
-                    className="w-full pl-12 pr-14 py-4 bg-white border border-black/8 rounded-full text-[15px] outline-none focus:border-[#4285F4]/30 focus:shadow-[0_0_0_4px_rgba(0,113,227,0.08)] transition-all placeholder:text-[#aeaeb2] shadow-apple-md"
+                    className="w-full pl-12 pr-14 py-4 bg-transparent rounded-full text-[15px] outline-none transition-all placeholder:text-[#9a9aa0]"
                   />
                   {/* Right action: clear (X) when active, AI brain when idle */}
                   {(homeSearchQuery || homeHasSearched) ? (
                     <button onClick={clearHomeSearch}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-[#f2f3f5] hover:bg-red-50 text-[#aeaeb2] hover:text-red-500 transition-all"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-white/58 hover:bg-[#1d1d1f] text-[#86868b] hover:text-white transition-all"
                       title="Limpar pesquisa (Esc)">
                       <X size={16} />
                     </button>
@@ -2481,7 +2481,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                 <div ref={homeScrollRef} className="w-full max-w-5xl animate-fade-in pb-20">
                   {homeSearchLoading && homeSearchResults.length === 0 ? (
                     <div className="flex flex-col items-center py-16">
-                      <Loader2 size={28} className="text-[#4285F4] animate-spin mb-4" />
+                      <Loader2 size={28} className="text-[#1d1d1f] animate-spin mb-4" />
                       <p className="text-[12px] text-[#86868b] font-medium">Analisando termos médicos...</p>
                     </div>
                   ) : homeSearchResults.length > 0 ? (
@@ -2489,7 +2489,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                       <div className="flex items-center justify-between gap-2 mb-5">
                         <p className="text-[11px] text-[#86868b] font-medium flex items-center gap-2">
                           {homeSearchResults.length} {homeSearchResults.length === 1 ? 'resultado' : 'resultados'} para &ldquo;{homeSearchQuery}&rdquo;
-                          {homeSearchLoading && <Loader2 size={12} className="text-[#4285F4] animate-spin" />}
+                          {homeSearchLoading && <Loader2 size={12} className="text-[#1d1d1f] animate-spin" />}
                         </p>
                         <button onClick={clearHomeSearch}
                           className="flex items-center gap-1.5 text-[10px] font-semibold text-[#aeaeb2] hover:text-[#1d1d1f] transition-colors uppercase tracking-widest">
@@ -2512,7 +2512,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                                   handleOpenAsset(item);
                                 }
                               }}
-                              className="group cursor-pointer bg-white rounded-apple-xl border border-black/6 shadow-apple overflow-hidden hover:shadow-apple-md hover:-translate-y-1 transition-all duration-300"
+                              className="lon-glass-panel group cursor-pointer rounded-apple-xl overflow-hidden hover:shadow-apple-md hover:-translate-y-1 transition-all duration-300"
                             >
                               {/* Thumbnail */}
                               <div className="w-full h-[120px] bg-[#f2f3f5] overflow-hidden flex items-center justify-center">
@@ -2539,10 +2539,10 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                               </div>
                               {/* Info */}
                               <div className="p-3">
-                                <p className="text-[11px] font-semibold text-[#1d1d1f] line-clamp-2 leading-tight mb-2 group-hover:text-[#3a7bd5] transition-colors">
+                                <p className="text-[11px] font-semibold text-[#1d1d1f] line-clamp-2 leading-tight mb-2 transition-colors">
                                   {item.title || (isCase ? 'Case Científico' : 'Ativo')}
                                 </p>
-                                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider ${isCase ? 'bg-[#f0f4ff] text-[#3a7bd5]' : 'bg-[#f5f5f7] text-[#86868b]'}`}>
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-white/62 text-[8px] font-bold uppercase tracking-wider text-[#86868b]">
                                   {isCase ? 'Case' : 'Ativo'}
                                 </span>
                               </div>
@@ -2589,14 +2589,14 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                   <div className="relative flex-1 min-w-0 group">
                     <div className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
                       {isAiSearching ? (
-                        <Loader2 size={15} className="text-[#4285F4] animate-spin" />
+                        <Loader2 size={15} className="text-[#1d1d1f] animate-spin" />
                       ) : (
-                        <Search size={15} className="text-[#86868b] group-focus-within:text-[#4285F4] transition-colors" />
+                        <Search size={15} className="text-[#86868b] group-focus-within:text-[#1d1d1f] transition-colors" />
                       )}
                     </div>
                     <input type="text" placeholder="Busca semântica com IA..."
                       value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
-                      className="w-full pl-10 pr-10 py-2.5 bg-white border border-black/8 rounded-apple-lg text-[13px] outline-none focus:border-[#4285F4]/30 focus:shadow-[0_0_0_3px_rgba(0,113,227,0.08)] transition-all placeholder:text-[#aeaeb2] shadow-apple" />
+                      className="lon-soft-search w-full pl-10 pr-10 py-3 rounded-full text-[13px] outline-none transition-all placeholder:text-[#9a9aa0]" />
                     {/* Clear / AI badge on right */}
                     {searchQuery ? (
                       <button onClick={() => { setSearchQuery(''); setAiSearchResults(null); }}
@@ -2605,7 +2605,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                       </button>
                     ) : (
                       <div className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-focus-within:opacity-100 transition-opacity pointer-events-none">
-                        <Brain size={13} className="text-[#4285F4]" />
+                        <Brain size={13} className="text-[#1d1d1f]" />
                       </div>
                     )}
                   </div>
@@ -2615,7 +2615,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                     <select
                       value={dateFilter.month}
                       onChange={e => setDateFilter(p => ({ ...p, month: e.target.value }))}
-                      className="shrink-0 px-3 py-2.5 bg-white border border-black/8 rounded-apple-lg text-[12px] font-medium text-[#1d1d1f] outline-none focus:border-[#4285F4]/30 shadow-apple appearance-none cursor-pointer"
+                      className="shrink-0 px-3 py-2.5 bg-white/70 border border-white/80 rounded-apple-lg text-[12px] font-medium text-[#1d1d1f] outline-none focus:border-black/10 shadow-apple appearance-none cursor-pointer backdrop-blur-xl"
                     >
                       <option value="">Mês</option>
                       {['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'].map((m, i) => (
@@ -2625,7 +2625,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                     <select
                       value={dateFilter.year}
                       onChange={e => setDateFilter(p => ({ ...p, year: e.target.value }))}
-                      className="shrink-0 px-3 py-2.5 bg-white border border-black/8 rounded-apple-lg text-[12px] font-medium text-[#1d1d1f] outline-none focus:border-[#4285F4]/30 shadow-apple appearance-none cursor-pointer"
+                      className="shrink-0 px-3 py-2.5 bg-white/70 border border-white/80 rounded-apple-lg text-[12px] font-medium text-[#1d1d1f] outline-none focus:border-black/10 shadow-apple appearance-none cursor-pointer backdrop-blur-xl"
                     >
                       <option value="">Ano</option>
                       {Array.from(new Set(assets.map(a => new Date(a.createdAt || a.date).getFullYear()))).sort((a: number, b: number) => b - a).map(y => (
@@ -2643,7 +2643,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                   </div>
 
                   <div className="flex items-center justify-between gap-2 sm:justify-start xl:shrink-0">
-                    <div className="flex shrink-0 items-center bg-white border border-black/[0.06] rounded-apple-lg shadow-apple p-0.5">
+                    <div className="flex shrink-0 items-center bg-white/70 border border-white/80 rounded-apple-lg shadow-apple p-0.5 backdrop-blur-xl">
                       {([
                         { id: 'small', label: 'P', title: 'Miniaturas pequenas' },
                         { id: 'medium', label: 'M', title: 'Miniaturas médias' },
@@ -2706,8 +2706,8 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
         {/* CASES - Card View */}
         {view === ViewState.CASES && !editingCase && (() => {
           const statusConfig: Record<string, { label: string; color: string; bg: string; dot: string }> = {
-            em_andamento: { label: 'Em Andamento', color: 'text-blue-600', bg: 'bg-blue-50', dot: 'bg-blue-500' },
-            completo: { label: 'Completo', color: 'text-emerald-600', bg: 'bg-emerald-50', dot: 'bg-emerald-500' },
+            em_andamento: { label: 'Em Andamento', color: 'text-[#1d1d1f]', bg: 'bg-white/70', dot: 'bg-[#1d1d1f]' },
+            completo: { label: 'Completo', color: 'text-[#424245]', bg: 'bg-white/60', dot: 'bg-[#6e6e73]' },
             arquivado: { label: 'Arquivado', color: 'text-slate-500', bg: 'bg-slate-100', dot: 'bg-slate-400' },
           };
 
@@ -2729,7 +2729,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                     <p className="text-[11px] font-medium text-[#86868b] tracking-wider mt-1.5">{filteredCases.length} {filteredCases.length === 1 ? 'caso' : 'casos'} · Documentação Editorial</p>
                   </div>
                   <div className="flex w-full min-w-0 items-center gap-2 overflow-x-auto pb-1 no-scrollbar lg:w-auto lg:justify-end">
-                    <div className="flex shrink-0 items-center bg-white border border-black/[0.06] rounded-apple-lg shadow-apple p-0.5">
+                    <div className="flex shrink-0 items-center bg-white/70 border border-white/80 rounded-apple-lg shadow-apple p-0.5 backdrop-blur-xl">
                       <button onClick={() => setCaseViewMode('list')} className={`shrink-0 p-2 rounded-[8px] transition-all ${caseViewMode === 'list' ? 'bg-[#1d1d1f] text-white' : 'text-[#86868b] hover:text-[#1d1d1f]'}`} aria-label="Ver cases em lista"><AlignJustify size={14} /></button>
                       <button onClick={() => setCaseViewMode('grid')} className={`shrink-0 p-2 rounded-[8px] transition-all ${caseViewMode === 'grid' ? 'bg-[#1d1d1f] text-white' : 'text-[#86868b] hover:text-[#1d1d1f]'}`} aria-label="Ver cases em grade"><LayoutGrid size={14} /></button>
                     </div>
@@ -2744,17 +2744,17 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                 <div className="flex flex-col items-stretch gap-3 xl:flex-row xl:items-center">
                   <div className="relative min-w-0 flex-1 group">
                     <div className="absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
-                      <Search size={15} className="text-[#86868b] group-focus-within:text-[#4285F4] transition-colors" />
+                      <Search size={15} className="text-[#86868b] group-focus-within:text-[#1d1d1f] transition-colors" />
                     </div>
                     <input type="text" placeholder="Localizar case por título, tag ou conteúdo..."
                       value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2.5 bg-white border border-black/8 rounded-apple-lg text-[13px] outline-none focus:border-[#4285F4]/30 focus:shadow-[0_0_0_3px_rgba(0,113,227,0.08)] transition-all placeholder:text-[#aeaeb2] shadow-apple" />
+                      className="lon-soft-search w-full pl-10 pr-4 py-3 rounded-full text-[13px] outline-none transition-all placeholder:text-[#9a9aa0]" />
                   </div>
                   <div className="flex min-w-0 items-center gap-2 overflow-x-auto pb-1 no-scrollbar xl:shrink-0 xl:pb-0">
                     <select
                       value={dateFilter.month}
                       onChange={e => setDateFilter(p => ({ ...p, month: e.target.value }))}
-                      className="shrink-0 px-3 py-2.5 bg-white border border-black/8 rounded-apple-lg text-[12px] font-medium text-[#1d1d1f] outline-none focus:border-[#4285F4]/30 shadow-apple appearance-none cursor-pointer"
+                      className="shrink-0 px-3 py-2.5 bg-white/70 border border-white/80 rounded-apple-lg text-[12px] font-medium text-[#1d1d1f] outline-none focus:border-black/10 shadow-apple appearance-none cursor-pointer backdrop-blur-xl"
                     >
                       <option value="">Mês</option>
                       {['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'].map((m, i) => (
@@ -2764,7 +2764,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                     <select
                       value={dateFilter.year}
                       onChange={e => setDateFilter(p => ({ ...p, year: e.target.value }))}
-                      className="shrink-0 px-3 py-2.5 bg-white border border-black/8 rounded-apple-lg text-[12px] font-medium text-[#1d1d1f] outline-none focus:border-[#4285F4]/30 shadow-apple appearance-none cursor-pointer"
+                      className="shrink-0 px-3 py-2.5 bg-white/70 border border-white/80 rounded-apple-lg text-[12px] font-medium text-[#1d1d1f] outline-none focus:border-black/10 shadow-apple appearance-none cursor-pointer backdrop-blur-xl"
                     >
                       <option value="">Ano</option>
                       {Array.from(new Set(activeAssets.filter(a => a.type === 'case').map(a => new Date(a.createdAt || a.date).getFullYear()))).sort((a: number, b: number) => b - a).map(y => (
@@ -2786,7 +2786,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                   <div className={`mt-4 flex items-start gap-2 rounded-[18px] px-4 py-3 text-[12px] font-medium leading-relaxed ${
                     dataLoadNotice
                       ? 'border border-amber-200/70 bg-amber-50 text-amber-800'
-                      : 'border border-blue-100 bg-blue-50 text-blue-800'
+                      : 'border border-white/80 bg-white/62 text-[#424245]'
                   }`}>
                     {dataLoadNotice ? <AlertCircle size={15} className="mt-0.5 shrink-0" /> : <Loader2 size={15} className="mt-0.5 shrink-0 animate-spin" />}
                     <span>{dataLoadNotice || 'Sincronizando seus cases com a nuvem. Seus dados continuam vinculados à sua conta.'}</span>
@@ -2813,7 +2813,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                             }
                           </div>
                           <div className="p-3">
-                            <p className="text-[12px] font-semibold text-[#1d1d1f] line-clamp-2 leading-tight mb-1.5 group-hover:text-[#4285F4] transition-colors">
+                            <p className="text-[12px] font-semibold text-[#1d1d1f] line-clamp-2 leading-tight mb-1.5 transition-colors">
                               {caseItem.title || 'Novo Caso Clínico'}
                             </p>
                             <div className="flex items-center gap-1.5">
@@ -2847,7 +2847,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
 
                         {/* Title + Preview */}
                         <div className="flex-1 min-w-0">
-                          <p className={`line-clamp-2 text-[13px] font-medium leading-snug transition-colors ${caseItem.title ? 'text-[#1d1d1f] group-hover:text-[#4285F4]' : 'text-[#86868b] italic'}`}>
+                          <p className={`line-clamp-2 text-[13px] font-medium leading-snug transition-colors ${caseItem.title ? 'text-[#1d1d1f]' : 'text-[#86868b] italic'}`}>
                             {caseItem.title || 'Novo Caso Clínico'}
                           </p>
                           <p className="line-clamp-2 text-[11px] text-[#c7c7cc] mt-0.5">{getCasePreview(caseItem)}</p>
@@ -2879,7 +2879,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                           </button>
                         </div>
 
-                        <ChevronRight size={13} className="text-[#d1d1d6] group-hover:text-[#4285F4] group-hover:translate-x-0.5 transition-all shrink-0" />
+                        <ChevronRight size={13} className="text-[#d1d1d6] group-hover:text-[#1d1d1f] group-hover:translate-x-0.5 transition-all shrink-0" />
                       </div>
                     );
                   })}
@@ -3186,7 +3186,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
         <div className="fixed inset-0 z-[500] flex items-end sm:items-center justify-center p-0 sm:p-6 animate-fade-in">
           <div className="absolute inset-0 bg-slate-900/20 backdrop-blur-sm" onClick={() => setShowUploadModal(false)} />
 
-          <div className="relative w-full sm:max-w-3xl bg-white rounded-t-[32px] sm:rounded-[48px] p-6 sm:p-12 shadow-2xl max-h-[90vh] overflow-y-auto">
+          <div className="lon-glass-panel-strong relative w-full sm:max-w-3xl rounded-t-[32px] sm:rounded-[48px] p-6 sm:p-12 max-h-[90vh] overflow-y-auto">
             <div className="text-center mb-8 sm:mb-12">
               <h2 className="text-2xl sm:text-4xl font-light tracking-tight text-slate-900 mb-3">
                 Como deseja carregar?
@@ -3207,10 +3207,10 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                     fileInputRef.current.click();
                   }
                 }}
-                className="group p-6 sm:p-10 bg-white border border-slate-100 rounded-3xl sm:rounded-[40px] hover:border-blue-200 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 text-center"
+                className="group p-6 sm:p-10 bg-white/62 border border-white/80 rounded-3xl sm:rounded-[40px] hover:border-black/10 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 text-center backdrop-blur-xl"
               >
-                <div className="w-20 h-20 bg-blue-50 rounded-3xl flex items-center justify-center mx-auto mb-8 group-hover:scale-110 group-hover:bg-blue-100 transition-all duration-500">
-                  <FileText size={32} className="text-[#4285F4]" strokeWidth={1.5} />
+                <div className="w-20 h-20 bg-white/72 rounded-3xl flex items-center justify-center mx-auto mb-8 group-hover:scale-110 group-hover:bg-[#1d1d1f] transition-all duration-500">
+                  <FileText size={32} className="text-[#1d1d1f] group-hover:text-white" strokeWidth={1.5} />
                 </div>
                 <h3 className="text-xl font-semibold text-slate-800 mb-3">Ativos Individuais</h3>
                 <p className="text-sm text-slate-400 leading-relaxed max-w-[200px] mx-auto">
@@ -3228,10 +3228,10 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                     fileInputRef.current.click();
                   }
                 }}
-                className="group p-6 sm:p-10 bg-white border border-slate-100 rounded-3xl sm:rounded-[40px] hover:border-blue-200 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 text-center"
+                className="group p-6 sm:p-10 bg-white/62 border border-white/80 rounded-3xl sm:rounded-[40px] hover:border-black/10 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 text-center backdrop-blur-xl"
               >
-                <div className="w-20 h-20 bg-blue-50 rounded-3xl flex items-center justify-center mx-auto mb-8 group-hover:scale-110 group-hover:bg-blue-100 transition-all duration-500">
-                  <Briefcase size={32} className="text-[#4285F4]" strokeWidth={1.5} />
+                <div className="w-20 h-20 bg-white/72 rounded-3xl flex items-center justify-center mx-auto mb-8 group-hover:scale-110 group-hover:bg-[#1d1d1f] transition-all duration-500">
+                  <Briefcase size={32} className="text-[#1d1d1f] group-hover:text-white" strokeWidth={1.5} />
                 </div>
                 <h3 className="text-xl font-semibold text-slate-800 mb-3">Grupo de Arquivos</h3>
                 <p className="text-sm text-slate-400 leading-relaxed max-w-[200px] mx-auto">
@@ -3297,7 +3297,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                   <div className="grid grid-cols-2 gap-3 text-left mb-8 max-w-sm mx-auto">
                     {['Introdução', 'Metodologia', 'Resultados', 'Discussão'].map(s => (
                       <div key={s} className="flex items-center gap-2 px-3 py-2 bg-[#f2f3f5] rounded-[10px]">
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#4285F4]" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#1d1d1f]" />
                         <span className="text-[11px] font-medium text-[#1d1d1f]">{s}</span>
                       </div>
                     ))}

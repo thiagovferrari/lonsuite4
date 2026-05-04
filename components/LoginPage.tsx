@@ -103,14 +103,14 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
   ];
 
   return (
-    <div className="min-h-screen overflow-hidden bg-[#f4f4f2] text-[#111113]">
+    <div className="lon-soft-bg min-h-screen overflow-hidden text-[#111113]">
       <section className="relative min-h-screen px-5 pb-20 pt-6 sm:px-8 lg:px-12">
-        <div className="absolute inset-x-0 top-0 h-[720px] bg-white" />
+        <div className="absolute inset-x-0 top-0 h-[720px] bg-white/18" />
         <div className="plans-orbit absolute right-[8%] top-28 h-56 w-56 rounded-full border border-black/[0.05]" />
         <div className="plans-orbit plans-orbit-slow absolute bottom-28 left-[7%] h-72 w-72 rounded-full border border-black/[0.04]" />
 
         <div className="relative mx-auto max-w-7xl">
-          <nav className="mb-14 flex items-center justify-between rounded-full border border-black/[0.06] bg-white/85 px-3 py-2 shadow-[0_18px_60px_rgba(0,0,0,0.06)] backdrop-blur-xl">
+          <nav className="lon-glass-panel mb-14 flex items-center justify-between rounded-full px-3 py-2">
             <button onClick={onBack} className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-[12px] font-semibold text-[#424245] hover:bg-[#1d1d1f] hover:text-white">
               <ArrowLeft size={14} />
               Login
@@ -128,7 +128,7 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
 
           <div className="grid min-h-[640px] items-center gap-10 lg:grid-cols-[0.95fr_1.05fr]">
             <div className="plans-story-enter">
-              <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-black/[0.06] bg-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[#6e6e73] shadow-[0_12px_34px_rgba(0,0,0,0.05)]">
+              <p className="lon-glass-panel mb-5 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[#6e6e73]">
                 <Award size={13} className="text-[#1d1d1f]" />
                 Lon Suite Pricing
               </p>
@@ -173,14 +173,14 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
                   ))}
                 </div>
               </div>
-              <div className="absolute right-8 top-[470px] rounded-[24px] border border-black/[0.05] bg-white p-5 shadow-[0_26px_80px_rgba(0,0,0,0.12)]">
+              <div className="lon-glass-panel-strong absolute right-8 top-[470px] rounded-[24px] p-5">
                 <p className="text-[44px] font-extralight leading-none">4x</p>
                 <p className="mt-2 max-w-[150px] text-[11px] font-semibold leading-relaxed text-[#86868b]">mais reaproveitamento do acervo científico</p>
               </div>
             </div>
           </div>
 
-          <section id="planos" className="mt-12 scroll-mt-8 rounded-[36px] bg-[#ededeb] px-4 py-12 sm:px-8 lg:px-10">
+          <section id="planos" className="lon-glass-panel mt-12 scroll-mt-8 rounded-[36px] px-4 py-12 sm:px-8 lg:px-10">
             <div className="mx-auto mb-9 max-w-3xl text-center">
               <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Planos</p>
               <h2 className="text-[38px] font-semibold leading-tight tracking-tight sm:text-[56px]">Planos para transformar acervo em presença científica.</h2>
@@ -192,10 +192,10 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
                 return (
                   <article
                     key={plan.name}
-                    className={`plans-card group relative min-h-[540px] overflow-hidden rounded-[34px] border p-5 transition-all hover:-translate-y-1 ${plan.highlight ? 'border-[#111113] bg-[#111113] text-white shadow-[0_38px_100px_rgba(0,0,0,0.30)] xl:-translate-y-4' : 'border-white bg-white text-[#111113] shadow-[0_22px_70px_rgba(0,0,0,0.08)]'}`}
+                    className={`plans-card group relative min-h-[540px] overflow-hidden rounded-[34px] border p-5 transition-all hover:-translate-y-1 ${plan.highlight ? 'border-[#111113] bg-[#111113] text-white shadow-[0_38px_100px_rgba(0,0,0,0.30)] xl:-translate-y-4' : 'border-white/82 bg-white/62 text-[#111113] shadow-[0_22px_70px_rgba(0,0,0,0.08)] backdrop-blur-xl'}`}
                     style={{ animationDelay: `${index * 120}ms` }}
                   >
-                    <div className={`mb-6 rounded-[26px] p-5 ${plan.highlight ? 'bg-[linear-gradient(135deg,rgba(255,255,255,0.18),rgba(58,123,213,0.18))]' : 'bg-[#f0f0ef]'}`}>
+                    <div className={`mb-6 rounded-[26px] p-5 ${plan.highlight ? 'bg-white/10' : 'bg-white/58'}`}>
                       <div className="mb-12 flex items-center justify-between">
                         <span className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] ${plan.highlight ? 'bg-white text-[#111113]' : 'bg-white text-[#424245]'}`}>{plan.name}</span>
                         <Icon size={20} className={plan.highlight ? 'text-white/72' : 'text-[#1d1d1f]'} />
@@ -464,7 +464,7 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
             </article>
           </section>
 
-          <section className="mt-24 grid items-center gap-8 rounded-[38px] bg-[#ededeb] p-6 sm:p-10 lg:grid-cols-[0.95fr_1.05fr] lg:p-12">
+          <section className="lon-glass-panel mt-24 grid items-center gap-8 rounded-[38px] p-6 sm:p-10 lg:grid-cols-[0.95fr_1.05fr] lg:p-12">
             <div>
               <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Valor prático</p>
               <h2 className="text-[42px] font-semibold leading-tight tracking-tight sm:text-[60px]">Menos tempo procurando. Mais tempo usando o que você já construiu.</h2>
@@ -476,7 +476,7 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
                 ['No dia a dia', 'Material pronto para aula, reunião, discussão e memória profissional.'],
                 ['No crescimento', 'Acervo acumulado vira patrimônio intelectual organizado.'],
               ].map(([title, body], index) => (
-                <div key={title} className={`rounded-[28px] p-6 ${index === 1 ? 'bg-[#111113] text-white shadow-[0_24px_70px_rgba(0,0,0,0.18)]' : 'bg-white text-[#111113]'}`}>
+                <div key={title} className={`rounded-[28px] p-6 ${index === 1 ? 'bg-[#111113] text-white shadow-[0_24px_70px_rgba(0,0,0,0.18)]' : 'bg-white/62 text-[#111113] backdrop-blur-xl'}`}>
                   <p className="text-[12px] font-bold uppercase tracking-[0.16em] text-current opacity-45">{title}</p>
                   <p className="mt-7 text-[20px] font-light leading-tight">{body}</p>
                 </div>
@@ -572,7 +572,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] text-[#1d1d1f]">
+    <div className="lon-soft-bg min-h-screen text-[#1d1d1f]">
       <div className="grid min-h-screen lg:grid-cols-[minmax(420px,0.86fr)_1.14fr]">
         <section className="flex items-center justify-center px-5 py-10 sm:px-8 lg:px-12">
           <div className="w-full max-w-[420px]">
@@ -589,7 +589,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
               </p>
             </div>
 
-            <div className="rounded-[26px] border border-black/[0.05] bg-white p-7 shadow-[0_18px_60px_rgba(0,0,0,0.08)] sm:p-8">
+            <div className="lon-glass-panel-strong rounded-[26px] p-7 sm:p-8">
               <div className="mb-7 flex items-start justify-between gap-5">
                 <div>
                   <h2 className="text-[20px] font-semibold tracking-tight text-[#1d1d1f]">Acessar conta</h2>
@@ -612,7 +612,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
                     placeholder="seu@email.com"
                     required
                     autoComplete="email"
-                    className="w-full rounded-[14px] border border-transparent bg-[#f5f5f7] px-4 py-3 text-[14px] text-[#1d1d1f] outline-none transition-all placeholder:text-[#c7c7cc] focus:border-black/[0.08] focus:bg-white focus:ring-4 focus:ring-black/[0.04]"
+                    className="lon-soft-field w-full rounded-[14px] px-4 py-3 text-[14px] text-[#1d1d1f] outline-none transition-all placeholder:text-[#9a9aa0] focus:ring-4 focus:ring-black/[0.04]"
                   />
                 </div>
 
@@ -627,7 +627,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
                     placeholder="••••••••"
                     required
                     autoComplete="current-password"
-                    className="w-full rounded-[14px] border border-transparent bg-[#f5f5f7] px-4 py-3 text-[14px] text-[#1d1d1f] outline-none transition-all placeholder:text-[#c7c7cc] focus:border-black/[0.08] focus:bg-white focus:ring-4 focus:ring-black/[0.04]"
+                    className="lon-soft-field w-full rounded-[14px] px-4 py-3 text-[14px] text-[#1d1d1f] outline-none transition-all placeholder:text-[#9a9aa0] focus:ring-4 focus:ring-black/[0.04]"
                   />
                 </div>
 
@@ -661,7 +661,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
 
               <p className="mt-7 text-center text-[11px] leading-relaxed text-[#aeaeb2]">
                 Acesso somente por convite.{' '}
-                <a href="mailto:contato@lonsuite.com.br" className="font-medium text-[#3a7bd5] hover:underline">
+                <a href="mailto:contato@lonsuite.com.br" className="font-medium text-[#1d1d1f] hover:underline">
                   contato@lonsuite.com.br
                 </a>
               </p>
@@ -669,7 +669,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
               <button
                 type="button"
                 onClick={() => setShowPlans(true)}
-                className="button-nowrap mt-4 flex w-full items-center justify-center gap-2 rounded-[14px] border border-black/[0.06] bg-[#f9f9fb] px-4 py-3 text-[12px] font-semibold text-[#424245] hover:bg-[#1d1d1f] hover:text-white"
+                className="button-nowrap mt-4 flex w-full items-center justify-center gap-2 rounded-[14px] border border-white/80 bg-white/56 px-4 py-3 text-[12px] font-semibold text-[#424245] backdrop-blur-xl hover:bg-[#1d1d1f] hover:text-white"
               >
                 Confira nossos planos
                 <ArrowRight size={14} />
@@ -684,7 +684,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
         </section>
 
         <section className="relative hidden overflow-hidden bg-[#101114] px-10 py-10 text-white lg:flex lg:items-center">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_28%_20%,rgba(255,255,255,0.12),transparent_30%),radial-gradient(circle_at_82%_72%,rgba(58,123,213,0.18),transparent_34%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_28%_20%,rgba(255,255,255,0.12),transparent_30%),radial-gradient(circle_at_82%_72%,rgba(255,255,255,0.10),transparent_34%)]" />
           <div className="login-orbit absolute left-[10%] top-[8%] h-36 w-36 rounded-full border border-white/[0.08]" />
           <div className="login-orbit login-orbit-delayed absolute bottom-[12%] right-[12%] h-52 w-52 rounded-full border border-white/[0.06]" />
           <div className="relative mx-auto grid w-full max-w-[1040px] grid-cols-[0.9fr_1.1fr] items-center gap-8 xl:gap-10">
