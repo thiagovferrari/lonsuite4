@@ -3185,19 +3185,19 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
       {/* Upload Type Selection Modal */}
       {showUploadModal && (
         <div className="fixed inset-0 z-[500] flex items-end justify-center p-0 sm:items-center sm:p-6">
-          <div className="absolute inset-0 bg-[#1d1d1f]/18 backdrop-blur-[3px]" onClick={() => setShowUploadModal(false)} />
+          <div className="absolute inset-0 bg-[#1d1d1f]/24" onClick={() => setShowUploadModal(false)} />
 
-          <div className="relative w-full max-h-[88vh] overflow-y-auto rounded-t-[30px] border border-white/82 bg-white/82 p-6 shadow-[0_30px_110px_rgba(29,29,31,0.18)] backdrop-blur-xl animate-scale-in sm:max-w-[760px] sm:rounded-[38px] sm:p-10">
+          <div className="relative w-full max-h-[88vh] overflow-y-auto rounded-t-[28px] border border-black/[0.06] bg-[#f7f6f4] p-5 shadow-[0_22px_70px_rgba(29,29,31,0.18)] animate-scale-in sm:max-w-[700px] sm:rounded-[32px] sm:p-8">
             <div className="text-center mb-7 sm:mb-9">
-              <h2 className="text-2xl sm:text-[34px] font-light tracking-tight text-slate-900 mb-3">
+              <h2 className="text-2xl sm:text-[32px] font-light tracking-tight text-slate-900 mb-3">
                 Como deseja carregar?
               </h2>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.28em]">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.22em] sm:tracking-[0.28em]">
                 Escolha o modo de upload ideal para você
               </p>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 mb-7 sm:mb-9">
+            <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 sm:gap-4 mb-7 sm:mb-9">
               {/* Individual Uploads (Single or Multiple separate assets) */}
               <button
                 onClick={() => {
@@ -3208,13 +3208,13 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                     fileInputRef.current.click();
                   }
                 }}
-                className="group flex min-h-[210px] flex-col items-center justify-center rounded-[28px] border border-white/86 bg-white/66 p-6 text-center shadow-[0_14px_48px_rgba(29,29,31,0.06)] backdrop-blur-lg transition-all duration-300 hover:-translate-y-1 hover:border-black/10 hover:bg-white/82 hover:shadow-[0_22px_70px_rgba(29,29,31,0.10)] sm:min-h-[238px] sm:p-7"
+                className="group flex min-h-[198px] min-w-0 flex-col items-center justify-center rounded-[24px] border border-black/[0.055] bg-white p-5 text-center shadow-[0_10px_34px_rgba(29,29,31,0.06)] transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_48px_rgba(29,29,31,0.10)] sm:min-h-[220px] sm:p-6"
               >
-                <div className="mb-7 flex h-16 w-16 items-center justify-center rounded-[22px] bg-[#1d1d1f] text-white transition-all duration-300 group-hover:scale-105 sm:h-[72px] sm:w-[72px]">
-                  <FileText size={32} strokeWidth={1.5} />
+                <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-[18px] bg-[#1d1d1f] text-white transition-transform duration-200 group-hover:scale-105 sm:h-16 sm:w-16">
+                  <FileText size={28} strokeWidth={1.5} />
                 </div>
-                <h3 className="mb-3 text-[18px] font-semibold text-slate-800">Ativos Individuais</h3>
-                <p className="mx-auto max-w-[230px] text-[12px] leading-relaxed text-slate-500 sm:text-[13px]">
+                <h3 className="mb-2.5 max-w-full text-[17px] font-semibold text-slate-800">Ativos Individuais</h3>
+                <p className="mx-auto max-w-[210px] text-[12px] leading-relaxed text-slate-500 sm:text-[12.5px]">
                   Carregar 1 ou mais arquivos, cada um como um ativo único
                 </p>
               </button>
@@ -3229,13 +3229,13 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                     fileInputRef.current.click();
                   }
                 }}
-                className="group flex min-h-[210px] flex-col items-center justify-center rounded-[28px] border border-white/86 bg-white/48 p-6 text-center shadow-[0_14px_48px_rgba(29,29,31,0.045)] backdrop-blur-lg transition-all duration-300 hover:-translate-y-1 hover:border-black/10 hover:bg-white/78 hover:shadow-[0_22px_70px_rgba(29,29,31,0.09)] sm:min-h-[238px] sm:p-7"
+                className="group flex min-h-[198px] min-w-0 flex-col items-center justify-center rounded-[24px] border border-black/[0.055] bg-white p-5 text-center shadow-[0_10px_34px_rgba(29,29,31,0.045)] transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_48px_rgba(29,29,31,0.09)] sm:min-h-[220px] sm:p-6"
               >
-                <div className="mb-7 flex h-16 w-16 items-center justify-center rounded-[22px] bg-white/72 text-[#1d1d1f] ring-1 ring-black/[0.055] transition-all duration-300 group-hover:scale-105 group-hover:bg-[#1d1d1f] group-hover:text-white sm:h-[72px] sm:w-[72px]">
-                  <Briefcase size={30} strokeWidth={1.5} />
+                <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-[18px] bg-[#f2f3f5] text-[#1d1d1f] ring-1 ring-black/[0.055] transition-transform duration-200 group-hover:scale-105 sm:h-16 sm:w-16">
+                  <Briefcase size={27} strokeWidth={1.5} />
                 </div>
-                <h3 className="mb-3 text-[18px] font-semibold text-slate-800">Grupo de Arquivos</h3>
-                <p className="mx-auto max-w-[230px] text-[12px] leading-relaxed text-slate-500 sm:text-[13px]">
+                <h3 className="mb-2.5 max-w-full text-[17px] font-semibold text-slate-800">Grupo de Arquivos</h3>
+                <p className="mx-auto max-w-[210px] text-[12px] leading-relaxed text-slate-500 sm:text-[12.5px]">
                   Vários arquivos em um único ativo com slider
                 </p>
               </button>
