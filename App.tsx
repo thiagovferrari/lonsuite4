@@ -1402,10 +1402,11 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
     ];
 
     return (
-      <div className="w-full h-screen flex flex-col md:flex-row overflow-hidden bg-white">
+      <div className="w-full h-screen flex flex-col md:flex-row overflow-hidden bg-transparent">
         {/* Main Editor */}
-        <div className="flex-1 overflow-y-auto no-scrollbar pb-40 md:pb-60">
-          <div className="max-w-[1000px] mx-auto pt-6 md:pt-16 px-4 sm:px-6 md:px-8">
+        <div className="relative flex-1 overflow-y-auto no-scrollbar pb-40 md:pb-60">
+          <div className="pointer-events-none fixed inset-y-0 left-[70px] right-[280px] hidden lg:block bg-[radial-gradient(circle_at_48%_0%,rgba(255,255,255,0.50),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.18),rgba(255,255,255,0.04))]" />
+          <div className="relative max-w-[1000px] mx-auto pt-8 md:pt-20 px-4 sm:px-6 md:px-8">
             <button onClick={() => handleCloseCase()} className="mb-4 md:mb-12 flex items-center gap-2 text-slate-400 hover:text-slate-900 transition-all text-[10px] font-bold uppercase tracking-[0.3em] group">
               <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Voltar aos Cases
             </button>
@@ -1454,7 +1455,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
 
           <div className="space-y-8">
             {editingCase.blocks?.map((block, index) => (
-              <div id={block.id} key={block.id} className="group relative scroll-mt-28 rounded-[24px] border border-transparent px-3 py-3 transition-all hover:border-black/[0.045] hover:bg-white/72 hover:shadow-[0_18px_60px_rgba(0,0,0,0.045)] md:px-0 md:py-0 md:hover:bg-transparent md:hover:shadow-none">
+              <div id={block.id} key={block.id} className="group relative scroll-mt-28 rounded-[24px] border border-transparent px-3 py-3 transition-all hover:border-white/70 hover:bg-white/34 hover:shadow-[0_18px_60px_rgba(0,0,0,0.035)] md:px-0 md:py-0 md:hover:bg-transparent md:hover:shadow-none">
                 {block.type === 'title' ? (
                   <textarea
                     ref={(el) => autoResizeTextarea(el)}
@@ -1467,7 +1468,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                     onInput={(e: any) => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; }}
                     placeholder="Digite o título do caso..."
                     rows={1}
-                    className="preserve-lines w-full resize-none overflow-hidden bg-transparent text-3xl md:text-5xl font-extralight tracking-tight text-slate-900 outline-none placeholder:text-slate-200 transition-colors focus:placeholder:text-slate-300"
+                    className="preserve-lines w-full resize-none overflow-hidden bg-transparent text-3xl md:text-5xl font-extralight tracking-tight text-slate-900 outline-none placeholder:text-slate-300/80 transition-colors focus:placeholder:text-slate-400"
                   />
                 ) : block.type === 'subtitle' ? (
                   <textarea
@@ -1480,7 +1481,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                     onInput={(e: any) => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; }}
                     placeholder="Subtítulo da seção..."
                     rows={1}
-                    className="preserve-lines w-full resize-none overflow-hidden bg-transparent text-xl md:text-2xl font-semibold tracking-tight text-slate-800 outline-none placeholder:text-slate-200 transition-colors focus:placeholder:text-slate-300"
+                    className="preserve-lines w-full resize-none overflow-hidden bg-transparent text-xl md:text-2xl font-semibold tracking-tight text-slate-800 outline-none placeholder:text-slate-300/80 transition-colors focus:placeholder:text-slate-400"
                   />
                 ) : block.type === 'reference' ? (
                   <div className="border-l-2 border-slate-200 pl-5 py-2">
@@ -1719,7 +1720,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
           </div>
 
           {/* Floating toolbar */}
-          <div className="fixed bottom-[88px] md:bottom-6 left-1/2 z-[150] flex max-w-[95vw] -translate-x-1/2 items-center gap-1.5 overflow-x-auto rounded-apple-xl border border-black/[0.04] bg-white px-3 py-3 shadow-apple-lg no-scrollbar md:gap-2 md:px-4 md:py-3.5 xl:max-w-[calc(100vw-420px)]">
+          <div className="lon-glass-panel-strong fixed bottom-[88px] md:bottom-6 left-1/2 z-[150] flex max-w-[95vw] -translate-x-1/2 items-center gap-1.5 overflow-x-auto rounded-apple-xl px-3 py-3 no-scrollbar md:gap-2 md:px-4 md:py-3.5 xl:max-w-[calc(100vw-420px)]">
             {/* Auto-save indicator */}
             <div className="hidden sm:flex w-32 items-center justify-center">
               {saveStatus === 'saving' && (
@@ -1826,7 +1827,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
         </div>
 
         {/* Metadata Sidebar — Mobile: drawer at bottom; Desktop: side panel */}
-        <div className="hidden lg:flex w-[280px] shrink-0 border-l border-black/5 bg-[#fafafa] flex-col overflow-y-auto custom-scrollbar">
+        <div className="lon-glass-panel hidden lg:flex w-[280px] shrink-0 border-l border-white/70 flex-col overflow-y-auto custom-scrollbar">
           <div className="p-5 space-y-5">
             <div>
               <h3 className="text-[10px] font-bold text-[#86868b] uppercase tracking-widest mb-3">Status</h3>
@@ -1837,8 +1838,8 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                     onClick={() => syncCase({ ...editingCase, caseStatus: opt.value })}
                     className={`button-nowrap w-full flex items-center gap-2.5 px-3 py-2 rounded-apple-lg text-[12px] font-medium transition-all ${
                       (editingCase.caseStatus || 'em_andamento') === opt.value
-                        ? 'bg-white shadow-apple border border-black/6 text-[#1d1d1f]'
-                        : 'text-[#86868b] hover:bg-white/80 hover:text-[#1d1d1f]'
+                        ? 'bg-white/72 shadow-apple border border-white/80 text-[#1d1d1f]'
+                        : 'text-[#86868b] hover:bg-white/55 hover:text-[#1d1d1f]'
                     }`}
                   >
                     <div className={`w-2 h-2 rounded-full ${opt.dot}`} />
@@ -1853,15 +1854,15 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
             <div>
               <h3 className="text-[10px] font-bold text-[#86868b] uppercase tracking-widest mb-3">Composição</h3>
               <div className="grid grid-cols-3 gap-2">
-                <div className="bg-white rounded-apple border border-black/6 p-3 text-center shadow-apple">
+                <div className="bg-white/62 rounded-apple border border-white/80 p-3 text-center shadow-apple backdrop-blur-xl">
                   <p className="text-lg font-light text-[#1d1d1f]">{imageCount}</p>
                   <p className="text-[8px] font-bold text-[#86868b] uppercase tracking-widest">Imagens</p>
                 </div>
-                <div className="bg-white rounded-apple border border-black/6 p-3 text-center shadow-apple">
+                <div className="bg-white/62 rounded-apple border border-white/80 p-3 text-center shadow-apple backdrop-blur-xl">
                   <p className="text-lg font-light text-[#1d1d1f]">{textCount}</p>
                   <p className="text-[8px] font-bold text-[#86868b] uppercase tracking-widest">Textos</p>
                 </div>
-                <div className="bg-white rounded-apple border border-black/6 p-3 text-center shadow-apple">
+                <div className="bg-white/62 rounded-apple border border-white/80 p-3 text-center shadow-apple backdrop-blur-xl">
                   <p className="text-lg font-light text-[#1d1d1f]">{assetCount}</p>
                   <p className="text-[8px] font-bold text-[#86868b] uppercase tracking-widest">Ativos</p>
                 </div>
@@ -3183,20 +3184,20 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
 
       {/* Upload Type Selection Modal */}
       {showUploadModal && (
-        <div className="fixed inset-0 z-[500] flex items-end sm:items-center justify-center p-0 sm:p-6 animate-fade-in">
-          <div className="absolute inset-0 bg-slate-900/20 backdrop-blur-sm" onClick={() => setShowUploadModal(false)} />
+        <div className="fixed inset-0 z-[500] flex items-end justify-center p-0 sm:items-center sm:p-6">
+          <div className="absolute inset-0 bg-[#1d1d1f]/18 backdrop-blur-[3px]" onClick={() => setShowUploadModal(false)} />
 
-          <div className="lon-glass-panel-strong relative w-full sm:max-w-3xl rounded-t-[32px] sm:rounded-[48px] p-6 sm:p-12 max-h-[90vh] overflow-y-auto">
-            <div className="text-center mb-8 sm:mb-12">
-              <h2 className="text-2xl sm:text-4xl font-light tracking-tight text-slate-900 mb-3">
+          <div className="relative w-full max-h-[88vh] overflow-y-auto rounded-t-[30px] border border-white/82 bg-white/82 p-6 shadow-[0_30px_110px_rgba(29,29,31,0.18)] backdrop-blur-xl animate-scale-in sm:max-w-[760px] sm:rounded-[38px] sm:p-10">
+            <div className="text-center mb-7 sm:mb-9">
+              <h2 className="text-2xl sm:text-[34px] font-light tracking-tight text-slate-900 mb-3">
                 Como deseja carregar?
               </h2>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.3em]">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.28em]">
                 Escolha o modo de upload ideal para você
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8 mb-8 sm:mb-12">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 mb-7 sm:mb-9">
               {/* Individual Uploads (Single or Multiple separate assets) */}
               <button
                 onClick={() => {
@@ -3207,13 +3208,13 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                     fileInputRef.current.click();
                   }
                 }}
-                className="group p-6 sm:p-10 bg-white/62 border border-white/80 rounded-3xl sm:rounded-[40px] hover:border-black/10 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 text-center backdrop-blur-xl"
+                className="group flex min-h-[210px] flex-col items-center justify-center rounded-[28px] border border-white/86 bg-white/66 p-6 text-center shadow-[0_14px_48px_rgba(29,29,31,0.06)] backdrop-blur-lg transition-all duration-300 hover:-translate-y-1 hover:border-black/10 hover:bg-white/82 hover:shadow-[0_22px_70px_rgba(29,29,31,0.10)] sm:min-h-[238px] sm:p-7"
               >
-                <div className="w-20 h-20 bg-white/72 rounded-3xl flex items-center justify-center mx-auto mb-8 group-hover:scale-110 group-hover:bg-[#1d1d1f] transition-all duration-500">
-                  <FileText size={32} className="text-[#1d1d1f] group-hover:text-white" strokeWidth={1.5} />
+                <div className="mb-7 flex h-16 w-16 items-center justify-center rounded-[22px] bg-[#1d1d1f] text-white transition-all duration-300 group-hover:scale-105 sm:h-[72px] sm:w-[72px]">
+                  <FileText size={32} strokeWidth={1.5} />
                 </div>
-                <h3 className="text-xl font-semibold text-slate-800 mb-3">Ativos Individuais</h3>
-                <p className="text-sm text-slate-400 leading-relaxed max-w-[200px] mx-auto">
+                <h3 className="mb-3 text-[18px] font-semibold text-slate-800">Ativos Individuais</h3>
+                <p className="mx-auto max-w-[230px] text-[12px] leading-relaxed text-slate-500 sm:text-[13px]">
                   Carregar 1 ou mais arquivos, cada um como um ativo único
                 </p>
               </button>
@@ -3228,13 +3229,13 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                     fileInputRef.current.click();
                   }
                 }}
-                className="group p-6 sm:p-10 bg-white/62 border border-white/80 rounded-3xl sm:rounded-[40px] hover:border-black/10 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 text-center backdrop-blur-xl"
+                className="group flex min-h-[210px] flex-col items-center justify-center rounded-[28px] border border-white/86 bg-white/48 p-6 text-center shadow-[0_14px_48px_rgba(29,29,31,0.045)] backdrop-blur-lg transition-all duration-300 hover:-translate-y-1 hover:border-black/10 hover:bg-white/78 hover:shadow-[0_22px_70px_rgba(29,29,31,0.09)] sm:min-h-[238px] sm:p-7"
               >
-                <div className="w-20 h-20 bg-white/72 rounded-3xl flex items-center justify-center mx-auto mb-8 group-hover:scale-110 group-hover:bg-[#1d1d1f] transition-all duration-500">
-                  <Briefcase size={32} className="text-[#1d1d1f] group-hover:text-white" strokeWidth={1.5} />
+                <div className="mb-7 flex h-16 w-16 items-center justify-center rounded-[22px] bg-white/72 text-[#1d1d1f] ring-1 ring-black/[0.055] transition-all duration-300 group-hover:scale-105 group-hover:bg-[#1d1d1f] group-hover:text-white sm:h-[72px] sm:w-[72px]">
+                  <Briefcase size={30} strokeWidth={1.5} />
                 </div>
-                <h3 className="text-xl font-semibold text-slate-800 mb-3">Grupo de Arquivos</h3>
-                <p className="text-sm text-slate-400 leading-relaxed max-w-[200px] mx-auto">
+                <h3 className="mb-3 text-[18px] font-semibold text-slate-800">Grupo de Arquivos</h3>
+                <p className="mx-auto max-w-[230px] text-[12px] leading-relaxed text-slate-500 sm:text-[13px]">
                   Vários arquivos em um único ativo com slider
                 </p>
               </button>
