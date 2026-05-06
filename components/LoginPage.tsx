@@ -38,10 +38,10 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
   const [activeDemo, setActiveDemo] = useState(0);
 
   const demoSteps = [
-    { label: 'Material bruto', title: 'Tudo começa no acervo invisível.', body: 'A imagem que ficaria esquecida ganha entrada, dono, contexto e futuro.' },
-    { label: 'Ativo científico', title: 'O arquivo passa a carregar significado.', body: 'Tags, resumo, evidência e relação clínica transformam memória solta em patrimônio.' },
-    { label: 'Busca semântica', title: 'Encontre pelo que o caso significa.', body: 'Procure por técnica, achado, complicação, evolução ou intenção científica.' },
-    { label: 'Case Builder', title: 'Do ativo ao case com fluidez.', body: 'Construa uma narrativa clínica com blocos, imagens, referências e apresentação.' },
+    { label: 'Acervo privado', title: 'Tudo começa protegido e organizado.', body: 'Imagens, documentos e casos ficam separados por conta, com estrutura pensada para dados clínicos sensíveis.' },
+    { label: 'Busca com IA', title: 'Encontre pelo contexto, não pelo nome.', body: 'Localize por patologia, técnica, evolução, congresso, aula ou lembrança clínica.' },
+    { label: 'Case Builder', title: 'Tudo começa no acervo visível.', body: 'O material bruto vira narrativa pronta para aula, round, publicação e presença científica.' },
+    { label: 'LGPD', title: 'Rastreabilidade e cuidado desde a origem.', body: 'Autoria, histórico, permissões e organização reduzem improviso e aumentam confiança.' },
   ];
 
   useEffect(() => {
@@ -53,52 +53,52 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
 
   const plans = [
     {
-      name: 'Free',
+      name: 'Start',
       icon: Sparkles,
       price: 'R$ 0',
       period: 'para experimentar',
-      description: 'Para sentir a diferença entre guardar arquivos e começar um acervo científico.',
+      description: 'Para começar a transformar arquivos soltos em acervo clínico pesquisável.',
       storage: '100 MB',
       highlight: false,
       cta: 'Começar pelo Free',
       href: planMailto('Free'),
-      features: ['Primeiros ativos científicos', 'Conta individual segura', 'Case Builder básico', 'Entrada sem fricção'],
+      features: ['1 usuário', 'Upload manual', 'Busca básica', 'Criar primeiro case'],
     },
     {
-      name: 'Personal',
+      name: 'Pro',
       icon: Database,
       price: 'R$ 150',
       period: '/mês',
-      description: 'Para o médico que quer encontrar, reaproveitar e apresentar seu próprio conhecimento.',
+      description: 'Para o médico que quer encontrar, reaproveitar e apresentar seu conhecimento com velocidade.',
       storage: '5 GB',
       highlight: true,
       cta: 'Assinar Personal',
       href: planMailto('Personal'),
-      features: ['5 GB para acervo pessoal', 'Busca semântica por significado', 'Case Builder para aulas e rounds', 'Ativos com valor profissional'],
+      features: ['Busca semântica', 'Tags inteligentes', 'Exportação para aula e congresso', 'Anonimização assistida'],
     },
     {
-      name: 'Premium',
+      name: 'Team',
       icon: Crown,
       price: 'R$ 299',
       period: '/mês',
-      description: 'Para quem documenta com frequência e quer transformar acervo em produção científica.',
+      description: 'Para equipes pequenas que querem padronizar acervo, cases e documentação científica.',
       storage: '20 GB',
       highlight: false,
-      cta: 'Assinar Premium',
-      href: planMailto('Premium'),
-      features: ['20 GB para acervo avançado', 'Produção recorrente de cases', 'Apresentações com acabamento premium', 'Preparado para IA e automações'],
+      cta: 'Assinar Team',
+      href: planMailto('Team'),
+      features: ['Permissões por equipe', 'Trilha de auditoria', 'Fluxo interno de revisão', 'Biblioteca compartilhada'],
     },
     {
-      name: 'Enterprise',
+      name: 'Institucional',
       icon: Building2,
       price: 'Sob consulta',
       period: 'para equipes',
-      description: 'Para clínicas, serviços e grupos que querem transformar memória institucional em vantagem científica.',
+      description: 'Para clínicas, serviços e instituições que precisam de governança e implantação assistida.',
       storage: '100 GB+',
       highlight: false,
       cta: 'Consultar equipe',
       href: planMailto('Enterprise'),
-      features: ['Limites e usuários personalizados', 'Onboarding assistido', 'Governança para equipes', 'Plano de dados sob medida'],
+      features: ['Clínicas e serviços', 'Implantação assistida', 'LGPD e governança', 'Suporte prioritário'],
     },
   ];
 
@@ -130,13 +130,13 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
             <div className="plans-story-enter">
               <p className="lon-glass-panel mb-5 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[#6e6e73]">
                 <Award size={13} className="text-[#1d1d1f]" />
-                Lon Suite Pricing
+                Acervo clínico premium
               </p>
               <h1 className="max-w-4xl text-[48px] font-extralight leading-[0.98] tracking-tight text-[#111113] sm:text-[76px] lg:text-[78px] xl:text-[92px]">
-                O acervo científico que trabalha por você.
+                O acervo clínico que vira presença científica.
               </h1>
               <p className="mt-8 max-w-2xl text-[18px] font-light leading-relaxed text-[#6e6e73] sm:text-[21px]">
-                A Lon Suite transforma imagens, fotos e documentos em ativos científicos pesquisáveis. O que antes era arquivo esquecido passa a gerar aula, case, apresentação, memória e autoridade.
+                A Lon Suite organiza, anonimiza e transforma imagens, documentos e casos em material pronto para aula, congresso, publicação e rotina científica.
               </p>
               <div className="mt-9 flex flex-col gap-3 sm:flex-row">
                 <a href="#planos" className="button-nowrap inline-flex items-center justify-center gap-2 rounded-full bg-[#1d1d1f] px-6 py-3 text-[13px] font-semibold text-white shadow-[0_18px_44px_rgba(0,0,0,0.18)] hover:bg-[#2d2d2f]">
@@ -180,10 +180,32 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
             </div>
           </div>
 
+          <div className="mt-10 grid gap-3 rounded-[28px] border border-white/78 bg-white/58 p-3 shadow-apple backdrop-blur-xl md:grid-cols-4">
+            {[
+              { icon: LockKeyhole, title: 'Acervo privado', body: 'Ambiente seguro e exclusivo para sua prática.' },
+              { icon: Search, title: 'Busca semântica', body: 'Encontre o que importa por linguagem natural.' },
+              { icon: ShieldCheck, title: 'Anonimização LGPD', body: 'Proteção de dados com organização assistida.' },
+              { icon: FileText, title: 'Rastreabilidade', body: 'Links, versões e autoria para controle.' },
+            ].map(({ icon: Icon, title, body }) => (
+              <div key={title} className="flex gap-3 rounded-[20px] bg-white/68 p-4">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#1d1d1f] text-white">
+                  <Icon size={16} />
+                </div>
+                <div>
+                  <p className="text-[13px] font-semibold text-[#1d1d1f]">{title}</p>
+                  <p className="mt-1 text-[11px] leading-relaxed text-[#86868b]">{body}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
           <section id="planos" className="lon-glass-panel mt-12 scroll-mt-8 rounded-[36px] px-4 py-12 sm:px-8 lg:px-10">
             <div className="mx-auto mb-9 max-w-3xl text-center">
               <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Planos</p>
               <h2 className="text-[38px] font-semibold leading-tight tracking-tight sm:text-[56px]">Planos para transformar acervo em presença científica.</h2>
+              <p className="mx-auto mt-4 max-w-2xl text-[14px] leading-relaxed text-[#6e6e73]">
+                Menos tempo procurando. Mais tempo usando o que você já construiu.
+              </p>
             </div>
 
             <div className="grid gap-5 lg:grid-cols-2 xl:grid-cols-4">

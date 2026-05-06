@@ -10,7 +10,7 @@ export interface AuthUser {
 
 const AUTH_KEY = 'lon_suite_auth_v1';
 const LAST_ONLINE_AUTH_KEY = 'lon_suite_last_online_auth_v1';
-const AUTH_TIMEOUT_MS = 30000;
+const AUTH_TIMEOUT_MS = 15000;
 const OFFLINE_AUTH_PREFIX = 'offline:';
 
 async function withTimeout<T>(promise: Promise<T>, message: string): Promise<T> {
@@ -62,6 +62,19 @@ export function clearStoredUser(): void {
   localStorage.removeItem(AUTH_KEY);
 }
 
+function isNetworkAuthError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  const message = error.message.toLowerCase();
+  return (
+    message.includes('demorou') ||
+    message.includes('failed to fetch') ||
+    message.includes('load failed') ||
+    message.includes('network') ||
+    message.includes('timeout') ||
+    message.includes('522')
+  );
+}
+
 export async function signIn(email: string, password: string): Promise<AuthUser> {
   if (!isSupabaseConfigured) {
     throw new Error('Supabase não configurado. Confira VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY.');
@@ -75,14 +88,13 @@ export async function signIn(email: string, password: string): Promise<AuthUser>
       'O Supabase demorou para responder.',
     );
   } catch (error) {
-    const isTimeout = error instanceof Error && error.message.includes('demorou');
-    if (isTimeout && email.includes('@') && password.length > 0) {
+    if (isNetworkAuthError(error) && email.includes('@') && password.length > 0) {
       const lastOnlineUser = getLastOnlineUser(email);
       if (lastOnlineUser) {
         storeUser(lastOnlineUser);
         return lastOnlineUser;
       }
-      throw new Error('O Supabase demorou para responder. Seus dados não foram apagados; tente novamente em alguns segundos.');
+      throw new Error('O Supabase está indisponível neste momento. O projeto respondeu com timeout; tente novamente em alguns minutos.');
     }
     throw error;
   }
