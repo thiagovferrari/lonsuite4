@@ -113,7 +113,7 @@ const AssetModal: React.FC<AssetModalProps> = ({
             if (asset.type !== 'pdf') return;
             setPdfLoading(true);
             // Use thumbnail if already a URL/data-URI, otherwise fetch from storage
-            const src = asset.thumbnail || await getAttachmentData(asset.id);
+            const src = asset.content || asset.thumbnail || await getAttachmentData(asset.id);
             if (!src || cancelled) { setPdfLoading(false); return; }
             // Always convert to a local blob URL so the iframe is never blocked
             // by X-Frame-Options from Supabase Storage headers.
@@ -252,7 +252,7 @@ const AssetModal: React.FC<AssetModalProps> = ({
                 fileName += '.html';
             } else {
                 // For all other types (image, pdf…) use thumbnail or stored data
-                const src = asset.thumbnail || await getAttachmentData(asset.id);
+                const src = asset.content || asset.thumbnail || await getAttachmentData(asset.id);
                 if (src) blob = await dataToBlob(src, 'application/octet-stream');
                 if (blob) {
                     const ext = blob.type ? blob.type.split('/')[1]?.replace(/[^a-z0-9]/gi, '') : '';
@@ -473,7 +473,7 @@ const AssetModal: React.FC<AssetModalProps> = ({
             );
         }
 
-        const visualSource = asset.thumbnail || asset.content || asset.attachments?.find(att => att.type?.startsWith('image/'))?.data;
+        const visualSource = asset.content || asset.thumbnail || asset.attachments?.find(att => att.type?.startsWith('image/'))?.data;
         if (visualSource && typeof visualSource === 'string' && (visualSource.startsWith('data:image') || visualSource.startsWith('http') || visualSource.startsWith('blob:'))) {
             return <img src={visualSource} alt="Preview" className="w-full h-full object-contain bg-[#f2f3f5]" />;
         }

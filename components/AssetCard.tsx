@@ -33,7 +33,7 @@ const AssetCard: React.FC<AssetCardProps> = ({ asset, onClick, ownerName }) => {
   }, [asset.id, asset.thumbnail, asset.attachments]);
 
   const isPdf = asset.type === 'pdf' || (typeof asset.title === 'string' && asset.title.toLowerCase().endsWith('.pdf')) || (asset.attachments && asset.attachments[0]?.type?.includes('pdf'));
-  const rawThumb = asset.thumbnail || asset.content || asset.attachments?.find(att => att.type?.startsWith('image/'))?.data || groupThumb;
+  const rawThumb = asset.thumbnail || asset.content || groupThumb;
   const isImageThumb = typeof rawThumb === 'string' && (rawThumb.startsWith('data:image') || rawThumb.startsWith('http') || rawThumb.startsWith('blob:'));
   const displayThumb = !isPdf && isImageThumb && !thumbFailed ? rawThumb : null;
 
@@ -82,6 +82,7 @@ const AssetCard: React.FC<AssetCardProps> = ({ asset, onClick, ownerName }) => {
               src={displayThumb}
               alt={asset.title}
               loading="lazy"
+              decoding="async"
               onError={() => setThumbFailed(true)}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
             />
@@ -196,4 +197,4 @@ const AssetCard: React.FC<AssetCardProps> = ({ asset, onClick, ownerName }) => {
   );
 };
 
-export default AssetCard;
+export default React.memo(AssetCard);

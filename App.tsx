@@ -9,7 +9,7 @@ import { saveAttachmentData, getAttachmentData, deleteAttachmentData } from './s
 import { supabase } from './services/supabase';
 import { clearStoredUser, getStoredUser, storeUser, signOut as authSignOut } from './services/authService';
 import type { AuthUser } from './services/authService';
-import { Plus, Brain, FileText, Image as ImageIcon, Type as TypeIcon, Loader2, ChevronLeft, Trash2, Search, LayoutGrid, RotateCcw, ChevronRight, Briefcase, X, AlertCircle, Stethoscope, Download, Home, Lock, Award, Zap, Copy, CheckCircle2, Maximize2, Minimize2, Sparkles, AlignJustify, LogOut, TrendingUp, Share2, BookOpen, Link2, ExternalLink, Clock, Save, ArrowUp, ArrowDown } from 'lucide-react';
+import { Plus, Brain, FileText, Image as ImageIcon, Type as TypeIcon, Loader2, ChevronLeft, Trash2, Search, LayoutGrid, RotateCcw, ChevronRight, Briefcase, X, AlertCircle, Stethoscope, Download, Home, Lock, Award, Zap, Copy, CheckCircle2, Maximize2, Minimize2, Sparkles, AlignJustify, LogOut, TrendingUp, Share2, BookOpen, Link2, ExternalLink, Clock, Save, ArrowUp, ArrowDown, ShieldCheck } from 'lucide-react';
 
 const ASSET_STORAGE_PREFIX = 'lon_assets_';
 const ASSET_BACKUP_PREFIX = 'lon_assets_backup_';
@@ -68,6 +68,52 @@ const safeLocalSet = (key: string, value: string) => {
   }
 };
 
+const fileToDataUrl = (file: File): Promise<string> => (
+  new Promise(resolve => {
+    const reader = new FileReader();
+    reader.onload = event => {
+      const result = event.target?.result;
+      resolve(typeof result === 'string' ? result : '');
+    };
+    reader.onerror = () => resolve('');
+    reader.readAsDataURL(file);
+  })
+);
+
+const createImageThumbnail = (file: File, maxSize = 520): Promise<string | undefined> => (
+  new Promise(resolve => {
+    if (!file.type.startsWith('image/')) {
+      resolve(undefined);
+      return;
+    }
+
+    const image = new Image();
+    const objectUrl = URL.createObjectURL(file);
+    image.onload = () => {
+      const scale = Math.min(1, maxSize / Math.max(image.width, image.height));
+      const width = Math.max(1, Math.round(image.width * scale));
+      const height = Math.max(1, Math.round(image.height * scale));
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        URL.revokeObjectURL(objectUrl);
+        resolve(undefined);
+        return;
+      }
+      ctx.drawImage(image, 0, 0, width, height);
+      URL.revokeObjectURL(objectUrl);
+      resolve(canvas.toDataURL('image/jpeg', 0.76));
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      resolve(undefined);
+    };
+    image.src = objectUrl;
+  })
+);
+
 const mapAssetRow = (a: Record<string, unknown>): Asset => ({
   ...(a as unknown as Asset),
   type: (a.type as AssetType | undefined) || 'image',
@@ -110,13 +156,12 @@ const App: React.FC = () => {
 
   // UI State
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
-  const [pendingUpload, setPendingUpload] = useState<{ files: File[], base64s: string[] } | null>(null);
+  const [pendingUpload, setPendingUpload] = useState<{ files: File[] } | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{ step: number; total: number; label: string } | null>(null);
 
   // Filter State
   const [searchQuery, setSearchQuery] = useState('');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   // AI & Behavior State
   const [aiSearchResults, setAiSearchResults] = useState<string[] | null>(null);
@@ -167,6 +212,7 @@ const App: React.FC = () => {
   const [caseViewMode, setCaseViewMode] = useState<'list' | 'grid'>('list');
   const [assetTileSize, setAssetTileSize] = useState<'small' | 'medium' | 'large'>('small');
   const [dataLoadNotice, setDataLoadNotice] = useState<string | null>(null);
+  const [visibleAssetCount, setVisibleAssetCount] = useState(80);
 
   // Confirmation Dialog State
   const [confirmDialog, setConfirmDialog] = useState<{
@@ -488,6 +534,15 @@ const App: React.FC = () => {
       });
   }, [activeAssets, searchQuery, aiSearchResults, applyDateFilter]);
 
+  useEffect(() => {
+    setVisibleAssetCount(80);
+  }, [searchQuery, dateFilter.month, dateFilter.year, assetTileSize]);
+
+  const displayedAssets = useMemo(
+    () => filteredAssets.slice(0, visibleAssetCount),
+    [filteredAssets, visibleAssetCount],
+  );
+
   // --- SEMANTIC SEARCH LOGIC FOR CASES ---
   const filteredCases = useMemo(() => {
     const casesOnly = applyDateFilter(activeAssets.filter(a => a.type === 'case'));
@@ -526,16 +581,7 @@ const App: React.FC = () => {
     if (fileInputRef.current) fileInputRef.current.value = '';
     if (files.length === 0) return;
 
-    const promises = files.map((file: File) => new Promise<string>((resolve) => {
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        const result = ev.target?.result;
-        resolve(typeof result === 'string' ? result : '');
-      };
-      reader.readAsDataURL(file);
-    }));
-    const base64s = await Promise.all(promises);
-    setPendingUpload({ files, base64s });
+    setPendingUpload({ files });
   };
 
   const processUpload = async (useAI: boolean) => {
@@ -552,7 +598,8 @@ const App: React.FC = () => {
       // GROUP MODE: Create single asset with attachments saved in IndexedDB
       if (uploadMode === 'group' && pendingUpload.files.length > 0) {
         const firstFile = pendingUpload.files[0];
-        const firstBase64 = pendingUpload.base64s[0];
+        const firstBase64 = await fileToDataUrl(firstFile);
+        const firstThumbnail = await createImageThumbnail(firstFile);
 
         let assetData = {
           title: pendingUpload.files.length > 1
@@ -584,7 +631,7 @@ const App: React.FC = () => {
         const attachments: Attachment[] = [];
         for (let i = 0; i < pendingUpload.files.length; i++) {
           const file = pendingUpload.files[i];
-          const base64 = pendingUpload.base64s[i];
+          const base64 = i === 0 ? firstBase64 : await fileToDataUrl(file);
           const attId = crypto.randomUUID();
           setUploadProgress({
             step: (useAI ? 1 : 0) + i + 1,
@@ -611,7 +658,7 @@ const App: React.FC = () => {
           ...assetData,
           type: assetType,
           date: new Date().toISOString(),
-          thumbnail: attachments[0]?.data || firstBase64, // Use URL as thumbnail
+          thumbnail: firstThumbnail || attachments[0]?.data,
           attachments,
           createdAt: new Date().toISOString()
         };
@@ -631,7 +678,8 @@ const App: React.FC = () => {
 
         for (let i = 0; i < pendingUpload.files.length; i++) {
           const file = pendingUpload.files[i];
-          const base64 = pendingUpload.base64s[i];
+          const base64 = await fileToDataUrl(file);
+          const localThumbnail = await createImageThumbnail(file);
 
           let assetData = {
             title: file.name.replace(/\.[^/.]+$/, ''),
@@ -676,7 +724,7 @@ const App: React.FC = () => {
             ...assetData,
             type: assetType,
             date: new Date().toISOString(),
-            thumbnail: publicUrl,
+            thumbnail: localThumbnail || publicUrl,
             content: publicUrl,
             createdAt: new Date().toISOString()
           };
@@ -2674,10 +2722,21 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
 
               {/* Grid */}
               <div className={`grid ${assetGridClass}`}>
-                {filteredAssets.map(asset => (
+                {displayedAssets.map(asset => (
                   <AssetCard key={asset.id} asset={asset} onClick={handleOpenAsset} ownerName={ownerName} />
                 ))}
               </div>
+
+              {filteredAssets.length > displayedAssets.length && (
+                <div className="mt-8 flex justify-center">
+                  <button
+                    onClick={() => setVisibleAssetCount(count => count + 80)}
+                    className="button-nowrap rounded-full border border-black/[0.06] bg-white/78 px-5 py-2.5 text-[12px] font-semibold text-[#1d1d1f] shadow-apple backdrop-blur-xl hover:bg-white"
+                  >
+                    Carregar mais {Math.min(80, filteredAssets.length - displayedAssets.length)} ativos
+                  </button>
+                </div>
+              )}
 
               {filteredAssets.length === 0 && (
                 <div className="text-center py-24 text-[#86868b]">
@@ -2721,13 +2780,41 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
             };
           };
 
+          const caseTrustSignals = [
+            {
+              icon: Lock,
+              title: 'Acervo privado',
+              body: 'Cada case pertence à sua conta e fica separado por usuário.',
+            },
+            {
+              icon: Search,
+              title: 'Busca semântica',
+              body: 'Encontre pelo contexto clínico, não só pelo nome do arquivo.',
+            },
+            {
+              icon: ShieldCheck,
+              title: 'LGPD e segurança',
+              body: 'Estrutura pensada para rastreabilidade, autoria e cuidado com dados sensíveis.',
+            },
+            {
+              icon: FileText,
+              title: 'Rastreabilidade',
+              body: 'PDF, apresentação e ativos vinculados mantêm o histórico do case.',
+            },
+          ];
+
           return (
             <div className="px-5 sm:px-8 md:px-10 xl:px-12 pt-8 md:pt-10 pb-10 animate-fade-in">
               <header className="mb-8">
                 <div className="flex flex-col gap-4 mb-7 lg:flex-row lg:items-center lg:justify-between">
                   <div className="min-w-0">
-                    <h1 className="text-3xl sm:text-4xl font-extralight tracking-tight text-[#1d1d1f]">Cases Científicos</h1>
-                    <p className="text-[11px] font-medium text-[#86868b] tracking-wider mt-1.5">{filteredCases.length} {filteredCases.length === 1 ? 'caso' : 'casos'} · Documentação Editorial</p>
+                    <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.22em] text-[#9aa3b2]">Case Builder</p>
+                    <h1 className="max-w-3xl text-4xl font-extralight leading-[0.98] tracking-tight text-[#1d1d1f] sm:text-5xl">
+                      O acervo clínico que vira presença científica.
+                    </h1>
+                    <p className="mt-4 max-w-2xl text-[14px] font-light leading-relaxed text-[#6e6e73]">
+                      Organize imagens, documentos e casos em material pronto para aula, congresso, publicação e rotina científica, com autoria, busca e rastreabilidade.
+                    </p>
                   </div>
                   <div className="flex w-full min-w-0 items-center gap-2 overflow-x-auto pb-1 no-scrollbar lg:w-auto lg:justify-end">
                     <div className="flex shrink-0 items-center bg-white/70 border border-white/80 rounded-apple-lg shadow-apple p-0.5 backdrop-blur-xl">
@@ -2738,6 +2825,47 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                       className="button-nowrap btn-ai flex shrink-0 items-center justify-center gap-2 rounded-apple-lg px-5 py-2.5 text-[13px] font-semibold shadow-apple hover:-translate-y-0.5">
                       <Plus size={15} /> Novo Case
                     </button>
+                  </div>
+                </div>
+
+                <div className="mb-5 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+                  {caseTrustSignals.map(({ icon: Icon, title, body }) => (
+                    <div key={title} className="rounded-[22px] border border-white/78 bg-white/62 p-4 shadow-apple backdrop-blur-xl">
+                      <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-full bg-[#1d1d1f] text-white shadow-sm">
+                        <Icon size={15} strokeWidth={1.7} />
+                      </div>
+                      <p className="text-[13px] font-semibold text-[#1d1d1f]">{title}</p>
+                      <p className="mt-1.5 text-[11px] leading-relaxed text-[#86868b]">{body}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mb-5 rounded-[28px] bg-[#111113] p-5 text-white shadow-[0_22px_70px_rgba(0,0,0,0.18)] sm:p-6">
+                  <div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-center">
+                    <div>
+                      <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.22em] text-white/38">Narrativa clínica</p>
+                      <h2 className="max-w-2xl text-[28px] font-extralight leading-tight tracking-tight sm:text-[38px]">
+                        Um Case Builder para transformar evidência em narrativa.
+                      </h2>
+                      <p className="mt-3 max-w-2xl text-[13px] leading-relaxed text-white/58">
+                        Monte casos com estrutura, contexto e clareza. Reúna imagens, referências e evolução em um fluxo pronto para rounds, aulas e publicações.
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 lg:w-[320px]">
+                      {[
+                        ['Aula', BookOpen],
+                        ['Round', Stethoscope],
+                        ['Publicação', FileText],
+                      ].map(([label, Icon]) => {
+                        const TypedIcon = Icon as typeof BookOpen;
+                        return (
+                          <div key={label as string} className="rounded-[18px] bg-white/10 p-3 text-center ring-1 ring-white/10">
+                            <TypedIcon size={17} className="mx-auto mb-2 text-white/78" />
+                            <p className="text-[11px] font-semibold text-white/78">{label as string}</p>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
 
@@ -2897,8 +3025,8 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                   ) : (
                     <>
                       <Stethoscope size={40} className="mx-auto mb-4 opacity-25" />
-                      <p className="text-[14px] font-medium mb-1">Nenhum case criado ainda</p>
-                      <p className="text-[12px] text-[#aeaeb2] mb-5">Cases científicos editoriais aparecerão aqui</p>
+                      <p className="text-[14px] font-medium mb-1">Seu primeiro case científico começa aqui</p>
+                      <p className="text-[12px] text-[#aeaeb2] mb-5">Transforme uma imagem, documento ou evolução clínica em narrativa apresentável.</p>
                       <button onClick={handleCreateCase}
                         className="button-nowrap btn-ai px-5 py-2.5 rounded-apple-lg text-[12px] font-semibold shadow-apple">
                         Criar Primeiro Case

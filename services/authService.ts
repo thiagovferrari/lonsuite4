@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { isSupabaseConfigured, supabase } from './supabase';
 
 export interface AuthUser {
   id: string;
@@ -10,7 +10,7 @@ export interface AuthUser {
 
 const AUTH_KEY = 'lon_suite_auth_v1';
 const LAST_ONLINE_AUTH_KEY = 'lon_suite_last_online_auth_v1';
-const AUTH_TIMEOUT_MS = 20000;
+const AUTH_TIMEOUT_MS = 30000;
 const OFFLINE_AUTH_PREFIX = 'offline:';
 
 async function withTimeout<T>(promise: Promise<T>, message: string): Promise<T> {
@@ -62,16 +62,11 @@ export function clearStoredUser(): void {
   localStorage.removeItem(AUTH_KEY);
 }
 
-function createOfflineUser(email: string): AuthUser {
-  const normalizedEmail = email.trim().toLowerCase();
-  return {
-    id: `${OFFLINE_AUTH_PREFIX}${normalizedEmail}`,
-    name: normalizedEmail.split('@')[0] || 'Usuário',
-    email: normalizedEmail,
-  };
-}
-
 export async function signIn(email: string, password: string): Promise<AuthUser> {
+  if (!isSupabaseConfigured) {
+    throw new Error('Supabase não configurado. Confira VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY.');
+  }
+
   let response: Awaited<ReturnType<typeof supabase.auth.signInWithPassword>>;
 
   try {
@@ -95,7 +90,17 @@ export async function signIn(email: string, password: string): Promise<AuthUser>
   const { data, error } = response;
 
   if (error || !data.user) {
-    throw new Error('E-mail ou senha incorretos.');
+    const rawMessage = error?.message?.toLowerCase() ?? '';
+    if (rawMessage.includes('email not confirmed')) {
+      throw new Error('Este e-mail ainda não foi confirmado no Supabase Auth.');
+    }
+    if (rawMessage.includes('too many requests')) {
+      throw new Error('Muitas tentativas seguidas. Aguarde alguns minutos e tente novamente.');
+    }
+    if (rawMessage.includes('invalid login credentials')) {
+      throw new Error('E-mail ou senha incorretos.');
+    }
+    throw new Error(error?.message || 'Não consegui autenticar no Supabase agora.');
   }
 
   const metadataName =
