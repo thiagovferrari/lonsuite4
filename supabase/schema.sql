@@ -1,7 +1,9 @@
 -- Lon Suite 4.0 Supabase schema for the existing crm project.
 -- This migration preserves existing crm tables and adds the fields required by the app.
 
+create schema if not exists extensions;
 create extension if not exists pgcrypto;
+create extension if not exists vector with schema extensions;
 
 create table if not exists public.profiles (
   id text primary key,
@@ -24,6 +26,13 @@ alter table public.assets add column if not exists description text;
 alter table public.assets add column if not exists attachments jsonb not null default '[]'::jsonb;
 alter table public.assets add column if not exists is_deleted boolean not null default false;
 alter table public.assets add column if not exists updated_at timestamptz not null default now();
+alter table public.assets add column if not exists embedding extensions.vector(1536);
+alter table public.assets add column if not exists embedding_model text;
+alter table public.assets add column if not exists embedding_status text not null default 'pending';
+alter table public.assets add column if not exists embedding_updated_at timestamptz;
+alter table public.assets add column if not exists thumbnail_format text;
+alter table public.assets add column if not exists thumbnail_status text not null default 'pending';
+alter table public.assets add column if not exists thumbnail_updated_at timestamptz;
 
 alter table public.cases add column if not exists owner_id text;
 alter table public.cases add column if not exists owner_name text;
@@ -43,6 +52,21 @@ create table if not exists public.ai_usage_events (
   response_tokens integer,
   metadata jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now()
+);
+
+create table if not exists public.asset_processing_jobs (
+  id uuid primary key default gen_random_uuid(),
+  asset_id text not null references public.assets(id) on delete cascade,
+  owner_id text not null references public.profiles(id) on delete cascade,
+  job_type text not null check (job_type in ('embedding', 'thumbnail')),
+  status text not null default 'pending' check (status in ('pending', 'processing', 'completed', 'failed')),
+  attempts integer not null default 0,
+  error_message text,
+  available_at timestamptz not null default now(),
+  completed_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (asset_id, job_type)
 );
 
 update public.assets
@@ -67,9 +91,12 @@ set name = excluded.name,
 
 create index if not exists assets_owner_created_idx on public.assets (owner_id, created_at desc);
 create index if not exists assets_tags_idx on public.assets using gin (tags);
+create index if not exists assets_embedding_hnsw_idx on public.assets using hnsw (embedding extensions.vector_cosine_ops) where embedding is not null;
 create index if not exists cases_owner_created_idx on public.cases (owner_id, created_at desc);
 create index if not exists cases_tags_idx on public.cases using gin (tags);
 create index if not exists ai_usage_owner_created_idx on public.ai_usage_events (owner_id, created_at desc);
+create index if not exists asset_processing_jobs_status_idx on public.asset_processing_jobs (status, available_at);
+create index if not exists asset_processing_jobs_owner_created_idx on public.asset_processing_jobs (owner_id, created_at desc);
 
 create or replace function public.set_updated_at()
 returns trigger
@@ -96,20 +123,55 @@ create trigger cases_set_updated_at
 before update on public.cases
 for each row execute function public.set_updated_at();
 
+drop trigger if exists asset_processing_jobs_set_updated_at on public.asset_processing_jobs;
+create trigger asset_processing_jobs_set_updated_at
+before update on public.asset_processing_jobs
+for each row execute function public.set_updated_at();
+
+create or replace function public.enqueue_asset_processing_jobs()
+returns trigger
+language plpgsql
+as $$
+begin
+  insert into public.asset_processing_jobs (asset_id, owner_id, job_type)
+  values
+    (new.id, new.owner_id, 'embedding'),
+    (new.id, new.owner_id, 'thumbnail')
+  on conflict (asset_id, job_type) do update
+  set status = 'pending',
+      attempts = 0,
+      error_message = null,
+      available_at = now(),
+      completed_at = null,
+      updated_at = now();
+
+  return new;
+end;
+$$;
+
+drop trigger if exists assets_enqueue_processing_jobs on public.assets;
+create trigger assets_enqueue_processing_jobs
+after insert or update of title, description, summary, scientific_context, tags, content, thumbnail, attachments
+on public.assets
+for each row execute function public.enqueue_asset_processing_jobs();
+
 alter table public.profiles enable row level security;
 alter table public.assets enable row level security;
 alter table public.cases enable row level security;
 alter table public.ai_usage_events enable row level security;
+alter table public.asset_processing_jobs enable row level security;
 
 grant usage on schema public to anon, authenticated;
 revoke all on public.profiles from anon;
 revoke all on public.assets from anon;
 revoke all on public.cases from anon;
 revoke all on public.ai_usage_events from anon;
+revoke all on public.asset_processing_jobs from anon;
 grant select, insert, update, delete on public.profiles to authenticated;
 grant select, insert, update, delete on public.assets to authenticated;
 grant select, insert, update, delete on public.cases to authenticated;
 grant select, insert on public.ai_usage_events to authenticated;
+grant select on public.asset_processing_jobs to authenticated;
 
 drop policy if exists "Users can read own profile" on public.profiles;
 create policy "Users can read own profile"
@@ -155,6 +217,12 @@ create policy "Users can insert own ai usage"
 on public.ai_usage_events for insert
 to authenticated
 with check (owner_id = auth.uid()::text);
+
+drop policy if exists "Users can read own asset processing jobs" on public.asset_processing_jobs;
+create policy "Users can read own asset processing jobs"
+on public.asset_processing_jobs for select
+to authenticated
+using (owner_id = auth.uid()::text);
 
 insert into storage.buckets (id, name, public, file_size_limit)
 values ('assets-storage', 'assets-storage', true, 52428800)

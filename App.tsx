@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { ViewState, Asset, EvidenceLevel, AssetType, CaseBlock, CaseStatus, Attachment } from './types';
 import Sidebar from './components/Sidebar';
-import AssetCard from './components/AssetCard';
+import VirtualizedAssetGrid from './components/VirtualizedAssetGrid';
 import AssetModal from './components/AssetModal';
 import LoginPage from './components/LoginPage';
 import { analyzeAsset, searchAssetsWithAI, searchCasesWithAI, generateCaseSemanticTags, getAIUsage } from './services/geminiService';
@@ -9,11 +9,14 @@ import { saveAttachmentData, getAttachmentData, deleteAttachmentData } from './s
 import { supabase } from './services/supabase';
 import { clearStoredUser, getStoredUser, storeUser, signOut as authSignOut } from './services/authService';
 import type { AuthUser } from './services/authService';
-import { Plus, Brain, FileText, Image as ImageIcon, Type as TypeIcon, Loader2, ChevronLeft, Trash2, Search, LayoutGrid, RotateCcw, ChevronRight, Briefcase, X, AlertCircle, Stethoscope, Download, Home, Lock, Award, Zap, Copy, CheckCircle2, Maximize2, Minimize2, Sparkles, AlignJustify, LogOut, TrendingUp, Share2, BookOpen, Link2, ExternalLink, Clock, Save, ArrowUp, ArrowDown, ShieldCheck } from 'lucide-react';
+import { Plus, Brain, FileText, Image as ImageIcon, Type as TypeIcon, Loader2, ChevronLeft, Trash2, Search, LayoutGrid, RotateCcw, ChevronRight, Briefcase, X, AlertCircle, Stethoscope, Download, Home, Award, Zap, Copy, CheckCircle2, Maximize2, Minimize2, Sparkles, AlignJustify, LogOut, TrendingUp, Share2, BookOpen, Link2, ExternalLink, Clock, Save, ArrowUp, ArrowDown } from 'lucide-react';
 
 const ASSET_STORAGE_PREFIX = 'lon_assets_';
 const ASSET_BACKUP_PREFIX = 'lon_assets_backup_';
 const SUPABASE_TIMEOUT_MS = 18000;
+const ASSET_PAGE_SIZE = 30;
+const CASE_PAGE_SIZE = 300;
+const ASSET_LIST_SELECT = 'id,title,type,tags,date,thumbnail,description,attachments,summary,scientific_context,evidence_level,publication_year,key_findings,created_at,updated_at,owner_id,is_deleted,deleted_at';
 
 async function withSupabaseTimeout<T>(promise: PromiseLike<T>, label: string): Promise<T> {
   let timeoutId: number | undefined;
@@ -212,7 +215,11 @@ const App: React.FC = () => {
   const [caseViewMode, setCaseViewMode] = useState<'list' | 'grid'>('list');
   const [assetTileSize, setAssetTileSize] = useState<'small' | 'medium' | 'large'>('small');
   const [dataLoadNotice, setDataLoadNotice] = useState<string | null>(null);
-  const [visibleAssetCount, setVisibleAssetCount] = useState(80);
+  const [assetPagination, setAssetPagination] = useState({
+    nextOffset: 0,
+    hasMore: false,
+    isLoadingMore: false,
+  });
 
   // Confirmation Dialog State
   const [confirmDialog, setConfirmDialog] = useState<{
@@ -251,6 +258,7 @@ const App: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const homeScrollRef = useRef<HTMLDivElement>(null);
   const lastCloudLoadWasEmptyRef = useRef(false);
+  const assetPageRequestRef = useRef(false);
 
   // Helper para auto-ajuste de altura em textareas
   const autoResizeTextarea = (element: HTMLTextAreaElement | null) => {
@@ -307,25 +315,80 @@ const App: React.FC = () => {
     }
   }, [assets, isRefreshing, ownerId, LOCAL_STORAGE_ASSETS_KEY]);
 
+  const loadCloudAssetPage = useCallback(async (scopeOwnerId: string, offset: number) => {
+    const from = offset;
+    const to = offset + ASSET_PAGE_SIZE - 1;
+    const { data, error } = await withSupabaseTimeout(
+      supabase
+        .from('assets')
+        .select(ASSET_LIST_SELECT)
+        .eq('owner_id', scopeOwnerId)
+        .order('created_at', { ascending: false })
+        .range(from, to),
+      'Leitura paginada dos ativos no Supabase',
+    );
+
+    if (error) throw error;
+    const items = (data || []).map((a: Record<string, unknown>) => mapAssetRow(a));
+
+    return {
+      items,
+      nextOffset: offset + items.length,
+      hasMore: items.length === ASSET_PAGE_SIZE,
+    };
+  }, []);
+
+  const loadMoreAssets = useCallback(async () => {
+    if (assetPageRequestRef.current || ownerId === 'guest' || isOfflineUser) return;
+    if (!assetPagination.hasMore) return;
+
+    assetPageRequestRef.current = true;
+    setAssetPagination(prev => ({ ...prev, isLoadingMore: true }));
+
+    try {
+      const page = await loadCloudAssetPage(ownerId, assetPagination.nextOffset);
+      setAssets(prev => mergeAssetSets(page.items, prev));
+      setAssetPagination({
+        nextOffset: page.nextOffset,
+        hasMore: page.hasMore,
+        isLoadingMore: false,
+      });
+    } catch {
+      setDataLoadNotice('Não consegui carregar a próxima página de ativos agora.');
+      setAssetPagination(prev => ({ ...prev, isLoadingMore: false }));
+    } finally {
+      assetPageRequestRef.current = false;
+    }
+  }, [assetPagination.hasMore, assetPagination.nextOffset, isOfflineUser, loadCloudAssetPage, ownerId]);
+
   // Initial Load: Supabase first, localStorage fallback
   useEffect(() => {
     if (!currentUser) return;
 
-    const loadCloudData = async (scopeOwnerId: string): Promise<Asset[]> => {
-      const scopedAssetsQuery = supabase.from('assets').select('*').eq('owner_id', scopeOwnerId).order('created_at', { ascending: false }).limit(1000);
-      const scopedCasesQuery = supabase.from('cases').select('*').eq('owner_id', scopeOwnerId).order('created_at', { ascending: false }).limit(1000);
+    const loadCloudData = async (scopeOwnerId: string): Promise<{ assets: Asset[]; nextOffset: number; hasMore: boolean }> => {
+      const assetsPagePromise = loadCloudAssetPage(scopeOwnerId, 0);
+      const scopedCasesQuery = supabase
+        .from('cases')
+        .select('*')
+        .eq('owner_id', scopeOwnerId)
+        .order('created_at', { ascending: false })
+        .range(0, CASE_PAGE_SIZE - 1);
 
-      const [{ data: assetsData, error: assetsError }, { data: casesData, error: casesError }] = await Promise.all([
-        withSupabaseTimeout(scopedAssetsQuery, 'Leitura dos ativos do usuário no Supabase'),
+      const [assetsPage, { data: casesData, error: casesError }] = await Promise.all([
+        assetsPagePromise,
         withSupabaseTimeout(scopedCasesQuery, 'Leitura dos cases do usuário no Supabase'),
       ]);
 
-      if (assetsError || casesError) throw assetsError || casesError;
+      if (casesError) throw casesError;
 
-      return [
-        ...(assetsData || []).map((a: Record<string, unknown>) => mapAssetRow(a)),
-        ...(casesData || []).map((c: Record<string, unknown>) => mapCaseRow(c)),
-      ];
+      return {
+        assets: [
+          ...assetsPage.items,
+          ...(casesData || []).map((c: Record<string, unknown>) => mapCaseRow(c)),
+        ],
+        nextOffset: assetsPage.nextOffset,
+        hasMore: assetsPage.hasMore,
+      };
     };
 
     const fetchInitialData = async () => {
@@ -335,7 +398,13 @@ const App: React.FC = () => {
       if (localSnapshot.length > 0) setAssets(localSnapshot);
 
       try {
-        const mappedAssets = isOfflineUser ? [] : await loadCloudData(ownerId);
+        const cloudPage = isOfflineUser ? { assets: [], nextOffset: 0, hasMore: false } : await loadCloudData(ownerId);
+        const mappedAssets = cloudPage.assets;
+        setAssetPagination({
+          nextOffset: cloudPage.nextOffset,
+          hasMore: cloudPage.hasMore,
+          isLoadingMore: false,
+        });
 
         if (mappedAssets.length > 0) {
           lastCloudLoadWasEmptyRef.current = false;
@@ -426,6 +495,26 @@ const App: React.FC = () => {
   // When an asset is clicked in the list, add to recent accesses
   const handleOpenAsset = (asset: Asset) => {
     setSelectedAsset(asset);
+
+    if (asset.type !== 'case' && !asset.content && ownerId !== 'guest' && !isOfflineUser) {
+      withSupabaseTimeout(
+        supabase
+          .from('assets')
+          .select('*')
+          .eq('owner_id', ownerId)
+          .eq('id', asset.id)
+          .maybeSingle(),
+        'Leitura completa do ativo no Supabase',
+      ).then(({ data, error }) => {
+        if (error || !data) return;
+        const fullAsset = mapAssetRow(data as Record<string, unknown>);
+        setAssets(prev => mergeAssetSets([fullAsset], prev));
+        setSelectedAsset(current => current?.id === fullAsset.id ? { ...current, ...fullAsset } : current);
+      }).catch(() => {
+        // The modal can still use thumbnail/attachment URLs if the full row is temporarily unavailable.
+      });
+    }
+
     setRecentAccesses(prev => {
       const newRecent = [asset, ...prev.filter(a => a.id !== asset.id)].slice(0, 10);
       safeLocalSet('lon_suite_recent', JSON.stringify(newRecent));
@@ -535,13 +624,27 @@ const App: React.FC = () => {
   }, [activeAssets, searchQuery, aiSearchResults, applyDateFilter]);
 
   useEffect(() => {
-    setVisibleAssetCount(80);
-  }, [searchQuery, dateFilter.month, dateFilter.year, assetTileSize]);
+    if (view !== ViewState.ATIVOS) return;
+    if (searchQuery.trim() || dateFilter.month || dateFilter.year) return;
+    if (!assetPagination.hasMore || assetPagination.isLoadingMore) return;
 
-  const displayedAssets = useMemo(
-    () => filteredAssets.slice(0, visibleAssetCount),
-    [filteredAssets, visibleAssetCount],
-  );
+    const handleScroll = () => {
+      const distanceToBottom = document.documentElement.scrollHeight - window.innerHeight - window.scrollY;
+      if (distanceToBottom < 1200) loadMoreAssets();
+    };
+
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [
+    assetPagination.hasMore,
+    assetPagination.isLoadingMore,
+    dateFilter.month,
+    dateFilter.year,
+    loadMoreAssets,
+    searchQuery,
+    view,
+  ]);
 
   // --- SEMANTIC SEARCH LOGIC FOR CASES ---
   const filteredCases = useMemo(() => {
@@ -566,13 +669,6 @@ const App: React.FC = () => {
       .sort((a, b) => b.score - a.score)
       .map(item => item.caseItem);
   }, [activeAssets, searchQuery, applyDateFilter]);
-
-  // filteredCases already handles all case filtering
-  const assetGridClass = {
-    small: 'grid-cols-[repeat(auto-fill,minmax(112px,1fr))] gap-2.5',
-    medium: 'grid-cols-[repeat(auto-fill,minmax(148px,1fr))] gap-3 sm:gap-4',
-    large: 'grid-cols-[repeat(auto-fill,minmax(210px,1fr))] gap-4 sm:gap-5',
-  }[assetTileSize];
 
   // File Upload Handler
   const handleFilesSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -2720,20 +2816,28 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                 )}
               </header>
 
-              {/* Grid */}
-              <div className={`grid ${assetGridClass}`}>
-                {displayedAssets.map(asset => (
-                  <AssetCard key={asset.id} asset={asset} onClick={handleOpenAsset} ownerName={ownerName} />
-                ))}
-              </div>
+              {/* Virtualized Grid */}
+              {filteredAssets.length > 0 && (
+                <VirtualizedAssetGrid
+                  assets={filteredAssets}
+                  tileSize={assetTileSize}
+                  onOpenAsset={handleOpenAsset}
+                  ownerName={ownerName}
+                />
+              )}
 
-              {filteredAssets.length > displayedAssets.length && (
-                <div className="mt-8 flex justify-center">
+              {(assetPagination.hasMore || assetPagination.isLoadingMore) && !searchQuery.trim() && !dateFilter.month && !dateFilter.year && (
+                <div className="mt-8 flex justify-center" aria-live="polite">
                   <button
-                    onClick={() => setVisibleAssetCount(count => count + 80)}
-                    className="button-nowrap rounded-full border border-black/[0.06] bg-white/78 px-5 py-2.5 text-[12px] font-semibold text-[#1d1d1f] shadow-apple backdrop-blur-xl hover:bg-white"
+                    onClick={loadMoreAssets}
+                    disabled={assetPagination.isLoadingMore}
+                    className="button-nowrap rounded-full border border-black/[0.06] bg-white/78 px-5 py-2.5 text-[12px] font-semibold text-[#1d1d1f] shadow-apple backdrop-blur-xl hover:bg-white disabled:cursor-wait disabled:text-[#86868b]"
                   >
-                    Carregar mais {Math.min(80, filteredAssets.length - displayedAssets.length)} ativos
+                    {assetPagination.isLoadingMore ? (
+                      <span className="flex items-center gap-2"><Loader2 size={13} className="animate-spin" /> Carregando próxima página</span>
+                    ) : (
+                      'Carregar mais ativos'
+                    )}
                   </button>
                 </div>
               )}
@@ -2780,40 +2884,14 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
             };
           };
 
-          const caseTrustSignals = [
-            {
-              icon: Lock,
-              title: 'Acervo privado',
-              body: 'Cada case pertence à sua conta e fica separado por usuário.',
-            },
-            {
-              icon: Search,
-              title: 'Busca semântica',
-              body: 'Encontre pelo contexto clínico, não só pelo nome do arquivo.',
-            },
-            {
-              icon: ShieldCheck,
-              title: 'LGPD e segurança',
-              body: 'Estrutura pensada para rastreabilidade, autoria e cuidado com dados sensíveis.',
-            },
-            {
-              icon: FileText,
-              title: 'Rastreabilidade',
-              body: 'PDF, apresentação e ativos vinculados mantêm o histórico do case.',
-            },
-          ];
-
           return (
             <div className="px-5 sm:px-8 md:px-10 xl:px-12 pt-8 md:pt-10 pb-10 animate-fade-in">
               <header className="mb-8">
                 <div className="flex flex-col gap-4 mb-7 lg:flex-row lg:items-center lg:justify-between">
                   <div className="min-w-0">
-                    <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.22em] text-[#9aa3b2]">Case Builder</p>
-                    <h1 className="max-w-3xl text-4xl font-extralight leading-[0.98] tracking-tight text-[#1d1d1f] sm:text-5xl">
-                      O acervo clínico que vira presença científica.
-                    </h1>
-                    <p className="mt-4 max-w-2xl text-[14px] font-light leading-relaxed text-[#6e6e73]">
-                      Organize imagens, documentos e casos em material pronto para aula, congresso, publicação e rotina científica, com autoria, busca e rastreabilidade.
+                    <h1 className="text-3xl sm:text-4xl font-extralight tracking-tight text-[#1d1d1f]">Cases</h1>
+                    <p className="text-[11px] font-medium text-[#86868b] tracking-wider mt-1.5">
+                      {isRefreshing ? 'Sincronizando cases...' : `${filteredCases.length} cases visíveis`}
                     </p>
                   </div>
                   <div className="flex w-full min-w-0 items-center gap-2 overflow-x-auto pb-1 no-scrollbar lg:w-auto lg:justify-end">
@@ -2825,47 +2903,6 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                       className="button-nowrap btn-ai flex shrink-0 items-center justify-center gap-2 rounded-apple-lg px-5 py-2.5 text-[13px] font-semibold shadow-apple hover:-translate-y-0.5">
                       <Plus size={15} /> Novo Case
                     </button>
-                  </div>
-                </div>
-
-                <div className="mb-5 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-                  {caseTrustSignals.map(({ icon: Icon, title, body }) => (
-                    <div key={title} className="rounded-[22px] border border-white/78 bg-white/62 p-4 shadow-apple backdrop-blur-xl">
-                      <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-full bg-[#1d1d1f] text-white shadow-sm">
-                        <Icon size={15} strokeWidth={1.7} />
-                      </div>
-                      <p className="text-[13px] font-semibold text-[#1d1d1f]">{title}</p>
-                      <p className="mt-1.5 text-[11px] leading-relaxed text-[#86868b]">{body}</p>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mb-5 rounded-[28px] bg-[#111113] p-5 text-white shadow-[0_22px_70px_rgba(0,0,0,0.18)] sm:p-6">
-                  <div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-center">
-                    <div>
-                      <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.22em] text-white/38">Narrativa clínica</p>
-                      <h2 className="max-w-2xl text-[28px] font-extralight leading-tight tracking-tight sm:text-[38px]">
-                        Um Case Builder para transformar evidência em narrativa.
-                      </h2>
-                      <p className="mt-3 max-w-2xl text-[13px] leading-relaxed text-white/58">
-                        Monte casos com estrutura, contexto e clareza. Reúna imagens, referências e evolução em um fluxo pronto para rounds, aulas e publicações.
-                      </p>
-                    </div>
-                    <div className="grid grid-cols-3 gap-2 lg:w-[320px]">
-                      {[
-                        ['Aula', BookOpen],
-                        ['Round', Stethoscope],
-                        ['Publicação', FileText],
-                      ].map(([label, Icon]) => {
-                        const TypedIcon = Icon as typeof BookOpen;
-                        return (
-                          <div key={label as string} className="rounded-[18px] bg-white/10 p-3 text-center ring-1 ring-white/10">
-                            <TypedIcon size={17} className="mx-auto mb-2 text-white/78" />
-                            <p className="text-[11px] font-semibold text-white/78">{label as string}</p>
-                          </div>
-                        );
-                      })}
-                    </div>
                   </div>
                 </div>
 
