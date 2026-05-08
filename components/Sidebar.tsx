@@ -1,6 +1,6 @@
 import React from 'react';
 import { ViewState } from '../types';
-import { LayoutGrid, Stethoscope, Settings, Trash2, Home } from 'lucide-react';
+import { Brain, LayoutGrid, Stethoscope, Settings, Trash2, Home } from 'lucide-react';
 
 interface SidebarProps {
   currentView: ViewState;
@@ -59,6 +59,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, trashCount = 0 
         {/* Primary Nav */}
         <div className="flex flex-col items-center gap-5 flex-1">
           <NavItem view={ViewState.HOME} icon={Home} label="Início" />
+          <NavItem view={ViewState.INTELLIGENCE} icon={Brain} label="Intelligence" />
           <NavItem view={ViewState.ATIVOS} icon={LayoutGrid} label="Ativos" />
           <NavItem view={ViewState.CASES} icon={Stethoscope} label="Cases Científicos" />
         </div>
@@ -76,6 +77,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, trashCount = 0 
         <div className="glass border-t border-black/6 shadow-[0_-2px_16px_rgba(0,0,0,0.06)]">
           <div className="flex h-[76px] max-w-lg items-center justify-around px-3 pb-safe mx-auto">
             <NavItem view={ViewState.HOME} icon={Home} label="Início" />
+            <NavItem view={ViewState.INTELLIGENCE} icon={Brain} label="IA" />
             <NavItem view={ViewState.ATIVOS} icon={LayoutGrid} label="Ativos" />
             <NavItem view={ViewState.CASES} icon={Stethoscope} label="Cases" />
             <NavItem view={ViewState.TRASH} icon={Trash2} label="Lixeira" badge={trashCount} />

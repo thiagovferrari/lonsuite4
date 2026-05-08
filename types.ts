@@ -2,6 +2,7 @@
 
 export enum ViewState {
   HOME = 'HOME',
+  INTELLIGENCE = 'INTELLIGENCE',
   ATIVOS = 'ATIVOS',
   CASES = 'CASES',
   TRASH = 'TRASH',

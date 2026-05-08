@@ -9,7 +9,7 @@ import { saveAttachmentData, getAttachmentData, deleteAttachmentData } from './s
 import { supabase } from './services/supabase';
 import { clearStoredUser, getStoredUser, storeUser, signOut as authSignOut } from './services/authService';
 import type { AuthUser } from './services/authService';
-import { Plus, Brain, FileText, Image as ImageIcon, Type as TypeIcon, Loader2, ChevronLeft, Trash2, Search, LayoutGrid, RotateCcw, ChevronRight, Briefcase, X, AlertCircle, Stethoscope, Download, Home, Award, Zap, Copy, CheckCircle2, Maximize2, Minimize2, Sparkles, AlignJustify, LogOut, TrendingUp, Share2, BookOpen, Link2, ExternalLink, Clock, Save, ArrowUp, ArrowDown } from 'lucide-react';
+import { Plus, Brain, FileText, Image as ImageIcon, Type as TypeIcon, Loader2, ChevronLeft, Trash2, Search, LayoutGrid, RotateCcw, ChevronRight, Briefcase, X, AlertCircle, Stethoscope, Download, Home, Award, Zap, Copy, CheckCircle2, Maximize2, Minimize2, Sparkles, AlignJustify, LogOut, TrendingUp, Share2, BookOpen, Link2, ExternalLink, Clock, Save, ArrowUp, ArrowDown, Calendar, SlidersHorizontal, MoreHorizontal, Heart, Folder, Bell } from 'lucide-react';
 
 const ASSET_STORAGE_PREFIX = 'lon_assets_';
 const ASSET_BACKUP_PREFIX = 'lon_assets_backup_';
@@ -165,6 +165,9 @@ const App: React.FC = () => {
 
   // Filter State
   const [searchQuery, setSearchQuery] = useState('');
+  const [intelligenceSearch, setIntelligenceSearch] = useState('');
+  const [intelligenceViewMode, setIntelligenceViewMode] = useState<'timeline' | 'grid'>('timeline');
+  const [selectedIntelligenceAssetId, setSelectedIntelligenceAssetId] = useState<string | null>(null);
 
   // AI & Behavior State
   const [aiSearchResults, setAiSearchResults] = useState<string[] | null>(null);
@@ -1187,6 +1190,86 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
     const candidates = [asset.thumbnail, asset.content, imageAttachment?.data].filter((value): value is string => typeof value === 'string' && value.length > 0);
     return candidates.find(isRenderableImageSource) || null;
   };
+
+  const formatIntelligenceDate = (value?: string) => {
+    const date = new Date(value || Date.now());
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+
+    const isSameDay = (a: Date, b: Date) =>
+      a.getFullYear() === b.getFullYear() &&
+      a.getMonth() === b.getMonth() &&
+      a.getDate() === b.getDate();
+
+    if (isSameDay(date, today)) return 'Hoje';
+    if (isSameDay(date, yesterday)) return 'Ontem';
+    return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+  };
+
+  const formatIntelligenceTime = (value?: string) => {
+    const date = new Date(value || Date.now());
+    if (!Number.isFinite(date.getTime())) return '--:--';
+    return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  };
+
+  const formatIntelligenceFileSize = (asset: Asset) => {
+    const bytes = asset.attachments?.reduce((sum, att) => sum + (att.size || 0), 0) || 0;
+    if (!bytes) return asset.type === 'pdf' ? 'PDF' : asset.type === 'image' ? 'Imagem' : 'Arquivo';
+    if (bytes >= 1_000_000_000) return `${(bytes / 1_000_000_000).toFixed(1)} GB`;
+    if (bytes >= 1_000_000) return `${(bytes / 1_000_000).toFixed(1)} MB`;
+    if (bytes >= 1_000) return `${Math.round(bytes / 1_000)} KB`;
+    return `${bytes} B`;
+  };
+
+  const getIntelligenceAssetLabel = (asset: Asset) => {
+    if (asset.type === 'pdf') return 'PDF';
+    if (asset.type === 'image') return 'Imagem';
+    if (asset.type === 'video') return 'Video';
+    if (asset.type === 'document') return 'Documento';
+    return 'Ativo';
+  };
+
+  const intelligenceAssets = useMemo(() => {
+    const assetsOnly = activeAssets
+      .filter(asset => asset.type !== 'case')
+      .sort((a, b) => assetTime(b) - assetTime(a));
+
+    if (!intelligenceSearch.trim()) return assetsOnly;
+
+    const query = intelligenceSearch.toLowerCase().trim();
+    return assetsOnly.filter(asset => {
+      const haystack = [
+        asset.title,
+        asset.summary,
+        asset.description,
+        asset.scientificContext,
+        ...(asset.tags || []),
+      ].filter(Boolean).join(' ').toLowerCase();
+      return haystack.includes(query);
+    });
+  }, [activeAssets, intelligenceSearch]);
+
+  useEffect(() => {
+    if (selectedIntelligenceAssetId && intelligenceAssets.some(asset => asset.id === selectedIntelligenceAssetId)) return;
+    setSelectedIntelligenceAssetId(intelligenceAssets[0]?.id || null);
+  }, [intelligenceAssets, selectedIntelligenceAssetId]);
+
+  const selectedIntelligenceAsset = useMemo(
+    () => intelligenceAssets.find(asset => asset.id === selectedIntelligenceAssetId) || intelligenceAssets[0] || null,
+    [intelligenceAssets, selectedIntelligenceAssetId],
+  );
+
+  const groupedIntelligenceAssets = useMemo(() => {
+    const groups: { label: string; items: Asset[] }[] = [];
+    intelligenceAssets.forEach(asset => {
+      const label = formatIntelligenceDate(asset.updatedAt || asset.createdAt || asset.date);
+      const current = groups[groups.length - 1];
+      if (current?.label === label) current.items.push(asset);
+      else groups.push({ label, items: [asset] });
+    });
+    return groups;
+  }, [intelligenceAssets]);
 
   const getAssetVisualSource = async (asset: Asset): Promise<string> => {
     if (asset.type === 'pdf' || asset.type === 'document') return '';
@@ -2705,6 +2788,261 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                   )}
                 </div>
               )}
+            </div>
+          );
+        })()}
+
+        {/* INTELLIGENCE */}
+        {view === ViewState.INTELLIGENCE && (() => {
+          const selectedPreview = selectedIntelligenceAsset ? getAssetPreviewSource(selectedIntelligenceAsset) : null;
+          const selectedTags = selectedIntelligenceAsset?.tags?.filter(Boolean).slice(0, 5) || [];
+          const selectedDate = selectedIntelligenceAsset?.updatedAt || selectedIntelligenceAsset?.createdAt || selectedIntelligenceAsset?.date;
+
+          const renderAssetThumb = (asset: Asset, size: 'sm' | 'md' = 'sm') => {
+            const preview = getAssetPreviewSource(asset);
+            const isPdf = asset.type === 'pdf';
+            const iconSize = size === 'sm' ? 17 : 24;
+            return (
+              <div className={`${size === 'sm' ? 'h-12 w-12 rounded-[12px]' : 'aspect-[4/3] w-full rounded-[18px]'} relative overflow-hidden border border-black/[0.045] bg-[#f4f5f7] shadow-sm`}>
+                {preview ? (
+                  <img src={preview} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
+                ) : isPdf ? (
+                  <div className="relative flex h-full w-full items-center justify-center bg-[#fbf7f5]">
+                    <div className="absolute inset-x-0 top-0 h-1 bg-[#d92d20]" />
+                    <FileText size={iconSize} className="text-[#d92d20]" strokeWidth={1.45} />
+                  </div>
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center bg-[#f3f4f6] text-[#9a9aa0]">
+                    {asset.type === 'image' ? <ImageIcon size={iconSize} strokeWidth={1.35} /> : <Folder size={iconSize} strokeWidth={1.35} />}
+                  </div>
+                )}
+              </div>
+            );
+          };
+
+          return (
+            <div className="px-4 pb-24 pt-5 sm:px-7 md:pb-10 md:pl-24 md:pr-8 lg:pl-28 animate-fade-in">
+              <div className="mx-auto max-w-[1540px] overflow-hidden rounded-[26px] border border-black/[0.06] bg-white/74 shadow-[0_24px_90px_rgba(0,0,0,0.08)] backdrop-blur-2xl">
+                <div className="grid min-h-[calc(100vh-72px)] grid-cols-1 lg:grid-cols-[minmax(0,1fr)_380px] xl:grid-cols-[minmax(0,1fr)_420px]">
+                  <section className="min-w-0 border-black/[0.055] px-5 py-5 sm:px-8 lg:border-r">
+                    <div className="mb-8 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+                      <div className="relative min-w-0 flex-1 xl:max-w-[460px]">
+                        <Search size={14} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#9a9aa0]" />
+                        <input
+                          value={intelligenceSearch}
+                          onChange={event => setIntelligenceSearch(event.target.value)}
+                          placeholder="Buscar arquivos, pastas ou tags..."
+                          className="h-11 w-full rounded-full border border-black/[0.05] bg-[#f7f7f8]/82 pl-10 pr-12 text-[12px] font-medium text-[#1d1d1f] outline-none shadow-inner placeholder:text-[#a1a1a6] focus:border-black/[0.12] focus:bg-white"
+                        />
+                        <span className="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 rounded-[9px] bg-white px-2 py-1 text-[10px] font-semibold text-[#8e8e93] shadow-sm sm:block">⌘ F</span>
+                      </div>
+
+                      <div className="flex items-center justify-between gap-3">
+                        <button className="button-nowrap flex h-10 items-center gap-2 rounded-[14px] border border-black/[0.055] bg-white/76 px-4 text-[12px] font-semibold text-[#626267] shadow-sm backdrop-blur-xl">
+                          <SlidersHorizontal size={14} strokeWidth={1.55} />
+                          Filtros
+                        </button>
+                        <div className="flex items-center rounded-[16px] bg-[#f3f3f5] p-1 shadow-inner">
+                          <button
+                            onClick={() => setIntelligenceViewMode('timeline')}
+                            aria-label="Visualizar em linha do tempo"
+                            className={`flex h-9 w-10 items-center justify-center rounded-[12px] transition-all ${intelligenceViewMode === 'timeline' ? 'bg-white text-[#1d1d1f] shadow-sm' : 'text-[#8e8e93] hover:text-[#1d1d1f]'}`}
+                          >
+                            <AlignJustify size={15} />
+                          </button>
+                          <button
+                            onClick={() => setIntelligenceViewMode('grid')}
+                            aria-label="Visualizar em miniaturas"
+                            className={`flex h-9 w-10 items-center justify-center rounded-[12px] transition-all ${intelligenceViewMode === 'grid' ? 'bg-white text-[#1d1d1f] shadow-sm' : 'text-[#8e8e93] hover:text-[#1d1d1f]'}`}
+                          >
+                            <LayoutGrid size={15} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mb-7 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                      <div>
+                        <h1 className="text-[28px] font-light tracking-tight text-[#1d1d1f] sm:text-[34px]">Intelligence</h1>
+                        <p className="mt-1 text-[12px] font-medium text-[#9a9aa0]">{intelligenceAssets.length.toLocaleString('pt-BR')} itens</p>
+                      </div>
+                      <button className="button-nowrap flex h-10 items-center gap-2 self-start rounded-[14px] border border-black/[0.055] bg-white/74 px-4 text-[12px] font-semibold text-[#626267] shadow-sm sm:self-auto">
+                        <Calendar size={14} strokeWidth={1.45} />
+                        Hoje
+                        <ChevronRight size={13} className="rotate-90 text-[#a1a1a6]" />
+                      </button>
+                    </div>
+
+                    {intelligenceAssets.length === 0 ? (
+                      <div className="flex min-h-[420px] flex-col items-center justify-center text-center text-[#86868b]">
+                        {isRefreshing ? <Loader2 size={30} className="mb-3 animate-spin text-[#1d1d1f]/35" /> : <Brain size={32} className="mb-3 opacity-25" />}
+                        <p className="text-[14px] font-medium">{isRefreshing ? 'Carregando Intelligence' : 'Nenhum ativo encontrado'}</p>
+                        <p className="mt-1 text-[12px] text-[#aeaeb2]">Ajuste a busca ou adicione novos ativos.</p>
+                      </div>
+                    ) : intelligenceViewMode === 'timeline' ? (
+                      <div className="space-y-5">
+                        {groupedIntelligenceAssets.map(group => (
+                          <div key={group.label}>
+                            <p className="mb-2 text-[12px] font-semibold tracking-tight text-[#626267]">{group.label}</p>
+                            <div className="relative">
+                              <div className="absolute bottom-2 left-[57px] top-1 w-px bg-black/[0.07]" />
+                              {group.items.map(asset => {
+                                const isSelected = selectedIntelligenceAsset?.id === asset.id;
+                                const time = formatIntelligenceTime(asset.updatedAt || asset.createdAt || asset.date);
+                                const tags = (asset.tags || []).slice(0, 1);
+                                return (
+                                  <button
+                                    key={asset.id}
+                                    onClick={() => setSelectedIntelligenceAssetId(asset.id)}
+                                    className={`group relative grid w-full grid-cols-[42px_24px_minmax(0,1fr)] items-center gap-3 rounded-[16px] px-0 py-1.5 text-left transition-all ${isSelected ? 'bg-[#f8f8f9] shadow-[0_12px_34px_rgba(0,0,0,0.055)]' : 'hover:bg-[#fafafa]'}`}
+                                  >
+                                    <span className="text-[11px] font-medium text-[#9a9aa0]">{time}</span>
+                                    <span className={`relative z-10 mx-auto h-2 w-2 rounded-full ${isSelected ? 'bg-[#1d1d1f]' : 'bg-[#b5b5bb]'}`} />
+                                    <span className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-[14px] border border-transparent px-2 py-1.5">
+                                      {renderAssetThumb(asset)}
+                                      <span className="min-w-0">
+                                        <span className="flex min-w-0 items-center gap-2">
+                                          <span className="truncate text-[13px] font-semibold text-[#1d1d1f]">{asset.title || 'Ativo sem título'}</span>
+                                          {asset.evidenceLevel === 'Alto' && <Sparkles size={12} className="shrink-0 text-[#9a9aa0]" />}
+                                        </span>
+                                        <span className="mt-0.5 block truncate text-[11px] font-medium text-[#9a9aa0]">{asset.summary || asset.description || asset.scientificContext || getIntelligenceAssetLabel(asset)}</span>
+                                      </span>
+                                      <span className="hidden min-w-[220px] items-center justify-end gap-4 md:flex">
+                                        {tags.map(tag => (
+                                          <span key={tag} className="rounded-full bg-[#eef2f8] px-2.5 py-1 text-[10px] font-semibold text-[#6f7f9a]">{tag}</span>
+                                        ))}
+                                        <span className="w-14 text-[11px] font-medium text-[#8e8e93]">{formatIntelligenceFileSize(asset)}</span>
+                                        <span className="w-20 text-right text-[11px] font-medium text-[#8e8e93]">{group.label}</span>
+                                        <MoreHorizontal size={15} className="text-[#a1a1a6] opacity-0 transition-opacity group-hover:opacity-100" />
+                                      </span>
+                                    </span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+                        {intelligenceAssets.map(asset => {
+                          const isSelected = selectedIntelligenceAsset?.id === asset.id;
+                          return (
+                            <button
+                              key={asset.id}
+                              onClick={() => setSelectedIntelligenceAssetId(asset.id)}
+                              className={`group min-w-0 rounded-[20px] border p-2 text-left transition-all ${isSelected ? 'border-black/[0.10] bg-white shadow-[0_16px_44px_rgba(0,0,0,0.08)]' : 'border-black/[0.045] bg-white/58 hover:bg-white hover:shadow-[0_14px_34px_rgba(0,0,0,0.06)]'}`}
+                            >
+                              {renderAssetThumb(asset, 'md')}
+                              <p className="mt-2 truncate text-[12px] font-semibold text-[#1d1d1f]">{asset.title || 'Ativo sem título'}</p>
+                              <div className="mt-1 flex items-center justify-between gap-2 text-[10px] font-medium text-[#9a9aa0]">
+                                <span className="truncate">{getIntelligenceAssetLabel(asset)}</span>
+                                <span className="shrink-0">{formatIntelligenceFileSize(asset)}</span>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </section>
+
+                  <aside className="min-w-0 bg-[#fbfbfc]/86 p-5 sm:p-6">
+                    {selectedIntelligenceAsset ? (
+                      <div className="sticky top-5">
+                        <div className="mb-5 flex items-center justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="truncate text-[15px] font-semibold tracking-tight text-[#1d1d1f]">{selectedIntelligenceAsset.title || 'Ativo sem título'}</p>
+                            <p className="mt-0.5 text-[11px] font-medium text-[#9a9aa0]">{getIntelligenceAssetLabel(selectedIntelligenceAsset)} · {formatIntelligenceFileSize(selectedIntelligenceAsset)}</p>
+                          </div>
+                          <div className="flex items-center gap-2 text-[#8e8e93]">
+                            <button className="rounded-full p-2 hover:bg-black/[0.04]" aria-label="Notificações"><Bell size={15} /></button>
+                            <button onClick={() => setSelectedIntelligenceAssetId(null)} className="rounded-full p-2 hover:bg-black/[0.04]" aria-label="Fechar preview"><X size={16} /></button>
+                          </div>
+                        </div>
+
+                        <div className="overflow-hidden rounded-[20px] border border-black/[0.055] bg-[#f3f4f6] shadow-sm">
+                          {selectedPreview ? (
+                            <img src={selectedPreview} alt={selectedIntelligenceAsset.title} loading="lazy" decoding="async" className="aspect-[4/3] w-full object-cover" />
+                          ) : selectedIntelligenceAsset.type === 'pdf' ? (
+                            <div className="relative flex aspect-[4/3] items-center justify-center bg-[#fbf7f5]">
+                              <div className="absolute inset-x-0 top-0 h-1.5 bg-[#d92d20]" />
+                              <div className="flex flex-col items-center gap-3">
+                                <FileText size={54} className="text-[#d92d20]" strokeWidth={1.15} />
+                                <span className="rounded-full bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#d92d20] shadow-sm">PDF</span>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex aspect-[4/3] items-center justify-center bg-[#f3f4f6] text-[#a1a1a6]">
+                              <Folder size={52} strokeWidth={1.1} />
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="mt-4 grid grid-cols-4 gap-2">
+                          <button onClick={() => handleOpenAsset(selectedIntelligenceAsset)} className="button-nowrap flex h-14 flex-col items-center justify-center gap-1 rounded-[14px] border border-black/[0.055] bg-white text-[10px] font-semibold text-[#626267] shadow-sm hover:text-[#1d1d1f]">
+                            <ExternalLink size={15} strokeWidth={1.45} />
+                            Abrir
+                          </button>
+                          <button className="button-nowrap flex h-14 flex-col items-center justify-center gap-1 rounded-[14px] border border-black/[0.055] bg-white text-[10px] font-semibold text-[#626267] shadow-sm hover:text-[#1d1d1f]">
+                            <Share2 size={15} strokeWidth={1.45} />
+                            Compart.
+                          </button>
+                          <button className="button-nowrap flex h-14 flex-col items-center justify-center gap-1 rounded-[14px] border border-black/[0.055] bg-white text-[10px] font-semibold text-[#626267] shadow-sm hover:text-[#1d1d1f]">
+                            <Heart size={15} strokeWidth={1.45} />
+                            Favoritar
+                          </button>
+                          <button className="button-nowrap flex h-14 flex-col items-center justify-center gap-1 rounded-[14px] border border-black/[0.055] bg-white text-[10px] font-semibold text-[#626267] shadow-sm hover:text-[#1d1d1f]">
+                            <MoreHorizontal size={15} strokeWidth={1.45} />
+                            Mais
+                          </button>
+                        </div>
+
+                        <div className="mt-4 rounded-[18px] bg-[#f3f3f5] p-1">
+                          <div className="grid grid-cols-3 gap-1 text-center text-[11px] font-semibold text-[#86868b]">
+                            <span className="rounded-[14px] bg-white py-2 text-[#1d1d1f] shadow-sm">Detalhes</span>
+                            <span className="py-2">Atividade</span>
+                            <span className="py-2">Versões</span>
+                          </div>
+                        </div>
+
+                        <dl className="mt-5 grid grid-cols-[90px_minmax(0,1fr)] gap-x-4 gap-y-4 text-[12px]">
+                          <dt className="font-medium text-[#86868b]">Tipo</dt>
+                          <dd className="font-medium text-[#424245]">{getIntelligenceAssetLabel(selectedIntelligenceAsset)}</dd>
+                          <dt className="font-medium text-[#86868b]">Tamanho</dt>
+                          <dd className="font-medium text-[#424245]">{formatIntelligenceFileSize(selectedIntelligenceAsset)}</dd>
+                          <dt className="font-medium text-[#86868b]">Criado</dt>
+                          <dd className="font-medium text-[#424245]">{formatIntelligenceDate(selectedIntelligenceAsset.createdAt || selectedIntelligenceAsset.date)}, {formatIntelligenceTime(selectedIntelligenceAsset.createdAt || selectedIntelligenceAsset.date)}</dd>
+                          <dt className="font-medium text-[#86868b]">Modificado</dt>
+                          <dd className="font-medium text-[#424245]">{formatIntelligenceDate(selectedDate)}, {formatIntelligenceTime(selectedDate)}</dd>
+                          <dt className="font-medium text-[#86868b]">Evidência</dt>
+                          <dd className="font-medium text-[#424245]">{selectedIntelligenceAsset.evidenceLevel || 'Baixo'}</dd>
+                        </dl>
+
+                        <div className="mt-7">
+                          <p className="mb-3 text-[13px] font-semibold text-[#424245]">Tags</p>
+                          <div className="flex flex-wrap gap-2">
+                            {selectedTags.length > 0 ? selectedTags.map(tag => (
+                              <span key={tag} className="rounded-full bg-[#eef2f8] px-3 py-1.5 text-[11px] font-semibold text-[#6f7f9a]">{tag}</span>
+                            )) : (
+                              <span className="rounded-full bg-[#f1f1f2] px-3 py-1.5 text-[11px] font-semibold text-[#9a9aa0]">sem tag</span>
+                            )}
+                            <span className="flex h-7 w-7 items-center justify-center rounded-full border border-black/[0.06] bg-white text-[#8e8e93]">+</span>
+                          </div>
+                        </div>
+
+                        <button onClick={() => handleOpenAsset(selectedIntelligenceAsset)} className="mt-8 flex h-12 w-full items-center justify-between rounded-[16px] border border-black/[0.055] bg-white px-4 text-[13px] font-semibold text-[#626267] shadow-sm hover:text-[#1d1d1f]">
+                          <span className="flex items-center gap-2"><AlertCircle size={16} strokeWidth={1.4} /> Informações</span>
+                          <ChevronRight size={16} />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex min-h-[420px] items-center justify-center text-center text-[13px] font-medium text-[#9a9aa0]">
+                        Selecione um ativo
+                      </div>
+                    )}
+                  </aside>
+                </div>
+              </div>
             </div>
           );
         })()}
