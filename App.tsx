@@ -9,7 +9,7 @@ import { saveAttachmentData, getAttachmentData, deleteAttachmentData } from './s
 import { supabase } from './services/supabase';
 import { clearStoredUser, getStoredUser, storeUser, signOut as authSignOut } from './services/authService';
 import type { AuthUser } from './services/authService';
-import { Plus, Brain, FileText, Image as ImageIcon, Type as TypeIcon, Loader2, ChevronLeft, Trash2, Search, LayoutGrid, RotateCcw, ChevronRight, Briefcase, X, AlertCircle, Stethoscope, Download, Home, Award, Zap, Copy, CheckCircle2, Maximize2, Minimize2, Sparkles, AlignJustify, LogOut, TrendingUp, Share2, BookOpen, Link2, ExternalLink, Clock, Save, ArrowUp, ArrowDown, Calendar, SlidersHorizontal, MoreHorizontal, Heart, Folder, Bell } from 'lucide-react';
+import { Plus, Brain, FileText, Image as ImageIcon, Type as TypeIcon, Loader2, ChevronLeft, Trash2, Search, LayoutGrid, RotateCcw, ChevronRight, Briefcase, X, AlertCircle, Stethoscope, Download, Home, Award, Zap, Copy, CheckCircle2, Maximize2, Minimize2, Sparkles, AlignJustify, LogOut, TrendingUp, Share2, BookOpen, Link2, ExternalLink, Clock, Save, ArrowUp, ArrowDown, MoreHorizontal, Folder, ClipboardList, MinusCircle } from 'lucide-react';
 
 const ASSET_STORAGE_PREFIX = 'lon_assets_';
 const ASSET_BACKUP_PREFIX = 'lon_assets_backup_';
@@ -17,6 +17,14 @@ const SUPABASE_TIMEOUT_MS = 18000;
 const ASSET_PAGE_SIZE = 30;
 const CASE_PAGE_SIZE = 300;
 const ASSET_LIST_SELECT = 'id,title,type,tags,date,thumbnail,description,attachments,summary,scientific_context,evidence_level,publication_year,key_findings,created_at,updated_at,owner_id,is_deleted,deleted_at';
+
+type IntelligenceClipboard = {
+  id: string;
+  name: string;
+  assetIds: string[];
+  createdAt: string;
+  updatedAt: string;
+};
 
 async function withSupabaseTimeout<T>(promise: PromiseLike<T>, label: string): Promise<T> {
   let timeoutId: number | undefined;
@@ -61,6 +69,25 @@ const mergeAssetSets = (...sets: Asset[][]): Asset[] => {
 
 const readLocalAssetRecovery = (preferredKey: string): Asset[] => {
   return parseAssetArray(localStorage.getItem(preferredKey));
+};
+
+const parseClipboardCollections = (raw: string | null): IntelligenceClipboard[] => {
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter(item => item && typeof item.id === 'string' && typeof item.name === 'string')
+      .map(item => ({
+        id: item.id,
+        name: item.name,
+        assetIds: Array.isArray(item.assetIds) ? item.assetIds.filter((id: unknown): id is string => typeof id === 'string') : [],
+        createdAt: typeof item.createdAt === 'string' ? item.createdAt : new Date().toISOString(),
+        updatedAt: typeof item.updatedAt === 'string' ? item.updatedAt : new Date().toISOString(),
+      }));
+  } catch {
+    return [];
+  }
 };
 
 const safeLocalSet = (key: string, value: string) => {
@@ -167,6 +194,7 @@ const App: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [intelligenceSearch, setIntelligenceSearch] = useState('');
   const [intelligenceViewMode, setIntelligenceViewMode] = useState<'timeline' | 'grid'>('timeline');
+  const [intelligenceScope, setIntelligenceScope] = useState<'all' | 'clipboard'>('all');
   const [selectedIntelligenceAssetId, setSelectedIntelligenceAssetId] = useState<string | null>(null);
 
   // AI & Behavior State
@@ -245,6 +273,10 @@ const App: React.FC = () => {
   const ownerId  = currentUser?.id  ?? 'guest';
   const ownerName = currentUser?.name ?? '';
   const isOfflineUser = ownerId.startsWith('offline:');
+  const INTELLIGENCE_CLIPBOARD_KEY = `lon_intelligence_clipboards_${ownerId}`;
+  const [clipboardCollections, setClipboardCollections] = useState<IntelligenceClipboard[]>(() => parseClipboardCollections(localStorage.getItem(`lon_intelligence_clipboards_${currentUser?.id ?? 'guest'}`)));
+  const [selectedClipboardId, setSelectedClipboardId] = useState<string | null>(() => clipboardCollections[0]?.id || null);
+  const [clipboardDraftName, setClipboardDraftName] = useState('');
 
   const showAppToast = useCallback((message: string, tone: 'success' | 'info' | 'warning' = 'success') => {
     setAppToast({ message, tone });
@@ -272,6 +304,92 @@ const App: React.FC = () => {
   };
 
   const LOCAL_STORAGE_ASSETS_KEY = `lon_assets_${ownerId}`;
+
+  useEffect(() => {
+    const storedCollections = parseClipboardCollections(localStorage.getItem(INTELLIGENCE_CLIPBOARD_KEY));
+    setClipboardCollections(storedCollections);
+    setSelectedClipboardId(storedCollections[0]?.id || null);
+    setClipboardDraftName('');
+  }, [INTELLIGENCE_CLIPBOARD_KEY]);
+
+  useEffect(() => {
+    if (ownerId === 'guest') return;
+    safeLocalSet(INTELLIGENCE_CLIPBOARD_KEY, JSON.stringify(clipboardCollections));
+  }, [INTELLIGENCE_CLIPBOARD_KEY, clipboardCollections, ownerId]);
+
+  useEffect(() => {
+    if (!selectedClipboardId || clipboardCollections.some(collection => collection.id === selectedClipboardId)) return;
+    setSelectedClipboardId(clipboardCollections[0]?.id || null);
+  }, [clipboardCollections, selectedClipboardId]);
+
+  const activeClipboard = useMemo(
+    () => clipboardCollections.find(collection => collection.id === selectedClipboardId) || null,
+    [clipboardCollections, selectedClipboardId],
+  );
+
+  useEffect(() => {
+    if (activeClipboard || intelligenceScope === 'all') return;
+    setIntelligenceScope('all');
+  }, [activeClipboard, intelligenceScope]);
+
+  const createClipboardCollection = useCallback((name: string, initialAssetId?: string) => {
+    const cleanName = name.trim();
+    if (!cleanName) {
+      showAppToast('Digite um nome para criar a área de transferência.', 'warning');
+      return null;
+    }
+
+    const now = new Date().toISOString();
+    const nextCollection: IntelligenceClipboard = {
+      id: crypto.randomUUID(),
+      name: cleanName,
+      assetIds: initialAssetId ? [initialAssetId] : [],
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    setClipboardCollections(prev => [nextCollection, ...prev]);
+    setSelectedClipboardId(nextCollection.id);
+    setClipboardDraftName('');
+    showAppToast(`Área "${cleanName}" criada.`, 'success');
+    return nextCollection;
+  }, [showAppToast]);
+
+  const addAssetToClipboard = useCallback((assetId: string) => {
+    if (!activeClipboard) {
+      createClipboardCollection(clipboardDraftName || 'Nova seleção', assetId);
+      return;
+    }
+
+    setClipboardCollections(prev => prev.map(collection => {
+      if (collection.id !== activeClipboard.id || collection.assetIds.includes(assetId)) return collection;
+      return {
+        ...collection,
+        assetIds: [assetId, ...collection.assetIds],
+        updatedAt: new Date().toISOString(),
+      };
+    }));
+    showAppToast('Ativo adicionado à área de transferência.', 'success');
+  }, [activeClipboard, clipboardDraftName, createClipboardCollection, showAppToast]);
+
+  const removeAssetFromClipboard = useCallback((assetId: string, collectionId = selectedClipboardId) => {
+    if (!collectionId) return;
+    setClipboardCollections(prev => prev.map(collection => {
+      if (collection.id !== collectionId) return collection;
+      return {
+        ...collection,
+        assetIds: collection.assetIds.filter(id => id !== assetId),
+        updatedAt: new Date().toISOString(),
+      };
+    }));
+    showAppToast('Ativo removido da área de transferência.', 'info');
+  }, [selectedClipboardId, showAppToast]);
+
+  const deleteClipboardCollection = useCallback((collectionId: string) => {
+    const collection = clipboardCollections.find(item => item.id === collectionId);
+    setClipboardCollections(prev => prev.filter(item => item.id !== collectionId));
+    showAppToast(collection ? `Área "${collection.name}" removida.` : 'Área removida.', 'info');
+  }, [clipboardCollections, showAppToast]);
 
   useEffect(() => {
     setProfileDraft({
@@ -1233,6 +1351,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
   const intelligenceAssets = useMemo(() => {
     const assetsOnly = activeAssets
       .filter(asset => asset.type !== 'case')
+      .filter(asset => intelligenceScope === 'all' || Boolean(activeClipboard?.assetIds.includes(asset.id)))
       .sort((a, b) => assetTime(b) - assetTime(a));
 
     if (!intelligenceSearch.trim()) return assetsOnly;
@@ -1248,7 +1367,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
       ].filter(Boolean).join(' ').toLowerCase();
       return haystack.includes(query);
     });
-  }, [activeAssets, intelligenceSearch]);
+  }, [activeAssets, activeClipboard, intelligenceScope, intelligenceSearch]);
 
   useEffect(() => {
     if (selectedIntelligenceAssetId && intelligenceAssets.some(asset => asset.id === selectedIntelligenceAssetId)) return;
@@ -2797,6 +2916,12 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
           const selectedPreview = selectedIntelligenceAsset ? getAssetPreviewSource(selectedIntelligenceAsset) : null;
           const selectedTags = selectedIntelligenceAsset?.tags?.filter(Boolean).slice(0, 5) || [];
           const selectedDate = selectedIntelligenceAsset?.updatedAt || selectedIntelligenceAsset?.createdAt || selectedIntelligenceAsset?.date;
+          const selectedIsInClipboard = Boolean(selectedIntelligenceAsset && activeClipboard?.assetIds.includes(selectedIntelligenceAsset.id));
+          const activeClipboardAssets = activeClipboard
+            ? activeClipboard.assetIds
+                .map(id => activeAssets.find(asset => asset.id === id && asset.type !== 'case'))
+                .filter((asset): asset is Asset => Boolean(asset))
+            : [];
 
           const renderAssetThumb = (asset: Asset, size: 'sm' | 'md' = 'sm') => {
             const preview = getAssetPreviewSource(asset);
@@ -2822,11 +2947,11 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
 
           return (
             <div className="px-4 pb-24 pt-5 sm:px-7 md:pb-10 md:pl-24 md:pr-8 lg:pl-28 animate-fade-in">
-              <div className="mx-auto max-w-[1540px] overflow-hidden rounded-[26px] border border-black/[0.06] bg-white/74 shadow-[0_24px_90px_rgba(0,0,0,0.08)] backdrop-blur-2xl">
+              <div className="mx-auto max-w-[1540px] rounded-[26px] border border-black/[0.06] bg-white/74 shadow-[0_24px_90px_rgba(0,0,0,0.08)] backdrop-blur-2xl">
                 <div className="grid min-h-[calc(100vh-72px)] grid-cols-1 lg:grid-cols-[minmax(0,1fr)_380px] xl:grid-cols-[minmax(0,1fr)_420px]">
                   <section className="min-w-0 border-black/[0.055] px-5 py-5 sm:px-8 lg:border-r">
-                    <div className="mb-8 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-                      <div className="relative min-w-0 flex-1 xl:max-w-[460px]">
+                    <div className="mb-6 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+                      <div className="relative min-w-0 flex-1 xl:max-w-[520px]">
                         <Search size={14} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#9a9aa0]" />
                         <input
                           value={intelligenceSearch}
@@ -2837,11 +2962,22 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                         <span className="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 rounded-[9px] bg-white px-2 py-1 text-[10px] font-semibold text-[#8e8e93] shadow-sm sm:block">⌘ F</span>
                       </div>
 
-                      <div className="flex items-center justify-between gap-3">
-                        <button className="button-nowrap flex h-10 items-center gap-2 rounded-[14px] border border-black/[0.055] bg-white/76 px-4 text-[12px] font-semibold text-[#626267] shadow-sm backdrop-blur-xl">
-                          <SlidersHorizontal size={14} strokeWidth={1.55} />
-                          Filtros
-                        </button>
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center rounded-[16px] bg-[#f3f3f5] p-1 shadow-inner">
+                          <button
+                            onClick={() => setIntelligenceScope('all')}
+                            className={`h-9 rounded-[12px] px-3 text-[11px] font-semibold transition-all ${intelligenceScope === 'all' ? 'bg-white text-[#1d1d1f] shadow-sm' : 'text-[#8e8e93] hover:text-[#1d1d1f]'}`}
+                          >
+                            Todos
+                          </button>
+                          <button
+                            onClick={() => activeClipboard && setIntelligenceScope('clipboard')}
+                            disabled={!activeClipboard}
+                            className={`h-9 rounded-[12px] px-3 text-[11px] font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-40 ${intelligenceScope === 'clipboard' ? 'bg-white text-[#1d1d1f] shadow-sm' : 'text-[#8e8e93] hover:text-[#1d1d1f]'}`}
+                          >
+                            Área
+                          </button>
+                        </div>
                         <div className="flex items-center rounded-[16px] bg-[#f3f3f5] p-1 shadow-inner">
                           <button
                             onClick={() => setIntelligenceViewMode('timeline')}
@@ -2861,16 +2997,65 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                       </div>
                     </div>
 
-                    <div className="mb-7 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                    <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                       <div>
                         <h1 className="text-[28px] font-light tracking-tight text-[#1d1d1f] sm:text-[34px]">Intelligence</h1>
-                        <p className="mt-1 text-[12px] font-medium text-[#9a9aa0]">{intelligenceAssets.length.toLocaleString('pt-BR')} itens</p>
+                        <p className="mt-1 text-[12px] font-medium text-[#9a9aa0]">
+                          {intelligenceAssets.length.toLocaleString('pt-BR')} itens{activeClipboard && intelligenceScope === 'clipboard' ? ` em "${activeClipboard.name}"` : ''}
+                        </p>
                       </div>
-                      <button className="button-nowrap flex h-10 items-center gap-2 self-start rounded-[14px] border border-black/[0.055] bg-white/74 px-4 text-[12px] font-semibold text-[#626267] shadow-sm sm:self-auto">
-                        <Calendar size={14} strokeWidth={1.45} />
-                        Hoje
-                        <ChevronRight size={13} className="rotate-90 text-[#a1a1a6]" />
-                      </button>
+                    </div>
+
+                    <div className="mb-7 rounded-[22px] border border-black/[0.055] bg-[#fbfbfc]/78 p-3 shadow-sm">
+                      <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
+                        <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
+                          <div className="flex min-w-0 flex-1 items-center gap-2 rounded-[15px] bg-white px-3 py-2.5 shadow-inner ring-1 ring-black/[0.04]">
+                            <ClipboardList size={15} className="shrink-0 text-[#6e6e73]" />
+                            <select
+                              value={selectedClipboardId || ''}
+                              onChange={event => {
+                                setSelectedClipboardId(event.target.value || null);
+                                if (event.target.value) setIntelligenceScope('clipboard');
+                              }}
+                              className="min-w-0 flex-1 bg-transparent text-[12px] font-semibold text-[#1d1d1f] outline-none"
+                              aria-label="Selecionar área de transferência"
+                            >
+                              <option value="">Nenhuma área selecionada</option>
+                              {clipboardCollections.map(collection => (
+                                <option key={collection.id} value={collection.id}>{collection.name} · {collection.assetIds.length}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="flex min-w-0 flex-1 items-center gap-2">
+                            <input
+                              value={clipboardDraftName}
+                              onChange={event => setClipboardDraftName(event.target.value)}
+                              onKeyDown={event => {
+                                if (event.key === 'Enter') createClipboardCollection(clipboardDraftName, selectedIntelligenceAsset?.id);
+                              }}
+                              placeholder="Nome da nova área"
+                              className="h-10 min-w-0 flex-1 rounded-[14px] border border-black/[0.055] bg-white px-3 text-[12px] font-medium outline-none placeholder:text-[#aeaeb2] focus:border-black/[0.14]"
+                            />
+                            <button
+                              onClick={() => createClipboardCollection(clipboardDraftName, selectedIntelligenceAsset?.id)}
+                              className="button-nowrap h-10 rounded-[14px] bg-[#1d1d1f] px-3 text-[11px] font-semibold text-white shadow-sm hover:bg-black"
+                            >
+                              Criar
+                            </button>
+                          </div>
+                        </div>
+                        {activeClipboard && (
+                          <div className="flex items-center justify-between gap-2 xl:justify-end">
+                            <span className="text-[11px] font-medium text-[#8e8e93]">{activeClipboard.assetIds.length} ativos guardados</span>
+                            <button
+                              onClick={() => deleteClipboardCollection(activeClipboard.id)}
+                              className="h-9 rounded-[13px] px-3 text-[11px] font-semibold text-[#d92d20] transition-colors hover:bg-red-50"
+                            >
+                              Remover área
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
 
                     {intelligenceAssets.length === 0 ? (
@@ -2946,18 +3131,17 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                     )}
                   </section>
 
-                  <aside className="min-w-0 bg-[#fbfbfc]/86 p-5 sm:p-6">
+                  <aside className="min-w-0 rounded-b-[26px] bg-[#fbfbfc]/86 p-5 sm:p-6 lg:sticky lg:top-6 lg:max-h-[calc(100vh-48px)] lg:overflow-y-auto lg:rounded-b-none lg:rounded-r-[26px]">
                     {selectedIntelligenceAsset ? (
-                      <div className="sticky top-5">
+                      <div>
                         <div className="mb-5 flex items-center justify-between gap-3">
                           <div className="min-w-0">
                             <p className="truncate text-[15px] font-semibold tracking-tight text-[#1d1d1f]">{selectedIntelligenceAsset.title || 'Ativo sem título'}</p>
                             <p className="mt-0.5 text-[11px] font-medium text-[#9a9aa0]">{getIntelligenceAssetLabel(selectedIntelligenceAsset)} · {formatIntelligenceFileSize(selectedIntelligenceAsset)}</p>
                           </div>
-                          <div className="flex items-center gap-2 text-[#8e8e93]">
-                            <button className="rounded-full p-2 hover:bg-black/[0.04]" aria-label="Notificações"><Bell size={15} /></button>
-                            <button onClick={() => setSelectedIntelligenceAssetId(null)} className="rounded-full p-2 hover:bg-black/[0.04]" aria-label="Fechar preview"><X size={16} /></button>
-                          </div>
+                          <span className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold ${selectedIsInClipboard ? 'bg-emerald-50 text-emerald-700' : 'bg-[#f1f1f2] text-[#8e8e93]'}`}>
+                            {selectedIsInClipboard ? 'Na área' : 'Selecionado'}
+                          </span>
                         </div>
 
                         <div className="overflow-hidden rounded-[20px] border border-black/[0.055] bg-[#f3f4f6] shadow-sm">
@@ -2978,31 +3162,25 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                           )}
                         </div>
 
-                        <div className="mt-4 grid grid-cols-4 gap-2">
-                          <button onClick={() => handleOpenAsset(selectedIntelligenceAsset)} className="button-nowrap flex h-14 flex-col items-center justify-center gap-1 rounded-[14px] border border-black/[0.055] bg-white text-[10px] font-semibold text-[#626267] shadow-sm hover:text-[#1d1d1f]">
-                            <ExternalLink size={15} strokeWidth={1.45} />
-                            Abrir
-                          </button>
-                          <button className="button-nowrap flex h-14 flex-col items-center justify-center gap-1 rounded-[14px] border border-black/[0.055] bg-white text-[10px] font-semibold text-[#626267] shadow-sm hover:text-[#1d1d1f]">
-                            <Share2 size={15} strokeWidth={1.45} />
-                            Compart.
-                          </button>
-                          <button className="button-nowrap flex h-14 flex-col items-center justify-center gap-1 rounded-[14px] border border-black/[0.055] bg-white text-[10px] font-semibold text-[#626267] shadow-sm hover:text-[#1d1d1f]">
-                            <Heart size={15} strokeWidth={1.45} />
-                            Favoritar
-                          </button>
-                          <button className="button-nowrap flex h-14 flex-col items-center justify-center gap-1 rounded-[14px] border border-black/[0.055] bg-white text-[10px] font-semibold text-[#626267] shadow-sm hover:text-[#1d1d1f]">
-                            <MoreHorizontal size={15} strokeWidth={1.45} />
-                            Mais
-                          </button>
-                        </div>
-
-                        <div className="mt-4 rounded-[18px] bg-[#f3f3f5] p-1">
-                          <div className="grid grid-cols-3 gap-1 text-center text-[11px] font-semibold text-[#86868b]">
-                            <span className="rounded-[14px] bg-white py-2 text-[#1d1d1f] shadow-sm">Detalhes</span>
-                            <span className="py-2">Atividade</span>
-                            <span className="py-2">Versões</span>
+                        <div className="mt-4 rounded-[20px] border border-black/[0.055] bg-white p-4 shadow-sm">
+                          <div className="mb-3 flex items-start justify-between gap-3">
+                            <div>
+                              <p className="text-[13px] font-semibold text-[#1d1d1f]">Área de transferência</p>
+                              <p className="mt-0.5 text-[11px] font-medium leading-snug text-[#8e8e93]">
+                                {activeClipboard ? activeClipboard.name : 'Crie ou selecione uma área para guardar este ativo.'}
+                              </p>
+                            </div>
+                            {activeClipboard && (
+                              <span className="rounded-full bg-[#f1f1f2] px-2 py-1 text-[10px] font-semibold text-[#8e8e93]">{activeClipboard.assetIds.length}</span>
+                            )}
                           </div>
+                          <button
+                            onClick={() => selectedIsInClipboard ? removeAssetFromClipboard(selectedIntelligenceAsset.id) : addAssetToClipboard(selectedIntelligenceAsset.id)}
+                            className={`button-nowrap flex h-11 w-full items-center justify-center gap-2 rounded-[15px] text-[12px] font-semibold transition-all ${selectedIsInClipboard ? 'bg-[#f2f3f5] text-[#424245] hover:bg-red-50 hover:text-[#d92d20]' : 'bg-[#1d1d1f] text-white shadow-sm hover:bg-black'}`}
+                          >
+                            {selectedIsInClipboard ? <MinusCircle size={15} strokeWidth={1.45} /> : <ClipboardList size={15} strokeWidth={1.45} />}
+                            {selectedIsInClipboard ? 'Remover desta área' : activeClipboard ? 'Adicionar à área' : 'Criar área e adicionar'}
+                          </button>
                         </div>
 
                         <dl className="mt-5 grid grid-cols-[90px_minmax(0,1fr)] gap-x-4 gap-y-4 text-[12px]">
@@ -3026,14 +3204,56 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                             )) : (
                               <span className="rounded-full bg-[#f1f1f2] px-3 py-1.5 text-[11px] font-semibold text-[#9a9aa0]">sem tag</span>
                             )}
-                            <span className="flex h-7 w-7 items-center justify-center rounded-full border border-black/[0.06] bg-white text-[#8e8e93]">+</span>
                           </div>
                         </div>
 
-                        <button onClick={() => handleOpenAsset(selectedIntelligenceAsset)} className="mt-8 flex h-12 w-full items-center justify-between rounded-[16px] border border-black/[0.055] bg-white px-4 text-[13px] font-semibold text-[#626267] shadow-sm hover:text-[#1d1d1f]">
-                          <span className="flex items-center gap-2"><AlertCircle size={16} strokeWidth={1.4} /> Informações</span>
-                          <ChevronRight size={16} />
-                        </button>
+                        {activeClipboard && (
+                          <div className="mt-7">
+                            <div className="mb-3 flex items-center justify-between gap-3">
+                              <p className="text-[13px] font-semibold text-[#424245]">Arquivos nesta área</p>
+                              <button
+                                onClick={() => setIntelligenceScope('clipboard')}
+                                className="text-[11px] font-semibold text-[#1d1d1f] hover:underline"
+                              >
+                                Ver lista
+                              </button>
+                            </div>
+                            <div className="max-h-[190px] space-y-1.5 overflow-y-auto pr-1">
+                              {activeClipboardAssets.length > 0 ? activeClipboardAssets.slice(0, 8).map(asset => {
+                                const rowPreview = getAssetPreviewSource(asset);
+                                return (
+                                  <div
+                                    key={asset.id}
+                                    className={`grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-[12px] px-2 py-1.5 text-left transition-colors ${asset.id === selectedIntelligenceAsset.id ? 'bg-[#f2f3f5]' : 'hover:bg-[#f7f7f8]'}`}
+                                  >
+                                    <button
+                                      onClick={() => setSelectedIntelligenceAssetId(asset.id)}
+                                      className="grid min-w-0 grid-cols-[28px_minmax(0,1fr)] items-center gap-2 text-left"
+                                    >
+                                      {rowPreview ? (
+                                        <img src={rowPreview} alt="" loading="lazy" decoding="async" className="h-7 w-7 rounded-[8px] object-cover" />
+                                      ) : (
+                                        <span className="flex h-7 w-7 items-center justify-center rounded-[8px] bg-[#f2f3f5] text-[#8e8e93]">
+                                          {asset.type === 'pdf' ? <FileText size={13} /> : <Folder size={13} />}
+                                        </span>
+                                      )}
+                                      <span className="truncate text-[11px] font-semibold text-[#424245]">{asset.title || 'Ativo sem título'}</span>
+                                    </button>
+                                    <button
+                                      onClick={() => removeAssetFromClipboard(asset.id)}
+                                      className="rounded-full p-1 text-[#a1a1a6] hover:bg-red-50 hover:text-[#d92d20]"
+                                      aria-label="Remover da área"
+                                    >
+                                      <X size={12} />
+                                    </button>
+                                  </div>
+                                );
+                              }) : (
+                                <p className="rounded-[12px] bg-[#f7f7f8] px-3 py-3 text-[11px] font-medium text-[#9a9aa0]">A área ainda está vazia.</p>
+                              )}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     ) : (
                       <div className="flex min-h-[420px] items-center justify-center text-center text-[13px] font-medium text-[#9a9aa0]">
