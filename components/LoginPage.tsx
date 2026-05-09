@@ -9,6 +9,7 @@ interface Props {
 
 interface PlansPageProps {
   onBack: () => void;
+  onLearnMore: () => void;
 }
 
 const planMailto = (plan: string) =>
@@ -34,7 +35,7 @@ const PriceDisplay: React.FC<{ price: string; period: string; inverted?: boolean
   );
 };
 
-const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
+const PlansPage: React.FC<PlansPageProps> = ({ onBack, onLearnMore }) => {
   const [activeDemo, setActiveDemo] = useState(0);
 
   const demoSteps = [
@@ -143,6 +144,9 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
                   Ver planos
                   <ArrowRight size={15} />
                 </a>
+                <button type="button" onClick={onLearnMore} className="button-nowrap inline-flex items-center justify-center gap-2 rounded-full border border-black/[0.07] bg-white/72 px-6 py-3 text-[13px] font-semibold text-[#1d1d1f] shadow-sm backdrop-blur-xl hover:bg-white">
+                  Ver como funciona
+                </button>
               </div>
             </div>
 
@@ -247,6 +251,17 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
                   </article>
                 );
               })}
+            </div>
+
+            <div className="mx-auto mt-8 flex max-w-2xl flex-col items-center gap-3 rounded-[28px] border border-black/[0.045] bg-white/58 p-5 text-center shadow-sm backdrop-blur-xl sm:flex-row sm:justify-between sm:text-left">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#a1a1a6]">Entenda o valor</p>
+                <p className="mt-1 text-[13px] font-medium leading-relaxed text-[#6e6e73]">Veja como a Lon Suite transforma acervo clínico em aula, post, apresentação, publicação e autoridade científica.</p>
+              </div>
+              <button type="button" onClick={onLearnMore} className="button-nowrap inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-[#111113] px-5 py-3 text-[12px] font-semibold text-white hover:bg-[#2d2d2f]">
+                Saiba mais
+                <ArrowRight size={14} />
+              </button>
             </div>
           </section>
 
@@ -534,6 +549,307 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
   );
 };
 
+const PlansLearnMorePage: React.FC<{ onBack: () => void; onPlans: () => void }> = ({ onBack, onPlans }) => {
+  const painCards = [
+    ['Tenho milhares de imagens e nunca acho nada.', 'Casos clínicos, exames, fotos, PDFs e documentos ficam espalhados entre Drive, WhatsApp, computador, celular e e-mail. Quando você precisa, começa a caça ao arquivo.'],
+    ['Preciso montar uma aula e perco horas procurando caso.', 'Para professores, palestrantes e congressistas, o maior custo não é criar a aula. É encontrar rapidamente o caso, a imagem e a referência certa.'],
+    ['Tenho conteúdo científico, mas não consigo transformar em post.', 'Muito conhecimento fica parado porque não existe um fluxo simples para transformar casos, temas e materiais em conteúdo claro, ético e publicável.'],
+    ['Minha equipe pede material e eu mando tudo picado no WhatsApp.', 'Sem um acervo estruturado, a equipe depende de mensagens soltas, arquivos reenviados e buscas manuais que atrasam a rotina.'],
+    ['Quero parecer mais organizado e produzir mais autoridade.', 'Um acervo bem estruturado ajuda o médico a publicar mais, ensinar melhor, preparar apresentações com mais velocidade e fortalecer sua presença científica.'],
+  ];
+
+  const beforeAfter = [
+    {
+      label: 'Antes',
+      title: 'Acervo parado',
+      points: ['Arquivos espalhados em pastas, Drive, WhatsApp e e-mails.', 'Casos difíceis de encontrar.', 'Imagens sem contexto.', 'Equipe dependendo de pedidos manuais.', 'Aulas e posts começando sempre do zero.', 'Conhecimento clínico subutilizado.'],
+    },
+    {
+      label: 'Depois com a Lon Suite',
+      title: 'Acervo trabalhando por você',
+      points: ['Acervo organizado por tema, caso, doença, procedimento e finalidade.', 'Busca por contexto, não apenas por nome do arquivo.', 'Casos prontos para virar aula, post, slide ou publicação.', 'Equipe acessando o que precisa com mais autonomia.', 'Produção científica mais rápida e consistente.', 'Autoridade médica construída a partir do que você já tem.'],
+    },
+  ];
+
+  const steps = [
+    ['Envie seus materiais', 'Faça upload de imagens, documentos, PDFs, apresentações, casos clínicos e arquivos relevantes da sua rotina médica.'],
+    ['Organize por contexto', 'A Lon Suite ajuda a estruturar seu acervo por tema, patologia, procedimento, aula, caso, publicação ou finalidade.'],
+    ['Transforme em conteúdo', 'Use seu próprio acervo para criar posts, aulas, apresentações, cases, legendas, materiais científicos e conteúdos institucionais com mais velocidade.'],
+  ];
+
+  const outputs = ['Aula para congresso', 'Post científico', 'Carrossel médico', 'Apresentação em slides', 'Case clínico', 'Resumo para publicação', 'Material institucional', 'Roteiro de vídeo', 'Conteúdo para equipe', 'Biblioteca de casos'];
+  const audiences = [
+    ['Professores e palestrantes', 'Organize casos, imagens e referências para montar aulas e apresentações com mais velocidade.'],
+    ['Médicos que produzem conteúdo', 'Transforme conhecimento clínico em posts, carrosséis, roteiros e materiais educativos.'],
+    ['Pesquisadores e autores', 'Estruture documentos, casos e referências para apoiar publicações e produção científica.'],
+    ['Clínicas e equipes médicas', 'Centralize materiais importantes e reduza a dependência de arquivos espalhados em conversas e pastas.'],
+    ['Sociedades, serviços e grupos médicos', 'Crie um acervo institucional organizado, acessível e útil para ensino, comunicação e memória científica.'],
+  ];
+
+  const faqs = [
+    ['Isso substitui meu Google Drive?', 'Não exatamente. O Drive armazena arquivos. A Lon Suite organiza o acervo com lógica médica e científica, ajudando você a encontrar, contextualizar e transformar seus materiais em aulas, posts, apresentações, cases e publicações.'],
+    ['Meus arquivos clínicos ficam seguros?', 'A proposta da Lon Suite é oferecer um ambiente mais organizado e controlado para acervos sensíveis. Ainda assim, recomendamos sempre remover ou anonimizar dados identificáveis de pacientes antes de usar imagens ou documentos em materiais de ensino, comunicação ou publicação.'],
+    ['Eu preciso cadastrar tudo manualmente?', 'A experiência foi pensada para reduzir trabalho, não aumentar. O sistema facilita upload, categorização, busca e reaproveitamento dos arquivos com o mínimo de fricção possível.'],
+    ['Para que tipo de médico isso vale a pena?', 'Principalmente para médicos que dão aula, participam de congressos, produzem conteúdo, publicam artigos, apresentam casos ou trabalham com grande volume de imagens, exames e documentos.'],
+    ['Por que eu pagaria por isso?', 'Porque o custo real não está em armazenar arquivos. Está no tempo perdido procurando, reenviando, reorganizando e recriando materiais do zero. A Lon Suite transforma um acervo parado em uma ferramenta ativa de produção científica.'],
+    ['Consigo usar com minha equipe?', 'Sim. A Lon Suite foi pensada para colaboração entre médico, secretária, marketing, residentes, equipe científica ou clínica, com controle e organização.'],
+    ['Ela cria conteúdo automaticamente?', 'A proposta é ajudar a transformar o acervo em materiais estruturados, como posts, aulas, apresentações, cases, roteiros e conteúdos científicos, sempre com revisão e responsabilidade do profissional.'],
+    ['Serve para clínicas?', 'Sim. Para clínicas, a Lon Suite pode funcionar como um acervo institucional de casos, imagens, documentos, conteúdos, materiais de comunicação e histórico científico.'],
+  ];
+
+  return (
+    <div className="lon-soft-bg min-h-screen overflow-hidden text-[#111113]">
+      <section className="relative px-5 pb-24 pt-6 sm:px-8 lg:px-12">
+        <div className="relative mx-auto max-w-7xl">
+          <nav className="lon-glass-panel sticky top-4 z-30 mb-14 flex items-center justify-between rounded-full px-3 py-2">
+            <button onClick={onBack} className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-[12px] font-semibold text-[#424245] hover:bg-[#1d1d1f] hover:text-white">
+              <ArrowLeft size={14} />
+              Planos
+            </button>
+            <div className="hidden items-center gap-6 text-[11px] font-semibold text-[#6e6e73] md:flex">
+              <a href="#dores" className="hover:text-[#1d1d1f]">Dores</a>
+              <a href="#como-funciona" className="hover:text-[#1d1d1f]">Como funciona</a>
+              <a href="#seguranca" className="hover:text-[#1d1d1f]">Segurança</a>
+              <a href="#faq" className="hover:text-[#1d1d1f]">FAQ</a>
+            </div>
+            <button onClick={onPlans} className="button-nowrap rounded-full bg-[#1d1d1f] px-4 py-2 text-[12px] font-semibold text-white hover:bg-[#2d2d2f]">
+              Ver planos
+            </button>
+          </nav>
+
+          <div className="grid min-h-[680px] items-center gap-10 lg:grid-cols-[1fr_0.92fr]">
+            <div>
+              <p className="lon-glass-panel mb-5 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[#6e6e73]">
+                <Sparkles size={13} className="text-[#1d1d1f]" />
+                Produção científica a partir do seu acervo
+              </p>
+              <h1 className="max-w-5xl text-[46px] font-extralight leading-[0.98] tracking-tight sm:text-[72px] lg:text-[82px]">
+                Transforme seu acervo clínico em presença científica.
+              </h1>
+              <p className="mt-8 max-w-2xl text-[18px] font-light leading-relaxed text-[#6e6e73] sm:text-[21px]">
+                A Lon Suite organiza imagens, documentos, casos e materiais médicos em um ambiente inteligente, seguro e pensado para transformar conhecimento clínico em posts, aulas, apresentações e publicações.
+              </p>
+              <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+                <a href={planMailto('Personal')} className="button-nowrap inline-flex items-center justify-center gap-2 rounded-full bg-[#1d1d1f] px-6 py-3 text-[13px] font-semibold text-white shadow-[0_18px_44px_rgba(0,0,0,0.18)] hover:bg-[#2d2d2f]">
+                  Começar agora
+                  <ArrowRight size={15} />
+                </a>
+                <a href="#como-funciona" className="button-nowrap inline-flex items-center justify-center gap-2 rounded-full border border-black/[0.07] bg-white/72 px-6 py-3 text-[13px] font-semibold text-[#1d1d1f] shadow-sm backdrop-blur-xl hover:bg-white">
+                  Ver como funciona
+                </a>
+              </div>
+            </div>
+
+            <div className="relative min-h-[640px]">
+              <img src="/assets/lon-suite-doctors-laptop-editorial.jpg" alt="Equipe médica organizando produção científica" className="absolute right-0 top-0 h-[500px] w-[86%] rounded-[38px] object-cover grayscale shadow-[0_38px_120px_rgba(0,0,0,0.16)]" />
+              <div className="absolute bottom-0 left-0 w-[76%] rounded-[34px] bg-[#111113] p-7 text-white shadow-[0_40px_130px_rgba(0,0,0,0.32)]">
+                <p className="mb-7 text-[10px] font-bold uppercase tracking-[0.18em] text-white/42">Resultado</p>
+                <h2 className="text-[36px] font-extralight leading-tight tracking-tight">Posts, aulas, apresentações e cases a partir do que você já tem.</h2>
+                <div className="mt-7 grid grid-cols-3 gap-2">
+                  {['Post', 'Aula', 'Case'].map(item => (
+                    <span key={item} className="rounded-full bg-white/10 px-3 py-2 text-center text-[10px] font-bold uppercase tracking-[0.14em] text-white/70">{item}</span>
+                  ))}
+                </div>
+              </div>
+              <div className="lon-glass-panel-strong absolute right-8 top-[440px] rounded-[24px] p-5">
+                <p className="text-[42px] font-extralight leading-none">1</p>
+                <p className="mt-2 max-w-[160px] text-[11px] font-semibold leading-relaxed text-[#86868b]">acervo vivo para ensino, conteúdo e publicação</p>
+              </div>
+            </div>
+          </div>
+
+          <section id="dores" className="mt-20 scroll-mt-24">
+            <div className="mb-8 max-w-3xl">
+              <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Dores reais</p>
+              <h2 className="text-[40px] font-semibold leading-tight tracking-tight sm:text-[62px]">As dores que todo acervo clínico mal organizado cria.</h2>
+              <p className="mt-5 text-[15px] leading-relaxed text-[#6e6e73]">Se você produz aula, conteúdo, artigo, apresentação ou material científico, provavelmente já viveu alguma dessas situações.</p>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+              {painCards.map(([title, body], index) => (
+                <article key={title} className={`rounded-[30px] border p-6 shadow-[0_22px_70px_rgba(0,0,0,0.06)] ${index === 4 ? 'border-[#111113] bg-[#111113] text-white' : 'border-black/[0.055] bg-white/70 backdrop-blur-xl'}`}>
+                  <p className="text-[22px] font-light leading-tight tracking-tight">{title}</p>
+                  <p className={`mt-5 text-[13px] leading-relaxed ${index === 4 ? 'text-white/58' : 'text-[#6e6e73]'}`}>{body}</p>
+                </article>
+              ))}
+            </div>
+            <p className="mt-8 rounded-[28px] bg-white/64 p-6 text-[24px] font-light leading-tight tracking-tight text-[#1d1d1f] shadow-sm backdrop-blur-xl">
+              A Lon Suite nasceu para transformar esse caos silencioso em um sistema vivo de produção científica.
+            </p>
+          </section>
+
+          <section className="mt-24 grid gap-5 lg:grid-cols-2">
+            {beforeAfter.map((column, index) => (
+              <article key={column.label} className={`rounded-[38px] p-7 shadow-[0_26px_90px_rgba(0,0,0,0.09)] ${index === 1 ? 'bg-[#111113] text-white' : 'bg-white/72 text-[#111113] backdrop-blur-xl'}`}>
+                <p className={`mb-4 text-[10px] font-bold uppercase tracking-[0.18em] ${index === 1 ? 'text-white/40' : 'text-[#86868b]'}`}>{column.label}</p>
+                <h2 className="text-[38px] font-extralight leading-tight tracking-tight">{column.title}</h2>
+                <div className="mt-8 space-y-3">
+                  {column.points.map(point => (
+                    <div key={point} className="flex gap-3 text-[14px] leading-relaxed">
+                      <Check size={16} className={`mt-0.5 shrink-0 ${index === 1 ? 'text-white' : 'text-[#1d1d1f]'}`} />
+                      <span className={index === 1 ? 'text-white/66' : 'text-[#424245]'}>{point}</span>
+                    </div>
+                  ))}
+                </div>
+              </article>
+            ))}
+          </section>
+
+          <section id="como-funciona" className="mt-24 scroll-mt-24 overflow-hidden rounded-[42px] bg-white shadow-[0_30px_100px_rgba(0,0,0,0.10)]">
+            <div className="grid lg:grid-cols-[0.92fr_1.08fr]">
+              <div className="relative min-h-[460px] overflow-hidden">
+                <img src="/assets/lon-suite-tablet-doctor-editorial.png" alt="Médico usando tablet com acervo clínico" className="h-full w-full object-cover grayscale" />
+                <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(17,17,19,0.18),rgba(17,17,19,0.58))]" />
+              </div>
+              <div className="p-8 sm:p-12 lg:p-14">
+                <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Como funciona</p>
+                <h2 className="text-[40px] font-semibold leading-tight tracking-tight sm:text-[58px]">Como a Lon Suite transforma seu acervo em produção científica.</h2>
+                <div className="mt-8 space-y-4">
+                  {steps.map(([title, body], index) => (
+                    <div key={title} className="grid gap-4 rounded-[26px] border border-black/[0.055] bg-[#f7f7f8] p-5 sm:grid-cols-[52px_1fr]">
+                      <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#111113] text-[13px] font-bold text-white">{index + 1}</span>
+                      <div>
+                        <h3 className="text-[22px] font-light tracking-tight">{title}</h3>
+                        <p className="mt-2 text-[13px] leading-relaxed text-[#6e6e73]">{body}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section className="mt-24">
+            <div className="mb-8 max-w-3xl">
+              <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Entregáveis concretos</p>
+              <h2 className="text-[40px] font-semibold leading-tight tracking-tight sm:text-[60px]">O que seu acervo pode virar dentro da Lon Suite.</h2>
+              <p className="mt-5 text-[15px] leading-relaxed text-[#6e6e73]">Seu conhecimento já existe. A Lon Suite ajuda a organizar, encontrar e transformar esse material em produção real.</p>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+              {outputs.map((item, index) => (
+                <div key={item} className={`rounded-[24px] border p-5 ${index === 0 ? 'border-[#111113] bg-[#111113] text-white' : 'border-black/[0.055] bg-white/68 text-[#111113] backdrop-blur-xl'}`}>
+                  <Presentation size={18} className={`mb-8 ${index === 0 ? 'text-white/70' : 'text-[#1d1d1f]/70'}`} />
+                  <p className="text-[18px] font-light leading-tight">{item}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section id="seguranca" className="mt-24 overflow-hidden rounded-[42px] bg-[#111113] text-white shadow-[0_38px_120px_rgba(0,0,0,0.25)]">
+            <div className="grid lg:grid-cols-[1.04fr_0.96fr]">
+              <div className="p-8 sm:p-12 lg:p-16">
+                <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.2em] text-white/38">Segurança e LGPD</p>
+                <h2 className="max-w-3xl text-[40px] font-extralight leading-tight tracking-tight sm:text-[62px]">Pensado para acervo clínico sensível.</h2>
+                <p className="mt-7 max-w-2xl text-[15px] font-light leading-relaxed text-white/62">
+                  A Lon Suite foi pensada para médicos e equipes que lidam com imagens, casos e documentos sensíveis. Por isso, a organização do acervo respeita segurança, controle de acesso, privacidade e boas práticas de uso de dados clínicos.
+                </p>
+                <div className="mt-9 grid gap-3 sm:grid-cols-2">
+                  {[
+                    ['Controle de acesso', 'Defina quem pode visualizar, organizar e utilizar os materiais.'],
+                    ['Ambiente seguro', 'Centralize arquivos importantes em uma estrutura mais organizada e protegida.'],
+                    ['Boas práticas com dados clínicos', 'Estimule o uso de materiais sem identificação do paciente e com cuidado ético.'],
+                    ['Acervo profissional', 'Separe arquivos pessoais, institucionais, científicos e assistenciais com clareza.'],
+                  ].map(([title, body]) => (
+                    <div key={title} className="rounded-[24px] border border-white/10 bg-white/[0.06] p-5 backdrop-blur">
+                      <ShieldCheck size={18} className="mb-7 text-white/70" />
+                      <p className="text-[15px] font-semibold">{title}</p>
+                      <p className="mt-3 text-[12px] leading-relaxed text-white/54">{body}</p>
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-7 rounded-[22px] border border-white/10 bg-white/[0.06] p-4 text-[11px] leading-relaxed text-white/48">
+                  Recomendamos que dados identificáveis de pacientes sejam removidos ou anonimizados antes do uso em materiais de comunicação, ensino ou publicação.
+                </p>
+              </div>
+              <div className="relative min-h-[520px] overflow-hidden bg-[#050506]">
+                <img src="/assets/lon-suite-security-editorial.png" alt="Segurança para acervo médico sensível" className="h-full w-full object-cover object-center grayscale opacity-90" />
+                <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(17,17,19,0.1),rgba(17,17,19,0.72))]" />
+              </div>
+            </div>
+          </section>
+
+          <section className="mt-24">
+            <div className="mb-8 max-w-3xl">
+              <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Para quem é</p>
+              <h2 className="text-[40px] font-semibold leading-tight tracking-tight sm:text-[60px]">Para quem a Lon Suite faz mais sentido.</h2>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+              {audiences.map(([title, body]) => (
+                <article key={title} className="rounded-[28px] border border-black/[0.055] bg-white/70 p-6 shadow-[0_22px_70px_rgba(0,0,0,0.06)] backdrop-blur-xl">
+                  <Award size={18} className="mb-8 text-[#1d1d1f]/70" />
+                  <h3 className="text-[22px] font-light leading-tight tracking-tight">{title}</h3>
+                  <p className="mt-4 text-[13px] leading-relaxed text-[#6e6e73]">{body}</p>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section className="lon-glass-panel mt-24 rounded-[38px] p-7 sm:p-10 lg:p-12">
+            <div className="mb-9 max-w-3xl">
+              <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Planos</p>
+              <h2 className="text-[38px] font-semibold leading-tight tracking-tight sm:text-[56px]">Escolha pelo volume do seu acervo e da sua produção científica.</h2>
+              <p className="mt-5 text-[15px] leading-relaxed text-[#6e6e73]">Para quem monta aulas, publica conteúdo, apresenta casos ou trabalha com equipe, a Lon Suite economiza tempo justamente onde a rotina mais trava: encontrar, organizar e reaproveitar conhecimento.</p>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+              {[
+                ['Lite', 'Ideal para testar a organização inicial do seu acervo.'],
+                ['Pro', 'Para médicos que produzem conteúdo, aulas e apresentações com frequência.'],
+                ['Premium', 'Para quem precisa de mais performance, volume, busca avançada e transformação recorrente.'],
+                ['Enterprise', 'Para clínicas, equipes, serviços médicos, residências, sociedades e instituições.'],
+              ].map(([title, body], index) => (
+                <div key={title} className={`rounded-[26px] p-6 ${index === 1 ? 'bg-[#111113] text-white' : 'bg-white/68 text-[#111113]'}`}>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.16em] opacity-45">{title}</p>
+                  <p className="mt-8 text-[20px] font-light leading-tight">{body}</p>
+                </div>
+              ))}
+            </div>
+            <button onClick={onPlans} className="button-nowrap mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-[#111113] px-6 py-3 text-[13px] font-semibold text-white hover:bg-[#2d2d2f]">
+              Ver planos
+              <ArrowRight size={15} />
+            </button>
+          </section>
+
+          <section id="faq" className="mt-24 scroll-mt-24">
+            <div className="mb-8 max-w-3xl">
+              <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">FAQ</p>
+              <h2 className="text-[40px] font-semibold leading-tight tracking-tight sm:text-[60px]">Dúvidas que você provavelmente teria antes de usar.</h2>
+            </div>
+            <div className="grid gap-3 lg:grid-cols-2">
+              {faqs.map(([question, answer]) => (
+                <details key={question} className="group rounded-[26px] border border-black/[0.055] bg-white/72 p-5 shadow-sm backdrop-blur-xl">
+                  <summary className="cursor-pointer list-none text-[17px] font-semibold tracking-tight text-[#1d1d1f]">
+                    {question}
+                    <span className="float-right text-[#a1a1a6] transition-transform group-open:rotate-45">+</span>
+                  </summary>
+                  <p className="mt-4 text-[13px] leading-relaxed text-[#6e6e73]">{answer}</p>
+                </details>
+              ))}
+            </div>
+          </section>
+
+          <section className="relative mt-24 overflow-hidden rounded-[42px] bg-[#111113] px-7 py-16 text-center text-white shadow-[0_38px_130px_rgba(0,0,0,0.26)] sm:px-12 sm:py-20">
+            <img src="/assets/lon-suite-physician-female-editorial.jpg" alt="" className="absolute inset-0 h-full w-full object-cover object-center grayscale opacity-48" />
+            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(17,17,19,0.94),rgba(17,17,19,0.58),rgba(17,17,19,0.92))]" />
+            <div className="relative z-10">
+              <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.2em] text-white/44">Comece pela decisão certa</p>
+              <h2 className="mx-auto max-w-4xl text-[42px] font-extralight leading-tight tracking-tight sm:text-[66px]">Seu acervo já existe. Agora ele precisa trabalhar no nível da sua carreira.</h2>
+              <p className="mx-auto mt-7 max-w-2xl text-[16px] font-light leading-relaxed text-white/62">Organize seus casos, imagens e documentos em um ambiente criado para transformar conhecimento clínico em produção científica, conteúdo e autoridade médica.</p>
+              <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
+                <a href={planMailto('Personal')} className="button-nowrap inline-flex items-center justify-center gap-2 rounded-full bg-white px-7 py-3 text-[13px] font-semibold text-[#111113] hover:bg-white/90">
+                  Começar agora
+                  <ArrowRight size={15} />
+                </a>
+                <a href={planMailto('Enterprise')} className="button-nowrap inline-flex items-center justify-center gap-2 rounded-full border border-white/20 bg-white/10 px-7 py-3 text-[13px] font-semibold text-white backdrop-blur hover:bg-white/16">
+                  Falar com a equipe
+                </a>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+    </div>
+  );
+};
+
 const LoginPage: React.FC<Props> = ({ onLogin }) => {
   const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
@@ -541,6 +857,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
   const [loading, setLoading]   = useState(false);
   const [activeStory, setActiveStory] = useState(0);
   const [showPlans, setShowPlans] = useState(false);
+  const [showPlanDetails, setShowPlanDetails] = useState(false);
 
   const stories = useMemo(() => [
     {
@@ -590,7 +907,33 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
   };
 
   if (showPlans) {
-    return <PlansPage onBack={() => setShowPlans(false)} />;
+    return (
+      <PlansPage
+        onBack={() => setShowPlans(false)}
+        onLearnMore={() => {
+          setShowPlans(false);
+          setShowPlanDetails(true);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+      />
+    );
+  }
+
+  if (showPlanDetails) {
+    return (
+      <PlansLearnMorePage
+        onBack={() => {
+          setShowPlanDetails(false);
+          setShowPlans(true);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        onPlans={() => {
+          setShowPlanDetails(false);
+          setShowPlans(true);
+          window.setTimeout(() => document.getElementById('planos')?.scrollIntoView({ behavior: 'smooth' }), 50);
+        }}
+      />
+    );
   }
 
   return (
