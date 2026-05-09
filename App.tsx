@@ -3293,46 +3293,51 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
         {view === ViewState.ATIVOS && (
           <div className="asset-vault-page px-5 pb-10 pt-8 animate-fade-in sm:px-8 md:px-10 md:pt-10">
             <div className="max-w-[1920px] mx-auto">
-              <header className="mb-8 rounded-[30px] border border-white/80 bg-white/54 p-4 shadow-[0_22px_80px_rgba(29,29,31,0.065)] backdrop-blur-2xl sm:p-5">
+              <header className="mb-7 rounded-[26px] border border-white/80 bg-white/50 p-4 shadow-[0_18px_70px_rgba(29,29,31,0.055)] backdrop-blur-2xl sm:p-5">
                 {/* Title row */}
-                <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                <div className="mb-4 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                   <div className="min-w-0">
                     <div className="mb-2 flex items-center gap-2">
-                      <span className="flex h-9 w-9 items-center justify-center rounded-[14px] bg-[#1d1d1f] text-white shadow-[0_14px_36px_rgba(29,29,31,0.18)]">
-                        <LockKeyhole size={17} strokeWidth={1.45} />
+                      <span className="flex h-7 w-7 items-center justify-center rounded-[10px] bg-[#1d1d1f] text-white shadow-[0_10px_28px_rgba(29,29,31,0.16)]">
+                        <LockKeyhole size={13} strokeWidth={1.45} />
                       </span>
-                      <span className="rounded-full bg-white/82 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.18em] text-[#86868b] shadow-sm ring-1 ring-black/[0.045]">Encrypted Vault</span>
+                      <span className="rounded-full bg-white/74 px-2.5 py-1 text-[8px] font-bold uppercase tracking-[0.18em] text-[#86868b] shadow-sm ring-1 ring-black/[0.04]">Encrypted Vault</span>
                     </div>
-                    <h1 className="text-3xl font-extralight tracking-tight text-[#1d1d1f] sm:text-4xl">Ativos</h1>
+                    <h1 className="text-3xl font-extralight tracking-tight text-[#1d1d1f] sm:text-[38px]">Ativos</h1>
                     <p className="mt-1.5 text-[11px] font-medium tracking-wider text-[#86868b]">
                       {isRefreshing ? 'Sincronizando cofre...' : `${filteredAssets.length} registros seguros · ${activeAssets.filter(a => a.type === 'case').length} cases científicos`}
                     </p>
                   </div>
-                  <button onClick={() => setShowUploadModal(true)}
-                    className="button-nowrap flex w-full items-center justify-center gap-2 rounded-[16px] bg-[#1d1d1f] px-5 py-3 text-[13px] font-semibold text-white shadow-[0_16px_42px_rgba(29,29,31,0.18)] hover:-translate-y-0.5 hover:bg-black sm:w-auto lg:shrink-0">
-                    <Plus size={15} /> Novo Ativo
-                  </button>
+                  <div className="flex flex-col items-stretch gap-2 sm:items-end">
+                    <div className="flex max-w-full flex-wrap justify-start gap-1.5 sm:justify-end">
+                      {[
+                        { icon: ShieldCheck, label: 'Integridade', value: 'Local' },
+                        { icon: Fingerprint, label: 'Acesso', value: ownerName ? ownerName.split(' ')[0] : 'Ativo' },
+                        { icon: ScanLine, label: 'IA', value: isAiSearching ? 'Scan' : 'Pronta' },
+                      ].map(item => {
+                        const StatIcon = item.icon;
+                        return (
+                          <span key={item.label} className="inline-flex h-7 items-center gap-1.5 rounded-full border border-black/[0.04] bg-white/66 px-2.5 text-[9px] font-semibold text-[#6e6e73] shadow-sm backdrop-blur-xl">
+                            <StatIcon size={11} strokeWidth={1.4} className="text-[#8e8e93]" />
+                            <span className="uppercase tracking-[0.14em] text-[#a1a1a6]">{item.label}</span>
+                            <span className="text-[#424245]">{item.value}</span>
+                          </span>
+                        );
+                      })}
+                    </div>
+                    <button onClick={() => setShowUploadModal(true)}
+                      className="button-nowrap flex w-full items-center justify-center gap-2 rounded-[14px] bg-[#1d1d1f] px-4 py-2.5 text-[12px] font-semibold text-white shadow-[0_14px_34px_rgba(29,29,31,0.16)] hover:-translate-y-0.5 hover:bg-black sm:w-auto lg:shrink-0">
+                      <Plus size={14} /> Novo Ativo
+                    </button>
+                  </div>
                 </div>
 
-                <div className="mb-5 grid gap-2.5 md:grid-cols-3">
-                  {[
-                    { icon: ShieldCheck, label: 'Integridade', value: 'Assinatura local', tone: 'text-emerald-700 bg-emerald-50' },
-                    { icon: Fingerprint, label: 'Acesso', value: ownerName ? ownerName.split(' ')[0] : 'Conta ativa', tone: 'text-[#1d1d1f] bg-white' },
-                    { icon: ScanLine, label: 'IA médica', value: isAiSearching ? 'Scaneando termos' : 'Pronta para busca', tone: 'text-[#6e6e73] bg-[#f5f5f7]' },
-                  ].map(item => {
-                    const StatIcon = item.icon;
-                    return (
-                      <div key={item.label} className="flex min-w-0 items-center gap-3 rounded-[18px] border border-black/[0.045] bg-white/72 px-3.5 py-3 shadow-sm">
-                        <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-[13px] ${item.tone} ring-1 ring-black/[0.035]`}>
-                          <StatIcon size={16} strokeWidth={1.4} />
-                        </span>
-                        <span className="min-w-0">
-                          <span className="block text-[9px] font-bold uppercase tracking-[0.18em] text-[#a1a1a6]">{item.label}</span>
-                          <span className="block truncate text-[12px] font-semibold text-[#424245]">{item.value}</span>
-                        </span>
-                      </div>
-                    );
-                  })}
+                <div className="mb-4 hidden border-t border-black/[0.04] pt-3 sm:block">
+                  <div className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-[0.18em] text-[#b8b8bd]">
+                    <span className="h-px w-6 bg-black/[0.10]" />
+                    Timeline segura
+                    <span className="h-px flex-1 bg-gradient-to-r from-black/[0.08] to-transparent" />
+                  </div>
                 </div>
 
                 {/* Filter row */}

@@ -280,6 +280,17 @@ select:focus-visible {
     0 0 0 6px rgba(29, 29, 31, 0.04);
 }
 
+.asset-stack-sheet {
+  position: absolute;
+  z-index: 0;
+  height: 22px;
+  width: 22px;
+  border-radius: 4px;
+  border: 1px solid rgba(29, 29, 31, 0.055);
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 5px 14px rgba(29, 29, 31, 0.055);
+}
+
 @media (min-width: 640px) {
   .asset-timeline-stack::before {
     left: 94px;

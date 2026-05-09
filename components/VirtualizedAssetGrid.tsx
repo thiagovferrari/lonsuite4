@@ -10,9 +10,9 @@ interface VirtualizedAssetGridProps {
 }
 
 const GRID_CONFIG = {
-  small: { height: 56 },
-  medium: { height: 68 },
-  large: { height: 82 },
+  small: { height: 54 },
+  medium: { height: 62 },
+  large: { height: 70 },
 } as const;
 
 const OVERSCAN_ROWS = 3;
