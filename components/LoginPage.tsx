@@ -104,7 +104,7 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack, onLearnMore }) => {
   ];
 
   return (
-    <div className="lon-soft-bg min-h-screen overflow-hidden text-[#111113]">
+    <div className="plans-premium-page lon-soft-bg min-h-screen overflow-hidden text-[#111113]">
       <section className="relative min-h-screen px-5 pb-20 pt-6 sm:px-8 lg:px-12">
         <div className="absolute inset-x-0 top-0 h-[720px] bg-white/18" />
         <div className="plans-orbit absolute right-[8%] top-28 h-56 w-56 rounded-full border border-black/[0.05]" />
@@ -129,11 +129,11 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack, onLearnMore }) => {
 
           <div className="grid min-h-[640px] items-center gap-10 lg:grid-cols-[0.95fr_1.05fr]">
             <div className="plans-story-enter">
-              <p className="lon-glass-panel mb-5 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[#6e6e73]">
+              <p className="plans-eyebrow lon-glass-panel mb-5 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[10px] font-bold uppercase text-[#6e6e73]">
                 <Award size={13} className="text-[#1d1d1f]" />
                 Acervo clínico premium
               </p>
-              <h1 className="max-w-4xl text-[48px] font-extralight leading-[0.98] tracking-tight text-[#111113] sm:text-[76px] lg:text-[78px] xl:text-[92px]">
+              <h1 className="max-w-4xl text-[46px] leading-[0.98] text-[#111113] sm:text-[68px] lg:text-[74px] xl:text-[84px]">
                 O acervo clínico que vira presença científica.
               </h1>
               <p className="mt-8 max-w-2xl text-[18px] font-light leading-relaxed text-[#6e6e73] sm:text-[21px]">
@@ -177,9 +177,9 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack, onLearnMore }) => {
                   ))}
                 </div>
               </div>
-              <div className="lon-glass-panel-strong absolute right-2 top-8 rounded-[24px] p-5 sm:right-8">
-                <p className="text-[44px] font-extralight leading-none">4x</p>
-                <p className="mt-2 max-w-[150px] text-[11px] font-semibold leading-relaxed text-[#86868b]">mais reaproveitamento do acervo científico</p>
+              <div className="plans-floating-metric lon-glass-panel-strong absolute bottom-[156px] right-0 max-w-[142px] rounded-[20px] px-4 py-3 sm:right-6">
+                <p className="text-[34px] font-extralight leading-none">4x</p>
+                <p className="mt-2 text-[10px] font-semibold leading-relaxed text-[#86868b]">mais reaproveitamento científico</p>
               </div>
             </div>
           </div>
@@ -256,7 +256,7 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack, onLearnMore }) => {
             <div className="mx-auto mt-8 flex max-w-2xl flex-col items-center gap-3 rounded-[28px] border border-black/[0.045] bg-white/58 p-5 text-center shadow-sm backdrop-blur-xl sm:flex-row sm:justify-between sm:text-left">
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#a1a1a6]">Entenda o valor</p>
-                <p className="mt-1 text-[13px] font-medium leading-relaxed text-[#6e6e73]">Veja como a Lon Suite transforma acervo clínico em aula, post, apresentação, publicação e autoridade científica.</p>
+                <p className="mt-1 text-[13px] font-medium leading-relaxed text-[#6e6e73]">Veja como a Lon Suite transforma acervo clínico em aula, apresentação, publicação, case e autoridade científica.</p>
               </div>
               <button type="button" onClick={onLearnMore} className="button-nowrap inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-[#111113] px-5 py-3 text-[12px] font-semibold text-white hover:bg-[#2d2d2f]">
                 Saiba mais
@@ -278,7 +278,7 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack, onLearnMore }) => {
                 ['Celular', 'Fotos científicas misturadas com vida pessoal.'],
                 ['WhatsApp', 'Casos importantes soterrados em conversas.'],
                 ['Drive', 'Pastas com nomes frios e pouca inteligência.'],
-                ['Lon Suite', 'Ativos com contexto, busca e destino editorial.'],
+                ['Lon Suite', 'Ativos com contexto, busca e destino científico.'],
               ].map(([title, body], index) => (
                 <div key={title} className={`plans-card rounded-[28px] border p-6 ${index === 3 ? 'border-[#111113] bg-[#111113] text-white' : 'border-black/[0.06] bg-white'}`}>
                   <p className="text-[22px] font-light">{title}</p>
@@ -360,7 +360,7 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack, onLearnMore }) => {
             {[
               { icon: Search, title: 'Busca semântica como diferencial', body: 'A busca não depende só do nome do arquivo. Ela entende contexto, tema, técnica, achado e intenção.' },
               { icon: Brain, title: 'Ativos com inteligência', body: 'Cada imagem e documento ganha metadados úteis, tags, resumo e lugar dentro da produção científica.' },
-              { icon: Award, title: 'Presença científica sempre à mão', body: 'Seu melhor material deixa de depender da memória e passa a estar pronto para ser encontrado, revisado e apresentado.' },
+              { icon: Award, title: 'Autoridade científica sempre à mão', body: 'Seu melhor material deixa de depender da memória e passa a estar pronto para ser encontrado, revisado e apresentado.' },
             ].map(item => {
               const Icon = item.icon;
               return (
@@ -553,7 +553,7 @@ const PlansLearnMorePage: React.FC<{ onBack: () => void; onPlans: () => void }> 
   const painCards = [
     ['Tenho milhares de imagens e nunca acho nada.', 'Casos clínicos, exames, fotos, PDFs e documentos ficam espalhados entre Drive, WhatsApp, computador, celular e e-mail. Quando você precisa, começa a caça ao arquivo.'],
     ['Preciso montar uma aula e perco horas procurando caso.', 'Para professores, palestrantes e congressistas, o maior custo não é criar a aula. É encontrar rapidamente o caso, a imagem e a referência certa.'],
-    ['Tenho conteúdo científico, mas não consigo transformar em post.', 'Muito conhecimento fica parado porque não existe um fluxo simples para transformar casos, temas e materiais em conteúdo claro, ético e publicável.'],
+    ['Tenho conhecimento científico, mas ele não vira material de alto nível.', 'Muito repertório fica parado porque não existe um fluxo simples para transformar casos, temas e materiais em aulas, apresentações, publicações e materiais institucionais claros.'],
     ['Minha equipe pede material e eu mando tudo picado no WhatsApp.', 'Sem um acervo estruturado, a equipe depende de mensagens soltas, arquivos reenviados e buscas manuais que atrasam a rotina.'],
     ['Quero parecer mais organizado e produzir mais autoridade.', 'Um acervo bem estruturado ajuda o médico a publicar mais, ensinar melhor, preparar apresentações com mais velocidade e fortalecer sua presença científica.'],
   ];
@@ -562,43 +562,43 @@ const PlansLearnMorePage: React.FC<{ onBack: () => void; onPlans: () => void }> 
     {
       label: 'Antes',
       title: 'Acervo parado',
-      points: ['Arquivos espalhados em pastas, Drive, WhatsApp e e-mails.', 'Casos difíceis de encontrar.', 'Imagens sem contexto.', 'Equipe dependendo de pedidos manuais.', 'Aulas e posts começando sempre do zero.', 'Conhecimento clínico subutilizado.'],
+      points: ['Arquivos espalhados em pastas, Drive, WhatsApp e e-mails.', 'Casos difíceis de encontrar.', 'Imagens sem contexto.', 'Equipe dependendo de pedidos manuais.', 'Aulas e materiais científicos começando sempre do zero.', 'Conhecimento clínico subutilizado.'],
     },
     {
       label: 'Depois com a Lon Suite',
       title: 'Acervo trabalhando por você',
-      points: ['Acervo organizado por tema, caso, doença, procedimento e finalidade.', 'Busca por contexto, não apenas por nome do arquivo.', 'Casos prontos para virar aula, post, slide ou publicação.', 'Equipe acessando o que precisa com mais autonomia.', 'Produção científica mais rápida e consistente.', 'Autoridade médica construída a partir do que você já tem.'],
+      points: ['Acervo organizado por tema, caso, doença, procedimento e finalidade.', 'Busca por contexto, não apenas por nome do arquivo.', 'Casos prontos para virar aula, slide, apresentação ou publicação.', 'Equipe acessando o que precisa com mais autonomia.', 'Produção científica mais rápida e consistente.', 'Autoridade médica construída a partir do que você já tem.'],
     },
   ];
 
   const steps = [
     ['Envie seus materiais', 'Faça upload de imagens, documentos, PDFs, apresentações, casos clínicos e arquivos relevantes da sua rotina médica.'],
     ['Organize por contexto', 'A Lon Suite ajuda a estruturar seu acervo por tema, patologia, procedimento, aula, caso, publicação ou finalidade.'],
-    ['Transforme em conteúdo', 'Use seu próprio acervo para criar posts, aulas, apresentações, cases, legendas, materiais científicos e conteúdos institucionais com mais velocidade.'],
+    ['Transforme em produção científica', 'Use seu próprio acervo para criar aulas, apresentações, cases, materiais científicos, relatórios e materiais institucionais com mais velocidade.'],
   ];
 
-  const outputs = ['Aula para congresso', 'Post científico', 'Carrossel médico', 'Apresentação em slides', 'Case clínico', 'Resumo para publicação', 'Material institucional', 'Roteiro de vídeo', 'Conteúdo para equipe', 'Biblioteca de casos'];
+  const outputs = ['Aula para congresso', 'Caso para discussão', 'Material de ensino', 'Apresentação em slides', 'Case clínico', 'Resumo para publicação', 'Material institucional', 'Roteiro científico', 'Material para equipe', 'Biblioteca de casos'];
   const audiences = [
     ['Professores e palestrantes', 'Organize casos, imagens e referências para montar aulas e apresentações com mais velocidade.'],
-    ['Médicos que produzem conteúdo', 'Transforme conhecimento clínico em posts, carrosséis, roteiros e materiais educativos.'],
+    ['Médicos com autoridade científica', 'Transforme conhecimento clínico em aulas, apresentações, materiais educativos e publicações com acabamento profissional.'],
     ['Pesquisadores e autores', 'Estruture documentos, casos e referências para apoiar publicações e produção científica.'],
     ['Clínicas e equipes médicas', 'Centralize materiais importantes e reduza a dependência de arquivos espalhados em conversas e pastas.'],
     ['Sociedades, serviços e grupos médicos', 'Crie um acervo institucional organizado, acessível e útil para ensino, comunicação e memória científica.'],
   ];
 
   const faqs = [
-    ['Isso substitui meu Google Drive?', 'Não exatamente. O Drive armazena arquivos. A Lon Suite organiza o acervo com lógica médica e científica, ajudando você a encontrar, contextualizar e transformar seus materiais em aulas, posts, apresentações, cases e publicações.'],
+    ['Isso substitui meu Google Drive?', 'Não exatamente. O Drive armazena arquivos. A Lon Suite organiza o acervo com lógica médica e científica, ajudando você a encontrar, contextualizar e transformar seus materiais em aulas, apresentações, cases e publicações.'],
     ['Meus arquivos clínicos ficam seguros?', 'A Lon Suite utiliza infraestrutura cloud em padrão Amazon Web Services e Supabase, com autenticação, regras rígidas de acesso e organização por conta. Ainda assim, segurança também depende de uso responsável: recomendamos remover ou anonimizar dados identificáveis de pacientes antes de usar imagens ou documentos em ensino, comunicação ou publicação.'],
     ['Eu preciso cadastrar tudo manualmente?', 'A experiência foi pensada para reduzir trabalho, não aumentar. O sistema facilita upload, categorização, busca e reaproveitamento dos arquivos com o mínimo de fricção possível.'],
-    ['Para que tipo de médico isso vale a pena?', 'Principalmente para médicos que dão aula, participam de congressos, produzem conteúdo, publicam artigos, apresentam casos ou trabalham com grande volume de imagens, exames e documentos.'],
+    ['Para que tipo de médico isso vale a pena?', 'Principalmente para médicos que dão aula, participam de congressos, publicam artigos, apresentam casos ou trabalham com grande volume de imagens, exames e documentos.'],
     ['Por que eu pagaria por isso?', 'Porque o custo real não está em armazenar arquivos. Está no tempo perdido procurando, reenviando, reorganizando e recriando materiais do zero. A Lon Suite transforma um acervo parado em uma ferramenta ativa de produção científica.'],
-    ['Consigo usar com minha equipe?', 'Sim. A Lon Suite foi pensada para colaboração entre médico, secretária, marketing, residentes, equipe científica ou clínica, com controle e organização.'],
-    ['Ela cria conteúdo automaticamente?', 'A proposta é ajudar a transformar o acervo em materiais estruturados, como posts, aulas, apresentações, cases, roteiros e conteúdos científicos, sempre com revisão e responsabilidade do profissional.'],
-    ['Serve para clínicas?', 'Sim. Para clínicas, a Lon Suite pode funcionar como um acervo institucional de casos, imagens, documentos, conteúdos, materiais de comunicação e histórico científico.'],
+    ['Consigo usar com minha equipe?', 'Sim. A Lon Suite foi pensada para colaboração entre médico, coordenação clínica, residentes, equipe científica ou clínica, com controle e organização.'],
+    ['Ela cria materiais automaticamente?', 'A proposta é ajudar a transformar o acervo em materiais estruturados, como aulas, apresentações, cases, roteiros científicos e documentos de apoio, sempre com revisão e responsabilidade do profissional.'],
+    ['Serve para clínicas?', 'Sim. Para clínicas, a Lon Suite pode funcionar como um acervo institucional de casos, imagens, documentos, materiais de comunicação e histórico científico.'],
   ];
 
   return (
-    <div className="lon-soft-bg min-h-screen overflow-hidden text-[#111113]">
+    <div className="plans-premium-page lon-soft-bg min-h-screen overflow-hidden text-[#111113]">
       <section className="relative px-5 pb-24 pt-6 sm:px-8 lg:px-12">
         <div className="relative mx-auto max-w-7xl">
           <nav className="lon-glass-panel sticky top-4 z-30 mb-14 flex items-center justify-between rounded-full px-3 py-2">
@@ -619,15 +619,15 @@ const PlansLearnMorePage: React.FC<{ onBack: () => void; onPlans: () => void }> 
 
           <div className="grid min-h-[680px] items-center gap-10 lg:grid-cols-[1fr_0.92fr]">
             <div>
-              <p className="lon-glass-panel mb-5 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[#6e6e73]">
+              <p className="plans-eyebrow lon-glass-panel mb-5 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[10px] font-bold uppercase text-[#6e6e73]">
                 <Sparkles size={13} className="text-[#1d1d1f]" />
                 Produção científica a partir do seu acervo
               </p>
-              <h1 className="max-w-5xl text-[46px] font-extralight leading-[0.98] tracking-tight sm:text-[72px] lg:text-[82px]">
+              <h1 className="max-w-5xl text-[44px] leading-[0.98] sm:text-[66px] lg:text-[74px]">
                 Transforme seu acervo clínico em presença científica.
               </h1>
               <p className="mt-8 max-w-2xl text-[18px] font-light leading-relaxed text-[#6e6e73] sm:text-[21px]">
-                A Lon Suite organiza imagens, documentos, casos e materiais médicos em um ambiente inteligente, seguro e pensado para transformar conhecimento clínico em posts, aulas, apresentações e publicações.
+                A Lon Suite organiza imagens, documentos, casos e materiais médicos em um ambiente inteligente, seguro e pensado para transformar conhecimento clínico em aulas, apresentações, cases e publicações.
               </p>
               <div className="mt-9 flex flex-col gap-3 sm:flex-row">
                 <a href={planMailto('Personal')} className="button-nowrap inline-flex items-center justify-center gap-2 rounded-full bg-[#1d1d1f] px-6 py-3 text-[13px] font-semibold text-white shadow-[0_18px_44px_rgba(0,0,0,0.18)] hover:bg-[#2d2d2f]">
@@ -645,16 +645,16 @@ const PlansLearnMorePage: React.FC<{ onBack: () => void; onPlans: () => void }> 
               <div className="pointer-events-none absolute right-8 top-8 hidden h-[220px] w-[220px] rounded-full border border-white/35 shadow-[inset_0_0_80px_rgba(255,255,255,0.28)] lg:block" />
               <div className="absolute bottom-0 left-0 w-[76%] rounded-[34px] bg-[#111113] p-7 text-white shadow-[0_40px_130px_rgba(0,0,0,0.32)]">
                 <p className="mb-7 text-[10px] font-bold uppercase tracking-[0.18em] text-white/42">Resultado</p>
-                <h2 className="text-[36px] font-extralight leading-tight tracking-tight">Posts, aulas, apresentações e cases a partir do que você já tem.</h2>
+                <h2 className="text-[34px] leading-tight">Aulas, apresentações, publicações e cases a partir do que você já tem.</h2>
                 <div className="mt-7 grid grid-cols-3 gap-2">
-                  {['Post', 'Aula', 'Case'].map(item => (
+                  {['Aula', 'Publicação', 'Case'].map(item => (
                     <span key={item} className="rounded-full bg-white/10 px-3 py-2 text-center text-[10px] font-bold uppercase tracking-[0.14em] text-white/70">{item}</span>
                   ))}
                 </div>
               </div>
-              <div className="lon-glass-panel-strong absolute right-1 top-8 rounded-[24px] p-5 sm:right-8">
-                <p className="text-[42px] font-extralight leading-none">1</p>
-                <p className="mt-2 max-w-[160px] text-[11px] font-semibold leading-relaxed text-[#86868b]">acervo vivo para ensino, conteúdo e publicação</p>
+              <div className="plans-floating-metric lon-glass-panel-strong absolute bottom-[160px] right-0 max-w-[150px] rounded-[20px] px-4 py-3 sm:right-6">
+                <p className="text-[34px] font-extralight leading-none">1</p>
+                <p className="mt-2 text-[10px] font-semibold leading-relaxed text-[#86868b]">acervo vivo para ensino e publicação</p>
               </div>
             </div>
           </div>
@@ -677,7 +677,7 @@ const PlansLearnMorePage: React.FC<{ onBack: () => void; onPlans: () => void }> 
             <div className="mb-8 max-w-3xl">
               <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Dores reais</p>
               <h2 className="text-[40px] font-semibold leading-tight tracking-tight sm:text-[62px]">As dores que todo acervo clínico mal organizado cria.</h2>
-              <p className="mt-5 text-[15px] leading-relaxed text-[#6e6e73]">Se você produz aula, conteúdo, artigo, apresentação ou material científico, provavelmente já viveu alguma dessas situações.</p>
+              <p className="mt-5 text-[15px] leading-relaxed text-[#6e6e73]">Se você produz aula, artigo, apresentação ou material científico, provavelmente já viveu alguma dessas situações.</p>
             </div>
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
               {painCards.map(([title, body], index) => (
@@ -822,12 +822,12 @@ const PlansLearnMorePage: React.FC<{ onBack: () => void; onPlans: () => void }> 
             <div className="mb-9 max-w-3xl">
               <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Planos</p>
               <h2 className="text-[38px] font-semibold leading-tight tracking-tight sm:text-[56px]">Escolha pelo volume do seu acervo e da sua produção científica.</h2>
-              <p className="mt-5 text-[15px] leading-relaxed text-[#6e6e73]">Para quem monta aulas, publica conteúdo, apresenta casos ou trabalha com equipe, a Lon Suite economiza tempo justamente onde a rotina mais trava: encontrar, organizar e reaproveitar conhecimento.</p>
+              <p className="mt-5 text-[15px] leading-relaxed text-[#6e6e73]">Para quem monta aulas, publica ciência, apresenta casos ou trabalha com equipe, a Lon Suite economiza tempo justamente onde a rotina mais trava: encontrar, organizar e reaproveitar conhecimento.</p>
             </div>
             <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
               {[
                 ['Lite', 'Ideal para testar a organização inicial do seu acervo.'],
-                ['Pro', 'Para médicos que produzem conteúdo, aulas e apresentações com frequência.'],
+                ['Pro', 'Para médicos que produzem aulas, apresentações e publicações com frequência.'],
                 ['Premium', 'Para quem precisa de mais performance, volume, busca avançada e transformação recorrente.'],
                 ['Enterprise', 'Para clínicas, equipes, serviços médicos, residências, sociedades e instituições.'],
               ].map(([title, body], index) => (
@@ -867,7 +867,7 @@ const PlansLearnMorePage: React.FC<{ onBack: () => void; onPlans: () => void }> 
             <div className="relative z-10">
               <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.2em] text-white/44">Comece pela decisão certa</p>
               <h2 className="mx-auto max-w-4xl text-[42px] font-extralight leading-tight tracking-tight sm:text-[66px]">Seu acervo já existe. Agora ele precisa trabalhar no nível da sua carreira.</h2>
-              <p className="mx-auto mt-7 max-w-2xl text-[16px] font-light leading-relaxed text-white/62">Organize seus casos, imagens e documentos em um ambiente criado para transformar conhecimento clínico em produção científica, conteúdo e autoridade médica.</p>
+              <p className="mx-auto mt-7 max-w-2xl text-[16px] font-light leading-relaxed text-white/62">Organize seus casos, imagens e documentos em um ambiente criado para transformar conhecimento clínico em produção científica e autoridade médica.</p>
               <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
                 <a href={planMailto('Personal')} className="button-nowrap inline-flex items-center justify-center gap-2 rounded-full bg-white px-7 py-3 text-[13px] font-semibold text-[#111113] hover:bg-white/90">
                   Começar agora
