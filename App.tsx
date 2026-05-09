@@ -9,7 +9,7 @@ import { saveAttachmentData, getAttachmentData, deleteAttachmentData } from './s
 import { supabase } from './services/supabase';
 import { clearStoredUser, getStoredUser, storeUser, signOut as authSignOut } from './services/authService';
 import type { AuthUser } from './services/authService';
-import { Plus, Brain, FileText, Image as ImageIcon, Type as TypeIcon, Loader2, ChevronLeft, Trash2, Search, LayoutGrid, RotateCcw, ChevronRight, Briefcase, X, AlertCircle, Stethoscope, Download, Home, Award, Zap, Copy, CheckCircle2, Maximize2, Minimize2, Sparkles, AlignJustify, LogOut, TrendingUp, Share2, BookOpen, Link2, ExternalLink, Clock, Save, ArrowUp, ArrowDown, MoreHorizontal, Folder, ClipboardList, MinusCircle } from 'lucide-react';
+import { Plus, Brain, FileText, Image as ImageIcon, Type as TypeIcon, Loader2, ChevronLeft, Trash2, Search, LayoutGrid, RotateCcw, ChevronRight, Briefcase, X, AlertCircle, Stethoscope, Download, Home, Award, Zap, Copy, CheckCircle2, Maximize2, Minimize2, Sparkles, AlignJustify, LogOut, TrendingUp, Share2, BookOpen, Link2, ExternalLink, Clock, Save, ArrowUp, ArrowDown, MoreHorizontal, Folder, ClipboardList, MinusCircle, LockKeyhole, Fingerprint, ScanLine, ShieldCheck } from 'lucide-react';
 
 const ASSET_STORAGE_PREFIX = 'lon_assets_';
 const ASSET_BACKUP_PREFIX = 'lon_assets_backup_';
@@ -2619,17 +2619,28 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
 
       {/* Pending Upload Modal */}
       {pendingUpload && (
-        <div className="fixed inset-0 z-[500] bg-black/25 backdrop-blur-md flex items-center justify-center animate-fade-in p-4">
-          <div className="lon-glass-panel-strong rounded-apple-2xl p-10 max-w-sm w-full text-center animate-scale-in">
-            <div className="w-16 h-16 bg-[#1d1d1f] text-white rounded-apple-lg flex items-center justify-center mx-auto mb-6 shadow-apple-md">
-              <Brain size={28} />
+        <div className="fixed inset-0 z-[500] flex items-center justify-center bg-[#1d1d1f]/28 p-4 backdrop-blur-md animate-fade-in">
+          <div className="relative w-full max-w-[420px] overflow-hidden rounded-[30px] border border-white/80 bg-[#f7f7f8]/88 p-6 text-center shadow-[0_32px_110px_rgba(29,29,31,0.22)] backdrop-blur-2xl animate-scale-in sm:p-8">
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.96),transparent_42%),linear-gradient(135deg,rgba(255,255,255,0.60),rgba(238,239,241,0.34))]" />
+            <div className="relative mx-auto mb-6 flex h-[132px] w-[132px] items-center justify-center rounded-[34px] border border-black/[0.055] bg-white/78 shadow-[inset_0_1px_0_rgba(255,255,255,0.88),0_22px_70px_rgba(29,29,31,0.10)]">
+              <div className="asset-anatomy-grid absolute inset-3 rounded-[26px] opacity-70" />
+              <div className="absolute inset-5 rounded-full border border-black/[0.06]" />
+              <div className="absolute inset-x-6 top-1/2 h-px bg-[#1d1d1f]/10" />
+              <div className="absolute inset-y-6 left-1/2 w-px bg-[#1d1d1f]/10" />
+              <div className="asset-vault-scan absolute inset-x-4 top-3 h-12 rounded-full opacity-100" />
+              <div className="relative flex h-16 w-16 items-center justify-center rounded-[22px] bg-[#1d1d1f] text-white shadow-[0_18px_44px_rgba(29,29,31,0.22)]">
+                {isProcessing ? <ScanLine size={28} strokeWidth={1.25} /> : <LockKeyhole size={27} strokeWidth={1.35} />}
+              </div>
+              <div className="absolute bottom-4 right-4 flex h-8 w-8 items-center justify-center rounded-full bg-white text-[#6e6e73] shadow-sm ring-1 ring-black/[0.055]">
+                <Fingerprint size={16} strokeWidth={1.25} />
+              </div>
             </div>
-            <h2 className="text-2xl font-semibold tracking-tight mb-2">Novo Ativo</h2>
-            <p className="text-[#86868b] text-[13px] mb-8 leading-relaxed">
+            <h2 className="relative mb-2 text-2xl font-semibold tracking-tight text-[#1d1d1f]">Entrada Segura</h2>
+            <p className="relative mb-7 text-[13px] leading-relaxed text-[#86868b]">
               {pendingUpload.files.length === 1 ? pendingUpload.files[0].name : `${pendingUpload.files.length} arquivos selecionados`}
             </p>
             {isProcessing && uploadProgress ? (
-              <div className="mb-7 rounded-[18px] border border-black/[0.06] bg-[#f7f7f8] p-4 text-left">
+              <div className="relative mb-7 rounded-[22px] border border-black/[0.06] bg-white/78 p-4 text-left shadow-sm">
                 <div className="mb-3 flex items-center justify-between gap-3">
                   <p className="min-w-0 truncate text-[11px] font-semibold text-[#1d1d1f]">{uploadProgress.label}</p>
                   <span className="text-[10px] font-bold tabular-nums text-[#86868b]">
@@ -2642,21 +2653,32 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                     style={{ width: `${Math.min(100, Math.round((uploadProgress.step / Math.max(1, uploadProgress.total)) * 100))}%` }}
                   />
                 </div>
-                <p className="mt-2 text-[10px] text-[#aeaeb2]">
-                  Etapa {Math.min(uploadProgress.step, uploadProgress.total)} de {uploadProgress.total}
-                </p>
+                <div className="mt-3 grid grid-cols-3 gap-2">
+                  {['Anatomia', 'Metadados', 'Criptografia'].map((label, idx) => (
+                    <div key={label} className="rounded-[13px] bg-[#f7f7f8] px-2.5 py-2">
+                      <div className="mb-1 h-1 overflow-hidden rounded-full bg-black/[0.06]">
+                        <div
+                          className="h-full rounded-full bg-[#1d1d1f] transition-all duration-500"
+                          style={{ width: `${Math.min(100, Math.max(18, ((uploadProgress.step + idx) / Math.max(1, uploadProgress.total)) * 100))}%` }}
+                        />
+                      </div>
+                      <p className="text-[8px] font-bold uppercase tracking-[0.12em] text-[#9a9aa0]">{label}</p>
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-3 text-[10px] text-[#aeaeb2]">Etapa {Math.min(uploadProgress.step, uploadProgress.total)} de {uploadProgress.total}</p>
               </div>
             ) : (
-              <p className="text-[12px] text-[#86868b] mb-6">Deseja que a IA indexe automaticamente?</p>
+              <p className="relative mb-6 text-[12px] text-[#86868b]">Deseja que a IA indexe e descreva o ativo automaticamente?</p>
             )}
-            <div className="flex flex-col gap-2.5">
+            <div className="relative flex flex-col gap-2.5">
               <button onClick={() => processUpload(true)} disabled={isProcessing}
-                className="btn-ai w-full py-3.5 rounded-apple-lg font-semibold text-[13px] shadow-apple flex items-center justify-center gap-2.5 disabled:opacity-50">
+                className="flex w-full items-center justify-center gap-2.5 rounded-[16px] bg-[#1d1d1f] py-3.5 text-[13px] font-semibold text-white shadow-[0_14px_40px_rgba(29,29,31,0.20)] disabled:opacity-50">
                 {isProcessing ? <Loader2 size={15} className="animate-spin" /> : <Brain size={15} />}
-                {isProcessing ? 'Processando...' : 'Indexar com IA'}
+                {isProcessing ? 'Processando cofre...' : 'Indexar com IA segura'}
               </button>
               <button onClick={() => processUpload(false)} disabled={isProcessing}
-                className="w-full py-3.5 bg-[#f2f3f5] text-[#1d1d1f] rounded-apple-lg font-semibold text-[13px] hover:bg-black/8 transition-all disabled:opacity-50">
+                className="w-full rounded-[16px] bg-white/86 py-3.5 text-[13px] font-semibold text-[#1d1d1f] shadow-sm ring-1 ring-black/[0.055] transition-all hover:bg-white disabled:opacity-50">
                 Indexação Manual
               </button>
               <button onClick={() => setPendingUpload(null)} disabled={isProcessing}
@@ -3269,21 +3291,48 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
 
         {/* ATIVOS */}
         {view === ViewState.ATIVOS && (
-          <div className="px-5 sm:px-8 md:px-10 pt-8 md:pt-10 pb-10 animate-fade-in">
+          <div className="asset-vault-page px-5 pb-10 pt-8 animate-fade-in sm:px-8 md:px-10 md:pt-10">
             <div className="max-w-[1920px] mx-auto">
-              <header className="mb-8">
+              <header className="mb-8 rounded-[30px] border border-white/80 bg-white/54 p-4 shadow-[0_22px_80px_rgba(29,29,31,0.065)] backdrop-blur-2xl sm:p-5">
                 {/* Title row */}
-                <div className="flex flex-col gap-4 mb-7 lg:flex-row lg:items-center lg:justify-between">
+                <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                   <div className="min-w-0">
-                    <h1 className="text-3xl sm:text-4xl font-extralight tracking-tight text-[#1d1d1f]">Ativos</h1>
-                    <p className="text-[11px] font-medium text-[#86868b] tracking-wider mt-1.5">
-                      {isRefreshing ? 'Sincronizando acervo...' : `${filteredAssets.length} ativos visíveis · ${activeAssets.filter(a => a.type === 'case').length} cases`}
+                    <div className="mb-2 flex items-center gap-2">
+                      <span className="flex h-9 w-9 items-center justify-center rounded-[14px] bg-[#1d1d1f] text-white shadow-[0_14px_36px_rgba(29,29,31,0.18)]">
+                        <LockKeyhole size={17} strokeWidth={1.45} />
+                      </span>
+                      <span className="rounded-full bg-white/82 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.18em] text-[#86868b] shadow-sm ring-1 ring-black/[0.045]">Encrypted Vault</span>
+                    </div>
+                    <h1 className="text-3xl font-extralight tracking-tight text-[#1d1d1f] sm:text-4xl">Ativos</h1>
+                    <p className="mt-1.5 text-[11px] font-medium tracking-wider text-[#86868b]">
+                      {isRefreshing ? 'Sincronizando cofre...' : `${filteredAssets.length} registros seguros · ${activeAssets.filter(a => a.type === 'case').length} cases científicos`}
                     </p>
                   </div>
                   <button onClick={() => setShowUploadModal(true)}
-                    className="button-nowrap btn-ai flex w-full items-center justify-center gap-2 rounded-apple-lg px-5 py-2.5 text-[13px] font-semibold shadow-apple hover:-translate-y-0.5 sm:w-auto lg:shrink-0">
+                    className="button-nowrap flex w-full items-center justify-center gap-2 rounded-[16px] bg-[#1d1d1f] px-5 py-3 text-[13px] font-semibold text-white shadow-[0_16px_42px_rgba(29,29,31,0.18)] hover:-translate-y-0.5 hover:bg-black sm:w-auto lg:shrink-0">
                     <Plus size={15} /> Novo Ativo
                   </button>
+                </div>
+
+                <div className="mb-5 grid gap-2.5 md:grid-cols-3">
+                  {[
+                    { icon: ShieldCheck, label: 'Integridade', value: 'Assinatura local', tone: 'text-emerald-700 bg-emerald-50' },
+                    { icon: Fingerprint, label: 'Acesso', value: ownerName ? ownerName.split(' ')[0] : 'Conta ativa', tone: 'text-[#1d1d1f] bg-white' },
+                    { icon: ScanLine, label: 'IA médica', value: isAiSearching ? 'Scaneando termos' : 'Pronta para busca', tone: 'text-[#6e6e73] bg-[#f5f5f7]' },
+                  ].map(item => {
+                    const StatIcon = item.icon;
+                    return (
+                      <div key={item.label} className="flex min-w-0 items-center gap-3 rounded-[18px] border border-black/[0.045] bg-white/72 px-3.5 py-3 shadow-sm">
+                        <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-[13px] ${item.tone} ring-1 ring-black/[0.035]`}>
+                          <StatIcon size={16} strokeWidth={1.4} />
+                        </span>
+                        <span className="min-w-0">
+                          <span className="block text-[9px] font-bold uppercase tracking-[0.18em] text-[#a1a1a6]">{item.label}</span>
+                          <span className="block truncate text-[12px] font-semibold text-[#424245]">{item.value}</span>
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
 
                 {/* Filter row */}
@@ -3297,9 +3346,9 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                         <Search size={15} className="text-[#86868b] group-focus-within:text-[#1d1d1f] transition-colors" />
                       )}
                     </div>
-                    <input type="text" placeholder="Busca semântica com IA..."
+                    <input type="text" placeholder="Buscar no cofre seguro..."
                       value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
-                      className="lon-soft-search w-full pl-10 pr-10 py-3 rounded-full text-[13px] outline-none transition-all placeholder:text-[#9a9aa0]" />
+                      className="w-full rounded-[18px] border border-black/[0.055] bg-white/82 py-3 pl-10 pr-10 text-[13px] shadow-sm outline-none transition-all placeholder:text-[#9a9aa0] focus:border-black/[0.12]" />
                     {/* Clear / AI badge on right */}
                     {searchQuery ? (
                       <button onClick={() => { setSearchQuery(''); setAiSearchResults(null); }}
@@ -3318,7 +3367,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                     <select
                       value={dateFilter.month}
                       onChange={e => setDateFilter(p => ({ ...p, month: e.target.value }))}
-                      className="shrink-0 px-3 py-2.5 bg-white/70 border border-white/80 rounded-apple-lg text-[12px] font-medium text-[#1d1d1f] outline-none focus:border-black/10 shadow-apple appearance-none cursor-pointer backdrop-blur-xl"
+                      className="shrink-0 cursor-pointer appearance-none rounded-[14px] border border-black/[0.055] bg-white/78 px-3 py-2.5 text-[12px] font-medium text-[#1d1d1f] shadow-sm outline-none backdrop-blur-xl focus:border-black/10"
                     >
                       <option value="">Mês</option>
                       {['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'].map((m, i) => (
@@ -3328,7 +3377,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                     <select
                       value={dateFilter.year}
                       onChange={e => setDateFilter(p => ({ ...p, year: e.target.value }))}
-                      className="shrink-0 px-3 py-2.5 bg-white/70 border border-white/80 rounded-apple-lg text-[12px] font-medium text-[#1d1d1f] outline-none focus:border-black/10 shadow-apple appearance-none cursor-pointer backdrop-blur-xl"
+                      className="shrink-0 cursor-pointer appearance-none rounded-[14px] border border-black/[0.055] bg-white/78 px-3 py-2.5 text-[12px] font-medium text-[#1d1d1f] shadow-sm outline-none backdrop-blur-xl focus:border-black/10"
                     >
                       <option value="">Ano</option>
                       {Array.from(new Set(assets.map(a => new Date(a.createdAt || a.date).getFullYear()))).sort((a: number, b: number) => b - a).map(y => (
@@ -3346,7 +3395,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                   </div>
 
                   <div className="flex items-center justify-between gap-2 sm:justify-start xl:shrink-0">
-                    <div className="flex shrink-0 items-center bg-white/70 border border-white/80 rounded-apple-lg shadow-apple p-0.5 backdrop-blur-xl">
+                    <div className="flex shrink-0 items-center rounded-[14px] border border-black/[0.055] bg-white/78 p-0.5 shadow-sm backdrop-blur-xl">
                       {([
                         { id: 'small', label: 'P', title: 'Miniaturas pequenas' },
                         { id: 'medium', label: 'M', title: 'Miniaturas médias' },
@@ -3357,7 +3406,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                           onClick={() => setAssetTileSize(size.id)}
                           title={size.title}
                           aria-label={size.title}
-                          className={`h-8 min-w-8 rounded-[8px] px-2 text-[10px] font-bold transition-all ${assetTileSize === size.id ? 'bg-[#1d1d1f] text-white shadow-sm' : 'text-[#86868b] hover:text-[#1d1d1f] hover:bg-[#f5f5f7]'}`}
+                          className={`h-8 min-w-8 rounded-[10px] px-2 text-[10px] font-bold transition-all ${assetTileSize === size.id ? 'bg-[#1d1d1f] text-white shadow-sm' : 'text-[#86868b] hover:bg-[#f5f5f7] hover:text-[#1d1d1f]'}`}
                         >
                           {size.label}
                         </button>

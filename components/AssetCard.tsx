@@ -1,16 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Asset } from '../types';
-import { Briefcase, Calendar, File, FileText, Image, ImageOff, Layers, Shield, ShieldAlert, ShieldCheck } from 'lucide-react';
+import { Briefcase, Calendar, Database, File, FileText, Fingerprint, Image, Layers, LockKeyhole, Shield, ShieldAlert, ShieldCheck } from 'lucide-react';
 import { getFileTypeInfo } from '../utils/fileTypeUtils';
 import { getAttachmentData } from '../services/storageService';
 
 interface AssetCardProps {
   asset: Asset;
+  tileSize: 'small' | 'medium' | 'large';
   onClick: (asset: Asset) => void;
   ownerName?: string;
 }
 
-const AssetCard: React.FC<AssetCardProps> = ({ asset, onClick, ownerName }) => {
+const HEIGHT_BY_SIZE = {
+  small: 'h-[136px]',
+  medium: 'h-[158px]',
+  large: 'h-[182px]',
+} as const;
+
+const PREVIEW_BY_SIZE = {
+  small: 'h-[82px] w-[62px]',
+  medium: 'h-[98px] w-[74px]',
+  large: 'h-[114px] w-[86px]',
+} as const;
+
+const AssetCard: React.FC<AssetCardProps> = ({ asset, tileSize, onClick, ownerName }) => {
   const [groupThumb, setGroupThumb] = useState<string | null>(null);
   const [thumbFailed, setThumbFailed] = useState(false);
 
@@ -19,9 +32,9 @@ const AssetCard: React.FC<AssetCardProps> = ({ asset, onClick, ownerName }) => {
       ? getFileTypeInfo(asset.attachments[0].name, asset.attachments[0].type)
       : getFileTypeInfo(asset.title || 'file.pdf', asset.type);
 
-  // Load first attachment thumbnail for grouped assets without a main thumbnail
   useEffect(() => {
     setThumbFailed(false);
+    setGroupThumb(null);
     if (!asset.thumbnail && asset.attachments && asset.attachments.length > 0) {
       const firstAtt = asset.attachments[0];
       if (firstAtt.type?.startsWith('image/')) {
@@ -32,28 +45,20 @@ const AssetCard: React.FC<AssetCardProps> = ({ asset, onClick, ownerName }) => {
     }
   }, [asset.id, asset.thumbnail, asset.attachments]);
 
-  const isPdf = asset.type === 'pdf' || (typeof asset.title === 'string' && asset.title.toLowerCase().endsWith('.pdf')) || (asset.attachments && asset.attachments[0]?.type?.includes('pdf'));
+  const isPdf = asset.type === 'pdf'
+    || (typeof asset.title === 'string' && asset.title.toLowerCase().endsWith('.pdf'))
+    || Boolean(asset.attachments?.[0]?.type?.includes('pdf'));
   const rawThumb = asset.thumbnail || asset.content || groupThumb;
   const isImageThumb = typeof rawThumb === 'string' && (rawThumb.startsWith('data:image') || rawThumb.startsWith('http') || rawThumb.startsWith('blob:'));
   const displayThumb = !isPdf && isImageThumb && !thumbFailed ? rawThumb : null;
-
-  const getTypeIcon = () => {
-    switch (asset.type) {
-      case 'image': return Image;
-      case 'pdf': return FileText;
-      case 'case': return Briefcase;
-      default: return File;
-    }
-  };
-
-  const TypeIcon = getTypeIcon();
-  const displayTags = (asset.tags || []).filter((t): t is string => typeof t === 'string').slice(0, 1);
+  const displayTags = (asset.tags || []).filter((t): t is string => typeof t === 'string').slice(0, tileSize === 'large' ? 3 : 2);
   const groupCount = asset.attachments?.length ?? 0;
+  const secureId = asset.id ? asset.id.replace(/-/g, '').slice(0, 10).toUpperCase() : 'LOCAL0000';
 
   const evidenceConfig = {
-    'Alto': { color: 'bg-emerald-500', text: 'text-emerald-600', bg: 'bg-emerald-50', icon: ShieldCheck, label: 'Alto' },
-    'Moderado': { color: 'bg-amber-500', text: 'text-amber-600', bg: 'bg-amber-50', icon: ShieldAlert, label: 'Mod.' },
-    'Baixo': { color: 'bg-slate-400', text: 'text-slate-500', bg: 'bg-slate-50', icon: Shield, label: 'Baixo' },
+    'Alto': { text: 'text-emerald-700', bg: 'bg-emerald-50', ring: 'ring-emerald-200/70', icon: ShieldCheck, label: 'Verificado' },
+    'Moderado': { text: 'text-amber-700', bg: 'bg-amber-50', ring: 'ring-amber-200/70', icon: ShieldAlert, label: 'Revisão' },
+    'Baixo': { text: 'text-[#6e6e73]', bg: 'bg-[#f4f4f5]', ring: 'ring-black/[0.045]', icon: Shield, label: 'Seguro' },
   };
   const evidence = evidenceConfig[asset.evidenceLevel || 'Baixo'] || evidenceConfig['Baixo'];
   const EvidenceIcon = evidence.icon;
@@ -61,139 +66,106 @@ const AssetCard: React.FC<AssetCardProps> = ({ asset, onClick, ownerName }) => {
   const formatDate = (dateStr: string) => {
     try {
       return new Date(dateStr).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
-    } catch { return ''; }
+    } catch {
+      return '';
+    }
   };
 
+  const TypeIcon = asset.type === 'image' ? Image : asset.type === 'pdf' ? FileText : asset.type === 'case' ? Briefcase : File;
+
   return (
-    <div
+    <button
       onClick={() => onClick(asset)}
-      className="group relative cursor-pointer animate-fade-in"
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => e.key === 'Enter' && onClick(asset)}
+      className={`asset-vault-card group relative flex w-full ${HEIGHT_BY_SIZE[tileSize]} overflow-hidden rounded-[22px] border border-black/[0.065] bg-white/82 p-3 text-left shadow-[0_14px_42px_rgba(29,29,31,0.055)] outline-none backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:border-black/[0.12] hover:bg-white hover:shadow-[0_24px_70px_rgba(29,29,31,0.10)] focus-visible:ring-4 focus-visible:ring-black/[0.07]`}
       aria-label={asset.title}
     >
-      <div className="relative bg-white rounded-[18px] overflow-hidden border border-black/[0.055] hover:border-black/[0.10] hover:shadow-[0_18px_54px_rgba(0,0,0,0.10)] transition-all duration-300 hover:-translate-y-0.5 card-press flex flex-col">
+      <div className="pointer-events-none absolute inset-0 opacity-70 transition-opacity duration-300 group-hover:opacity-100">
+        <div className="absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-white to-transparent" />
+        <div className="asset-vault-scan absolute inset-x-0 top-0 h-12 opacity-0 group-hover:opacity-100" />
+      </div>
 
-        {/* Thumbnail — aspect ratio 4:5 */}
-        <div className="aspect-[4/5] w-full relative overflow-hidden bg-[#f2f3f5]">
+      <div className="relative mr-3 flex shrink-0 items-center">
+        <div className={`${PREVIEW_BY_SIZE[tileSize]} asset-vault-media relative overflow-hidden rounded-[16px] border border-black/[0.055] bg-[#f5f6f7] shadow-[inset_0_1px_0_rgba(255,255,255,0.82),0_12px_32px_rgba(29,29,31,0.08)]`}>
           {displayThumb ? (
-            <img
-              src={displayThumb}
-              alt={asset.title}
-              loading="lazy"
-              decoding="async"
-              onError={() => setThumbFailed(true)}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
-            />
-          ) : isPdf ? (
-            <div className="relative h-full w-full overflow-hidden bg-[#f4f2ef]">
-              <div className="absolute inset-x-0 top-0 h-1 bg-[#d92d20]" />
-              <div className="absolute inset-0 bg-[linear-gradient(145deg,rgba(255,255,255,0.96),rgba(244,242,239,0.70))]" />
-              <div className="absolute left-[16%] right-[16%] top-[12%] bottom-[10%] rounded-[10px] border border-black/[0.08] bg-white shadow-[0_18px_44px_rgba(0,0,0,0.10)]">
-                <div className="h-full px-[12%] py-[16%]">
-                  <div className="mb-[14%] h-[7%] w-[42%] rounded-full bg-[#d92d20]/80" />
-                  <div className="space-y-[7%]">
-                    <div className="h-1.5 rounded-full bg-black/[0.16]" />
-                    <div className="h-1.5 rounded-full bg-black/[0.10]" />
-                    <div className="h-1.5 w-[78%] rounded-full bg-black/[0.10]" />
-                  </div>
-                  <div className="mt-[22%] grid grid-cols-2 gap-[8%]">
-                    <div className="aspect-square rounded-[7px] bg-[#f1f1f1]" />
-                    <div className="space-y-[16%] pt-[8%]">
-                      <div className="h-1 rounded-full bg-black/[0.10]" />
-                      <div className="h-1 rounded-full bg-black/[0.08]" />
-                      <div className="h-1 w-[70%] rounded-full bg-black/[0.08]" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between rounded-full bg-white/88 px-2.5 py-1.5 shadow-sm backdrop-blur">
-                <span className="text-[8px] font-bold uppercase tracking-[0.16em] text-[#d92d20]">PDF</span>
-                <FileText size={12} className="text-[#d92d20]" />
-              </div>
-            </div>
+            <>
+              <img
+                src={displayThumb}
+                alt=""
+                loading="lazy"
+                decoding="async"
+                onError={() => setThumbFailed(true)}
+                className="h-full w-full object-cover opacity-80 grayscale-[18%] saturate-[0.74] transition-all duration-500 group-hover:opacity-95 group-hover:grayscale-0 group-hover:saturate-100"
+              />
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.12),rgba(29,29,31,0.10))]" />
+            </>
           ) : (
-            <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-[#f3f4f6] px-3 text-center">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.95),rgba(243,244,246,0.72)_48%,rgba(224,226,230,0.88))]" />
-              <div className="relative flex h-12 w-12 items-center justify-center rounded-[16px] bg-white text-[#86868b] shadow-[0_14px_38px_rgba(0,0,0,0.08)]">
-                {asset.type === 'image' ? <ImageOff size={22} strokeWidth={1.4} /> : <TypeIcon size={22} strokeWidth={1.4} />}
-              </div>
-              <p className="relative mt-3 text-[9px] font-bold uppercase tracking-[0.16em] text-[#86868b]">{asset.type === 'image' ? 'Imagem' : fileInfo.label}</p>
-              {asset.type === 'image' && (
-                <p className="relative mt-1 max-w-[92px] text-[8px] font-medium leading-tight text-[#aeaeb2]">Miniatura indisponível</p>
-              )}
-            </div>
-          )}
-
-          {/* Owner name badge */}
-          {ownerName && (
-            <div className="absolute top-1 right-1 sm:top-2 sm:right-2 flex items-center gap-0.5 sm:gap-1 bg-white/80 backdrop-blur-sm px-1 sm:px-1.5 py-0.5 rounded-md shadow-sm border border-black/5">
-              <div className="w-2.5 sm:w-3 h-2.5 sm:h-3 rounded-full bg-[#1d1d1f] flex items-center justify-center text-white text-[5px] sm:text-[6px] font-bold">{ownerName.charAt(0).toUpperCase()}</div>
-              <span className="text-[6px] sm:text-[8px] font-semibold text-[#424245] truncate max-w-[40px] sm:max-w-[60px] hidden sm:inline">{ownerName.split(' ')[0]}</span>
-            </div>
-          )}
-
-          {/* Group badge */}
-          {groupCount > 0 && (
-            <div className="absolute top-1 left-1 sm:top-2 sm:left-2 flex items-center gap-0.5 sm:gap-1 bg-black/60 backdrop-blur-sm text-white px-1 sm:px-1.5 py-0.5 rounded-md text-[7px] sm:text-[9px] font-semibold shadow-sm">
-              <Layers size={7} className="sm:w-[8px] sm:h-[8px]" />
-              <span>{groupCount}</span>
-            </div>
-          )}
-
-          {/* Hover overlay with summary */}
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/60 transition-all duration-300 flex items-end opacity-0 group-hover:opacity-100">
-            {asset.summary && (
-              <div className="p-3 w-full">
-                <p className="text-white text-[9px] font-medium leading-snug line-clamp-3 backdrop-blur-sm">
-                  {asset.summary}
-                </p>
-              </div>
-            )}
-          </div>
-
-          <div className="absolute bottom-1.5 left-1.5 right-1.5 flex justify-center sm:hidden">
-            <span className="rounded-full bg-black/65 px-2.5 py-1 text-[8px] font-bold uppercase tracking-[0.12em] text-white shadow-sm backdrop-blur">
-              Toque para abrir
-            </span>
-          </div>
-        </div>
-
-        {/* Info */}
-        <div className="px-2.5 py-2.5 sm:px-3 sm:py-3 flex min-h-[82px] flex-col gap-1.5">
-          <h3 className="text-[10px] sm:text-[11.5px] font-semibold text-[#1d1d1f] leading-tight sm:leading-snug group-hover:text-[#4285F4] transition-colors break-words" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
-            {asset.title || '—'}
-          </h3>
-          <div className="mt-auto flex items-center justify-between gap-1">
-            {displayTags.map((tag, idx) => (
-              <span
-                key={`${tag}-${idx}`}
-                className="inline-block self-start px-1.5 py-0.5 rounded-md bg-[#f2f3f5] text-[#86868b] text-[8px] sm:text-[9px] font-semibold truncate max-w-[70%]"
-              >
-                {tag}
+            <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.96),rgba(241,242,244,0.80)_52%,rgba(224,226,230,0.86))] text-[#6e6e73]">
+              <TypeIcon size={tileSize === 'large' ? 28 : 23} strokeWidth={1.25} />
+              <span className="rounded-full bg-white/78 px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.16em] text-[#86868b] shadow-sm">
+                {isPdf ? 'PDF' : fileInfo.label}
               </span>
-            ))}
-            {displayTags.length === 0 && (
-              <span
-                className="inline-block self-start px-1.5 py-0.5 rounded-md text-[8px] sm:text-[9px] font-semibold"
-                style={{ backgroundColor: `${fileInfo.color}14`, color: fileInfo.color }}
-              >
-                {fileInfo.label}
-              </span>
-            )}
-            <span className={`ml-auto hidden items-center gap-1 rounded-full px-1.5 py-0.5 text-[8px] font-bold sm:flex ${evidence.bg} ${evidence.text}`}>
-              <EvidenceIcon size={9} />
-              {evidence.label}
-            </span>
-            <span className="flex items-center gap-1 text-[7px] sm:text-[8px] text-[#aeaeb2] font-medium shrink-0 truncate max-w-[54px] sm:max-w-[66px]">
-              <Calendar size={9} />
-              {formatDate(asset.createdAt || asset.date)}
-            </span>
+            </div>
+          )}
+
+          <div className="pointer-events-none absolute inset-0 asset-anatomy-grid opacity-50" />
+          {isPdf && <div className="absolute inset-x-0 top-0 h-1 bg-[#d92d20]/84" />}
+          <div className="absolute bottom-1.5 right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-white/88 text-[#1d1d1f] shadow-sm backdrop-blur">
+            <LockKeyhole size={10} strokeWidth={1.7} />
           </div>
         </div>
       </div>
-    </div>
+
+      <div className="relative flex min-w-0 flex-1 flex-col py-0.5">
+        <div className="mb-2 flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <p className="mb-1 flex items-center gap-1.5 text-[8px] font-bold uppercase tracking-[0.18em] text-[#9a9aa0]">
+              <Database size={10} strokeWidth={1.45} />
+              Cofre #{secureId}
+            </p>
+            <h3 className="line-clamp-2 text-[12px] font-semibold leading-snug tracking-[-0.01em] text-[#1d1d1f] sm:text-[13px]">
+              {asset.title || 'Ativo sem título'}
+            </h3>
+          </div>
+          <span className={`flex shrink-0 items-center gap-1 rounded-full px-2 py-1 text-[9px] font-bold ${evidence.bg} ${evidence.text} ring-1 ${evidence.ring}`}>
+            <EvidenceIcon size={10} strokeWidth={1.6} />
+            <span className="hidden sm:inline">{evidence.label}</span>
+          </span>
+        </div>
+
+        {tileSize !== 'small' && asset.summary && (
+          <p className="line-clamp-2 max-w-[95%] text-[11px] font-medium leading-relaxed text-[#7c7c80]">
+            {asset.summary}
+          </p>
+        )}
+
+        <div className="mt-auto flex min-w-0 items-end justify-between gap-3">
+          <div className="min-w-0">
+            <div className="mb-2 flex flex-wrap gap-1.5">
+              {(displayTags.length > 0 ? displayTags : [fileInfo.label]).map((tag, idx) => (
+                <span key={`${tag}-${idx}`} className="max-w-[110px] truncate rounded-full bg-[#f2f3f5] px-2 py-1 text-[9px] font-semibold text-[#6e6e73] ring-1 ring-black/[0.035]">
+                  {tag}
+                </span>
+              ))}
+              {groupCount > 0 && (
+                <span className="flex items-center gap-1 rounded-full bg-[#1d1d1f] px-2 py-1 text-[9px] font-semibold text-white">
+                  <Layers size={10} /> {groupCount}
+                </span>
+              )}
+            </div>
+            <p className="flex items-center gap-1.5 text-[10px] font-medium text-[#9a9aa0]">
+              <Calendar size={10} />
+              {formatDate(asset.createdAt || asset.date)}
+              {ownerName && <span className="hidden sm:inline">· {ownerName.split(' ')[0]}</span>}
+            </p>
+          </div>
+
+          <div className="flex shrink-0 flex-col items-center gap-1 text-[#9a9aa0]">
+            <Fingerprint size={tileSize === 'large' ? 20 : 17} strokeWidth={1.25} />
+            <span className="text-[8px] font-bold uppercase tracking-[0.18em]">AES</span>
+          </div>
+        </div>
+      </div>
+    </button>
   );
 };
 

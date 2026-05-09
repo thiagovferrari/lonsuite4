@@ -10,13 +10,12 @@ interface VirtualizedAssetGridProps {
 }
 
 const GRID_CONFIG = {
-  small: { minWidth: 112, gap: 10 },
-  medium: { minWidth: 148, gap: 16 },
-  large: { minWidth: 210, gap: 20 },
+  small: { minWidth: 286, gap: 10, height: 136 },
+  medium: { minWidth: 360, gap: 14, height: 158 },
+  large: { minWidth: 440, gap: 16, height: 182 },
 } as const;
 
 const OVERSCAN_ROWS = 3;
-const CARD_INFO_HEIGHT = 82;
 
 const VirtualizedAssetGrid: React.FC<VirtualizedAssetGridProps> = ({ assets, tileSize, onOpenAsset, ownerName }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -64,8 +63,7 @@ const VirtualizedAssetGrid: React.FC<VirtualizedAssetGridProps> = ({ assets, til
     const config = GRID_CONFIG[tileSize];
     const width = Math.max(containerWidth, config.minWidth);
     const columns = Math.max(1, Math.floor((width + config.gap) / (config.minWidth + config.gap)));
-    const itemWidth = (width - config.gap * (columns - 1)) / columns;
-    const rowHeight = Math.ceil(itemWidth * 1.25 + CARD_INFO_HEIGHT + config.gap);
+    const rowHeight = config.height + config.gap;
     const totalRows = Math.ceil(assets.length / columns);
     const startRow = Math.max(0, Math.floor(viewport.top / rowHeight) - OVERSCAN_ROWS);
     const endRow = Math.min(totalRows, Math.ceil((viewport.top + viewport.height) / rowHeight) + OVERSCAN_ROWS);
@@ -97,7 +95,7 @@ const VirtualizedAssetGrid: React.FC<VirtualizedAssetGridProps> = ({ assets, til
         }}
       >
         {visibleAssets.map(asset => (
-          <AssetCard key={asset.id} asset={asset} onClick={onOpenAsset} ownerName={ownerName} />
+          <AssetCard key={asset.id} asset={asset} tileSize={tileSize} onClick={onOpenAsset} ownerName={ownerName} />
         ))}
       </div>
     </div>
