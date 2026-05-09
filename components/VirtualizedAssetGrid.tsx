@@ -10,29 +10,16 @@ interface VirtualizedAssetGridProps {
 }
 
 const GRID_CONFIG = {
-  small: { minWidth: 286, gap: 10, height: 136 },
-  medium: { minWidth: 360, gap: 14, height: 158 },
-  large: { minWidth: 440, gap: 16, height: 182 },
+  small: { height: 56 },
+  medium: { height: 68 },
+  large: { height: 82 },
 } as const;
 
 const OVERSCAN_ROWS = 3;
 
 const VirtualizedAssetGrid: React.FC<VirtualizedAssetGridProps> = ({ assets, tileSize, onOpenAsset, ownerName }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [containerWidth, setContainerWidth] = useState(0);
   const [viewport, setViewport] = useState({ top: 0, height: 900 });
-
-  useEffect(() => {
-    const element = containerRef.current;
-    if (!element) return;
-
-    const updateWidth = () => setContainerWidth(element.clientWidth);
-    updateWidth();
-
-    const resizeObserver = new ResizeObserver(updateWidth);
-    resizeObserver.observe(element);
-    return () => resizeObserver.disconnect();
-  }, []);
 
   useEffect(() => {
     let frame = 0;
@@ -61,18 +48,14 @@ const VirtualizedAssetGrid: React.FC<VirtualizedAssetGridProps> = ({ assets, til
 
   const layout = useMemo(() => {
     const config = GRID_CONFIG[tileSize];
-    const width = Math.max(containerWidth, config.minWidth);
-    const columns = Math.max(1, Math.floor((width + config.gap) / (config.minWidth + config.gap)));
-    const rowHeight = config.height + config.gap;
-    const totalRows = Math.ceil(assets.length / columns);
+    const rowHeight = config.height;
+    const totalRows = assets.length;
     const startRow = Math.max(0, Math.floor(viewport.top / rowHeight) - OVERSCAN_ROWS);
     const endRow = Math.min(totalRows, Math.ceil((viewport.top + viewport.height) / rowHeight) + OVERSCAN_ROWS);
-    const startIndex = startRow * columns;
-    const endIndex = Math.min(assets.length, endRow * columns);
+    const startIndex = startRow;
+    const endIndex = Math.min(assets.length, endRow);
 
     return {
-      columns,
-      gap: config.gap,
       rowHeight,
       startRow,
       endRow,
@@ -80,18 +63,16 @@ const VirtualizedAssetGrid: React.FC<VirtualizedAssetGridProps> = ({ assets, til
       endIndex,
       totalHeight: totalRows * rowHeight,
     };
-  }, [assets.length, containerWidth, tileSize, viewport.height, viewport.top]);
+  }, [assets.length, tileSize, viewport.height, viewport.top]);
 
   const visibleAssets = assets.slice(layout.startIndex, layout.endIndex);
 
   return (
-    <div ref={containerRef} className="relative w-full" style={{ minHeight: assets.length ? layout.totalHeight : 0 }}>
+    <div ref={containerRef} className="asset-timeline-stack relative mx-auto w-full max-w-[1280px]" style={{ minHeight: assets.length ? layout.totalHeight : 0 }}>
       <div
-        className="grid absolute inset-x-0 top-0"
+        className="absolute inset-x-0 top-0"
         style={{
           transform: `translateY(${layout.startRow * layout.rowHeight}px)`,
-          gridTemplateColumns: `repeat(${layout.columns}, minmax(0, 1fr))`,
-          gap: `${layout.gap}px`,
         }}
       >
         {visibleAssets.map(asset => (

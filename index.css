@@ -229,6 +229,67 @@ select:focus-visible {
   opacity: 0.28;
 }
 
+.asset-timeline-stack::before {
+  content: "";
+  position: absolute;
+  left: 69px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent, rgba(29, 29, 31, 0.18) 4%, rgba(29, 29, 31, 0.12) 96%, transparent);
+}
+
+.asset-timeline-card {
+  border-bottom: 1px solid rgba(29, 29, 31, 0.045);
+}
+
+.asset-timeline-card::after {
+  content: "";
+  position: absolute;
+  left: 116px;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(29, 29, 31, 0.055), transparent 74%);
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+.asset-timeline-card:hover::after {
+  opacity: 1;
+}
+
+.asset-timeline-axis::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-50%);
+  background: rgba(29, 29, 31, 0.105);
+}
+
+.asset-timeline-dot {
+  position: relative;
+  z-index: 1;
+  box-shadow:
+    0 0 0 5px rgba(247, 247, 248, 0.96),
+    0 0 0 6px rgba(29, 29, 31, 0.04);
+}
+
+@media (min-width: 640px) {
+  .asset-timeline-stack::before {
+    left: 94px;
+  }
+
+  .asset-timeline-card::after {
+    left: 154px;
+  }
+}
+
 .asset-vault-media::after {
   content: "";
   position: absolute;

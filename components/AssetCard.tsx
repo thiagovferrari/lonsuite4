@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Asset } from '../types';
-import { Briefcase, Calendar, Database, File, FileText, Fingerprint, Image, Layers, LockKeyhole, Shield, ShieldAlert, ShieldCheck } from 'lucide-react';
+import { Briefcase, File, FileText, Image, Layers, LockKeyhole, Shield, ShieldAlert, ShieldCheck } from 'lucide-react';
 import { getFileTypeInfo } from '../utils/fileTypeUtils';
 import { getAttachmentData } from '../services/storageService';
 
@@ -11,16 +11,22 @@ interface AssetCardProps {
   ownerName?: string;
 }
 
-const HEIGHT_BY_SIZE = {
-  small: 'h-[136px]',
-  medium: 'h-[158px]',
-  large: 'h-[182px]',
+const ROW_BY_SIZE = {
+  small: 'h-[56px]',
+  medium: 'h-[68px]',
+  large: 'h-[82px]',
 } as const;
 
-const PREVIEW_BY_SIZE = {
-  small: 'h-[82px] w-[62px]',
-  medium: 'h-[98px] w-[74px]',
-  large: 'h-[114px] w-[86px]',
+const THUMB_BY_SIZE = {
+  small: 'h-[22px] w-[22px]',
+  medium: 'h-6 w-6',
+  large: 'h-7 w-7',
+} as const;
+
+const SUMMARY_BY_SIZE = {
+  small: 'hidden',
+  medium: 'line-clamp-1',
+  large: 'line-clamp-2',
 } as const;
 
 const AssetCard: React.FC<AssetCardProps> = ({ asset, tileSize, onClick, ownerName }) => {
@@ -51,17 +57,18 @@ const AssetCard: React.FC<AssetCardProps> = ({ asset, tileSize, onClick, ownerNa
   const rawThumb = asset.thumbnail || asset.content || groupThumb;
   const isImageThumb = typeof rawThumb === 'string' && (rawThumb.startsWith('data:image') || rawThumb.startsWith('http') || rawThumb.startsWith('blob:'));
   const displayThumb = !isPdf && isImageThumb && !thumbFailed ? rawThumb : null;
-  const displayTags = (asset.tags || []).filter((t): t is string => typeof t === 'string').slice(0, tileSize === 'large' ? 3 : 2);
+  const displayTags = (asset.tags || []).filter((t): t is string => typeof t === 'string').slice(0, 2);
   const groupCount = asset.attachments?.length ?? 0;
-  const secureId = asset.id ? asset.id.replace(/-/g, '').slice(0, 10).toUpperCase() : 'LOCAL0000';
+  const secureId = asset.id ? asset.id.replace(/-/g, '').slice(0, 8).toUpperCase() : 'LOCAL';
 
   const evidenceConfig = {
-    'Alto': { text: 'text-emerald-700', bg: 'bg-emerald-50', ring: 'ring-emerald-200/70', icon: ShieldCheck, label: 'Verificado' },
-    'Moderado': { text: 'text-amber-700', bg: 'bg-amber-50', ring: 'ring-amber-200/70', icon: ShieldAlert, label: 'Revisão' },
-    'Baixo': { text: 'text-[#6e6e73]', bg: 'bg-[#f4f4f5]', ring: 'ring-black/[0.045]', icon: Shield, label: 'Seguro' },
+    'Alto': { text: 'text-emerald-700', bg: 'bg-emerald-50', icon: ShieldCheck, label: 'verificado' },
+    'Moderado': { text: 'text-amber-700', bg: 'bg-amber-50', icon: ShieldAlert, label: 'revisão' },
+    'Baixo': { text: 'text-[#8e8e93]', bg: 'bg-[#f5f5f7]', icon: Shield, label: 'seguro' },
   };
   const evidence = evidenceConfig[asset.evidenceLevel || 'Baixo'] || evidenceConfig['Baixo'];
   const EvidenceIcon = evidence.icon;
+  const TypeIcon = asset.type === 'image' ? Image : asset.type === 'pdf' ? FileText : asset.type === 'case' ? Briefcase : File;
 
   const formatDate = (dateStr: string) => {
     try {
@@ -71,100 +78,73 @@ const AssetCard: React.FC<AssetCardProps> = ({ asset, tileSize, onClick, ownerNa
     }
   };
 
-  const TypeIcon = asset.type === 'image' ? Image : asset.type === 'pdf' ? FileText : asset.type === 'case' ? Briefcase : File;
-
   return (
     <button
       onClick={() => onClick(asset)}
-      className={`asset-vault-card group relative flex w-full ${HEIGHT_BY_SIZE[tileSize]} overflow-hidden rounded-[22px] border border-black/[0.065] bg-white/82 p-3 text-left shadow-[0_14px_42px_rgba(29,29,31,0.055)] outline-none backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:border-black/[0.12] hover:bg-white hover:shadow-[0_24px_70px_rgba(29,29,31,0.10)] focus-visible:ring-4 focus-visible:ring-black/[0.07]`}
+      className={`asset-timeline-card group relative grid w-full ${ROW_BY_SIZE[tileSize]} grid-cols-[50px_22px_28px_minmax(0,1fr)_auto] items-center gap-2 pr-2 text-left outline-none transition-colors hover:bg-white/50 focus-visible:bg-white/70 sm:grid-cols-[68px_28px_34px_minmax(0,1fr)_auto] sm:gap-3`}
       aria-label={asset.title}
     >
-      <div className="pointer-events-none absolute inset-0 opacity-70 transition-opacity duration-300 group-hover:opacity-100">
-        <div className="absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-white to-transparent" />
-        <div className="asset-vault-scan absolute inset-x-0 top-0 h-12 opacity-0 group-hover:opacity-100" />
-      </div>
+      <span className="justify-self-end text-[10px] font-medium tabular-nums text-[#a1a1a6]">
+        {formatDate(asset.createdAt || asset.date)}
+      </span>
 
-      <div className="relative mr-3 flex shrink-0 items-center">
-        <div className={`${PREVIEW_BY_SIZE[tileSize]} asset-vault-media relative overflow-hidden rounded-[16px] border border-black/[0.055] bg-[#f5f6f7] shadow-[inset_0_1px_0_rgba(255,255,255,0.82),0_12px_32px_rgba(29,29,31,0.08)]`}>
-          {displayThumb ? (
-            <>
-              <img
-                src={displayThumb}
-                alt=""
-                loading="lazy"
-                decoding="async"
-                onError={() => setThumbFailed(true)}
-                className="h-full w-full object-cover opacity-80 grayscale-[18%] saturate-[0.74] transition-all duration-500 group-hover:opacity-95 group-hover:grayscale-0 group-hover:saturate-100"
-              />
-              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.12),rgba(29,29,31,0.10))]" />
-            </>
-          ) : (
-            <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.96),rgba(241,242,244,0.80)_52%,rgba(224,226,230,0.86))] text-[#6e6e73]">
-              <TypeIcon size={tileSize === 'large' ? 28 : 23} strokeWidth={1.25} />
-              <span className="rounded-full bg-white/78 px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.16em] text-[#86868b] shadow-sm">
-                {isPdf ? 'PDF' : fileInfo.label}
-              </span>
-            </div>
-          )}
+      <span className="asset-timeline-axis relative flex h-full items-center justify-center">
+        <span className="asset-timeline-dot h-1.5 w-1.5 rounded-full bg-[#6e6e73] transition-transform duration-200 group-hover:scale-125" />
+      </span>
 
-          <div className="pointer-events-none absolute inset-0 asset-anatomy-grid opacity-50" />
-          {isPdf && <div className="absolute inset-x-0 top-0 h-1 bg-[#d92d20]/84" />}
-          <div className="absolute bottom-1.5 right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-white/88 text-[#1d1d1f] shadow-sm backdrop-blur">
-            <LockKeyhole size={10} strokeWidth={1.7} />
-          </div>
-        </div>
-      </div>
-
-      <div className="relative flex min-w-0 flex-1 flex-col py-0.5">
-        <div className="mb-2 flex items-start justify-between gap-2">
-          <div className="min-w-0">
-            <p className="mb-1 flex items-center gap-1.5 text-[8px] font-bold uppercase tracking-[0.18em] text-[#9a9aa0]">
-              <Database size={10} strokeWidth={1.45} />
-              Cofre #{secureId}
-            </p>
-            <h3 className="line-clamp-2 text-[12px] font-semibold leading-snug tracking-[-0.01em] text-[#1d1d1f] sm:text-[13px]">
-              {asset.title || 'Ativo sem título'}
-            </h3>
-          </div>
-          <span className={`flex shrink-0 items-center gap-1 rounded-full px-2 py-1 text-[9px] font-bold ${evidence.bg} ${evidence.text} ring-1 ${evidence.ring}`}>
-            <EvidenceIcon size={10} strokeWidth={1.6} />
-            <span className="hidden sm:inline">{evidence.label}</span>
+      <span className="relative flex items-center justify-center">
+        {displayThumb ? (
+          <img
+            src={displayThumb}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            onError={() => setThumbFailed(true)}
+            className={`${THUMB_BY_SIZE[tileSize]} shrink-0 rounded-[4px] object-cover shadow-[0_7px_18px_rgba(29,29,31,0.10)] transition-all duration-300 group-hover:scale-110 group-hover:saturate-110`}
+          />
+        ) : (
+          <span className={`${THUMB_BY_SIZE[tileSize]} flex shrink-0 items-center justify-center text-[#8e8e93] ${isPdf ? 'text-[#d92d20]' : ''}`}>
+            <TypeIcon size={tileSize === 'large' ? 16 : 14} strokeWidth={1.25} />
           </span>
-        </div>
-
-        {tileSize !== 'small' && asset.summary && (
-          <p className="line-clamp-2 max-w-[95%] text-[11px] font-medium leading-relaxed text-[#7c7c80]">
-            {asset.summary}
-          </p>
         )}
+      </span>
 
-        <div className="mt-auto flex min-w-0 items-end justify-between gap-3">
-          <div className="min-w-0">
-            <div className="mb-2 flex flex-wrap gap-1.5">
-              {(displayTags.length > 0 ? displayTags : [fileInfo.label]).map((tag, idx) => (
-                <span key={`${tag}-${idx}`} className="max-w-[110px] truncate rounded-full bg-[#f2f3f5] px-2 py-1 text-[9px] font-semibold text-[#6e6e73] ring-1 ring-black/[0.035]">
-                  {tag}
-                </span>
-              ))}
-              {groupCount > 0 && (
-                <span className="flex items-center gap-1 rounded-full bg-[#1d1d1f] px-2 py-1 text-[9px] font-semibold text-white">
-                  <Layers size={10} /> {groupCount}
-                </span>
-              )}
-            </div>
-            <p className="flex items-center gap-1.5 text-[10px] font-medium text-[#9a9aa0]">
-              <Calendar size={10} />
-              {formatDate(asset.createdAt || asset.date)}
-              {ownerName && <span className="hidden sm:inline">· {ownerName.split(' ')[0]}</span>}
-            </p>
-          </div>
+      <span className="min-w-0">
+        <span className="flex min-w-0 items-center gap-2">
+          <span className="truncate text-[12px] font-semibold tracking-[-0.01em] text-[#1d1d1f] sm:text-[13px]">
+            {asset.title || 'Ativo sem título'}
+          </span>
+          <span className={`hidden shrink-0 rounded-full px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.14em] sm:inline-flex ${evidence.bg} ${evidence.text}`}>
+            <EvidenceIcon size={9} strokeWidth={1.55} className="mr-1" />
+            {evidence.label}
+          </span>
+        </span>
+        <span className={`${SUMMARY_BY_SIZE[tileSize]} mt-0.5 max-w-[760px] text-[11px] font-medium leading-snug text-[#8e8e93]`}>
+          {asset.summary || asset.scientificContext || asset.description || fileInfo.label}
+        </span>
+      </span>
 
-          <div className="flex shrink-0 flex-col items-center gap-1 text-[#9a9aa0]">
-            <Fingerprint size={tileSize === 'large' ? 20 : 17} strokeWidth={1.25} />
-            <span className="text-[8px] font-bold uppercase tracking-[0.18em]">AES</span>
-          </div>
-        </div>
-      </div>
+      <span className="hidden min-w-[150px] items-center justify-end gap-1.5 sm:flex">
+        <span className="px-1.5 py-1 text-[9px] font-semibold text-[#a1a1a6]">
+          #{secureId}
+        </span>
+        {displayTags.map((tag, idx) => (
+          <span key={`${tag}-${idx}`} className="max-w-[76px] truncate rounded-full bg-[#f5f5f7] px-2 py-1 text-[9px] font-semibold text-[#6e6e73]">
+            {tag}
+          </span>
+        ))}
+        {groupCount > 0 && (
+          <span className="flex items-center gap-1 rounded-full bg-[#1d1d1f] px-2 py-1 text-[9px] font-semibold text-white">
+            <Layers size={10} /> {groupCount}
+          </span>
+        )}
+        {ownerName && (
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#1d1d1f] text-[9px] font-bold text-white" title={ownerName}>
+            {ownerName.charAt(0).toUpperCase()}
+          </span>
+        )}
+        <LockKeyhole size={12} className="text-[#b8b8bd]" />
+      </span>
     </button>
   );
 };

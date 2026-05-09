@@ -3397,9 +3397,9 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                   <div className="flex items-center justify-between gap-2 sm:justify-start xl:shrink-0">
                     <div className="flex shrink-0 items-center rounded-[14px] border border-black/[0.055] bg-white/78 p-0.5 shadow-sm backdrop-blur-xl">
                       {([
-                        { id: 'small', label: 'P', title: 'Miniaturas pequenas' },
-                        { id: 'medium', label: 'M', title: 'Miniaturas médias' },
-                        { id: 'large', label: 'G', title: 'Miniaturas grandes' },
+                        { id: 'small', label: 'D', title: 'Timeline densa' },
+                        { id: 'medium', label: 'M', title: 'Timeline média' },
+                        { id: 'large', label: 'A', title: 'Timeline ampla' },
                       ] as const).map(size => (
                         <button
                           key={size.id}
