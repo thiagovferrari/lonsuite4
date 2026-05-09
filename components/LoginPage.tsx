@@ -177,7 +177,7 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack, onLearnMore }) => {
                   ))}
                 </div>
               </div>
-              <div className="lon-glass-panel-strong absolute right-8 top-[470px] rounded-[24px] p-5">
+              <div className="lon-glass-panel-strong absolute right-2 top-8 rounded-[24px] p-5 sm:right-8">
                 <p className="text-[44px] font-extralight leading-none">4x</p>
                 <p className="mt-2 max-w-[150px] text-[11px] font-semibold leading-relaxed text-[#86868b]">mais reaproveitamento do acervo científico</p>
               </div>
@@ -297,13 +297,13 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack, onLearnMore }) => {
                 body: 'O médico abre o sistema e encontra o material pelo significado clínico, não pelo nome improvisado do arquivo.',
               },
               {
-                image: '/assets/lon-suite-doctor-smartphone-editorial.jpg',
+                image: '/assets/lon-suite-generated-doctor-smartphone.jpg',
                 eyebrow: 'Acesso imediato',
                 title: 'O caso acompanha a rotina, inclusive no celular.',
                 body: 'Quando surge a aula, o round ou a conversa científica, o ativo certo já está perto o bastante para ser usado.',
               },
               {
-                image: '/assets/lon-suite-physician-female-editorial.jpg',
+                image: '/assets/lon-suite-generated-senior-doctor.jpg',
                 eyebrow: 'Presença editorial',
                 title: 'De documentação clínica para narrativa de autoridade.',
                 body: 'A imagem ganha contexto, o contexto vira case, e o case ganha forma para apresentação com acabamento premium.',
@@ -399,16 +399,16 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack, onLearnMore }) => {
                       <ShieldCheck size={24} strokeWidth={1.4} />
                     </div>
                     <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.2em] text-white/38">Proteção e confiança</p>
-                    <h2 className="max-w-[560px] text-[36px] font-extralight leading-[1.04] tracking-tight sm:text-[52px] xl:text-[62px]">Um ambiente pensado para acervo clínico sensível.</h2>
+                    <h2 className="max-w-[560px] text-[36px] font-extralight leading-[1.04] tracking-tight sm:text-[52px] xl:text-[62px]">Segurança como parte do produto, não como detalhe visual.</h2>
                     <p className="mt-7 max-w-[520px] text-[15px] font-light leading-relaxed text-white/62 sm:text-[16px]">
-                      A Lon Suite organiza cada ativo com dono, contexto e acesso individual. O sistema foi desenhado para preservar a privacidade do acervo e manter a experiência limpa, rastreável e profissional.
+                      A Lon Suite opera sobre infraestrutura cloud de padrão Amazon Web Services e Supabase, com autenticação, regras rígidas de proteção de dados, controle por usuário e organização pensada para acervos clínicos sensíveis.
                     </p>
                   </div>
                   <div className="mt-12 grid gap-3 sm:grid-cols-3">
                     {[
-                      { icon: LockKeyhole, label: 'Acesso individual' },
-                      { icon: Fingerprint, label: 'Conta por usuário' },
-                      { icon: Server, label: 'Base protegida' },
+                      { icon: LockKeyhole, label: 'Acesso por conta' },
+                      { icon: Fingerprint, label: 'Regras rígidas' },
+                      { icon: Server, label: 'Infra padrão AWS' },
                     ].map(item => {
                       const Icon = item.icon;
                       return (
@@ -588,7 +588,7 @@ const PlansLearnMorePage: React.FC<{ onBack: () => void; onPlans: () => void }> 
 
   const faqs = [
     ['Isso substitui meu Google Drive?', 'Não exatamente. O Drive armazena arquivos. A Lon Suite organiza o acervo com lógica médica e científica, ajudando você a encontrar, contextualizar e transformar seus materiais em aulas, posts, apresentações, cases e publicações.'],
-    ['Meus arquivos clínicos ficam seguros?', 'A proposta da Lon Suite é oferecer um ambiente mais organizado e controlado para acervos sensíveis. Ainda assim, recomendamos sempre remover ou anonimizar dados identificáveis de pacientes antes de usar imagens ou documentos em materiais de ensino, comunicação ou publicação.'],
+    ['Meus arquivos clínicos ficam seguros?', 'A Lon Suite utiliza infraestrutura cloud em padrão Amazon Web Services e Supabase, com autenticação, regras rígidas de acesso e organização por conta. Ainda assim, segurança também depende de uso responsável: recomendamos remover ou anonimizar dados identificáveis de pacientes antes de usar imagens ou documentos em ensino, comunicação ou publicação.'],
     ['Eu preciso cadastrar tudo manualmente?', 'A experiência foi pensada para reduzir trabalho, não aumentar. O sistema facilita upload, categorização, busca e reaproveitamento dos arquivos com o mínimo de fricção possível.'],
     ['Para que tipo de médico isso vale a pena?', 'Principalmente para médicos que dão aula, participam de congressos, produzem conteúdo, publicam artigos, apresentam casos ou trabalham com grande volume de imagens, exames e documentos.'],
     ['Por que eu pagaria por isso?', 'Porque o custo real não está em armazenar arquivos. Está no tempo perdido procurando, reenviando, reorganizando e recriando materiais do zero. A Lon Suite transforma um acervo parado em uma ferramenta ativa de produção científica.'],
@@ -640,8 +640,9 @@ const PlansLearnMorePage: React.FC<{ onBack: () => void; onPlans: () => void }> 
               </div>
             </div>
 
-            <div className="relative min-h-[640px]">
-              <img src="/assets/lon-suite-doctors-laptop-editorial.jpg" alt="Equipe médica organizando produção científica" className="absolute right-0 top-0 h-[500px] w-[86%] rounded-[38px] object-cover grayscale shadow-[0_38px_120px_rgba(0,0,0,0.16)]" />
+            <div className="relative min-h-[660px]">
+              <img src="/assets/lon-suite-generated-city-clinic.jpg" alt="Médica observando a cidade de dentro da clínica" className="absolute right-0 top-0 h-[520px] w-[88%] rounded-[38px] object-cover grayscale shadow-[0_38px_120px_rgba(0,0,0,0.16)]" />
+              <div className="pointer-events-none absolute right-8 top-8 hidden h-[220px] w-[220px] rounded-full border border-white/35 shadow-[inset_0_0_80px_rgba(255,255,255,0.28)] lg:block" />
               <div className="absolute bottom-0 left-0 w-[76%] rounded-[34px] bg-[#111113] p-7 text-white shadow-[0_40px_130px_rgba(0,0,0,0.32)]">
                 <p className="mb-7 text-[10px] font-bold uppercase tracking-[0.18em] text-white/42">Resultado</p>
                 <h2 className="text-[36px] font-extralight leading-tight tracking-tight">Posts, aulas, apresentações e cases a partir do que você já tem.</h2>
@@ -651,11 +652,25 @@ const PlansLearnMorePage: React.FC<{ onBack: () => void; onPlans: () => void }> 
                   ))}
                 </div>
               </div>
-              <div className="lon-glass-panel-strong absolute right-8 top-[440px] rounded-[24px] p-5">
+              <div className="lon-glass-panel-strong absolute right-1 top-8 rounded-[24px] p-5 sm:right-8">
                 <p className="text-[42px] font-extralight leading-none">1</p>
                 <p className="mt-2 max-w-[160px] text-[11px] font-semibold leading-relaxed text-[#86868b]">acervo vivo para ensino, conteúdo e publicação</p>
               </div>
             </div>
+          </div>
+
+          <div className="mt-8 grid gap-3 rounded-[30px] border border-white/78 bg-white/56 p-3 shadow-[0_24px_80px_rgba(0,0,0,0.06)] backdrop-blur-xl md:grid-cols-4">
+            {[
+              ['Padrão AWS', 'Infraestrutura cloud em padrão Amazon Web Services e Supabase.'],
+              ['Regras rígidas', 'Políticas de acesso, autenticação e isolamento por conta.'],
+              ['Uso responsável', 'Fluxo orientado para anonimização e dados sem identificação.'],
+              ['Controle humano', 'IA como assistência, sempre com revisão profissional.'],
+            ].map(([title, body]) => (
+              <div key={title} className="rounded-[22px] bg-white/70 p-4">
+                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#1d1d1f]">{title}</p>
+                <p className="mt-2 text-[11px] leading-relaxed text-[#86868b]">{body}</p>
+              </div>
+            ))}
           </div>
 
           <section id="dores" className="mt-20 scroll-mt-24">
@@ -697,8 +712,12 @@ const PlansLearnMorePage: React.FC<{ onBack: () => void; onPlans: () => void }> 
           <section id="como-funciona" className="mt-24 scroll-mt-24 overflow-hidden rounded-[42px] bg-white shadow-[0_30px_100px_rgba(0,0,0,0.10)]">
             <div className="grid lg:grid-cols-[0.92fr_1.08fr]">
               <div className="relative min-h-[460px] overflow-hidden">
-                <img src="/assets/lon-suite-tablet-doctor-editorial.png" alt="Médico usando tablet com acervo clínico" className="h-full w-full object-cover grayscale" />
+                <img src="/assets/lon-suite-generated-doctor-smartphone.jpg" alt="Médica acessando acervo médico pelo smartphone" className="h-full w-full object-cover grayscale" />
                 <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(17,17,19,0.18),rgba(17,17,19,0.58))]" />
+                <div className="absolute bottom-6 left-6 rounded-[24px] border border-white/14 bg-black/35 p-5 text-white backdrop-blur-xl">
+                  <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-white/46">Acesso seguro</p>
+                  <p className="mt-8 max-w-[230px] text-[26px] font-extralight leading-tight">O acervo acompanha a rotina sem perder controle.</p>
+                </div>
               </div>
               <div className="p-8 sm:p-12 lg:p-14">
                 <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Como funciona</p>
@@ -738,16 +757,28 @@ const PlansLearnMorePage: React.FC<{ onBack: () => void; onPlans: () => void }> 
             <div className="grid lg:grid-cols-[1.04fr_0.96fr]">
               <div className="p-8 sm:p-12 lg:p-16">
                 <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.2em] text-white/38">Segurança e LGPD</p>
-                <h2 className="max-w-3xl text-[40px] font-extralight leading-tight tracking-tight sm:text-[62px]">Pensado para acervo clínico sensível.</h2>
+                <h2 className="max-w-3xl text-[40px] font-extralight leading-tight tracking-tight sm:text-[62px]">Proteção de dados como arquitetura de confiança.</h2>
                 <p className="mt-7 max-w-2xl text-[15px] font-light leading-relaxed text-white/62">
-                  A Lon Suite foi pensada para médicos e equipes que lidam com imagens, casos e documentos sensíveis. Por isso, a organização do acervo respeita segurança, controle de acesso, privacidade e boas práticas de uso de dados clínicos.
+                  A Lon Suite foi pensada para médicos e equipes que lidam com imagens, casos e documentos sensíveis. O sistema utiliza infraestrutura cloud em padrão Amazon Web Services e Supabase, autenticação, regras rígidas de proteção de dados e controle por conta para reduzir exposição indevida e organizar o uso responsável do acervo.
                 </p>
+                <div className="mt-8 grid gap-2 rounded-[28px] border border-white/10 bg-white/[0.055] p-3 backdrop-blur-xl sm:grid-cols-3">
+                  {[
+                    ['AWS/Supabase', 'infra cloud'],
+                    ['Acesso por conta', 'isolamento lógico'],
+                    ['RLS e políticas', 'proteção por regra'],
+                  ].map(([title, body]) => (
+                    <div key={title} className="rounded-[20px] bg-white/[0.07] p-4">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/70">{title}</p>
+                      <p className="mt-2 text-[11px] text-white/40">{body}</p>
+                    </div>
+                  ))}
+                </div>
                 <div className="mt-9 grid gap-3 sm:grid-cols-2">
                   {[
-                    ['Controle de acesso', 'Defina quem pode visualizar, organizar e utilizar os materiais.'],
-                    ['Ambiente seguro', 'Centralize arquivos importantes em uma estrutura mais organizada e protegida.'],
-                    ['Boas práticas com dados clínicos', 'Estimule o uso de materiais sem identificação do paciente e com cuidado ético.'],
-                    ['Acervo profissional', 'Separe arquivos pessoais, institucionais, científicos e assistenciais com clareza.'],
+                    ['Controle de acesso', 'Defina quem pode visualizar, organizar e utilizar os materiais, evitando circulação informal do acervo.'],
+                    ['Ambiente seguro', 'Centralize arquivos importantes em uma estrutura mais organizada, autenticada e protegida por regras de acesso.'],
+                    ['Boas práticas com dados clínicos', 'Estimule o uso de materiais sem identificação do paciente e com cuidado ético na produção científica.'],
+                    ['Acervo profissional', 'Separe arquivos pessoais, institucionais, científicos e assistenciais com mais clareza operacional.'],
                   ].map(([title, body]) => (
                     <div key={title} className="rounded-[24px] border border-white/10 bg-white/[0.06] p-5 backdrop-blur">
                       <ShieldCheck size={18} className="mb-7 text-white/70" />
@@ -757,12 +788,16 @@ const PlansLearnMorePage: React.FC<{ onBack: () => void; onPlans: () => void }> 
                   ))}
                 </div>
                 <p className="mt-7 rounded-[22px] border border-white/10 bg-white/[0.06] p-4 text-[11px] leading-relaxed text-white/48">
-                  Recomendamos que dados identificáveis de pacientes sejam removidos ou anonimizados antes do uso em materiais de comunicação, ensino ou publicação.
+                  Segurança também depende de uso responsável. Recomendamos que dados identificáveis de pacientes sejam removidos ou anonimizados antes do uso em materiais de comunicação, ensino ou publicação.
                 </p>
               </div>
               <div className="relative min-h-[520px] overflow-hidden bg-[#050506]">
-                <img src="/assets/lon-suite-security-editorial.png" alt="Segurança para acervo médico sensível" className="h-full w-full object-cover object-center grayscale opacity-90" />
+                <img src="/assets/lon-suite-generated-senior-doctor.jpg" alt="Médico sênior refletindo sobre segurança e responsabilidade científica" className="h-full w-full object-cover object-center grayscale opacity-90" />
                 <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(17,17,19,0.1),rgba(17,17,19,0.72))]" />
+                <div className="absolute bottom-8 left-8 right-8 rounded-[28px] border border-white/12 bg-black/35 p-6 backdrop-blur-xl">
+                  <KeyRound size={18} className="mb-8 text-white/58" />
+                  <p className="text-[28px] font-extralight leading-tight">Cuidado técnico para um acervo que carrega responsabilidade profissional.</p>
+                </div>
               </div>
             </div>
           </section>
@@ -827,7 +862,7 @@ const PlansLearnMorePage: React.FC<{ onBack: () => void; onPlans: () => void }> 
           </section>
 
           <section className="relative mt-24 overflow-hidden rounded-[42px] bg-[#111113] px-7 py-16 text-center text-white shadow-[0_38px_130px_rgba(0,0,0,0.26)] sm:px-12 sm:py-20">
-            <img src="/assets/lon-suite-physician-female-editorial.jpg" alt="" className="absolute inset-0 h-full w-full object-cover object-center grayscale opacity-48" />
+            <img src="/assets/lon-suite-generated-city-clinic.jpg" alt="" className="absolute inset-0 h-full w-full object-cover object-center grayscale opacity-48" />
             <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(17,17,19,0.94),rgba(17,17,19,0.58),rgba(17,17,19,0.92))]" />
             <div className="relative z-10">
               <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.2em] text-white/44">Comece pela decisão certa</p>
