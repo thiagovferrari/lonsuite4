@@ -26,7 +26,7 @@ const safeJsonParse = <T = unknown>(text: string): T | null => {
   }
 };
 
-const MODEL = 'gemini-1.5-flash';
+const MODEL = import.meta.env.VITE_GEMINI_MODEL || 'gemini-2.5-flash';
 
 // ─── AI usage tracking (persisted in localStorage) ───────────────────────────
 const AI_USAGE_KEY = 'lon_suite_ai_calls';
