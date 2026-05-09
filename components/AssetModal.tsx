@@ -321,8 +321,14 @@ const AssetModal: React.FC<AssetModalProps> = ({
             const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
             const base64Data = editedAsset.thumbnail.split(',')[1];
             const analysis = await analyzeAsset(base64Data, mimeType, 'Medicina');
-            setEditedAsset(prev => ({ ...prev, ...analysis }));
-        } catch { /* silent */ }
+            if (analysis.source === 'gemini') {
+                setEditedAsset(prev => ({ ...prev, ...analysis }));
+            } else {
+                alert(`A IA não conseguiu processar este ativo agora: ${analysis.errorMessage || 'verifique a chave do Gemini.'}`);
+            }
+        } catch (error) {
+            alert(`A IA não conseguiu processar este ativo agora: ${error instanceof Error ? error.message : 'falha inesperada.'}`);
+        }
         finally { setIsProcessingManual(false); }
     };
 

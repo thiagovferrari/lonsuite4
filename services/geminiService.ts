@@ -28,6 +28,8 @@ const safeJsonParse = <T = unknown>(text: string): T | null => {
 
 const MODEL = import.meta.env.VITE_GEMINI_MODEL || 'gemini-2.5-flash';
 
+export const hasGeminiConfig = (): boolean => Boolean(import.meta.env.VITE_GEMINI_API_KEY);
+
 // ─── AI usage tracking (persisted in localStorage) ───────────────────────────
 const AI_USAGE_KEY = 'lon_suite_ai_calls';
 export const incrementAIUsage = (): void => {
@@ -49,24 +51,34 @@ export interface AssetAnalysis {
   evidenceLevel: EvidenceLevel;
   publicationYear?: string;
   keyFindings?: string;
+  source?: 'gemini' | 'fallback';
+  errorMessage?: string;
 }
+
+const createFallbackAnalysis = (errorMessage: string): AssetAnalysis => ({
+  title: '',
+  tags: ['Manual'],
+  summary: '',
+  scientificContext: '',
+  evidenceLevel: 'Baixo',
+  source: 'fallback',
+  errorMessage,
+});
 
 export const analyzeAsset = async (
   base64Data: string,
   mimeType: string,
   expertise: string,
 ): Promise<AssetAnalysis> => {
-  const fallback: AssetAnalysis = {
-    title: 'Ativo Manual',
-    tags: ['Manual'],
-    summary: 'Processado em modo offline.',
-    scientificContext: 'N/A',
-    evidenceLevel: 'Baixo',
-  };
-
   try {
+    if (!base64Data) {
+      return createFallbackAnalysis('Arquivo sem dados suficientes para análise.');
+    }
+
     const ai = getClient();
-    if (!ai) return fallback;
+    if (!ai) {
+      return createFallbackAnalysis('Chave do Gemini ausente no ambiente.');
+    }
     incrementAIUsage();
 
     const response = await ai.models.generateContent({
@@ -108,7 +120,9 @@ Retorne apenas JSON válido.`,
     });
 
     const parsed = safeJsonParse<Partial<AssetAnalysis>>(response.text || '');
-    if (!parsed) return fallback;
+    if (!parsed) {
+      return createFallbackAnalysis('A IA respondeu fora do formato esperado.');
+    }
 
     const levels: EvidenceLevel[] = ['Alto', 'Moderado', 'Baixo'];
     return {
@@ -121,10 +135,11 @@ Retorne apenas JSON válido.`,
         : 'Baixo',
       publicationYear: parsed.publicationYear || String(new Date().getFullYear()),
       keyFindings: parsed.keyFindings || 'Dados consolidados no Vault.',
+      source: 'gemini',
     };
   } catch (error) {
     console.error('Gemini analyzeAsset error:', error);
-    return fallback;
+    return createFallbackAnalysis(error instanceof Error ? error.message : 'Falha inesperada na análise Gemini.');
   }
 };
 

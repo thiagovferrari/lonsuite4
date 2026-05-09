@@ -4,7 +4,7 @@ import Sidebar from './components/Sidebar';
 import VirtualizedAssetGrid from './components/VirtualizedAssetGrid';
 import AssetModal from './components/AssetModal';
 import LoginPage from './components/LoginPage';
-import { analyzeAsset, searchAssetsWithAI, searchCasesWithAI, generateCaseSemanticTags, getAIUsage } from './services/geminiService';
+import { analyzeAsset, searchAssetsWithAI, searchCasesWithAI, generateCaseSemanticTags, getAIUsage, hasGeminiConfig } from './services/geminiService';
 import { saveAttachmentData, getAttachmentData, deleteAttachmentData } from './services/storageService';
 import { supabase } from './services/supabase';
 import { clearStoredUser, getStoredUser, storeUser, signOut as authSignOut } from './services/authService';
@@ -251,6 +251,7 @@ const App: React.FC = () => {
     hasMore: false,
     isLoadingMore: false,
   });
+  const geminiReady = hasGeminiConfig();
 
   // Confirmation Dialog State
   const [confirmDialog, setConfirmDialog] = useState<{
@@ -810,6 +811,7 @@ const App: React.FC = () => {
       label: 'Preparando arquivos...',
     });
     let firstNewAsset: Asset | null = null;
+    let aiAnalysisFailed = false;
 
     try {
       // GROUP MODE: Create single asset with attachments saved in IndexedDB
@@ -832,14 +834,20 @@ const App: React.FC = () => {
           setUploadProgress(prev => ({ step: Math.max(prev?.step ?? 0, 1), total: prev?.total ?? pendingUpload.files.length + 2, label: 'IA analisando o primeiro arquivo...' }));
           try {
             const analysis = await analyzeAsset(firstBase64.split(',')[1], firstFile.type, 'Medicina');
-            assetData = {
-              title: analysis.title || assetData.title,
-              tags: Array.isArray(analysis.tags) ? analysis.tags : ['IA'],
-              summary: analysis.summary || assetData.summary,
-              scientificContext: analysis.scientificContext || assetData.scientificContext,
-              evidenceLevel: analysis.evidenceLevel || 'Baixo'
-            };
+            if (analysis.source === 'gemini') {
+              assetData = {
+                title: analysis.title || assetData.title,
+                tags: Array.isArray(analysis.tags) ? analysis.tags : ['IA'],
+                summary: analysis.summary || assetData.summary,
+                scientificContext: analysis.scientificContext || assetData.scientificContext,
+                evidenceLevel: analysis.evidenceLevel || 'Baixo'
+              };
+            } else {
+              aiAnalysisFailed = true;
+              console.warn('AI analysis fallback for group:', analysis.errorMessage);
+            }
           } catch (e) {
+            aiAnalysisFailed = true;
             console.error('AI analysis failed for group:', e);
           }
         }
@@ -914,14 +922,20 @@ const App: React.FC = () => {
             });
             try {
               const analysis = await analyzeAsset(base64.split(',')[1], file.type, 'Medicina');
-              assetData = {
-                title: analysis.title || assetData.title,
-                tags: Array.isArray(analysis.tags) ? analysis.tags : ['IA'],
-                summary: analysis.summary || assetData.summary,
-                scientificContext: analysis.scientificContext || assetData.scientificContext,
-                evidenceLevel: analysis.evidenceLevel || 'Baixo'
-              };
+              if (analysis.source === 'gemini') {
+                assetData = {
+                  title: analysis.title || assetData.title,
+                  tags: Array.isArray(analysis.tags) ? analysis.tags : ['IA'],
+                  summary: analysis.summary || assetData.summary,
+                  scientificContext: analysis.scientificContext || assetData.scientificContext,
+                  evidenceLevel: analysis.evidenceLevel || 'Baixo'
+                };
+              } else {
+                aiAnalysisFailed = true;
+                console.warn('AI analysis fallback for individual file:', analysis.errorMessage);
+              }
             } catch (e) {
+              aiAnalysisFailed = true;
               console.error('AI analysis failed for individual file:', e);
             }
           }
@@ -971,7 +985,13 @@ const App: React.FC = () => {
         setNewAssetId(firstNewAsset.id);
         setSelectedAsset(firstNewAsset);
       }
-      if (firstNewAsset) showAppToast('Upload concluído e ativo salvo.');
+      if (firstNewAsset && aiAnalysisFailed) {
+        setNewAssetId(firstNewAsset.id);
+        setSelectedAsset(firstNewAsset);
+        showAppToast('Upload salvo, mas a IA não conseguiu descrever. Abri o ativo para revisão.', 'warning');
+      } else if (firstNewAsset) {
+        showAppToast('Upload concluído e ativo salvo.');
+      }
     }
   };
 
@@ -2669,13 +2689,17 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                 <p className="mt-3 text-[10px] text-[#aeaeb2]">Etapa {Math.min(uploadProgress.step, uploadProgress.total)} de {uploadProgress.total}</p>
               </div>
             ) : (
-              <p className="relative mb-6 text-[12px] text-[#86868b]">Deseja que a IA indexe e descreva o ativo automaticamente?</p>
+              <p className="relative mb-6 text-[12px] text-[#86868b]">
+                {geminiReady
+                  ? 'Deseja que a IA indexe e descreva o ativo automaticamente?'
+                  : 'Gemini ainda não está configurado nesta build. Use a indexação manual ou configure a chave.'}
+              </p>
             )}
             <div className="relative flex flex-col gap-2.5">
-              <button onClick={() => processUpload(true)} disabled={isProcessing}
+              <button onClick={() => processUpload(true)} disabled={isProcessing || !geminiReady}
                 className="flex w-full items-center justify-center gap-2.5 rounded-[16px] bg-[#1d1d1f] py-3.5 text-[13px] font-semibold text-white shadow-[0_14px_40px_rgba(29,29,31,0.20)] disabled:opacity-50">
                 {isProcessing ? <Loader2 size={15} className="animate-spin" /> : <Brain size={15} />}
-                {isProcessing ? 'Processando cofre...' : 'Indexar com IA segura'}
+                {isProcessing ? 'Processando cofre...' : geminiReady ? 'Indexar com IA segura' : 'Gemini não configurado'}
               </button>
               <button onClick={() => processUpload(false)} disabled={isProcessing}
                 className="w-full rounded-[16px] bg-white/86 py-3.5 text-[13px] font-semibold text-[#1d1d1f] shadow-sm ring-1 ring-black/[0.055] transition-all hover:bg-white disabled:opacity-50">
