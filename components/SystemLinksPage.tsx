@@ -7,6 +7,7 @@ import {
   DoorOpen,
   FileText,
   Home,
+  Layers3,
   LayoutGrid,
   Link2,
   Mic2,
@@ -21,6 +22,7 @@ export type SystemLinkAction =
   | 'login'
   | 'plans'
   | 'planDetails'
+  | 'solutions'
   | 'method'
   | 'congress'
   | 'speakerKit'
@@ -59,6 +61,13 @@ const systemLinks: LinkItem[] = [
     title: 'Detalhes dos planos',
     description: 'Explicação ampliada sobre acervo, segurança, produção científica e uso da Lon Suite.',
     icon: Sparkles,
+    scope: 'public',
+  },
+  {
+    action: 'solutions',
+    title: 'Nossas Soluções',
+    description: 'Portfólio Longecta dividido em Para você, Para sua clínica e Para seu congresso.',
+    icon: Layers3,
     scope: 'public',
   },
   {
