@@ -7,6 +7,7 @@ export enum ViewState {
   CASES = 'CASES',
   TRASH = 'TRASH',
   SETTINGS = 'SETTINGS',
+  LINKS = 'LINKS',
 }
 
 export type AssetType = 'image' | 'pdf' | 'video' | 'document' | 'case';

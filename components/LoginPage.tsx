@@ -4,6 +4,7 @@ import { signIn } from '../services/authService';
 import type { AuthUser } from '../services/authService';
 import LongectaMethodPage from './LongectaMethodPage';
 import LongectaCongressPage from './LongectaCongressPage';
+import SystemLinksPage, { SystemLinksButton, SystemLinkAction } from './SystemLinksPage';
 
 interface Props {
   onLogin: (user: AuthUser) => void;
@@ -37,7 +38,7 @@ const PriceDisplay: React.FC<{ price: string; period: string; inverted?: boolean
   );
 };
 
-const PlansPage: React.FC<PlansPageProps> = ({ onBack, onLearnMore }) => {
+export const PlansPage: React.FC<PlansPageProps> = ({ onBack, onLearnMore }) => {
   const [activeDemo, setActiveDemo] = useState(0);
 
   const demoSteps = [
@@ -551,7 +552,7 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack, onLearnMore }) => {
   );
 };
 
-const PlansLearnMorePage: React.FC<{ onBack: () => void; onPlans: () => void }> = ({ onBack, onPlans }) => {
+export const PlansLearnMorePage: React.FC<{ onBack: () => void; onPlans: () => void }> = ({ onBack, onPlans }) => {
   const painCards = [
     ['Tenho milhares de imagens e nunca acho nada.', 'Casos clínicos, exames, fotos, PDFs e documentos ficam espalhados entre Drive, WhatsApp, computador, celular e e-mail. Quando você precisa, começa a caça ao arquivo.'],
     ['Preciso montar uma aula e perco horas procurando caso.', 'Para professores, palestrantes e congressistas, o maior custo não é criar a aula. É encontrar rapidamente o caso, a imagem e a referência certa.'],
@@ -897,6 +898,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
   const [showPlanDetails, setShowPlanDetails] = useState(false);
   const [showLongectaMethod, setShowLongectaMethod] = useState(false);
   const [showLongectaCongress, setShowLongectaCongress] = useState(false);
+  const [showSystemLinks, setShowSystemLinks] = useState(false);
 
   const stories = useMemo(() => [
     {
@@ -945,81 +947,121 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
     }
   };
 
-  if (showPlans) {
+  const handlePublicLinkNavigate = (action: SystemLinkAction) => {
+    setShowPlans(false);
+    setShowPlanDetails(false);
+    setShowLongectaMethod(false);
+    setShowLongectaCongress(false);
+    setShowSystemLinks(false);
+
+    if (action === 'plans') setShowPlans(true);
+    if (action === 'planDetails') setShowPlanDetails(true);
+    if (action === 'method') setShowLongectaMethod(true);
+    if (action === 'congress') setShowLongectaCongress(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  if (showSystemLinks) {
     return (
-      <PlansPage
-        onBack={() => setShowPlans(false)}
-        onLearnMore={() => {
-          setShowPlans(false);
-          setShowPlanDetails(true);
+      <SystemLinksPage
+        mode="public"
+        onBack={() => {
+          setShowSystemLinks(false);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
+        onNavigate={handlePublicLinkNavigate}
       />
+    );
+  }
+
+  if (showPlans) {
+    return (
+      <>
+        <SystemLinksButton onClick={() => setShowSystemLinks(true)} />
+        <PlansPage
+          onBack={() => setShowPlans(false)}
+          onLearnMore={() => {
+            setShowPlans(false);
+            setShowPlanDetails(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        />
+      </>
     );
   }
 
   if (showLongectaMethod) {
     return (
-      <LongectaMethodPage
-        onBack={() => {
-          setShowLongectaMethod(false);
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }}
-        onCongress={() => {
-          setShowLongectaMethod(false);
-          setShowLongectaCongress(true);
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }}
-        onPlans={() => {
-          setShowLongectaMethod(false);
-          setShowPlans(true);
-          window.setTimeout(() => document.getElementById('planos')?.scrollIntoView({ behavior: 'smooth' }), 50);
-        }}
-      />
+      <>
+        <SystemLinksButton onClick={() => setShowSystemLinks(true)} />
+        <LongectaMethodPage
+          onBack={() => {
+            setShowLongectaMethod(false);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          onCongress={() => {
+            setShowLongectaMethod(false);
+            setShowLongectaCongress(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          onPlans={() => {
+            setShowLongectaMethod(false);
+            setShowPlans(true);
+            window.setTimeout(() => document.getElementById('planos')?.scrollIntoView({ behavior: 'smooth' }), 50);
+          }}
+        />
+      </>
     );
   }
 
   if (showLongectaCongress) {
     return (
-      <LongectaCongressPage
-        onBack={() => {
-          setShowLongectaCongress(false);
-          setShowLongectaMethod(true);
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }}
-        onMethod={() => {
-          setShowLongectaCongress(false);
-          setShowLongectaMethod(true);
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }}
-        onPlans={() => {
-          setShowLongectaCongress(false);
-          setShowPlans(true);
-          window.setTimeout(() => document.getElementById('planos')?.scrollIntoView({ behavior: 'smooth' }), 50);
-        }}
-      />
+      <>
+        <SystemLinksButton onClick={() => setShowSystemLinks(true)} />
+        <LongectaCongressPage
+          onBack={() => {
+            setShowLongectaCongress(false);
+            setShowLongectaMethod(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          onMethod={() => {
+            setShowLongectaCongress(false);
+            setShowLongectaMethod(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          onPlans={() => {
+            setShowLongectaCongress(false);
+            setShowPlans(true);
+            window.setTimeout(() => document.getElementById('planos')?.scrollIntoView({ behavior: 'smooth' }), 50);
+          }}
+        />
+      </>
     );
   }
 
   if (showPlanDetails) {
     return (
-      <PlansLearnMorePage
-        onBack={() => {
-          setShowPlanDetails(false);
-          setShowPlans(true);
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }}
-        onPlans={() => {
-          setShowPlanDetails(false);
-          setShowPlans(true);
-          window.setTimeout(() => document.getElementById('planos')?.scrollIntoView({ behavior: 'smooth' }), 50);
-        }}
-      />
+      <>
+        <SystemLinksButton onClick={() => setShowSystemLinks(true)} />
+        <PlansLearnMorePage
+          onBack={() => {
+            setShowPlanDetails(false);
+            setShowPlans(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          onPlans={() => {
+            setShowPlanDetails(false);
+            setShowPlans(true);
+            window.setTimeout(() => document.getElementById('planos')?.scrollIntoView({ behavior: 'smooth' }), 50);
+          }}
+        />
+      </>
     );
   }
 
   return (
     <div className="lon-soft-bg min-h-screen text-[#1d1d1f]">
+      <SystemLinksButton onClick={() => setShowSystemLinks(true)} />
       <div className="grid min-h-screen lg:grid-cols-[minmax(420px,0.86fr)_1.14fr]">
         <section className="flex items-center justify-center px-5 py-10 sm:px-8 lg:px-12">
           <div className="w-full max-w-[420px]">

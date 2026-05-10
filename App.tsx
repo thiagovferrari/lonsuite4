@@ -3,7 +3,10 @@ import { ViewState, Asset, EvidenceLevel, AssetType, CaseBlock, CaseStatus, Atta
 import Sidebar from './components/Sidebar';
 import VirtualizedAssetGrid from './components/VirtualizedAssetGrid';
 import AssetModal from './components/AssetModal';
-import LoginPage from './components/LoginPage';
+import LoginPage, { PlansLearnMorePage, PlansPage } from './components/LoginPage';
+import LongectaMethodPage from './components/LongectaMethodPage';
+import LongectaCongressPage from './components/LongectaCongressPage';
+import SystemLinksPage, { SystemLinksButton, SystemLinkAction } from './components/SystemLinksPage';
 import { analyzeAsset, searchAssetsWithAI, searchCasesWithAI, generateCaseSemanticTags, getAIUsage, hasGeminiConfig } from './services/geminiService';
 import { saveAttachmentData, getAttachmentData, deleteAttachmentData } from './services/storageService';
 import { supabase } from './services/supabase';
@@ -25,6 +28,8 @@ type IntelligenceClipboard = {
   createdAt: string;
   updatedAt: string;
 };
+
+type AppPublicPage = Extract<SystemLinkAction, 'plans' | 'planDetails' | 'method' | 'congress'>;
 
 async function withSupabaseTimeout<T>(promise: PromiseLike<T>, label: string): Promise<T> {
   let timeoutId: number | undefined;
@@ -251,6 +256,7 @@ const App: React.FC = () => {
     hasMore: false,
     isLoadingMore: false,
   });
+  const [systemPublicPage, setSystemPublicPage] = useState<AppPublicPage | null>(null);
   const geminiReady = hasGeminiConfig();
 
   // Confirmation Dialog State
@@ -2533,6 +2539,47 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
     setAssets([]);
   };
 
+  const resetWorkspaceContext = () => {
+    setSelectedAsset(null);
+    setEditingCase(null);
+    setNewAssetId(null);
+    setSystemPublicPage(null);
+  };
+
+  const openSystemLinks = () => {
+    resetWorkspaceContext();
+    setView(ViewState.LINKS);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSystemLinkNavigate = (action: SystemLinkAction) => {
+    resetWorkspaceContext();
+
+    if (action === 'login') {
+      handleLogout();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    if (action === 'plans' || action === 'planDetails' || action === 'method' || action === 'congress') {
+      setSystemPublicPage(action);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    const viewByAction: Partial<Record<SystemLinkAction, ViewState>> = {
+      home: ViewState.HOME,
+      intelligence: ViewState.INTELLIGENCE,
+      assets: ViewState.ATIVOS,
+      cases: ViewState.CASES,
+      trash: ViewState.TRASH,
+      settings: ViewState.SETTINGS,
+    };
+
+    setView(viewByAction[action] || ViewState.LINKS);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleProfileAvatarSelected = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -2600,9 +2647,68 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
     }
   };
 
+  if (systemPublicPage) {
+    return (
+      <>
+        <SystemLinksButton onClick={openSystemLinks} />
+        {systemPublicPage === 'plans' && (
+          <PlansPage
+            onBack={() => setSystemPublicPage(null)}
+            onLearnMore={() => {
+              setSystemPublicPage('planDetails');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          />
+        )}
+        {systemPublicPage === 'planDetails' && (
+          <PlansLearnMorePage
+            onBack={() => {
+              setSystemPublicPage('plans');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onPlans={() => {
+              setSystemPublicPage('plans');
+              window.setTimeout(() => document.getElementById('planos')?.scrollIntoView({ behavior: 'smooth' }), 50);
+            }}
+          />
+        )}
+        {systemPublicPage === 'method' && (
+          <LongectaMethodPage
+            onBack={() => setSystemPublicPage(null)}
+            onCongress={() => {
+              setSystemPublicPage('congress');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onPlans={() => {
+              setSystemPublicPage('plans');
+              window.setTimeout(() => document.getElementById('planos')?.scrollIntoView({ behavior: 'smooth' }), 50);
+            }}
+          />
+        )}
+        {systemPublicPage === 'congress' && (
+          <LongectaCongressPage
+            onBack={() => {
+              setSystemPublicPage('method');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onMethod={() => {
+              setSystemPublicPage('method');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onPlans={() => {
+              setSystemPublicPage('plans');
+              window.setTimeout(() => document.getElementById('planos')?.scrollIntoView({ behavior: 'smooth' }), 50);
+            }}
+          />
+        )}
+      </>
+    );
+  }
+
   return (
     <div className="lon-soft-bg min-h-screen text-[#1d1d1f] font-sans pb-20 md:pb-0 md:pl-[80px] transition-all duration-300">
-      <Sidebar currentView={view} setView={(v) => { setSelectedAsset(null); setEditingCase(null); setNewAssetId(null); setView(v); }} trashCount={trashedAssets.length} />
+      <Sidebar currentView={view} setView={(v) => { resetWorkspaceContext(); setView(v); }} trashCount={trashedAssets.length} />
+      <SystemLinksButton onClick={openSystemLinks} />
 
       <div className="sticky top-0 z-[210] flex justify-start px-4 pt-3 md:px-6 md:pt-4">
         <div className="lon-glass-panel flex max-w-full items-center gap-1 rounded-full px-1.5 py-1.5">
@@ -2722,6 +2828,15 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
       )}
 
       <main className="min-h-screen w-full">
+        {/* SYSTEM LINKS */}
+        {view === ViewState.LINKS && (
+          <SystemLinksPage
+            mode="internal"
+            onBack={() => setView(ViewState.HOME)}
+            onNavigate={handleSystemLinkNavigate}
+          />
+        )}
+
         {/* HOME */}
         {view === ViewState.HOME && (() => {
           const totalAssets = activeAssets.filter(a => a.type !== 'case').length;
