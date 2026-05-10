@@ -6,6 +6,7 @@ import LongectaMethodPage from './LongectaMethodPage';
 import LongectaCongressPage from './LongectaCongressPage';
 import SpeakerVisibilityKitPage from './SpeakerVisibilityKitPage';
 import LongectaSolutionsPage from './LongectaSolutionsPage';
+import LongectaMaterialsPage from './LongectaMaterialsPage';
 import SystemLinksPage, { SystemLinksButton, SystemLinkAction } from './SystemLinksPage';
 
 interface Props {
@@ -899,6 +900,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
   const [showPlans, setShowPlans] = useState(false);
   const [showPlanDetails, setShowPlanDetails] = useState(false);
   const [showSolutions, setShowSolutions] = useState(false);
+  const [showMaterials, setShowMaterials] = useState(false);
   const [showLongectaMethod, setShowLongectaMethod] = useState(false);
   const [showLongectaCongress, setShowLongectaCongress] = useState(false);
   const [showSpeakerKit, setShowSpeakerKit] = useState(false);
@@ -955,6 +957,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
     setShowPlans(false);
     setShowPlanDetails(false);
     setShowSolutions(false);
+    setShowMaterials(false);
     setShowLongectaMethod(false);
     setShowLongectaCongress(false);
     setShowSpeakerKit(false);
@@ -963,6 +966,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
     if (action === 'plans') setShowPlans(true);
     if (action === 'planDetails') setShowPlanDetails(true);
     if (action === 'solutions') setShowSolutions(true);
+    if (action === 'materials') setShowMaterials(true);
     if (action === 'method') setShowLongectaMethod(true);
     if (action === 'congress') setShowLongectaCongress(true);
     if (action === 'speakerKit') setShowSpeakerKit(true);
@@ -1048,6 +1052,35 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
           }}
           onPlans={() => {
             setShowSolutions(false);
+            setShowPlans(true);
+            window.setTimeout(() => document.getElementById('planos')?.scrollIntoView({ behavior: 'smooth' }), 50);
+          }}
+        />
+      </>
+    );
+  }
+
+  if (showMaterials) {
+    return (
+      <>
+        <SystemLinksButton onClick={() => setShowSystemLinks(true)} />
+        <LongectaMaterialsPage
+          onBack={() => {
+            setShowMaterials(false);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          onCongress={() => {
+            setShowMaterials(false);
+            setShowLongectaCongress(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          onSolutions={() => {
+            setShowMaterials(false);
+            setShowSolutions(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          onPlans={() => {
+            setShowMaterials(false);
             setShowPlans(true);
             window.setTimeout(() => document.getElementById('planos')?.scrollIntoView({ behavior: 'smooth' }), 50);
           }}

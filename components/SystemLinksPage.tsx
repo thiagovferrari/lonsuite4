@@ -2,6 +2,7 @@ import React from 'react';
 import {
   ArrowLeft,
   ArrowRight,
+  Box,
   Brain,
   CircleEllipsis,
   DoorOpen,
@@ -23,6 +24,7 @@ export type SystemLinkAction =
   | 'plans'
   | 'planDetails'
   | 'solutions'
+  | 'materials'
   | 'method'
   | 'congress'
   | 'speakerKit'
@@ -68,6 +70,13 @@ const systemLinks: LinkItem[] = [
     title: 'Nossas Soluções',
     description: 'Portfólio Longecta dividido em Para você, Para sua clínica e Para seu congresso.',
     icon: Layers3,
+    scope: 'public',
+  },
+  {
+    action: 'materials',
+    title: 'Materiais',
+    description: 'Artes premium, cenografia visual e projetos 3D para congressos, estandes e ativações.',
+    icon: Box,
     scope: 'public',
   },
   {
