@@ -79,6 +79,45 @@ const phases = [
   },
 ];
 
+const congressTimeline = [
+  {
+    moment: 'T-180 a T-120',
+    title: 'Fundação da marca',
+    body: 'Diagnóstico, posicionamento, promessa da edição, narrativa, identidade, key visual e arquitetura de mensagens.',
+    output: 'Congresso com conceito claro',
+  },
+  {
+    moment: 'T-120 a T-90',
+    title: 'Lançamento',
+    body: 'Teaser, save the date, landing page, campanha de abertura, e-mails, primeiros posts e argumento de inscrição.',
+    output: 'Primeira percepção premium',
+  },
+  {
+    moment: 'T-90 a T-45',
+    title: 'Programação em valor',
+    body: 'Trilhas científicas, mesas, cursos, palestrantes e temas são transformados em conteúdos que aumentam desejo de participação.',
+    output: 'Ciência comunicada com clareza',
+  },
+  {
+    moment: 'T-45 a T-7',
+    title: 'Conversão e patrocinadores',
+    body: 'Campanhas de lote, urgência, networking, materiais comerciais, visibilidade de patrocinadores e reforço de diferenciais.',
+    output: 'Mais inscrição e valor comercial',
+  },
+  {
+    moment: 'Evento',
+    title: 'Experiência presencial',
+    body: 'Telas, sinalização, avisos, posts em tempo real, bastidores, comunicação de auditório, estandes e ativações.',
+    output: 'Evento percebido como marca',
+  },
+  {
+    moment: 'D+1 a D+45',
+    title: 'Legado e próxima edição',
+    body: 'Retrospectiva, sponsor report, relatório para diretoria, banco de imagens, highlights e memória estratégica.',
+    output: 'Fim que vira próxima campanha',
+  },
+];
+
 const situations = [
   ['Programação excelente, pouco desejo', 'Transformamos temas, mesas e trilhas em conteúdos de valor.'],
   ['Inscrições abaixo do potencial', 'Criamos campanhas com narrativa, urgência, argumentos e constância.'],
@@ -171,6 +210,35 @@ const LongectaCongressPage: React.FC<LongectaCongressPageProps> = ({ onBack, onM
                     <Check size={15} className="mt-0.5 shrink-0 text-[#111113]" />
                     {item}
                   </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          <section className="mt-24 rounded-[42px] border border-black/[0.055] bg-white/72 p-6 shadow-[0_30px_100px_rgba(0,0,0,0.08)] backdrop-blur-xl sm:p-8 lg:p-10">
+            <div className="mb-9 max-w-4xl">
+              <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Régua estratégica do congresso</p>
+              <h2 className="text-[40px] font-semibold leading-tight sm:text-[58px]">Uma comunicação completa, do primeiro anúncio ao legado da próxima edição.</h2>
+              <p className="mt-5 max-w-3xl text-[15px] leading-relaxed text-[#6e6e73]">
+                A Longecta organiza a comunicação do congresso como uma jornada. Cada fase tem uma função: criar percepção, aumentar desejo, converter inscrições, valorizar patrocinadores, orientar a experiência e preservar memória.
+              </p>
+            </div>
+
+            <div className="relative">
+              <div className="absolute left-5 top-0 hidden h-full w-px bg-black/10 lg:block" />
+              <div className="grid gap-4 lg:grid-cols-6">
+                {congressTimeline.map((item, index) => (
+                  <article key={item.title} className={`relative rounded-[28px] border p-5 shadow-[0_18px_60px_rgba(0,0,0,0.055)] ${index === 3 ? 'border-[#111113] bg-[#111113] text-white' : 'border-black/[0.055] bg-[#f7f7f8] text-[#111113]'}`}>
+                    <div className={`mb-7 flex h-11 w-11 items-center justify-center rounded-full text-[12px] font-bold ${index === 3 ? 'bg-white text-[#111113]' : 'bg-[#111113] text-white'}`}>
+                      {index + 1}
+                    </div>
+                    <p className={`mb-4 text-[10px] font-bold uppercase tracking-[0.16em] ${index === 3 ? 'text-white/42' : 'text-[#86868b]'}`}>{item.moment}</p>
+                    <h3 className="text-[23px] font-light leading-tight">{item.title}</h3>
+                    <p className={`mt-4 text-[12px] leading-relaxed ${index === 3 ? 'text-white/58' : 'text-[#6e6e73]'}`}>{item.body}</p>
+                    <div className={`mt-6 rounded-full px-3 py-2 text-[10px] font-bold uppercase tracking-[0.12em] ${index === 3 ? 'bg-white/10 text-white/70' : 'bg-white text-[#424245]'}`}>
+                      {item.output}
+                    </div>
+                  </article>
                 ))}
               </div>
             </div>

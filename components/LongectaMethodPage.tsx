@@ -34,62 +34,62 @@ interface LongectaMethodPageProps {
 }
 
 const methodMailto = (subject: string) =>
-  `mailto:contato@lonsuite.com.br?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent('Olá, quero entender como a Longecta pode estruturar plataforma, serviço e inteligência para transformar meu acervo médico em autoridade. Pode me orientar nos próximos passos?')}`;
+  `mailto:contato@lonsuite.com.br?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent('Olá, quero entender como a Longecta pode transformar meu conhecimento médico em uma estrutura de autoridade, conteúdo e crescimento. Pode me orientar nos próximos passos?')}`;
 
 const pillars = [
   {
     icon: Database,
-    title: 'Plataforma',
-    body: 'O acervo deixa de ser uma pasta passiva e vira um ambiente organizado por tema, status, potencial de uso, histórico e aprovação.',
+    title: 'Plataforma proprietária',
+    body: 'Seu acervo, suas ideias, seus casos e seus materiais passam a viver em um ambiente organizado, pesquisável e preparado para produção recorrente.',
   },
   {
     icon: Users,
-    title: 'Serviço',
-    body: 'A Longecta entra como operação estratégica: seleciona, lapida, desenha, escreve, revisa e transforma o material em entrega publicável.',
+    title: 'Serviço especializado',
+    body: 'Você não fica sozinho diante de uma ferramenta. Uma equipe com olhar médico, editorial e estratégico conduz a transformação até a entrega final.',
   },
   {
     icon: Brain,
-    title: 'Inteligência',
-    body: 'Cada cliente ganha contexto: especialidade, linguagem, público, objetivos, histórico, eventos, serviços e estilo editorial.',
+    title: 'Inteligência contextual',
+    body: 'A Longecta entende sua especialidade, linguagem, posicionamento, público e objetivos para que cada material reflita a autoridade que você já construiu.',
   },
 ];
 
 const methodSteps = [
   {
     icon: UploadCloud,
-    label: 'Entrada',
-    title: 'Você envia o bruto',
-    body: 'Fotos, vídeos, PDFs, aulas, áudios, artigos, ideias, programação científica, bastidores, materiais antigos e referências entram em um fluxo único.',
+    label: '1. Envio',
+    title: 'Você envia o que já tem',
+    body: 'Fotos, vídeos, aulas, PDFs, artigos, áudios, ideias, casos e materiais antigos entram em um ambiente único, sem depender de conversas soltas ou pastas esquecidas.',
   },
   {
     icon: Search,
-    label: 'Organização',
-    title: 'A plataforma cria contexto',
-    body: 'Os materiais são classificados por tipo, tema, evento, status, sensibilidade, potencial de uso e destino provável: post, aula, case, campanha ou relatório.',
+    label: '2. Contexto',
+    title: 'A plataforma organiza o valor',
+    body: 'Cada material ganha tema, finalidade, potencial de uso e relação com seus objetivos: autoridade médica, educação, relacionamento, aula, campanha ou presença institucional.',
   },
   {
     icon: Wand2,
-    label: 'Primeira versão',
-    title: 'A IA estrutura a saída',
-    body: 'A inteligência artificial ajuda a gerar títulos, caminhos de narrativa, legendas, roteiros, tópicos, resumos e possibilidades de reaproveitamento.',
+    label: '3. Inteligência',
+    title: 'A IA acelera a estrutura',
+    body: 'A tecnologia ajuda a mapear caminhos, organizar ideias, sugerir narrativas e reduzir o tempo entre o material bruto e uma direção clara de comunicação.',
   },
   {
     icon: PenLine,
-    label: 'Curadoria',
-    title: 'A Longecta transforma',
-    body: 'Estrategista, curador, copywriter e designer refinam o material para ficar alinhado à autoridade médica, ao público e ao momento comercial.',
+    label: '4. Curadoria',
+    title: 'A Longecta dá forma premium',
+    body: 'Copy, design, estratégia e curadoria humana elevam o material para uma comunicação mais precisa, sofisticada e alinhada ao seu posicionamento.',
   },
   {
     icon: ClipboardCheck,
-    label: 'Aprovação',
-    title: 'O cliente decide rápido',
-    body: 'O médico, a clínica ou o evento aprova, comenta ou pede ajuste sem depender de conversas perdidas e arquivos reenviados no WhatsApp.',
+    label: '5. Aprovação',
+    title: 'Você aprova com clareza',
+    body: 'As entregas ficam organizadas para revisão, comentários e aprovação, reduzindo ruído, retrabalho e a sensação de que tudo depende de mensagens urgentes.',
   },
   {
     icon: Network,
-    label: 'Memória',
-    title: 'Tudo volta para o acervo',
-    body: 'Cada entrega vira histórico reutilizável. A próxima campanha, aula ou edição começa mais inteligente do que a anterior.',
+    label: '6. Continuidade',
+    title: 'Cada entrega alimenta a próxima',
+    body: 'O que é produzido volta para sua memória estratégica. A próxima aula, campanha, publicação ou evento começa com mais repertório e menos improviso.',
   },
 ];
 
@@ -112,40 +112,47 @@ const products = [
   {
     icon: Award,
     title: 'Lon Authority Médico',
-    body: 'Para médicos especialistas, professores, cirurgiões e palestrantes que querem transformar repertório clínico em autoridade publicada.',
+    body: 'Para médicos especialistas, professores, cirurgiões e palestrantes que querem transformar repertório em presença digital, científica e institucional.',
     items: ['Calendário mensal', 'Posts, carrosséis e LinkedIn', 'Conteúdo a partir de casos e aulas'],
   },
   {
     icon: Building2,
     title: 'Lon Clinic Authority',
-    body: 'Para clínicas que precisam organizar serviços, campanhas, materiais institucionais, comunicação educativa e aprovações internas.',
+    body: 'Para clínicas que precisam comunicar serviços, diferenciais, campanhas e educação médica com mais consistência, estética e organização.',
     items: ['Acervo da clínica', 'Campanhas mensais', 'Materiais para recepção e equipe'],
   },
   {
     icon: Rocket,
     title: 'Lon Event Brain',
-    body: 'Para congressos que querem transformar programação, palestrantes, fotos, vídeos e patrocinadores em memória estratégica do evento.',
+    body: 'Para eventos científicos que querem transformar programação, palestrantes, bastidores e patrocinadores em memória, campanha e legado.',
     items: ['Central do congresso', 'Histórico de campanhas', 'Inteligência para próxima edição'],
   },
   {
     icon: FileText,
     title: 'Lon Sponsor Report',
-    body: 'Para eventos que precisam provar valor a patrocinadores com clareza, estética, números, entregas e oportunidades comerciais.',
+    body: 'Para eventos e instituições que precisam demonstrar valor com clareza, estética, entregas, números e argumentos de renovação.',
     items: ['Book pós-evento', 'Presença de marca', 'Argumento para renovação'],
   },
 ];
 
 const clientModes = [
-  ['Mínimo esforço', 'Envia material e aprova. Ideal para o médico ocupado que quer resultado sem aprender uma operação nova.'],
-  ['Colaborativo', 'Seleciona arquivos, comenta, pede materiais e participa da construção editorial com a equipe Longecta.'],
-  ['Power user', 'Usa o acervo para organizar ideias, acompanhar histórico, gerar possibilidades e alimentar uma máquina contínua.'],
+  ['Mínimo esforço', 'Você envia materiais e aprova entregas. A estrutura trabalha por trás para transformar repertório em comunicação pronta.'],
+  ['Colaborativo', 'Você participa das escolhas, comenta, seleciona temas e acompanha a evolução das campanhas com mais transparência.'],
+  ['Estratégico', 'Você usa o ambiente como memória de autoridade: ideias, histórico, materiais, próximos temas e oportunidades ficam vivos.'],
 ];
 
 const objections = [
-  ['“Eu já uso ChatGPT.”', 'O ChatGPT responde. A Longecta cria uma operação: acervo, contexto, histórico, fluxo, aprovação, curadoria e acabamento profissional.'],
-  ['“Eu já tenho Drive.”', 'O Drive guarda arquivos. A Longecta transforma arquivos em materiais úteis, com destino, narrativa, revisão e reutilização.'],
-  ['“Eu não tenho tempo.”', 'O método foi desenhado para pouco esforço: você envia o bruto, a plataforma organiza e a Longecta transforma.'],
-  ['“Eu já tenho agência.”', 'O método potencializa a operação, reduz perda de informação e cria um fluxo mais profissional entre cliente, conteúdo e entrega.'],
+  ['“Eu já uso IA.”', 'IA gera caminhos. A Longecta entrega estrutura, direção, curadoria, design, revisão e continuidade. O valor não está só em gerar texto: está em transformar repertório em presença de alto nível.'],
+  ['“Eu já tenho Drive.”', 'Drive guarda arquivos. A Longecta dá destino aos arquivos: conteúdo, aula, campanha, case, relatório, comunicação institucional e memória estratégica.'],
+  ['“Eu não tenho tempo.”', 'Esse é o ponto. A experiência foi pensada para reduzir sua carga: você envia o que tem, aprova com clareza e recebe uma operação que avança com método.'],
+  ['“Eu já tenho equipe ou agência.”', 'A Longecta organiza a matéria-prima, o histórico e o processo, elevando a qualidade da comunicação e reduzindo perda de informação, ruído e retrabalho.'],
+];
+
+const outcomes = [
+  ['Autoridade publicada', 'Sua experiência passa a aparecer com mais consistência, sofisticação e frequência.'],
+  ['Menos carga na rotina', 'A comunicação deixa de depender de caçar arquivo, reenviar referência e explicar tudo de novo.'],
+  ['Conteúdo com origem real', 'As campanhas nascem do seu repertório, não de ideias genéricas que poderiam servir para qualquer médico.'],
+  ['Memória estratégica', 'Cada entrega fortalece um acervo que pode ser reutilizado em aulas, congressos, campanhas e materiais institucionais.'],
 ];
 
 const LongectaMethodPage: React.FC<LongectaMethodPageProps> = ({ onBack, onCongress, onPlans }) => {
@@ -163,10 +170,10 @@ const LongectaMethodPage: React.FC<LongectaMethodPageProps> = ({ onBack, onCongr
               Login
             </button>
             <div className="hidden items-center gap-6 text-[11px] font-semibold text-[#6e6e73] md:flex">
-              <a href="#metodo" className="hover:text-[#1d1d1f]">Método</a>
+              <a href="#metodo" className="hover:text-[#1d1d1f]">Como funciona</a>
               <a href="#entregas" className="hover:text-[#1d1d1f]">Entregas</a>
-              <a href="#produtos" className="hover:text-[#1d1d1f]">Produtos</a>
-              <a href="#operacao" className="hover:text-[#1d1d1f]">Operação</a>
+              <a href="#produtos" className="hover:text-[#1d1d1f]">Soluções</a>
+              <a href="#operacao" className="hover:text-[#1d1d1f]">Experiência</a>
             </div>
             <button onClick={onPlans} className="button-nowrap rounded-full bg-[#1d1d1f] px-4 py-2 text-[12px] font-semibold text-white hover:bg-[#2d2d2f]">
               Ver planos
@@ -177,17 +184,17 @@ const LongectaMethodPage: React.FC<LongectaMethodPageProps> = ({ onBack, onCongr
             <div className="plans-story-enter">
               <p className="plans-eyebrow lon-glass-panel mb-5 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[10px] font-bold uppercase text-[#6e6e73]">
                 <Sparkles size={13} className="text-[#1d1d1f]" />
-                Método Longecta
+                Plataforma + serviço + curadoria
               </p>
               <h1 className="max-w-5xl text-[44px] leading-[0.98] sm:text-[66px] lg:text-[76px]">
-                Você envia o bruto. A tecnologia organiza. A Longecta transforma.
+                Transforme seu conhecimento médico em uma máquina de autoridade.
               </h1>
               <p className="mt-8 max-w-2xl text-[18px] font-light leading-relaxed text-[#6e6e73] sm:text-[21px]">
-                A Longecta une plataforma, serviço e inteligência para transformar conhecimento médico disperso em conteúdo, autoridade, campanhas, aulas, relatórios e memória estratégica.
+                A Longecta combina tecnologia proprietária, curadoria humana e serviço especializado para transformar casos, aulas, ideias, arquivos e experiências em conteúdo, campanhas, apresentações e presença médica de alto valor.
               </p>
               <div className="mt-9 flex flex-col gap-3 sm:flex-row">
                 <a href={methodMailto('Quero conhecer o Método Longecta')} className="button-nowrap inline-flex items-center justify-center gap-2 rounded-full bg-[#1d1d1f] px-6 py-3 text-[13px] font-semibold text-white shadow-[0_18px_44px_rgba(0,0,0,0.18)] hover:bg-[#2d2d2f]">
-                  Quero conhecer o método
+                  Quero transformar meu acervo
                   <ArrowRight size={15} />
                 </a>
                 <a href="#metodo" className="button-nowrap inline-flex items-center justify-center gap-2 rounded-full border border-black/[0.07] bg-white/72 px-6 py-3 text-[13px] font-semibold text-[#1d1d1f] shadow-sm backdrop-blur-xl hover:bg-white">
@@ -203,8 +210,8 @@ const LongectaMethodPage: React.FC<LongectaMethodPageProps> = ({ onBack, onCongr
                 className="absolute right-0 top-0 h-[430px] w-[94%] rounded-[30px] object-cover object-center shadow-[0_38px_120px_rgba(0,0,0,0.16)] sm:h-[540px] sm:w-[88%] sm:rounded-[38px]"
               />
               <div className="absolute bottom-0 left-0 w-[90%] rounded-[28px] bg-[#111113] p-5 text-white shadow-[0_40px_130px_rgba(0,0,0,0.32)] sm:w-[76%] sm:rounded-[34px] sm:p-7">
-                <p className="mb-7 text-[10px] font-bold uppercase tracking-[0.18em] text-white/42">Virada estratégica</p>
-                <h2 className="text-[32px] font-extralight leading-tight sm:text-[38px]">Menos demanda caótica. Mais processo, autoridade e escala.</h2>
+                <p className="mb-7 text-[10px] font-bold uppercase tracking-[0.18em] text-white/42">Sistema híbrido</p>
+                <h2 className="text-[32px] font-extralight leading-tight sm:text-[38px]">Software para organizar. Inteligência para direcionar. Longecta para transformar.</h2>
                 <div className="mt-7 grid grid-cols-3 gap-2">
                   {['Plataforma', 'Serviço', 'Inteligência'].map(item => (
                     <span key={item} className="rounded-full bg-white/10 px-3 py-2 text-center text-[10px] font-bold uppercase tracking-[0.12em] text-white/70">{item}</span>
@@ -213,7 +220,7 @@ const LongectaMethodPage: React.FC<LongectaMethodPageProps> = ({ onBack, onCongr
               </div>
               <div className="plans-floating-metric lon-glass-panel-strong absolute bottom-[164px] right-0 hidden max-w-[158px] rounded-[20px] px-4 py-3 sm:block sm:right-6">
                 <p className="text-[34px] font-extralight leading-none">3</p>
-                <p className="mt-2 text-[10px] font-semibold leading-relaxed text-[#86868b]">camadas para criar uma estrutura difícil de copiar</p>
+                <p className="mt-2 text-[10px] font-semibold leading-relaxed text-[#86868b]">camadas trabalhando para sua autoridade</p>
               </div>
             </div>
           </div>
@@ -232,10 +239,10 @@ const LongectaMethodPage: React.FC<LongectaMethodPageProps> = ({ onBack, onCongr
 
           <section id="metodo" className="mt-24 scroll-mt-24">
             <div className="mb-8 max-w-4xl">
-              <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Método operacional</p>
-              <h2 className="text-[40px] font-semibold leading-tight sm:text-[62px]">Da informação médica dispersa ao ativo de autoridade.</h2>
+              <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Como funciona para você</p>
+              <h2 className="text-[40px] font-semibold leading-tight sm:text-[62px]">Do material parado à autoridade publicada.</h2>
               <p className="mt-5 max-w-3xl text-[15px] leading-relaxed text-[#6e6e73]">
-                O método Longecta foi desenhado para tirar o cliente da dependência de briefings soltos, mensagens perdidas e criação recomeçada do zero. Cada arquivo entra, ganha contexto, vira entrega e volta para uma memória reutilizável.
+                A Longecta foi criada para médicos, clínicas e eventos que têm conhecimento, mas não têm uma estrutura contínua para transformar esse conhecimento em presença, reputação e relacionamento.
               </p>
             </div>
 
@@ -258,14 +265,14 @@ const LongectaMethodPage: React.FC<LongectaMethodPageProps> = ({ onBack, onCongr
           <section className="mt-24 overflow-hidden rounded-[42px] bg-white shadow-[0_30px_100px_rgba(0,0,0,0.10)]">
             <div className="grid lg:grid-cols-[1.04fr_0.96fr]">
               <div className="p-8 sm:p-12 lg:p-16">
-                <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">O que muda para o cliente</p>
-                <h2 className="text-[40px] font-semibold leading-tight sm:text-[58px]">Ele não sente que comprou uma ferramenta. Ele sente que ganhou uma estrutura.</h2>
+                <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Por que é diferente</p>
+                <h2 className="text-[40px] font-semibold leading-tight sm:text-[58px]">Não é só software. Não é só agência. É uma estrutura híbrida.</h2>
                 <div className="mt-8 grid gap-3 sm:grid-cols-2">
                   {[
-                    ['Organização', 'O conhecimento não fica mais perdido entre Drive, celular, e-mail e WhatsApp.'],
-                    ['Autoridade', 'O conteúdo passa a refletir o tamanho real da experiência médica.'],
-                    ['Continuidade', 'Cada material produzido alimenta a próxima campanha, aula ou evento.'],
-                    ['Tranquilidade', 'A Longecta opera junto, revisa, lapida e entrega com método.'],
+                    ['Plataforma', 'Centraliza acervo, histórico, arquivos, aprovações e materiais para reduzir dispersão.'],
+                    ['Curadoria', 'Transforma repertório técnico em comunicação compreensível, elegante e estratégica.'],
+                    ['Serviço', 'A equipe Longecta conduz a produção, lapida a linguagem e dá acabamento premium.'],
+                    ['Inteligência', 'O contexto acumulado melhora próximos conteúdos, campanhas, aulas e materiais.'],
                   ].map(([title, body]) => (
                     <div key={title} className="rounded-[24px] border border-black/[0.055] bg-[#f7f7f8] p-5">
                       <Check size={18} className="mb-7 text-[#111113]" />
@@ -280,7 +287,7 @@ const LongectaMethodPage: React.FC<LongectaMethodPageProps> = ({ onBack, onCongr
                 <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(17,17,19,0.05),rgba(17,17,19,0.74))]" />
                 <div className="absolute bottom-8 left-8 right-8 rounded-[28px] border border-white/12 bg-black/35 p-6 text-white backdrop-blur-xl">
                   <Lightbulb size={18} className="mb-8 text-white/58" />
-                  <p className="text-[28px] font-extralight leading-tight">A operação deixa de ser “pedido por pedido” e vira uma máquina editorial inteligente.</p>
+                  <p className="text-[28px] font-extralight leading-tight">Sua experiência deixa de ficar escondida e passa a trabalhar pela sua reputação.</p>
                 </div>
               </div>
             </div>
@@ -289,9 +296,9 @@ const LongectaMethodPage: React.FC<LongectaMethodPageProps> = ({ onBack, onCongr
           <section id="entregas" className="mt-24 scroll-mt-24">
             <div className="mb-8 max-w-4xl">
               <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Saídas concretas</p>
-              <h2 className="text-[40px] font-semibold leading-tight sm:text-[60px]">O acervo vira materiais que o cliente realmente usa.</h2>
+              <h2 className="text-[40px] font-semibold leading-tight sm:text-[60px]">Seu repertório vira materiais que fortalecem presença e valor.</h2>
               <p className="mt-5 max-w-3xl text-[15px] leading-relaxed text-[#6e6e73]">
-                A Longecta não parte de conteúdo genérico. Ela parte da experiência real do médico, da clínica ou do evento, e transforma esse repertório em peças úteis para reputação, ensino, relacionamento e venda.
+                Em vez de criar conteúdo genérico, a Longecta transforma o que já existe na sua prática em peças com origem, narrativa, estética e intenção.
               </p>
             </div>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -306,8 +313,8 @@ const LongectaMethodPage: React.FC<LongectaMethodPageProps> = ({ onBack, onCongr
 
           <section id="produtos" className="mt-24 scroll-mt-24">
             <div className="mb-8 max-w-4xl">
-              <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Produtos Longecta</p>
-              <h2 className="text-[40px] font-semibold leading-tight sm:text-[60px]">Um método, várias ofertas vendáveis.</h2>
+              <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Soluções Longecta</p>
+              <h2 className="text-[40px] font-semibold leading-tight sm:text-[60px]">Uma estrutura adaptada ao seu momento de crescimento.</h2>
             </div>
             <div className="grid gap-5 lg:grid-cols-2">
               {products.map(({ icon: Icon, title, body, items }) => (
@@ -337,14 +344,14 @@ const LongectaMethodPage: React.FC<LongectaMethodPageProps> = ({ onBack, onCongr
                 <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(17,17,19,0.75),rgba(17,17,19,0.10))]" />
                 <div className="absolute bottom-8 left-8 right-8 rounded-[28px] border border-white/12 bg-black/35 p-6 backdrop-blur-xl">
                   <MessageSquare size={18} className="mb-8 text-white/58" />
-                  <p className="text-[28px] font-extralight leading-tight">Menos WhatsApp, menos retrabalho, mais organização, velocidade e memória estratégica.</p>
+                  <p className="text-[28px] font-extralight leading-tight">Você aparece com mais consistência sem transformar comunicação em mais uma carga da rotina.</p>
                 </div>
               </div>
               <div className="p-8 sm:p-12 lg:p-16">
-                <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.2em] text-white/38">Operação Longecta</p>
-                <h2 className="max-w-3xl text-[40px] font-extralight leading-tight sm:text-[62px]">Um fluxo claro para uma rotina médica que não tem tempo sobrando.</h2>
+                <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.2em] text-white/38">Experiência do cliente</p>
+                <h2 className="max-w-3xl text-[40px] font-extralight leading-tight sm:text-[62px]">Funciona mesmo para quem tem pouco tempo.</h2>
                 <p className="mt-7 max-w-2xl text-[15px] font-light leading-relaxed text-white/62">
-                  O método precisa funcionar para diferentes níveis de envolvimento. O cliente não é obrigado a virar operador de sistema. Ele pode simplesmente enviar material e aprovar, enquanto a Longecta mantém o processo andando.
+                  Você não precisa se tornar operador de ferramenta, social media ou diretor de criação. A plataforma organiza o caminho; a equipe Longecta conduz a transformação; você participa no nível que fizer sentido para sua rotina.
                 </p>
                 <div className="mt-9 grid gap-3">
                   {clientModes.map(([title, body], index) => (
@@ -365,18 +372,13 @@ const LongectaMethodPage: React.FC<LongectaMethodPageProps> = ({ onBack, onCongr
             <div className="lon-glass-panel rounded-[38px] p-7 sm:p-10">
               <Fingerprint size={22} className="mb-10 text-[#1d1d1f]" />
               <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Perfil de inteligência</p>
-              <h2 className="text-[38px] font-semibold leading-tight sm:text-[52px]">Cada cliente ganha um cérebro operacional.</h2>
+              <h2 className="text-[38px] font-semibold leading-tight sm:text-[52px]">Seu contexto vira inteligência proprietária.</h2>
               <p className="mt-6 text-[15px] leading-relaxed text-[#6e6e73]">
-                Especialidade, tom de voz, público, temas proibidos, termos preferidos, histórico, objetivos, serviços, eventos e estilo visual passam a morar no método.
+                Especialidade, tom de voz, público, serviços, diferenciais, histórico, temas sensíveis, eventos e estilo visual deixam de depender de memória informal.
               </p>
             </div>
             <div className="grid gap-3 md:grid-cols-2">
-              {[
-                ['Retenção', 'Quanto mais usa, mais valioso o ambiente fica para o cliente.'],
-                ['Velocidade', 'A próxima entrega começa com histórico, não com uma página em branco.'],
-                ['Consistência', 'O tom, a estética e a lógica médica deixam de depender de memória informal.'],
-                ['Escala', 'A equipe Longecta consegue atender mais clientes com menos caos operacional.'],
-              ].map(([title, body], index) => (
+              {outcomes.map(([title, body], index) => (
                 <article key={title} className={`rounded-[30px] p-6 shadow-[0_22px_70px_rgba(0,0,0,0.06)] ${index === 3 ? 'bg-[#111113] text-white' : 'bg-white/70 text-[#111113] backdrop-blur-xl'}`}>
                   <Layers3 size={18} className={`mb-10 ${index === 3 ? 'text-white/60' : 'text-[#1d1d1f]/70'}`} />
                   <h3 className="text-[26px] font-light leading-tight">{title}</h3>
@@ -389,7 +391,7 @@ const LongectaMethodPage: React.FC<LongectaMethodPageProps> = ({ onBack, onCongr
           <section className="mt-24">
             <div className="mb-8 max-w-4xl">
               <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Objeções comuns</p>
-              <h2 className="text-[40px] font-semibold leading-tight sm:text-[60px]">Por que isso não é só IA, Drive ou agência.</h2>
+              <h2 className="text-[40px] font-semibold leading-tight sm:text-[60px]">Por que isso supera ferramenta isolada, pasta de arquivos e produção genérica.</h2>
             </div>
             <div className="grid gap-3 lg:grid-cols-2">
               {objections.map(([question, answer]) => (
@@ -405,10 +407,10 @@ const LongectaMethodPage: React.FC<LongectaMethodPageProps> = ({ onBack, onCongr
             <img src="/assets/longecta-doctor-camera.png" alt="" className="absolute inset-0 h-full w-full object-cover object-center grayscale opacity-42" />
             <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(17,17,19,0.95),rgba(17,17,19,0.62),rgba(17,17,19,0.95))]" />
             <div className="relative z-10">
-              <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.2em] text-white/44">Recomendação final</p>
-              <h2 className="mx-auto max-w-4xl text-[42px] font-extralight leading-tight sm:text-[66px]">A Longecta não compete com IA. Ela usa IA para virar uma estrutura de inteligência médica.</h2>
+              <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.2em] text-white/44">Próximo passo</p>
+              <h2 className="mx-auto max-w-4xl text-[42px] font-extralight leading-tight sm:text-[66px]">Sua experiência médica já tem valor. Agora ela precisa de estrutura para aparecer.</h2>
               <p className="mx-auto mt-7 max-w-2xl text-[16px] font-light leading-relaxed text-white/62">
-                Menos execução solta. Mais sistema. Menos demanda caótica. Mais processo. Menos post vendido. Mais autoridade construída.
+                A Longecta une plataforma, serviço, curadoria e inteligência para transformar conhecimento disperso em autoridade contínua, com estética, consistência e clareza.
               </p>
               <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
                 <a href={methodMailto('Quero estruturar o Método Longecta')} className="button-nowrap inline-flex items-center justify-center gap-2 rounded-full bg-white px-7 py-3 text-[13px] font-semibold text-[#111113] hover:bg-white/90">
