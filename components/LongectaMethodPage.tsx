@@ -184,13 +184,13 @@ const LongectaMethodPage: React.FC<LongectaMethodPageProps> = ({ onBack, onCongr
             <div className="plans-story-enter">
               <p className="plans-eyebrow lon-glass-panel mb-5 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[10px] font-bold uppercase text-[#6e6e73]">
                 <Sparkles size={13} className="text-[#1d1d1f]" />
-                Plataforma + serviço + curadoria
+                Longecta Authority System
               </p>
               <h1 className="max-w-5xl text-[44px] leading-[0.98] sm:text-[66px] lg:text-[76px]">
-                Transforme seu conhecimento médico em uma máquina de autoridade.
+                A estrutura híbrida que transforma experiência médica em autoridade pública.
               </h1>
               <p className="mt-8 max-w-2xl text-[18px] font-light leading-relaxed text-[#6e6e73] sm:text-[21px]">
-                A Longecta combina tecnologia proprietária, curadoria humana e serviço especializado para transformar casos, aulas, ideias, arquivos e experiências em conteúdo, campanhas, apresentações e presença médica de alto valor.
+                A Longecta combina plataforma proprietária, inteligência artificial, serviço especializado e curadoria humana para transformar casos, aulas, arquivos, ideias e vivências clínicas em conteúdo, campanhas, apresentações e materiais de alto valor.
               </p>
               <div className="mt-9 flex flex-col gap-3 sm:flex-row">
                 <a href={methodMailto('Quero conhecer o Método Longecta')} className="button-nowrap inline-flex items-center justify-center gap-2 rounded-full bg-[#1d1d1f] px-6 py-3 text-[13px] font-semibold text-white shadow-[0_18px_44px_rgba(0,0,0,0.18)] hover:bg-[#2d2d2f]">
@@ -210,8 +210,8 @@ const LongectaMethodPage: React.FC<LongectaMethodPageProps> = ({ onBack, onCongr
                 className="absolute right-0 top-0 h-[430px] w-[94%] rounded-[30px] object-cover object-center shadow-[0_38px_120px_rgba(0,0,0,0.16)] sm:h-[540px] sm:w-[88%] sm:rounded-[38px]"
               />
               <div className="absolute bottom-0 left-0 w-[90%] rounded-[28px] bg-[#111113] p-5 text-white shadow-[0_40px_130px_rgba(0,0,0,0.32)] sm:w-[76%] sm:rounded-[34px] sm:p-7">
-                <p className="mb-7 text-[10px] font-bold uppercase tracking-[0.18em] text-white/42">Sistema híbrido</p>
-                <h2 className="text-[32px] font-extralight leading-tight sm:text-[38px]">Software para organizar. Inteligência para direcionar. Longecta para transformar.</h2>
+                <p className="mb-7 text-[10px] font-bold uppercase tracking-[0.18em] text-white/42">Promessa central</p>
+                <h2 className="text-[32px] font-extralight leading-tight sm:text-[38px]">Você tem repertório. A Longecta transforma esse repertório em presença, autoridade e crescimento.</h2>
                 <div className="mt-7 grid grid-cols-3 gap-2">
                   {['Plataforma', 'Serviço', 'Inteligência'].map(item => (
                     <span key={item} className="rounded-full bg-white/10 px-3 py-2 text-center text-[10px] font-bold uppercase tracking-[0.12em] text-white/70">{item}</span>
@@ -236,6 +236,26 @@ const LongectaMethodPage: React.FC<LongectaMethodPageProps> = ({ onBack, onCongr
               </article>
             ))}
           </div>
+
+          <section className="mt-12 grid gap-4 rounded-[36px] bg-[#111113] p-5 text-white shadow-[0_30px_100px_rgba(0,0,0,0.18)] sm:p-7 lg:grid-cols-[0.78fr_1.22fr]">
+            <div className="rounded-[28px] border border-white/10 bg-white/[0.06] p-6">
+              <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.18em] text-white/38">Em uma frase</p>
+              <h2 className="text-[34px] font-extralight leading-tight sm:text-[46px]">Você envia conhecimento. Recebe presença médica estruturada.</h2>
+            </div>
+            <div className="grid gap-3 md:grid-cols-4">
+              {[
+                ['Acervo', 'O que estava disperso ganha organização e intenção.'],
+                ['Conteúdo', 'O repertório vira comunicação clara e sofisticada.'],
+                ['Autoridade', 'Sua experiência aparece com consistência e valor.'],
+                ['Continuidade', 'Cada entrega fortalece a próxima campanha.'],
+              ].map(([title, body], index) => (
+                <div key={title} className={`rounded-[24px] p-5 ${index === 2 ? 'bg-white text-[#111113]' : 'bg-white/[0.08] text-white'}`}>
+                  <p className={`mb-8 text-[10px] font-bold uppercase tracking-[0.16em] ${index === 2 ? 'text-[#86868b]' : 'text-white/40'}`}>{title}</p>
+                  <p className={`text-[13px] leading-relaxed ${index === 2 ? 'text-[#424245]' : 'text-white/58'}`}>{body}</p>
+                </div>
+              ))}
+            </div>
+          </section>
 
           <section id="metodo" className="mt-24 scroll-mt-24">
             <div className="mb-8 max-w-4xl">

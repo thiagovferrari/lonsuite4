@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   ArrowLeft,
   ArrowRight,
@@ -135,6 +135,10 @@ const faqs = [
 ];
 
 const LongectaCongressPage: React.FC<LongectaCongressPageProps> = ({ onBack, onMethod, onPlans }) => {
+  const [activeTimeline, setActiveTimeline] = useState(0);
+  const activeMilestone = congressTimeline[activeTimeline];
+  const progress = ((activeTimeline + 1) / congressTimeline.length) * 100;
+
   return (
     <div className="longecta-method-page plans-premium-page lon-soft-bg min-h-screen overflow-hidden text-[#111113]">
       <section className="relative px-5 pb-24 pt-6 sm:px-8 lg:px-12">
@@ -162,13 +166,13 @@ const LongectaCongressPage: React.FC<LongectaCongressPageProps> = ({ onBack, onM
             <div className="plans-story-enter">
               <p className="plans-eyebrow lon-glass-panel mb-5 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[10px] font-bold uppercase text-[#6e6e73]">
                 <Sparkles size={13} className="text-[#1d1d1f]" />
-                Longecta Congressos
+                Longecta Congress Intelligence
               </p>
               <h1 className="max-w-5xl text-[43px] leading-[0.98] sm:text-[66px] lg:text-[76px]">
-                Seu congresso médico não precisa ser apenas divulgado. Ele precisa ser construído como uma marca.
+                Transformamos congressos médicos em marcas científicas que vendem valor.
               </h1>
               <p className="mt-8 max-w-2xl text-[18px] font-light leading-relaxed text-[#6e6e73] sm:text-[21px]">
-                A Longecta estrutura congressos médicos com estratégia, design, conteúdo, tecnologia e curadoria para aumentar percepção de valor, fortalecer inscrições, valorizar patrocinadores e gerar legado para próximas edições.
+                Da identidade ao pós-evento, a Longecta cria a estrutura de comunicação para aumentar percepção de valor, fortalecer inscrições, valorizar patrocinadores e transformar a edição em legado para o próximo ano.
               </p>
               <div className="mt-9 flex flex-col gap-3 sm:flex-row">
                 <a href={congressMailto('Quero estruturar meu congresso médico')} className="button-nowrap inline-flex items-center justify-center gap-2 rounded-full bg-[#1d1d1f] px-6 py-3 text-[13px] font-semibold text-white shadow-[0_18px_44px_rgba(0,0,0,0.18)] hover:bg-[#2d2d2f]">
@@ -184,8 +188,8 @@ const LongectaCongressPage: React.FC<LongectaCongressPageProps> = ({ onBack, onM
             <div className="relative min-h-[560px] sm:min-h-[680px]">
               <img src="/assets/longecta-congress-stage.png" alt="Palestrante médico em congresso científico premium" className="absolute right-0 top-0 h-[430px] w-[94%] rounded-[30px] object-cover object-center shadow-[0_38px_120px_rgba(0,0,0,0.16)] sm:h-[540px] sm:w-[88%] sm:rounded-[38px]" />
               <div className="absolute bottom-0 left-0 w-[90%] rounded-[28px] bg-[#111113] p-5 text-white shadow-[0_40px_130px_rgba(0,0,0,0.32)] sm:w-[76%] sm:rounded-[34px] sm:p-7">
-                <p className="mb-7 text-[10px] font-bold uppercase tracking-[0.18em] text-white/42">Congress Intelligence</p>
-                <h2 className="text-[32px] font-extralight leading-tight sm:text-[38px]">Transformamos eventos científicos em marcas de valor.</h2>
+                <p className="mb-7 text-[10px] font-bold uppercase tracking-[0.18em] text-white/42">O que fazemos</p>
+                <h2 className="text-[32px] font-extralight leading-tight sm:text-[38px]">Posicionamos, lançamos, vendemos, valorizamos patrocinadores e criamos memória para a próxima edição.</h2>
                 <div className="mt-7 grid grid-cols-3 gap-2">
                   {['Inscrição', 'Patrocínio', 'Legado'].map(item => (
                     <span key={item} className="rounded-full bg-white/10 px-3 py-2 text-center text-[10px] font-bold uppercase tracking-[0.12em] text-white/70">{item}</span>
@@ -215,31 +219,72 @@ const LongectaCongressPage: React.FC<LongectaCongressPageProps> = ({ onBack, onM
             </div>
           </section>
 
-          <section className="mt-24 rounded-[42px] border border-black/[0.055] bg-white/72 p-6 shadow-[0_30px_100px_rgba(0,0,0,0.08)] backdrop-blur-xl sm:p-8 lg:p-10">
+          <section className="mt-24 overflow-hidden rounded-[42px] border border-black/[0.055] bg-white/72 shadow-[0_30px_100px_rgba(0,0,0,0.08)] backdrop-blur-xl">
             <div className="mb-9 max-w-4xl">
-              <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Régua estratégica do congresso</p>
-              <h2 className="text-[40px] font-semibold leading-tight sm:text-[58px]">Uma comunicação completa, do primeiro anúncio ao legado da próxima edição.</h2>
-              <p className="mt-5 max-w-3xl text-[15px] leading-relaxed text-[#6e6e73]">
-                A Longecta organiza a comunicação do congresso como uma jornada. Cada fase tem uma função: criar percepção, aumentar desejo, converter inscrições, valorizar patrocinadores, orientar a experiência e preservar memória.
-              </p>
+              <div className="p-6 sm:p-8 lg:p-10">
+                <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Régua estratégica do congresso</p>
+                <h2 className="text-[40px] font-semibold leading-tight sm:text-[58px]">Uma linha do tempo clara para transformar ciência em percepção, inscrição, patrocínio e legado.</h2>
+                <p className="mt-5 max-w-3xl text-[15px] leading-relaxed text-[#6e6e73]">
+                  Clique nas etapas e veja como a comunicação evolui da fundação da marca ao pós-evento. Cada fase tem uma função comercial, científica e institucional.
+                </p>
+              </div>
             </div>
 
-            <div className="relative">
-              <div className="absolute left-5 top-0 hidden h-full w-px bg-black/10 lg:block" />
-              <div className="grid gap-4 lg:grid-cols-6">
-                {congressTimeline.map((item, index) => (
-                  <article key={item.title} className={`relative rounded-[28px] border p-5 shadow-[0_18px_60px_rgba(0,0,0,0.055)] ${index === 3 ? 'border-[#111113] bg-[#111113] text-white' : 'border-black/[0.055] bg-[#f7f7f8] text-[#111113]'}`}>
-                    <div className={`mb-7 flex h-11 w-11 items-center justify-center rounded-full text-[12px] font-bold ${index === 3 ? 'bg-white text-[#111113]' : 'bg-[#111113] text-white'}`}>
-                      {index + 1}
-                    </div>
-                    <p className={`mb-4 text-[10px] font-bold uppercase tracking-[0.16em] ${index === 3 ? 'text-white/42' : 'text-[#86868b]'}`}>{item.moment}</p>
-                    <h3 className="text-[23px] font-light leading-tight">{item.title}</h3>
-                    <p className={`mt-4 text-[12px] leading-relaxed ${index === 3 ? 'text-white/58' : 'text-[#6e6e73]'}`}>{item.body}</p>
-                    <div className={`mt-6 rounded-full px-3 py-2 text-[10px] font-bold uppercase tracking-[0.12em] ${index === 3 ? 'bg-white/10 text-white/70' : 'bg-white text-[#424245]'}`}>
-                      {item.output}
-                    </div>
-                  </article>
-                ))}
+            <div className="grid border-t border-black/[0.055] lg:grid-cols-[0.92fr_1.08fr]">
+              <div className="bg-[#111113] p-6 text-white sm:p-8 lg:p-10">
+                <div className="mb-12 flex items-center justify-between gap-5">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/38">Etapa ativa</p>
+                    <p className="mt-2 text-[13px] font-semibold text-white/62">{activeMilestone.moment}</p>
+                  </div>
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full border border-white/18 bg-white/10 text-[20px] font-extralight">
+                    {activeTimeline + 1}
+                  </div>
+                </div>
+                <h3 className="text-[42px] font-extralight leading-tight sm:text-[58px]">{activeMilestone.title}</h3>
+                <p className="mt-6 max-w-xl text-[15px] font-light leading-relaxed text-white/62">{activeMilestone.body}</p>
+                <div className="mt-10 rounded-[28px] border border-white/12 bg-white/[0.06] p-5">
+                  <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-white/36">Resultado da fase</p>
+                  <p className="text-[24px] font-extralight leading-tight">{activeMilestone.output}</p>
+                </div>
+              </div>
+
+              <div className="p-6 sm:p-8 lg:p-10">
+                <div className="mb-8">
+                  <div className="h-2 overflow-hidden rounded-full bg-black/[0.06]">
+                    <div className="h-full rounded-full bg-[#111113] transition-all duration-500" style={{ width: `${progress}%` }} />
+                  </div>
+                  <div className="mt-3 flex justify-between text-[10px] font-bold uppercase tracking-[0.14em] text-[#a1a1a6]">
+                    <span>Marca</span>
+                    <span>Campanha</span>
+                    <span>Legado</span>
+                  </div>
+                </div>
+
+                <div className="grid gap-3">
+                  {congressTimeline.map((item, index) => {
+                    const isActive = activeTimeline === index;
+                    return (
+                      <button
+                        key={item.title}
+                        type="button"
+                        onClick={() => setActiveTimeline(index)}
+                        className={`group grid w-full gap-4 rounded-[24px] border p-4 text-left transition-all sm:grid-cols-[56px_1fr_auto] ${isActive ? 'border-[#111113] bg-[#111113] text-white shadow-[0_22px_70px_rgba(0,0,0,0.16)]' : 'border-black/[0.055] bg-white/72 text-[#111113] hover:bg-white'}`}
+                      >
+                        <span className={`flex h-12 w-12 items-center justify-center rounded-full text-[12px] font-bold ${isActive ? 'bg-white text-[#111113]' : 'bg-[#f5f5f7] text-[#424245]'}`}>
+                          {index + 1}
+                        </span>
+                        <span>
+                          <span className={`block text-[10px] font-bold uppercase tracking-[0.16em] ${isActive ? 'text-white/42' : 'text-[#86868b]'}`}>{item.moment}</span>
+                          <span className="mt-1 block text-[20px] font-light leading-tight">{item.title}</span>
+                        </span>
+                        <span className={`hidden self-center rounded-full px-3 py-2 text-[10px] font-bold uppercase tracking-[0.12em] sm:block ${isActive ? 'bg-white/10 text-white/70' : 'bg-[#f5f5f7] text-[#86868b]'}`}>
+                          {item.output}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </section>
