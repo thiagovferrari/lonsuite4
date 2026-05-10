@@ -2793,7 +2793,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
           };
 
           return (
-            <div className="flex flex-col items-center min-h-[85vh] px-6 animate-fade-in relative w-full">
+            <div className="mobile-page-shell flex flex-col items-center min-h-[85vh] px-4 animate-fade-in relative w-full sm:px-6 md:pb-0">
               {/* Branding — top */}
               <div className="mt-16 mb-8 flex flex-col items-center">
                 <h1 className="text-4xl sm:text-6xl font-light tracking-tight text-[#1d1d1f] flex flex-col sm:flex-row items-center justify-center gap-2 w-full text-center">
@@ -2992,7 +2992,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
           };
 
           return (
-            <div className="px-4 pb-24 pt-5 sm:px-7 md:pb-10 md:pl-24 md:pr-8 lg:pl-28 animate-fade-in">
+            <div className="mobile-page-shell px-4 pb-24 pt-5 sm:px-7 md:pb-10 md:pl-24 md:pr-8 lg:pl-28 animate-fade-in">
               <div className="mx-auto max-w-[1540px] rounded-[26px] border border-black/[0.06] bg-white/74 shadow-[0_24px_90px_rgba(0,0,0,0.08)] backdrop-blur-2xl">
                 <div className="grid min-h-[calc(100vh-72px)] grid-cols-1 lg:grid-cols-[minmax(0,1fr)_380px] xl:grid-cols-[minmax(0,1fr)_420px]">
                   <section className="min-w-0 border-black/[0.055] px-5 py-5 sm:px-8 lg:border-r">
@@ -3315,7 +3315,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
 
         {/* ATIVOS */}
         {view === ViewState.ATIVOS && (
-          <div className="asset-vault-page px-5 pb-10 pt-8 animate-fade-in sm:px-8 md:px-10 md:pt-10">
+          <div className="asset-vault-page mobile-page-shell px-4 pb-10 pt-5 animate-fade-in sm:px-8 md:pl-24 md:pr-10 md:pt-10 md:pb-10 lg:pl-28">
             <div className="max-w-[1920px] mx-auto">
               <header className="mb-7 rounded-[26px] border border-white/80 bg-white/50 p-4 shadow-[0_18px_70px_rgba(29,29,31,0.055)] backdrop-blur-2xl sm:p-5">
                 {/* Title row */}
@@ -3521,7 +3521,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
           };
 
           return (
-            <div className="px-5 sm:px-8 md:px-10 xl:px-12 pt-8 md:pt-10 pb-10 animate-fade-in">
+            <div className="mobile-page-shell px-4 sm:px-8 md:pl-24 md:pr-10 lg:pl-28 xl:pr-12 pt-5 md:pt-10 pb-10 md:pb-10 animate-fade-in">
               <header className="mb-8">
                 <div className="flex flex-col gap-4 mb-7 lg:flex-row lg:items-center lg:justify-between">
                   <div className="min-w-0">
@@ -3719,9 +3719,9 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
 
         {/* TRASH */}
         {view === ViewState.TRASH && (
-          <div className="px-5 sm:px-10 md:px-12 pt-8 md:pt-10 pb-10 animate-fade-in">
+          <div className="mobile-page-shell px-4 sm:px-10 md:pl-24 md:pr-12 lg:pl-28 pt-5 md:pt-10 pb-10 md:pb-10 animate-fade-in">
             <header className="mb-8">
-              <div className="flex justify-between items-center">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h1 className="text-3xl sm:text-4xl font-extralight tracking-tight text-[#1d1d1f]">Lixeira</h1>
                   <p className="text-[11px] font-medium text-[#86868b] mt-1.5">
@@ -3730,7 +3730,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
                 </div>
                 {trashedAssets.length > 0 && (
                   <button onClick={e => { e.stopPropagation(); handleEmptyTrash(); }}
-                    className="px-4 py-2.5 bg-red-50 text-red-600 rounded-apple-lg font-semibold text-[12px] hover:bg-red-100 transition-all flex items-center gap-1.5">
+                    className="button-nowrap inline-flex items-center justify-center gap-1.5 rounded-apple-lg bg-red-50 px-4 py-2.5 text-[12px] font-semibold text-red-600 transition-all hover:bg-red-100">
                     <Trash2 size={13} /> Esvaziar Lixeira
                   </button>
                 )}
@@ -3831,7 +3831,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
           const maxMonthly = Math.max(1, ...monthlyData.map(m => m.count));
 
           return (
-            <div className="px-5 sm:px-10 md:px-12 pt-8 md:pt-10 pb-16 animate-fade-in">
+            <div className="mobile-page-shell px-4 sm:px-10 md:pl-24 md:pr-12 lg:pl-28 pt-5 md:pt-10 pb-16 md:pb-16 animate-fade-in">
               <div className="max-w-2xl">
 
                 {/* Header */}

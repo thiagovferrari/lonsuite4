@@ -13,6 +13,18 @@
   --lon-hairline: rgba(29, 29, 31, 0.055);
 }
 
+html,
+body,
+#root {
+  min-height: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 /* Utility classes */
 .line-clamp-1 {
   overflow: hidden;
@@ -117,6 +129,10 @@ input,
 
 .preserve-lines {
   white-space: pre-wrap;
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 /* Enhanced focus states */
@@ -242,6 +258,45 @@ select:focus-visible {
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.82) inset,
     0 18px 56px rgba(29, 29, 31, 0.11);
+}
+
+@media (max-width: 767px) {
+  main {
+    padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .mobile-bottom-nav {
+    min-height: calc(76px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: max(8px, env(safe-area-inset-bottom, 0px));
+  }
+
+  .mobile-page-shell {
+    padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .plans-premium-page {
+    overflow-x: hidden;
+  }
+
+  .plans-premium-page h1 {
+    letter-spacing: -0.056em;
+  }
+}
+
+@media (max-width: 390px) {
+  .mobile-nav-label,
+  .mobile-modal-action-label {
+    display: none;
+  }
+
+  .mobile-bottom-nav {
+    min-height: calc(64px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .asset-timeline-card {
+    grid-template-columns: 42px 18px 30px minmax(0, 1fr) 0 !important;
+    gap: 0.375rem !important;
+  }
 }
 
 .asset-vault-page {
@@ -740,6 +795,16 @@ select:focus-visible {
   transform: rotateX(54deg) rotateZ(34deg);
   animation-duration: 21s;
   animation-direction: reverse;
+}
+
+.plans-global-overlay {
+  background: linear-gradient(180deg, rgba(255,255,255,0.97), rgba(255,255,255,0.90) 48%, rgba(17,17,19,0.16));
+}
+
+@media (min-width: 640px) {
+  .plans-global-overlay {
+    background: linear-gradient(90deg, rgba(255,255,255,0.94), rgba(255,255,255,0.82) 36%, rgba(17,17,19,0.36) 68%, rgba(17,17,19,0.82));
+  }
 }
 
 @keyframes loginStoryEnter {

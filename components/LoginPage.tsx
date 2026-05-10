@@ -150,13 +150,13 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack, onLearnMore }) => {
               </div>
             </div>
 
-            <div className="relative min-h-[680px]">
+            <div className="relative min-h-[560px] sm:min-h-[680px]">
               <img
                 src="/assets/lon-suite-physician-editorial.jpg"
                 alt="Médico pesquisador representando o valor científico da Lon Suite"
-                className="absolute right-0 top-0 h-[560px] w-[78%] rounded-[34px] object-cover object-center shadow-[0_36px_120px_rgba(0,0,0,0.16)]"
+                className="absolute right-0 top-0 h-[430px] w-[92%] rounded-[28px] object-cover object-center shadow-[0_36px_120px_rgba(0,0,0,0.16)] sm:h-[560px] sm:w-[78%] sm:rounded-[34px]"
               />
-              <div className="plans-showcase absolute bottom-0 left-0 w-[74%] rounded-[34px] bg-[#101114] p-6 text-white shadow-[0_40px_130px_rgba(0,0,0,0.32)]">
+              <div className="plans-showcase absolute bottom-0 left-0 w-[88%] rounded-[28px] bg-[#101114] p-5 text-white shadow-[0_40px_130px_rgba(0,0,0,0.32)] sm:w-[74%] sm:rounded-[34px] sm:p-6">
                 <div className="mb-5 flex items-center justify-between">
                   <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/42">Demonstração viva</p>
                   <Brain size={17} className="text-white/64" />
@@ -177,7 +177,7 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack, onLearnMore }) => {
                   ))}
                 </div>
               </div>
-              <div className="plans-floating-metric lon-glass-panel-strong absolute bottom-[156px] right-0 max-w-[142px] rounded-[20px] px-4 py-3 sm:right-6">
+              <div className="plans-floating-metric lon-glass-panel-strong absolute bottom-[156px] right-0 hidden max-w-[142px] rounded-[20px] px-4 py-3 sm:block sm:right-6">
                 <p className="text-[34px] font-extralight leading-none">4x</p>
                 <p className="mt-2 text-[10px] font-semibold leading-relaxed text-[#86868b]">mais reaproveitamento científico</p>
               </div>
@@ -331,8 +331,8 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack, onLearnMore }) => {
                   A Lon Suite aproxima o momento clínico do momento científico. O médico encontra o ativo certo e monta o case com blocos, imagens, referências e apresentação sem recomeçar do zero.
                 </p>
               </div>
-              <div className="relative min-h-[520px] bg-[#0b0c0e] p-8">
-                <div className="plans-product-stack absolute left-8 top-12 w-[76%] rounded-[30px] bg-white p-5 text-[#111113] shadow-[0_28px_100px_rgba(0,0,0,0.35)]">
+              <div className="relative min-h-0 bg-[#0b0c0e] p-5 sm:min-h-[520px] sm:p-8">
+                <div className="plans-product-stack relative w-full rounded-[26px] bg-white p-5 text-[#111113] shadow-[0_28px_100px_rgba(0,0,0,0.35)] sm:absolute sm:left-8 sm:top-12 sm:w-[76%] sm:rounded-[30px]">
                   <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#86868b]">Case em construção</p>
                   <h3 className="mt-2 text-[30px] font-light tracking-tight">Evolução cirúrgica documentada</h3>
                   <div className="mt-5 grid grid-cols-3 gap-2">
@@ -341,16 +341,16 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack, onLearnMore }) => {
                       { Icon: FileText, label: 'Texto' },
                       { Icon: Presentation, label: 'Slide' },
                     ].map(({ Icon, label }) => (
-                      <div key={label} className="flex h-28 flex-col items-center justify-center rounded-[18px] bg-[linear-gradient(135deg,#d8dde2,#f7f2ea_48%,#aeb8bf)] text-[#1d1d1f]/58">
+                      <div key={label} className="flex h-20 flex-col items-center justify-center rounded-[16px] bg-[linear-gradient(135deg,#d8dde2,#f7f2ea_48%,#aeb8bf)] text-[#1d1d1f]/58 sm:h-28 sm:rounded-[18px]">
                         <Icon size={22} strokeWidth={1.4} />
                         <span className="mt-2 text-[8px] font-bold uppercase tracking-[0.16em]">{label}</span>
                       </div>
                     ))}
                   </div>
                 </div>
-                <div className="plans-product-stack absolute bottom-12 right-8 w-[60%] rounded-[28px] border border-white/[0.10] bg-white/[0.10] p-5 backdrop-blur-xl">
-                  <Presentation size={20} className="mb-12 text-white/70" />
-                  <p className="text-[28px] font-extralight leading-tight">Pronto para aula, round ou publicação.</p>
+                <div className="plans-product-stack relative mt-4 w-full rounded-[24px] border border-white/[0.10] bg-white/[0.10] p-5 backdrop-blur-xl sm:absolute sm:bottom-12 sm:right-8 sm:mt-0 sm:w-[60%] sm:rounded-[28px]">
+                  <Presentation size={20} className="mb-5 text-white/70 sm:mb-12" />
+                  <p className="text-[22px] font-extralight leading-tight sm:text-[28px]">Pronto para aula, round ou publicação.</p>
                 </div>
               </div>
             </div>
@@ -429,7 +429,7 @@ const PlansPage: React.FC<PlansPageProps> = ({ onBack, onLearnMore }) => {
                 alt=""
                 className="absolute inset-0 h-full w-full object-cover grayscale"
               />
-              <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.94),rgba(255,255,255,0.82)_36%,rgba(17,17,19,0.36)_68%,rgba(17,17,19,0.82))]" />
+              <div className="plans-global-overlay absolute inset-0" />
               <div className="relative z-10 grid min-h-[760px] items-center gap-8 p-8 sm:p-10 lg:grid-cols-[0.82fr_1.18fr] lg:p-14 xl:p-16">
                 <div className="max-w-xl">
                   <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.2em] text-[#6e6e73]">Alcance global</p>
@@ -640,10 +640,10 @@ const PlansLearnMorePage: React.FC<{ onBack: () => void; onPlans: () => void }> 
               </div>
             </div>
 
-            <div className="relative min-h-[660px]">
-              <img src="/assets/lon-suite-generated-city-clinic.jpg" alt="Médica observando a cidade de dentro da clínica" className="absolute right-0 top-0 h-[520px] w-[88%] rounded-[38px] object-cover grayscale shadow-[0_38px_120px_rgba(0,0,0,0.16)]" />
+            <div className="relative min-h-[560px] sm:min-h-[660px]">
+              <img src="/assets/lon-suite-generated-city-clinic.jpg" alt="Médica observando a cidade de dentro da clínica" className="absolute right-0 top-0 h-[430px] w-[94%] rounded-[30px] object-cover grayscale shadow-[0_38px_120px_rgba(0,0,0,0.16)] sm:h-[520px] sm:w-[88%] sm:rounded-[38px]" />
               <div className="pointer-events-none absolute right-8 top-8 hidden h-[220px] w-[220px] rounded-full border border-white/35 shadow-[inset_0_0_80px_rgba(255,255,255,0.28)] lg:block" />
-              <div className="absolute bottom-0 left-0 w-[76%] rounded-[34px] bg-[#111113] p-7 text-white shadow-[0_40px_130px_rgba(0,0,0,0.32)]">
+              <div className="absolute bottom-0 left-0 w-[88%] rounded-[28px] bg-[#111113] p-5 text-white shadow-[0_40px_130px_rgba(0,0,0,0.32)] sm:w-[76%] sm:rounded-[34px] sm:p-7">
                 <p className="mb-7 text-[10px] font-bold uppercase tracking-[0.18em] text-white/42">Resultado</p>
                 <h2 className="text-[34px] leading-tight">Aulas, apresentações, publicações e cases a partir do que você já tem.</h2>
                 <div className="mt-7 grid grid-cols-3 gap-2">
@@ -652,7 +652,7 @@ const PlansLearnMorePage: React.FC<{ onBack: () => void; onPlans: () => void }> 
                   ))}
                 </div>
               </div>
-              <div className="plans-floating-metric lon-glass-panel-strong absolute bottom-[160px] right-0 max-w-[150px] rounded-[20px] px-4 py-3 sm:right-6">
+              <div className="plans-floating-metric lon-glass-panel-strong absolute bottom-[160px] right-0 hidden max-w-[150px] rounded-[20px] px-4 py-3 sm:block sm:right-6">
                 <p className="text-[34px] font-extralight leading-none">1</p>
                 <p className="mt-2 text-[10px] font-semibold leading-relaxed text-[#86868b]">acervo vivo para ensino e publicação</p>
               </div>

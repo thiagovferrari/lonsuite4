@@ -38,7 +38,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, trashCount = 0 
             </span>
           )}
         </button>
-        <span className={`max-w-[56px] truncate text-[9px] font-semibold leading-none md:hidden ${isActive ? 'text-[#1d1d1f]' : 'text-[#8e8e93]'}`}>
+        <span className={`mobile-nav-label max-w-[56px] truncate text-[9px] font-semibold leading-none md:hidden ${isActive ? 'text-[#1d1d1f]' : 'text-[#8e8e93]'}`}>
           {label}
         </span>
 
@@ -75,7 +75,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, trashCount = 0 
       {/* Mobile Bottom Bar */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-[200]">
         <div className="glass border-t border-black/6 shadow-[0_-2px_16px_rgba(0,0,0,0.06)]">
-          <div className="flex h-[76px] max-w-lg items-center justify-around px-3 pb-safe mx-auto">
+          <div className="mobile-bottom-nav grid max-w-lg grid-cols-6 items-center justify-items-center px-2 mx-auto">
             <NavItem view={ViewState.HOME} icon={Home} label="Início" />
             <NavItem view={ViewState.INTELLIGENCE} icon={Brain} label="IA" />
             <NavItem view={ViewState.ATIVOS} icon={LayoutGrid} label="Ativos" />

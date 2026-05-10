@@ -510,7 +510,7 @@ const AssetModal: React.FC<AssetModalProps> = ({
             <div className={`relative w-full ${isContainerPdf ? 'md:max-w-7xl md:h-[96vh]' : 'md:max-w-5xl md:h-[88vh]'} h-[100dvh] bg-white md:rounded-apple-xl shadow-apple-xl flex flex-col md:flex-row ring-1 ring-black/[0.04] animate-scale-in overflow-hidden`}>
 
                 {/* Mobile top bar — clear close affordance */}
-                <div className="md:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-black/6 shrink-0 z-30">
+                <div className="md:hidden flex items-center justify-between gap-2 px-3 py-3 bg-white border-b border-black/6 shrink-0 z-30">
                     <button onClick={onClose} className="button-nowrap flex items-center gap-1.5 text-[#4285F4] active:opacity-60 transition-opacity">
                         <ChevronLeft size={20} strokeWidth={2.5} />
                         <span className="text-[14px] font-semibold">Voltar</span>
@@ -518,7 +518,7 @@ const AssetModal: React.FC<AssetModalProps> = ({
                     <div className="flex items-center gap-2">
                         {!isTrashMode && (
                             <button onClick={handleSaveAll} className="button-nowrap flex items-center gap-1.5 rounded-full bg-[#1d1d1f] px-3 py-2 text-[11px] font-semibold text-white shadow-apple active:scale-95">
-                                <Save size={13} /> Salvar
+                                <Save size={13} /> <span className="mobile-modal-action-label">Salvar</span>
                             </button>
                         )}
                         <button onClick={handleDownload} className="p-2 hover:bg-black/5 rounded-full text-[#86868b] transition-colors">
