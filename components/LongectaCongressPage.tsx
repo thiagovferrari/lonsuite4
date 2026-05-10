@@ -27,6 +27,7 @@ interface LongectaCongressPageProps {
   onBack: () => void;
   onMethod: () => void;
   onPlans: () => void;
+  onSpeakerKit: () => void;
 }
 
 const congressMailto = (subject: string) =>
@@ -134,7 +135,7 @@ const faqs = [
   ['Como começamos?', 'Começamos com um diagnóstico do congresso para entender momento atual, público, programação, patrocinadores, histórico e necessidades de comunicação.'],
 ];
 
-const LongectaCongressPage: React.FC<LongectaCongressPageProps> = ({ onBack, onMethod, onPlans }) => {
+const LongectaCongressPage: React.FC<LongectaCongressPageProps> = ({ onBack, onMethod, onPlans, onSpeakerKit }) => {
   const [activeTimeline, setActiveTimeline] = useState(0);
   const activeMilestone = congressTimeline[activeTimeline];
   const progress = ((activeTimeline + 1) / congressTimeline.length) * 100;
@@ -342,6 +343,25 @@ const LongectaCongressPage: React.FC<LongectaCongressPageProps> = ({ onBack, onM
               {products.map(([title, body], index) => {
                 const icons = [Landmark, Megaphone, Network, ClipboardList, Mic2, Store, BadgeCheck, Layers3];
                 const Icon = icons[index] || Award;
+                const isSpeakerKit = title === 'Speaker Visibility Kit';
+                if (isSpeakerKit) {
+                  return (
+                    <button
+                      key={title}
+                      type="button"
+                      onClick={onSpeakerKit}
+                      className="plans-card group rounded-[34px] border border-black/[0.055] bg-white/72 p-7 text-left text-[#111113] shadow-[0_24px_80px_rgba(0,0,0,0.07)] backdrop-blur-xl transition-all hover:-translate-y-1 hover:bg-white hover:shadow-[0_30px_100px_rgba(0,0,0,0.10)]"
+                    >
+                      <Icon size={20} className="mb-10 text-[#1d1d1f]/70" />
+                      <h3 className="text-[30px] font-light leading-tight">{title}</h3>
+                      <p className="mt-4 text-[14px] leading-relaxed text-[#6e6e73]">{body}</p>
+                      <span className="button-nowrap mt-7 inline-flex items-center justify-center gap-2 rounded-full bg-[#111113] px-5 py-3 text-[12px] font-semibold text-white group-hover:bg-[#2d2d2f]">
+                        Conhecer o kit
+                        <ArrowRight size={14} />
+                      </span>
+                    </button>
+                  );
+                }
                 return (
                   <article key={title} className={`plans-card rounded-[34px] border p-7 shadow-[0_24px_80px_rgba(0,0,0,0.07)] ${index === 2 ? 'border-[#111113] bg-[#111113] text-white' : 'border-black/[0.055] bg-white/72 text-[#111113] backdrop-blur-xl'}`}>
                     <Icon size={20} className={`mb-10 ${index === 2 ? 'text-white/70' : 'text-[#1d1d1f]/70'}`} />

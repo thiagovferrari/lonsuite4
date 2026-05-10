@@ -4,6 +4,7 @@ import { signIn } from '../services/authService';
 import type { AuthUser } from '../services/authService';
 import LongectaMethodPage from './LongectaMethodPage';
 import LongectaCongressPage from './LongectaCongressPage';
+import SpeakerVisibilityKitPage from './SpeakerVisibilityKitPage';
 import SystemLinksPage, { SystemLinksButton, SystemLinkAction } from './SystemLinksPage';
 
 interface Props {
@@ -898,6 +899,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
   const [showPlanDetails, setShowPlanDetails] = useState(false);
   const [showLongectaMethod, setShowLongectaMethod] = useState(false);
   const [showLongectaCongress, setShowLongectaCongress] = useState(false);
+  const [showSpeakerKit, setShowSpeakerKit] = useState(false);
   const [showSystemLinks, setShowSystemLinks] = useState(false);
 
   const stories = useMemo(() => [
@@ -952,12 +954,14 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
     setShowPlanDetails(false);
     setShowLongectaMethod(false);
     setShowLongectaCongress(false);
+    setShowSpeakerKit(false);
     setShowSystemLinks(false);
 
     if (action === 'plans') setShowPlans(true);
     if (action === 'planDetails') setShowPlanDetails(true);
     if (action === 'method') setShowLongectaMethod(true);
     if (action === 'congress') setShowLongectaCongress(true);
+    if (action === 'speakerKit') setShowSpeakerKit(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -1031,6 +1035,41 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
           }}
           onPlans={() => {
             setShowLongectaCongress(false);
+            setShowPlans(true);
+            window.setTimeout(() => document.getElementById('planos')?.scrollIntoView({ behavior: 'smooth' }), 50);
+          }}
+          onSpeakerKit={() => {
+            setShowLongectaCongress(false);
+            setShowSpeakerKit(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        />
+      </>
+    );
+  }
+
+  if (showSpeakerKit) {
+    return (
+      <>
+        <SystemLinksButton onClick={() => setShowSystemLinks(true)} />
+        <SpeakerVisibilityKitPage
+          onBack={() => {
+            setShowSpeakerKit(false);
+            setShowLongectaCongress(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          onCongress={() => {
+            setShowSpeakerKit(false);
+            setShowLongectaCongress(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          onMethod={() => {
+            setShowSpeakerKit(false);
+            setShowLongectaMethod(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          onPlans={() => {
+            setShowSpeakerKit(false);
             setShowPlans(true);
             window.setTimeout(() => document.getElementById('planos')?.scrollIntoView({ behavior: 'smooth' }), 50);
           }}

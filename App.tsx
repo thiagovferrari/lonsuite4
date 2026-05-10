@@ -6,6 +6,7 @@ import AssetModal from './components/AssetModal';
 import LoginPage, { PlansLearnMorePage, PlansPage } from './components/LoginPage';
 import LongectaMethodPage from './components/LongectaMethodPage';
 import LongectaCongressPage from './components/LongectaCongressPage';
+import SpeakerVisibilityKitPage from './components/SpeakerVisibilityKitPage';
 import SystemLinksPage, { SystemLinksButton, SystemLinkAction } from './components/SystemLinksPage';
 import { analyzeAsset, searchAssetsWithAI, searchCasesWithAI, generateCaseSemanticTags, getAIUsage, hasGeminiConfig } from './services/geminiService';
 import { saveAttachmentData, getAttachmentData, deleteAttachmentData } from './services/storageService';
@@ -29,7 +30,7 @@ type IntelligenceClipboard = {
   updatedAt: string;
 };
 
-type AppPublicPage = Extract<SystemLinkAction, 'plans' | 'planDetails' | 'method' | 'congress'>;
+type AppPublicPage = Extract<SystemLinkAction, 'plans' | 'planDetails' | 'method' | 'congress' | 'speakerKit'>;
 
 async function withSupabaseTimeout<T>(promise: PromiseLike<T>, label: string): Promise<T> {
   let timeoutId: number | undefined;
@@ -2561,7 +2562,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
       return;
     }
 
-    if (action === 'plans' || action === 'planDetails' || action === 'method' || action === 'congress') {
+    if (action === 'plans' || action === 'planDetails' || action === 'method' || action === 'congress' || action === 'speakerKit') {
       setSystemPublicPage(action);
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
@@ -2689,6 +2690,30 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
           <LongectaCongressPage
             onBack={() => {
               setSystemPublicPage('method');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onMethod={() => {
+              setSystemPublicPage('method');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onPlans={() => {
+              setSystemPublicPage('plans');
+              window.setTimeout(() => document.getElementById('planos')?.scrollIntoView({ behavior: 'smooth' }), 50);
+            }}
+            onSpeakerKit={() => {
+              setSystemPublicPage('speakerKit');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          />
+        )}
+        {systemPublicPage === 'speakerKit' && (
+          <SpeakerVisibilityKitPage
+            onBack={() => {
+              setSystemPublicPage('congress');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onCongress={() => {
+              setSystemPublicPage('congress');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
             onMethod={() => {

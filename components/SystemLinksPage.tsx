@@ -9,6 +9,7 @@ import {
   Home,
   LayoutGrid,
   Link2,
+  Mic2,
   Settings,
   Sparkles,
   Stethoscope,
@@ -22,6 +23,7 @@ export type SystemLinkAction =
   | 'planDetails'
   | 'method'
   | 'congress'
+  | 'speakerKit'
   | 'home'
   | 'intelligence'
   | 'assets'
@@ -71,6 +73,13 @@ const systemLinks: LinkItem[] = [
     title: 'Longecta Congressos',
     description: 'Comunicação estratégica para transformar congressos médicos em marcas científicas de valor.',
     icon: Users,
+    scope: 'public',
+  },
+  {
+    action: 'speakerKit',
+    title: 'Speaker Visibility Kit',
+    description: 'Kit estratégico para transformar palestrantes em ativos de alcance, prestígio e inscrição.',
+    icon: Mic2,
     scope: 'public',
   },
   {
