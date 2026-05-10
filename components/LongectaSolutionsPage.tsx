@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React from 'react';
 import {
   ArrowLeft,
   ArrowRight,
@@ -17,14 +17,11 @@ import {
   Network,
   Presentation,
   Send,
-  ShieldCheck,
   Sparkles,
   Store,
   Stethoscope,
   Users,
 } from 'lucide-react';
-
-type SolutionAudience = 'you' | 'clinic' | 'congress';
 
 interface LongectaSolutionsPageProps {
   onBack: () => void;
@@ -34,415 +31,427 @@ interface LongectaSolutionsPageProps {
   onPlans: () => void;
 }
 
+type SolutionAction = 'speakerKit';
+
+type Solution = {
+  icon: React.ComponentType<{ size?: number; className?: string; strokeWidth?: number }>;
+  title: string;
+  promise: string;
+  description: string;
+  bestFor: string;
+  outputs: string[];
+  action?: SolutionAction;
+};
+
+type Segment = {
+  id: string;
+  label: string;
+  eyebrow: string;
+  title: string;
+  summary: string;
+  image: string;
+  icon: React.ComponentType<{ size?: number; className?: string; strokeWidth?: number }>;
+  mainResult: string;
+  useWhen: string[];
+  solutions: Solution[];
+};
+
 const solutionsMailto = (subject: string) =>
   `mailto:contato@lonsuite.com.br?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent('Olá, quero entender qual solução Longecta faz mais sentido para meu contexto. Pode me orientar nos próximos passos?')}`;
 
-const audiences = [
+const segments: Segment[] = [
   {
-    id: 'you' as const,
-    tab: 'Para você',
+    id: 'para-voce',
+    label: 'Para você',
     eyebrow: 'Médicos, especialistas e palestrantes',
-    title: 'Transforme seu repertório em autoridade médica visível.',
-    body: 'Para quem já tem experiência, casos, aulas, imagens e ideias, mas precisa de uma estrutura para transformar tudo isso em presença, conteúdo, aulas, materiais e crescimento.',
+    title: 'Presença médica construída a partir do seu repertório real.',
+    summary: 'Para transformar casos, aulas, imagens, ideias e experiência acumulada em autoridade, conteúdo, apresentações e materiais científicos com acabamento premium.',
     image: '/assets/longecta-solutions-you.png',
-    cta: 'Quero estruturar minha autoridade',
-    metric: 'Autoridade',
     icon: Stethoscope,
+    mainResult: 'Autoridade pessoal mais clara, recorrente e reaproveitável.',
+    useWhen: ['Você dá aulas ou participa de eventos', 'Tem acervo clínico disperso', 'Quer publicar com mais consistência', 'Precisa transformar conhecimento em presença'],
+    solutions: [
+      {
+        icon: Stethoscope,
+        title: 'Lon Authority Médico',
+        promise: 'Autoridade recorrente, sem parecer conteúdo genérico.',
+        description: 'Estratégia mensal de presença para médicos especialistas: temas, narrativa, posts, carrosséis, LinkedIn, roteiros e posicionamento conectado à prática real.',
+        bestFor: 'Médicos que querem crescer autoridade sem depender de improviso semanal.',
+        outputs: ['Calendário editorial', 'Posts e carrosséis', 'LinkedIn médico', 'Roteiros curtos'],
+      },
+      {
+        icon: Mic2,
+        title: 'Speaker Visibility Kit',
+        promise: 'Sua participação em eventos vira ativo de prestígio.',
+        description: 'Kit para divulgar aulas, mesas, cursos, moderações e convites científicos com cards, mini bio, legendas e textos prontos para redes profissionais.',
+        bestFor: 'Palestrantes, moderadores, professores e especialistas convidados.',
+        outputs: ['Speaker card', 'Mini bio', 'Legenda pronta', 'Texto LinkedIn'],
+        action: 'speakerKit',
+      },
+      {
+        icon: BookOpen,
+        title: 'Lon Casebook',
+        promise: 'Casos e imagens deixam de ser arquivo morto.',
+        description: 'Organização editorial de casos, imagens, temas e registros clínicos para uso em aulas, reuniões científicas, publicações e construção de memória profissional.',
+        bestFor: 'Quem tem muito material clínico e pouco reaproveitamento.',
+        outputs: ['Biblioteca de casos', 'Narrativas clínicas', 'Acervo visual', 'Material reutilizável'],
+      },
+      {
+        icon: Presentation,
+        title: 'Aulas e Materiais Científicos',
+        promise: 'Seu conhecimento ganha forma de apresentação premium.',
+        description: 'Estruturação de aulas, apresentações, roteiros, storylines e materiais de apoio com curadoria científica, copy e acabamento visual.',
+        bestFor: 'Aulas, congressos, reuniões, rounds, bancas e apresentações institucionais.',
+        outputs: ['Slides', 'Storyline', 'Roteiro', 'Material de apoio'],
+      },
+    ],
   },
   {
-    id: 'clinic' as const,
-    tab: 'Para sua clínica',
+    id: 'para-clinica',
+    label: 'Para sua clínica',
     eyebrow: 'Clínicas, serviços e equipes médicas',
-    title: 'Transforme a clínica em uma marca médica mais clara, organizada e desejada.',
-    body: 'Para clínicas que precisam comunicar serviços, diferenciais, campanhas, equipe, estrutura, educação do paciente e autoridade institucional com consistência premium.',
+    title: 'Comunicação institucional para a clínica parecer tão forte quanto ela é.',
+    summary: 'Para organizar serviços, corpo clínico, campanhas, diferenciais, jornada do paciente e materiais institucionais com linguagem premium e operação contínua.',
     image: '/assets/longecta-solutions-clinic.png',
-    cta: 'Quero posicionar minha clínica',
-    metric: 'Operação',
     icon: Building2,
+    mainResult: 'Marca clínica mais confiável, organizada e comercialmente clara.',
+    useWhen: ['A clínica comunica abaixo do próprio padrão', 'Os serviços não estão claros', 'A equipe depende de materiais soltos', 'Campanhas parecem genéricas'],
+    solutions: [
+      {
+        icon: Building2,
+        title: 'Lon Clinic Authority',
+        promise: 'Posicionamento e conteúdo para a marca clínica.',
+        description: 'Estrutura de comunicação para serviços, diferenciais, equipe, campanhas e autoridade institucional, com consistência visual e editorial.',
+        bestFor: 'Clínicas que precisam comunicar valor com mais seriedade e recorrência.',
+        outputs: ['Pilares de marca', 'Campanhas mensais', 'Posts e materiais', 'Comunicação institucional'],
+      },
+      {
+        icon: Megaphone,
+        title: 'Campanhas Médicas',
+        promise: 'Campanhas por serviço, procedimento, prevenção ou agenda comercial.',
+        description: 'Planejamento e execução de campanhas com linguagem médica, argumento claro, peças digitais, e-mails e materiais de apoio para conversão e educação.',
+        bestFor: 'Lançar serviços, reforçar especialidades, divulgar procedimentos ou educar pacientes.',
+        outputs: ['Conceito de campanha', 'Posts', 'E-mails', 'Landing copy'],
+      },
+      {
+        icon: Users,
+        title: 'Materiais para Equipe e Paciente',
+        promise: 'A experiência da clínica também é comunicação.',
+        description: 'Materiais para recepção, orientação pré e pós-atendimento, equipe, apresentação de serviços, educação do paciente e padronização de linguagem.',
+        bestFor: 'Clínicas que precisam reduzir ruído e melhorar a percepção em cada ponto de contato.',
+        outputs: ['Recepção', 'Orientações', 'Apresentações', 'Materiais internos'],
+      },
+      {
+        icon: Database,
+        title: 'Acervo Institucional Inteligente',
+        promise: 'A memória da clínica deixa de ficar espalhada.',
+        description: 'Organização de fotos, campanhas, cases, equipe, serviços, materiais e histórico para reaproveitamento rápido em novos conteúdos e apresentações.',
+        bestFor: 'Clínicas com muitos materiais, mas pouca organização estratégica.',
+        outputs: ['Acervo da clínica', 'Histórico de campanhas', 'Banco visual', 'Busca por contexto'],
+      },
+    ],
   },
   {
-    id: 'congress' as const,
-    tab: 'Para seu congresso',
+    id: 'para-congresso',
+    label: 'Para seu congresso',
     eyebrow: 'Congressos, jornadas, simpósios e eventos científicos',
-    title: 'Transforme seu congresso em uma marca científica que vende valor.',
-    body: 'Para eventos que precisam comunicar programação, palestrantes, patrocinadores, inscrições, experiência e legado com método, estética e inteligência.',
+    title: 'Estrutura de comunicação para transformar evento científico em marca.',
+    summary: 'Para posicionar, lançar, vender, comunicar programação, ativar palestrantes, valorizar patrocinadores e transformar o pós-evento em legado.',
     image: '/assets/longecta-solutions-congress.png',
-    cta: 'Quero estruturar meu congresso',
-    metric: 'Legado',
     icon: Mic2,
+    mainResult: 'Mais percepção de valor antes, durante e depois da edição.',
+    useWhen: ['A programação é forte, mas pouco comunicada', 'Inscrições dependem de esforço manual', 'Patrocinadores precisam enxergar valor', 'O pós-evento se perde'],
+    solutions: [
+      {
+        icon: Layers3,
+        title: 'Congress Brand System',
+        promise: 'Conceito, narrativa e sistema visual para a edição.',
+        description: 'Criação da base estratégica e visual do congresso: posicionamento, promessa, mensagens-chave, key visual, templates e linguagem de campanha.',
+        bestFor: 'Eventos que precisam parecer marca científica, não apenas agenda.',
+        outputs: ['Conceito', 'Key visual', 'Mensagens-chave', 'Templates'],
+      },
+      {
+        icon: CalendarDays,
+        title: 'Congress Launch',
+        promise: 'Lançamento com percepção premium desde o primeiro contato.',
+        description: 'Teaser, save the date, abertura de inscrições, e-mails, posts iniciais, landing page e argumento comercial para inaugurar a campanha.',
+        bestFor: 'Abrir inscrições, anunciar edição ou reposicionar um evento existente.',
+        outputs: ['Teaser', 'Save the date', 'Landing page', 'Campanha inicial'],
+      },
+      {
+        icon: Network,
+        title: 'Congress Communication 360',
+        promise: 'Campanha completa antes, durante e depois.',
+        description: 'Planejamento e execução de comunicação para social, e-mails, lotes, programação, palestrantes, patrocinadores, experiência presencial e pós-evento.',
+        bestFor: 'Congressos que precisam de operação contínua e não só artes isoladas.',
+        outputs: ['Social media', 'E-mails', 'Lotes', 'Cobertura e pós'],
+      },
+      {
+        icon: ClipboardList,
+        title: 'Scientific Program Marketing',
+        promise: 'A programação vira argumento de inscrição.',
+        description: 'Trilhas, mesas, cursos e temas são traduzidos em chamadas, carrosséis, e-mails segmentados e conteúdos que mostram o valor científico da edição.',
+        bestFor: 'Eventos com programação forte que ainda parece apenas um PDF.',
+        outputs: ['Trilhas comunicadas', 'Cards de programação', 'E-mails segmentados', 'Argumentos de valor'],
+      },
+      {
+        icon: Mic2,
+        title: 'Speaker Visibility Kit',
+        promise: 'Palestrantes viram ativos de alcance e prestígio.',
+        description: 'Kit individual por speaker com cards, mini bios, legendas, LinkedIn e materiais compartilháveis para ativar redes próprias e ampliar a campanha.',
+        bestFor: 'Congressos com corpo docente forte e pouco ativado na divulgação.',
+        outputs: ['Cards por speaker', 'Mini bios', 'Legendas', 'Hub de materiais'],
+        action: 'speakerKit',
+      },
+      {
+        icon: Store,
+        title: 'Sponsor Sales Kit',
+        promise: 'Patrocínio vendido com argumento e prova de valor.',
+        description: 'Book comercial, cotas, ativações, perfil de público, pitch deck e materiais para captação de patrocinadores com clareza e estética premium.',
+        bestFor: 'Eventos que precisam vender ou elevar patrocínio.',
+        outputs: ['Book comercial', 'Cotas', 'Pitch deck', 'Ativações'],
+      },
+      {
+        icon: BadgeCheck,
+        title: 'Lon Sponsor Report',
+        promise: 'O patrocinador enxerga o que recebeu.',
+        description: 'Relatório visual pós-evento com entregas, ativações, presença de marca, fotos, números, clipping e argumentos para renovação.',
+        bestFor: 'Renovar patrocinadores e demonstrar valor com maturidade.',
+        outputs: ['Relatório premium', 'Clipping', 'Provas de entrega', 'Renovação'],
+      },
+      {
+        icon: Brain,
+        title: 'Lon Event Brain',
+        promise: 'Memória estratégica para a próxima edição.',
+        description: 'Organização de programação, palestrantes, campanhas, materiais, patrocinadores, fotos, relatórios e aprendizados para reaproveitar inteligência ano a ano.',
+        bestFor: 'Eventos recorrentes que querem parar de recomeçar do zero.',
+        outputs: ['Histórico da edição', 'Banco de materiais', 'Memória estratégica', 'Base futura'],
+      },
+    ],
   },
 ];
-
-const solutionsByAudience = {
-  you: [
-    {
-      icon: Stethoscope,
-      title: 'Lon Authority Médico',
-      promise: 'Autoridade recorrente a partir do seu repertório real.',
-      body: 'Estruturamos sua presença científica e institucional com posts, carrosséis, LinkedIn, roteiros, temas, calendário e narrativa alinhada à sua especialidade.',
-      outputs: ['Calendário editorial', 'Posts e carrosséis', 'LinkedIn médico', 'Roteiros de vídeo'],
-    },
-    {
-      icon: Mic2,
-      title: 'Speaker Visibility Kit',
-      promise: 'Sua participação em eventos vira ativo de prestígio.',
-      body: 'Criamos kit de palestrante com cards, mini bio, legendas e textos para divulgar aulas, mesas, cursos, moderações e presença científica.',
-      outputs: ['Speaker card', 'Mini bio', 'Legenda pronta', 'LinkedIn'],
-      action: 'speakerKit' as const,
-    },
-    {
-      icon: BookOpen,
-      title: 'Lon Casebook',
-      promise: 'Casos e acervo clínico organizados como patrimônio intelectual.',
-      body: 'Transformamos imagens, casos, temas e registros em uma biblioteca estruturada para aula, reunião, discussão científica, publicação e memória profissional.',
-      outputs: ['Casos organizados', 'Biblioteca visual', 'Narrativas clínicas', 'Material reutilizável'],
-    },
-    {
-      icon: Presentation,
-      title: 'Aulas e Materiais Científicos',
-      promise: 'Seu conhecimento ganha forma de apresentação premium.',
-      body: 'Apoiamos a estruturação de aulas, apresentações, roteiros e materiais de apoio a partir do seu acervo, com curadoria editorial e design sofisticado.',
-      outputs: ['Aulas', 'Slides', 'Roteiros', 'Storyline científica'],
-    },
-  ],
-  clinic: [
-    {
-      icon: Building2,
-      title: 'Lon Clinic Authority',
-      promise: 'Clínica com posicionamento, comunicação e autoridade consistentes.',
-      body: 'Organizamos serviços, corpo clínico, diferenciais, campanhas e conteúdos para que a clínica comunique valor com clareza, estética e recorrência.',
-      outputs: ['Posicionamento', 'Campanhas mensais', 'Posts e materiais', 'Pilares de marca'],
-    },
-    {
-      icon: Megaphone,
-      title: 'Campanhas Médicas',
-      promise: 'Campanhas mais estratégicas, menos genéricas.',
-      body: 'Criamos campanhas por serviço, data, procedimento, especialidade, prevenção, educação ou agenda comercial, sempre com linguagem médica premium.',
-      outputs: ['Campanhas por tema', 'Landing copy', 'Posts', 'E-mails'],
-    },
-    {
-      icon: Users,
-      title: 'Materiais para Equipe e Paciente',
-      promise: 'A comunicação da clínica também acontece fora do Instagram.',
-      body: 'Desenvolvemos materiais para recepção, equipe, jornada do paciente, apresentações institucionais, orientação pré e pós-atendimento e educação.',
-      outputs: ['Recepção', 'Orientações', 'Apresentações', 'Materiais internos'],
-    },
-    {
-      icon: Database,
-      title: 'Acervo Institucional Inteligente',
-      promise: 'Fotos, casos, campanhas e materiais deixam de ficar espalhados.',
-      body: 'A plataforma organiza a memória da clínica para reutilizar imagens, campanhas, cases, equipe, procedimentos e materiais com mais velocidade.',
-      outputs: ['Acervo da clínica', 'Busca por contexto', 'Histórico de campanhas', 'Memória visual'],
-    },
-  ],
-  congress: [
-    {
-      icon: Layers3,
-      title: 'Congress Brand System',
-      promise: 'A edição ganha conceito, narrativa e sistema visual.',
-      body: 'Criamos posicionamento, key visual, mensagens-chave, identidade e aplicações para que o congresso seja percebido como uma marca científica.',
-      outputs: ['Conceito', 'Key visual', 'Templates', 'Sistema de campanha'],
-    },
-    {
-      icon: CalendarDays,
-      title: 'Congress Launch',
-      promise: 'O lançamento já nasce com percepção premium.',
-      body: 'Estruturamos teaser, save the date, abertura de inscrições, e-mails, posts iniciais, landing page e narrativa comercial da edição.',
-      outputs: ['Teaser', 'Save the date', 'Landing page', 'Abertura de inscrições'],
-    },
-    {
-      icon: Network,
-      title: 'Congress Communication 360',
-      promise: 'Campanha completa antes, durante e depois.',
-      body: 'Planejamos e executamos social, e-mails, lotes, programação, palestrantes, patrocinadores, comunicação presencial e pós-evento.',
-      outputs: ['Social media', 'E-mails', 'Lotes', 'Cobertura'],
-    },
-    {
-      icon: ClipboardList,
-      title: 'Scientific Program Marketing',
-      promise: 'A programação deixa de ser PDF e vira desejo de inscrição.',
-      body: 'Transformamos trilhas, mesas, cursos e temas em chamadas, carrosséis, e-mails segmentados e argumentos de valor para públicos específicos.',
-      outputs: ['Trilhas comunicadas', 'Cards de programação', 'E-mails segmentados', 'Argumentos de inscrição'],
-    },
-    {
-      icon: Mic2,
-      title: 'Speaker Visibility Kit',
-      promise: 'Palestrantes viram ativos de alcance.',
-      body: 'Cada speaker recebe kit de divulgação com cards, mini bios, legendas, LinkedIn e materiais compartilháveis para ativar sua própria rede.',
-      outputs: ['Cards por speaker', 'Mini bios', 'Legendas', 'Hub de materiais'],
-      action: 'speakerKit' as const,
-    },
-    {
-      icon: Store,
-      title: 'Sponsor Sales Kit',
-      promise: 'Patrocínio vendido com argumento, estética e prova de valor.',
-      body: 'Criamos book comercial, cotas, ativações, perfil de público, apresentação e materiais para captar patrocinadores com mais clareza.',
-      outputs: ['Book comercial', 'Cotas', 'Pitch deck', 'Ativações'],
-    },
-    {
-      icon: BadgeCheck,
-      title: 'Lon Sponsor Report',
-      promise: 'O patrocinador enxerga o que recebeu.',
-      body: 'Relatório visual premium com entregas, presença de marca, ativações, números, fotos, percepção e oportunidades para renovação.',
-      outputs: ['Relatório premium', 'Clipping', 'Provas de entrega', 'Renovação'],
-    },
-    {
-      icon: Brain,
-      title: 'Lon Event Brain',
-      promise: 'A memória do congresso vira vantagem para a próxima edição.',
-      body: 'Organizamos programação, palestrantes, campanhas, materiais, patrocinadores, fotos, relatórios e aprendizados dentro de uma inteligência reutilizável.',
-      outputs: ['Memória estratégica', 'Histórico da edição', 'Banco de materiais', 'Base para próxima campanha'],
-    },
-  ],
-};
 
 const hybridLayers = [
-  ['Plataforma', 'Organiza acervo, materiais, histórico, aprovações, contexto e memória estratégica.'],
-  ['Serviço', 'Executa estratégia, copy, design, campanha, materiais e acompanhamento.'],
-  ['Curadoria', 'Eleva linguagem, seleciona ângulos, evita conteúdo genérico e protege sofisticação médica.'],
-  ['Inteligência', 'Acelera análise, reaproveitamento, busca, planejamento e continuidade entre entregas.'],
+  ['Plataforma', 'Centraliza acervo, materiais, histórico, aprovações e memória reutilizável.'],
+  ['Serviço', 'Executa estratégia, copy, design, campanhas, apresentações e materiais.'],
+  ['Curadoria', 'Seleciona ângulos, filtra excessos e protege a sofisticação médica.'],
+  ['Inteligência', 'Acelera busca, análise, planejamento e reaproveitamento entre entregas.'],
 ];
 
+const handleAnchor = (id: string) => {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+};
+
 const LongectaSolutionsPage: React.FC<LongectaSolutionsPageProps> = ({ onBack, onMethod, onCongress, onSpeakerKit, onPlans }) => {
-  const [activeAudience, setActiveAudience] = useState<SolutionAudience>('you');
-  const active = audiences.find(item => item.id === activeAudience) || audiences[0];
-  const ActiveIcon = active.icon;
-  const solutions = solutionsByAudience[activeAudience];
-
-  const summary = useMemo(() => {
-    if (activeAudience === 'you') return ['Autoridade pessoal', 'Conteúdo médico', 'Aulas e cases', 'Speaker visibility'];
-    if (activeAudience === 'clinic') return ['Marca clínica', 'Campanhas', 'Equipe e paciente', 'Acervo institucional'];
-    return ['Marca do evento', 'Inscrições', 'Patrocínio', 'Legado'];
-  }, [activeAudience]);
-
-  const handleSolutionAction = (action?: 'speakerKit') => {
+  const handleAction = (action?: SolutionAction) => {
     if (action === 'speakerKit') onSpeakerKit();
   };
 
   return (
     <div className="longecta-method-page plans-premium-page lon-soft-bg min-h-screen overflow-hidden text-[#111113]">
       <section className="relative px-5 pb-24 pt-6 sm:px-8 lg:px-12">
-        <div className="absolute inset-x-0 top-0 h-[760px] bg-white/18" />
-        <div className="plans-orbit absolute right-[8%] top-28 h-56 w-56 rounded-full border border-black/[0.05]" />
-        <div className="plans-orbit plans-orbit-slow absolute bottom-52 left-[7%] h-72 w-72 rounded-full border border-black/[0.04]" />
+        <div className="absolute inset-x-0 top-0 h-[540px] bg-white/22" />
 
         <div className="relative mx-auto max-w-7xl">
-          <nav className="lon-glass-panel sticky top-4 z-30 mb-14 flex items-center justify-between rounded-full px-3 py-2">
+          <nav className="lon-glass-panel sticky top-4 z-30 mb-10 flex items-center justify-between rounded-full px-3 py-2">
             <button onClick={onBack} className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-[12px] font-semibold text-[#424245] hover:bg-[#1d1d1f] hover:text-white">
               <ArrowLeft size={14} />
               Voltar
             </button>
             <div className="hidden items-center gap-6 text-[11px] font-semibold text-[#6e6e73] md:flex">
-              <a href="#divisoria" className="hover:text-[#1d1d1f]">Divisória</a>
-              <a href="#solucoes" className="hover:text-[#1d1d1f]">Soluções</a>
-              <a href="#hibrido" className="hover:text-[#1d1d1f]">Híbrido</a>
-              <a href="#decisao" className="hover:text-[#1d1d1f]">Decisão</a>
+              <button onClick={() => handleAnchor('para-voce')} className="hover:text-[#1d1d1f]">Para você</button>
+              <button onClick={() => handleAnchor('para-clinica')} className="hover:text-[#1d1d1f]">Para sua clínica</button>
+              <button onClick={() => handleAnchor('para-congresso')} className="hover:text-[#1d1d1f]">Para seu congresso</button>
+              <button onClick={() => handleAnchor('modelo')} className="hover:text-[#1d1d1f]">Modelo híbrido</button>
             </div>
             <button onClick={onPlans} className="button-nowrap rounded-full bg-[#1d1d1f] px-4 py-2 text-[12px] font-semibold text-white hover:bg-[#2d2d2f]">
               Ver planos
             </button>
           </nav>
 
-          <div className="grid min-h-[700px] items-center gap-10 lg:grid-cols-[0.92fr_1.08fr]">
-            <div className="plans-story-enter">
+          <header className="mb-8 grid gap-8 lg:grid-cols-[0.86fr_1.14fr] lg:items-end">
+            <div>
               <p className="plans-eyebrow lon-glass-panel mb-5 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[10px] font-bold uppercase text-[#6e6e73]">
                 <Sparkles size={13} className="text-[#1d1d1f]" />
-                Nossas Soluções
+                Nossas soluções
               </p>
-              <h1 className="max-w-5xl text-[43px] leading-[0.98] sm:text-[66px] lg:text-[76px]">
-                Soluções Longecta para transformar conhecimento médico em valor percebido.
+              <h1 className="max-w-4xl text-[42px] font-light leading-[1.02] tracking-tight sm:text-[64px] lg:text-[72px]">
+                Um portfólio para cada forma de autoridade médica.
               </h1>
-              <p className="mt-8 max-w-2xl text-[18px] font-light leading-relaxed text-[#6e6e73] sm:text-[21px]">
-                Um ecossistema híbrido de plataforma, serviço, curadoria e inteligência para médicos, clínicas e congressos que precisam comunicar autoridade com clareza, estética e continuidade.
+            </div>
+            <div className="max-w-2xl lg:justify-self-end">
+              <p className="text-[17px] font-light leading-relaxed text-[#6e6e73] sm:text-[19px]">
+                A Longecta combina plataforma, serviço, curadoria e inteligência para transformar repertório médico em comunicação clara, materiais premium e crescimento percebido.
               </p>
-              <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-                <a href="#divisoria" className="button-nowrap inline-flex items-center justify-center gap-2 rounded-full bg-[#1d1d1f] px-6 py-3 text-[13px] font-semibold text-white shadow-[0_18px_44px_rgba(0,0,0,0.18)] hover:bg-[#2d2d2f]">
-                  Escolher meu contexto
-                  <ArrowRight size={15} />
-                </a>
-                <button onClick={onMethod} className="button-nowrap inline-flex items-center justify-center gap-2 rounded-full border border-black/[0.07] bg-white/72 px-6 py-3 text-[13px] font-semibold text-[#1d1d1f] shadow-sm backdrop-blur-xl hover:bg-white">
-                  Ver método Longecta
-                </button>
-              </div>
-            </div>
-
-            <div className="relative min-h-[560px] sm:min-h-[680px]">
-              <img src={active.image} alt="" className="absolute right-0 top-0 h-[430px] w-[94%] rounded-[30px] object-cover object-center grayscale shadow-[0_38px_120px_rgba(0,0,0,0.16)] sm:h-[540px] sm:w-[88%] sm:rounded-[38px]" />
-              <div className="absolute bottom-0 left-0 w-[90%] rounded-[28px] bg-[#111113] p-5 text-white shadow-[0_40px_130px_rgba(0,0,0,0.32)] sm:w-[76%] sm:rounded-[34px] sm:p-7">
-                <p className="mb-7 text-[10px] font-bold uppercase tracking-[0.18em] text-white/42">Sistema Longecta</p>
-                <h2 className="text-[32px] font-extralight leading-tight sm:text-[38px]">A solução muda conforme o contexto. O método permanece: organizar, transformar, publicar e reaproveitar.</h2>
-                <div className="mt-7 grid grid-cols-4 gap-2">
-                  {['Plataforma', 'Serviço', 'Curadoria', 'IA'].map(item => (
-                    <span key={item} className="rounded-full bg-white/10 px-2 py-2 text-center text-[9px] font-bold uppercase tracking-[0.11em] text-white/70">{item}</span>
-                  ))}
-                </div>
-              </div>
-              <div className="plans-floating-metric lon-glass-panel-strong absolute bottom-[164px] right-0 hidden max-w-[158px] rounded-[20px] px-4 py-3 sm:block sm:right-6">
-                <p className="text-[34px] font-extralight leading-none">3</p>
-                <p className="mt-2 text-[10px] font-semibold leading-relaxed text-[#86868b]">frentes para transformar autoridade em operação</p>
-              </div>
-            </div>
-          </div>
-
-          <section id="divisoria" className="mt-12 scroll-mt-24 rounded-[38px] border border-black/[0.055] bg-white/64 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.07)] backdrop-blur-xl sm:p-5">
-            <div className="grid gap-3 lg:grid-cols-3">
-              {audiences.map(item => {
-                const Icon = item.icon;
-                const isActive = activeAudience === item.id;
-                return (
+              <div className="mt-6 flex flex-wrap gap-2">
+                {['Para você', 'Para sua clínica', 'Para seu congresso'].map((item, index) => (
                   <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => setActiveAudience(item.id)}
-                    className={`group rounded-[30px] border p-5 text-left transition-all ${isActive ? 'border-[#111113] bg-[#111113] text-white shadow-[0_24px_80px_rgba(0,0,0,0.18)]' : 'border-black/[0.045] bg-white/72 text-[#111113] hover:bg-white'}`}
+                    key={item}
+                    onClick={() => handleAnchor(segments[index].id)}
+                    className="rounded-full border border-black/[0.06] bg-white/72 px-4 py-2 text-[12px] font-semibold text-[#424245] shadow-sm backdrop-blur-xl hover:bg-[#111113] hover:text-white"
                   >
-                    <div className="mb-9 flex items-center justify-between">
-                      <span className={`flex h-11 w-11 items-center justify-center rounded-full ${isActive ? 'bg-white text-[#111113]' : 'bg-[#111113] text-white'}`}>
-                        <Icon size={18} />
-                      </span>
-                      <ArrowRight size={15} className={`transition-transform group-hover:translate-x-0.5 ${isActive ? 'text-white/60' : 'text-[#86868b]'}`} />
-                    </div>
-                    <p className={`mb-3 text-[10px] font-bold uppercase tracking-[0.18em] ${isActive ? 'text-white/42' : 'text-[#86868b]'}`}>{item.eyebrow}</p>
-                    <h2 className="text-[30px] font-light leading-tight">{item.tab}</h2>
-                    <p className={`mt-4 text-[13px] leading-relaxed ${isActive ? 'text-white/58' : 'text-[#6e6e73]'}`}>{item.body}</p>
+                    {item}
                   </button>
-                );
-              })}
+                ))}
+              </div>
             </div>
+          </header>
+
+          <section className="mb-14 grid gap-3 lg:grid-cols-3">
+            {segments.map(segment => {
+              const Icon = segment.icon;
+              return (
+                <button
+                  key={segment.id}
+                  onClick={() => handleAnchor(segment.id)}
+                  className="group overflow-hidden rounded-[28px] border border-black/[0.055] bg-white/72 text-left shadow-[0_18px_60px_rgba(0,0,0,0.06)] backdrop-blur-xl transition-all hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_26px_80px_rgba(0,0,0,0.08)]"
+                >
+                  <div className="aspect-[16/7] overflow-hidden bg-[#e9e9eb]">
+                    <img src={segment.image} alt="" className="h-full w-full object-cover object-center grayscale transition-transform duration-700 group-hover:scale-[1.025]" />
+                  </div>
+                  <div className="p-5">
+                    <div className="mb-5 flex items-center justify-between">
+                      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#111113] text-white">
+                        <Icon size={17} />
+                      </span>
+                      <ArrowRight size={14} className="text-[#86868b] transition-transform group-hover:translate-x-0.5" />
+                    </div>
+                    <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">{segment.eyebrow}</p>
+                    <h2 className="text-[27px] font-light leading-tight">{segment.label}</h2>
+                    <p className="mt-3 text-[13px] leading-relaxed text-[#6e6e73]">{segment.summary}</p>
+                  </div>
+                </button>
+              );
+            })}
           </section>
 
-          <section className="mt-14 grid gap-5 lg:grid-cols-[0.88fr_1.12fr]">
-            <div className="rounded-[38px] bg-[#111113] p-7 text-white shadow-[0_30px_100px_rgba(0,0,0,0.20)] sm:p-9">
-              <div className="mb-10 flex h-14 w-14 items-center justify-center rounded-full bg-white text-[#111113]">
-                <ActiveIcon size={22} />
-              </div>
-              <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white/38">{active.eyebrow}</p>
-              <h2 className="text-[42px] font-extralight leading-tight sm:text-[58px]">{active.title}</h2>
-              <p className="mt-6 max-w-xl text-[15px] font-light leading-relaxed text-white/62">{active.body}</p>
-              <a href={solutionsMailto(active.cta)} className="button-nowrap mt-9 inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-[13px] font-semibold text-[#111113] hover:bg-white/90">
-                {active.cta}
-                <Send size={15} />
-              </a>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {summary.map((item, index) => (
-                <div key={item} className={`rounded-[28px] p-6 ${index === 0 ? 'bg-[#111113] text-white' : 'bg-white/70 text-[#111113] backdrop-blur-xl'}`}>
-                  <p className={`mb-12 text-[10px] font-bold uppercase tracking-[0.16em] ${index === 0 ? 'text-white/42' : 'text-[#86868b]'}`}>{active.metric}</p>
-                  <p className="text-[26px] font-light leading-tight">{item}</p>
+          <section id="modelo" className="mb-16 scroll-mt-24 rounded-[30px] border border-black/[0.055] bg-[#111113] p-4 text-white shadow-[0_24px_80px_rgba(0,0,0,0.16)] sm:p-5">
+            <div className="grid gap-2 md:grid-cols-4">
+              {hybridLayers.map(([title, body], index) => (
+                <div key={title} className={`rounded-[22px] p-5 ${index === 0 ? 'bg-white text-[#111113]' : 'bg-white/[0.07] text-white'}`}>
+                  <p className={`mb-7 text-[10px] font-bold uppercase tracking-[0.16em] ${index === 0 ? 'text-[#86868b]' : 'text-white/38'}`}>{title}</p>
+                  <p className={`text-[13px] leading-relaxed ${index === 0 ? 'text-[#424245]' : 'text-white/58'}`}>{body}</p>
                 </div>
               ))}
             </div>
           </section>
 
-          <section id="solucoes" className="mt-24 scroll-mt-24">
-            <div className="mb-8 max-w-4xl">
-              <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Soluções por contexto</p>
-              <h2 className="text-[40px] font-semibold leading-tight sm:text-[60px]">{active.tab}: o que a Longecta pode estruturar.</h2>
-              <p className="mt-5 max-w-3xl text-[15px] leading-relaxed text-[#6e6e73]">
-                Cada solução pode ser contratada como entrega pontual, recorrência ou parte de um projeto mais amplo. A diferença está na profundidade de plataforma, serviço e curadoria envolvidos.
-              </p>
-            </div>
-            <div className="grid gap-5 lg:grid-cols-2">
-              {solutions.map((solution, index) => {
-                const Icon = solution.icon;
-                const isPrimary = index === 0;
-                return (
-                  <article key={solution.title} className={`plans-card rounded-[34px] border p-7 shadow-[0_24px_80px_rgba(0,0,0,0.07)] ${isPrimary ? 'border-[#111113] bg-[#111113] text-white' : 'border-black/[0.055] bg-white/72 text-[#111113] backdrop-blur-xl'}`}>
-                    <Icon size={20} className={`mb-10 ${isPrimary ? 'text-white/70' : 'text-[#1d1d1f]/70'}`} />
-                    <p className={`mb-3 text-[10px] font-bold uppercase tracking-[0.18em] ${isPrimary ? 'text-white/42' : 'text-[#86868b]'}`}>{solution.promise}</p>
-                    <h3 className="text-[32px] font-light leading-tight">{solution.title}</h3>
-                    <p className={`mt-4 text-[14px] leading-relaxed ${isPrimary ? 'text-white/62' : 'text-[#6e6e73]'}`}>{solution.body}</p>
-                    <div className="mt-7 grid gap-2 sm:grid-cols-2">
-                      {solution.outputs.map(output => (
-                        <span key={output} className={`rounded-full px-3 py-2 text-[10px] font-bold uppercase tracking-[0.12em] ${isPrimary ? 'bg-white/10 text-white/70' : 'bg-[#f5f5f7] text-[#6e6e73]'}`}>
-                          {output}
-                        </span>
-                      ))}
+          <div className="space-y-16">
+            {segments.map(segment => (
+              <section key={segment.id} id={segment.id} className="scroll-mt-24">
+                <div className="mb-5 grid gap-5 rounded-[34px] border border-black/[0.055] bg-white/68 p-4 shadow-[0_22px_70px_rgba(0,0,0,0.06)] backdrop-blur-xl lg:grid-cols-[300px_1fr]">
+                  <div className="overflow-hidden rounded-[26px] bg-[#ececee]">
+                    <img src={segment.image} alt="" className="h-full min-h-[220px] w-full object-cover object-center grayscale" />
+                  </div>
+                  <div className="grid gap-5 p-2 sm:p-4 lg:grid-cols-[1fr_330px] lg:items-center">
+                    <div>
+                      <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">{segment.eyebrow}</p>
+                      <h2 className="max-w-3xl text-[36px] font-light leading-tight tracking-tight sm:text-[50px]">{segment.title}</h2>
+                      <p className="mt-5 max-w-3xl text-[15px] leading-relaxed text-[#6e6e73]">{segment.summary}</p>
                     </div>
-                    {solution.action ? (
-                      <button onClick={() => handleSolutionAction(solution.action)} className={`button-nowrap mt-7 inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-[12px] font-semibold ${isPrimary ? 'bg-white text-[#111113] hover:bg-white/90' : 'bg-[#111113] text-white hover:bg-[#2d2d2f]'}`}>
-                        Conhecer página
-                        <ArrowRight size={14} />
-                      </button>
-                    ) : (
-                      <a href={solutionsMailto(`Quero conhecer ${solution.title}`)} className={`button-nowrap mt-7 inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-[12px] font-semibold ${isPrimary ? 'bg-white text-[#111113] hover:bg-white/90' : 'bg-[#111113] text-white hover:bg-[#2d2d2f]'}`}>
-                        Solicitar solução
-                        <ArrowRight size={14} />
-                      </a>
-                    )}
-                  </article>
-                );
-              })}
-            </div>
-          </section>
-
-          <section id="hibrido" className="mt-24 scroll-mt-24 overflow-hidden rounded-[42px] bg-white shadow-[0_30px_100px_rgba(0,0,0,0.10)]">
-            <div className="grid lg:grid-cols-[0.98fr_1.02fr]">
-              <div className="relative min-h-[520px] overflow-hidden bg-[#050506]">
-                <img src={active.image} alt="" className="h-full w-full object-cover object-center grayscale opacity-90" />
-                <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(17,17,19,0.72),rgba(17,17,19,0.08))]" />
-                <div className="absolute bottom-8 left-8 right-8 rounded-[28px] border border-white/12 bg-black/35 p-6 text-white backdrop-blur-xl">
-                  <ShieldCheck size={18} className="mb-8 text-white/58" />
-                  <p className="text-[28px] font-extralight leading-tight">Não é agência tradicional. Não é só software. É uma operação híbrida para autoridade médica.</p>
+                    <div className="rounded-[24px] bg-[#111113] p-5 text-white">
+                      <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.18em] text-white/38">Resultado esperado</p>
+                      <p className="text-[24px] font-extralight leading-tight">{segment.mainResult}</p>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div className="p-8 sm:p-12 lg:p-16">
-                <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.2em] text-[#86868b]">Modelo híbrido Longecta</p>
-                <h2 className="max-w-3xl text-[40px] font-semibold leading-tight sm:text-[62px]">A combinação que torna a entrega mais forte que uma ferramenta isolada.</h2>
-                <div className="mt-9 grid gap-3">
-                  {hybridLayers.map(([title, body], index) => (
-                    <div key={title} className={`rounded-[24px] border p-5 ${index === 1 ? 'border-[#111113] bg-[#111113] text-white' : 'border-black/[0.055] bg-[#f7f7f8] text-[#111113]'}`}>
-                      <p className={`mb-3 text-[10px] font-bold uppercase tracking-[0.16em] ${index === 1 ? 'text-white/42' : 'text-[#86868b]'}`}>{title}</p>
-                      <p className={`text-[14px] leading-relaxed ${index === 1 ? 'text-white/64' : 'text-[#6e6e73]'}`}>{body}</p>
+
+                <div className="mb-5 grid gap-3 lg:grid-cols-4">
+                  {segment.useWhen.map(item => (
+                    <div key={item} className="flex gap-3 rounded-[20px] border border-black/[0.045] bg-white/72 p-4 text-[12px] font-medium leading-relaxed text-[#424245] shadow-sm backdrop-blur-xl">
+                      <Check size={14} className="mt-0.5 shrink-0 text-[#111113]" />
+                      {item}
                     </div>
                   ))}
                 </div>
-              </div>
+
+                <div className="grid gap-3 xl:grid-cols-2">
+                  {segment.solutions.map(solution => {
+                    const Icon = solution.icon;
+                    return (
+                      <article key={solution.title} className="rounded-[26px] border border-black/[0.055] bg-white/78 p-5 shadow-[0_16px_54px_rgba(0,0,0,0.05)] backdrop-blur-xl transition-all hover:bg-white hover:shadow-[0_24px_70px_rgba(0,0,0,0.07)]">
+                        <div className="grid gap-4 sm:grid-cols-[48px_1fr]">
+                          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#111113] text-white">
+                            <Icon size={18} />
+                          </div>
+                          <div>
+                            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                              <div>
+                                <h3 className="text-[24px] font-light leading-tight tracking-tight">{solution.title}</h3>
+                                <p className="mt-2 text-[12px] font-bold uppercase tracking-[0.14em] text-[#86868b]">{solution.promise}</p>
+                              </div>
+                              {solution.action ? (
+                                <button onClick={() => handleAction(solution.action)} className="button-nowrap inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-[#111113] px-4 py-2 text-[11px] font-semibold text-white hover:bg-[#2d2d2f]">
+                                  Ver página
+                                  <ArrowRight size={13} />
+                                </button>
+                              ) : (
+                                <a href={solutionsMailto(`Quero conhecer ${solution.title}`)} className="button-nowrap inline-flex shrink-0 items-center justify-center gap-2 rounded-full border border-black/[0.06] bg-white px-4 py-2 text-[11px] font-semibold text-[#111113] hover:bg-[#111113] hover:text-white">
+                                  Solicitar
+                                  <ArrowRight size={13} />
+                                </a>
+                              )}
+                            </div>
+                            <p className="mt-4 text-[13px] leading-relaxed text-[#5f5f63]">{solution.description}</p>
+                            <div className="mt-4 rounded-[18px] bg-[#f5f5f7] p-4">
+                              <p className="mb-3 text-[9px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Melhor para</p>
+                              <p className="text-[13px] leading-relaxed text-[#424245]">{solution.bestFor}</p>
+                            </div>
+                            <div className="mt-4 flex flex-wrap gap-2">
+                              {solution.outputs.map(output => (
+                                <span key={output} className="rounded-full bg-[#f5f5f7] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.11em] text-[#6e6e73]">
+                                  {output}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+              </section>
+            ))}
+          </div>
+
+          <section className="mt-16 grid gap-3 rounded-[34px] border border-black/[0.055] bg-white/72 p-5 shadow-[0_22px_70px_rgba(0,0,0,0.06)] backdrop-blur-xl lg:grid-cols-[0.7fr_1.3fr]">
+            <div className="rounded-[26px] bg-[#111113] p-6 text-white">
+              <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.18em] text-white/38">Como escolher</p>
+              <h2 className="text-[34px] font-extralight leading-tight">O ponto de partida depende de onde está o valor escondido.</h2>
+            </div>
+            <div className="grid gap-px overflow-hidden rounded-[24px] border border-black/[0.045] bg-black/[0.045]">
+              {[
+                ['Tenho repertório, mas pouca presença', 'Comece por Lon Authority Médico ou Lon Casebook.'],
+                ['Tenho clínica, mas comunicação inconsistente', 'Comece por Lon Clinic Authority e campanhas médicas.'],
+                ['Tenho congresso, mas baixo valor percebido', 'Comece por Congress Brand System ou Communication 360.'],
+                ['Tenho palestrantes fortes, mas pouca divulgação', 'Comece por Speaker Visibility Kit.'],
+              ].map(([signal, recommendation]) => (
+                <div key={signal} className="grid gap-2 bg-white px-5 py-4 sm:grid-cols-[0.78fr_1.22fr]">
+                  <p className="text-[13px] font-semibold text-[#111113]">{signal}</p>
+                  <p className="text-[13px] leading-relaxed text-[#6e6e73]">{recommendation}</p>
+                </div>
+              ))}
             </div>
           </section>
 
-          <section id="decisao" className="mt-24 grid gap-5 lg:grid-cols-3">
-            {[
-              ['Se você é médico', 'A pergunta é: seu repertório está virando autoridade ou está parado em arquivos, aulas antigas e ideias soltas?', 'Selecionar Para você', 'you' as const],
-              ['Se você tem clínica', 'A pergunta é: sua clínica comunica o próprio valor ou parece depender de posts soltos e campanhas genéricas?', 'Selecionar Clínica', 'clinic' as const],
-              ['Se você organiza congresso', 'A pergunta é: sua edição está sendo percebida como marca científica ou apenas como uma programação com data?', 'Selecionar Congresso', 'congress' as const],
-            ].map(([title, body, cta, target], index) => (
-              <button
-                key={title}
-                type="button"
-                onClick={() => {
-                  setActiveAudience(target);
-                  window.setTimeout(() => document.getElementById('solucoes')?.scrollIntoView({ behavior: 'smooth' }), 50);
-                }}
-                className={`rounded-[34px] p-7 text-left shadow-[0_24px_80px_rgba(0,0,0,0.07)] transition-all hover:-translate-y-1 ${index === 2 ? 'bg-[#111113] text-white' : 'bg-white/72 text-[#111113] backdrop-blur-xl'}`}
-              >
-                <FileText size={19} className={`mb-12 ${index === 2 ? 'text-white/70' : 'text-[#1d1d1f]/70'}`} />
-                <h3 className="text-[30px] font-light leading-tight">{title}</h3>
-                <p className={`mt-5 text-[14px] leading-relaxed ${index === 2 ? 'text-white/58' : 'text-[#6e6e73]'}`}>{body}</p>
-                <span className={`mt-8 inline-flex items-center gap-2 rounded-full px-5 py-3 text-[12px] font-semibold ${index === 2 ? 'bg-white text-[#111113]' : 'bg-[#111113] text-white'}`}>
-                  {cta}
-                  <ArrowRight size={14} />
-                </span>
-              </button>
-            ))}
-          </section>
-
-          <section className="relative mt-24 overflow-hidden rounded-[42px] bg-[#111113] px-7 py-16 text-center text-white shadow-[0_38px_130px_rgba(0,0,0,0.26)] sm:px-12 sm:py-20">
-            <img src="/assets/longecta-solutions-congress.png" alt="" className="absolute inset-0 h-full w-full object-cover object-center grayscale opacity-38" />
-            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(17,17,19,0.95),rgba(17,17,19,0.62),rgba(17,17,19,0.95))]" />
-            <div className="relative z-10">
-              <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.2em] text-white/44">Próximo passo</p>
-              <h2 className="mx-auto max-w-4xl text-[42px] font-extralight leading-tight sm:text-[66px]">A melhor solução é a que transforma o que você já tem em valor que o mercado consegue perceber.</h2>
-              <p className="mx-auto mt-7 max-w-2xl text-[16px] font-light leading-relaxed text-white/62">
-                A Longecta entra para organizar a matéria-prima, definir a narrativa, executar com qualidade premium e criar memória para a próxima entrega.
-              </p>
-              <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
-                <a href={solutionsMailto('Quero escolher minha solução Longecta')} className="button-nowrap inline-flex items-center justify-center gap-2 rounded-full bg-white px-7 py-3 text-[13px] font-semibold text-[#111113] hover:bg-white/90">
-                  Escolher minha solução
+          <section className="relative mt-16 overflow-hidden rounded-[34px] bg-[#111113] px-7 py-12 text-white shadow-[0_32px_110px_rgba(0,0,0,0.22)] sm:px-10">
+            <div className="relative z-10 grid gap-7 lg:grid-cols-[1fr_auto] lg:items-center">
+              <div>
+                <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white/40">Próximo passo</p>
+                <h2 className="max-w-4xl text-[36px] font-extralight leading-tight sm:text-[52px]">Escolha a frente certa e a Longecta estrutura o caminho de execução.</h2>
+                <p className="mt-5 max-w-2xl text-[14px] leading-relaxed text-white/58">A conversa começa pelo contexto: você, sua clínica ou seu congresso. A partir disso, definimos o pacote mais inteligente de plataforma, serviço e curadoria.</p>
+              </div>
+              <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
+                <a href={solutionsMailto('Quero escolher minha solução Longecta')} className="button-nowrap inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-[13px] font-semibold text-[#111113] hover:bg-white/90">
+                  Escolher solução
                   <Send size={15} />
                 </a>
-                <button onClick={onCongress} className="button-nowrap inline-flex items-center justify-center gap-2 rounded-full border border-white/20 bg-white/10 px-7 py-3 text-[13px] font-semibold text-white backdrop-blur hover:bg-white/16">
-                  Ver Congressos
+                <button onClick={onMethod} className="button-nowrap inline-flex items-center justify-center gap-2 rounded-full border border-white/20 bg-white/10 px-6 py-3 text-[13px] font-semibold text-white backdrop-blur hover:bg-white/16">
+                  Método Longecta
+                  <ArrowRight size={15} />
+                </button>
+                <button onClick={onCongress} className="button-nowrap inline-flex items-center justify-center gap-2 rounded-full border border-white/20 bg-white/10 px-6 py-3 text-[13px] font-semibold text-white backdrop-blur hover:bg-white/16">
+                  Congressos
                   <ArrowRight size={15} />
                 </button>
               </div>
