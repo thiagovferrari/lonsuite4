@@ -260,6 +260,14 @@ select:focus-visible {
     0 18px 56px rgba(29, 29, 31, 0.11);
 }
 
+.longecta-method-page :where(h1, h2, h3) {
+  letter-spacing: 0;
+}
+
+.longecta-method-page {
+  color-scheme: light;
+}
+
 @media (max-width: 767px) {
   main {
     padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));

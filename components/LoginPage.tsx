@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, ArrowRight, Award, Brain, Building2, Check, Crown, Database, FileText, Fingerprint, Globe2, Images, KeyRound, LockKeyhole, Network, Presentation, Search, Server, ShieldCheck, Sparkles, Zap } from 'lucide-react';
 import { signIn } from '../services/authService';
 import type { AuthUser } from '../services/authService';
+import LongectaMethodPage from './LongectaMethodPage';
+import LongectaCongressPage from './LongectaCongressPage';
 
 interface Props {
   onLogin: (user: AuthUser) => void;
@@ -893,6 +895,8 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
   const [activeStory, setActiveStory] = useState(0);
   const [showPlans, setShowPlans] = useState(false);
   const [showPlanDetails, setShowPlanDetails] = useState(false);
+  const [showLongectaMethod, setShowLongectaMethod] = useState(false);
+  const [showLongectaCongress, setShowLongectaCongress] = useState(false);
 
   const stories = useMemo(() => [
     {
@@ -949,6 +953,49 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
           setShowPlans(false);
           setShowPlanDetails(true);
           window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+      />
+    );
+  }
+
+  if (showLongectaMethod) {
+    return (
+      <LongectaMethodPage
+        onBack={() => {
+          setShowLongectaMethod(false);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        onCongress={() => {
+          setShowLongectaMethod(false);
+          setShowLongectaCongress(true);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        onPlans={() => {
+          setShowLongectaMethod(false);
+          setShowPlans(true);
+          window.setTimeout(() => document.getElementById('planos')?.scrollIntoView({ behavior: 'smooth' }), 50);
+        }}
+      />
+    );
+  }
+
+  if (showLongectaCongress) {
+    return (
+      <LongectaCongressPage
+        onBack={() => {
+          setShowLongectaCongress(false);
+          setShowLongectaMethod(true);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        onMethod={() => {
+          setShowLongectaCongress(false);
+          setShowLongectaMethod(true);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        onPlans={() => {
+          setShowLongectaCongress(false);
+          setShowPlans(true);
+          window.setTimeout(() => document.getElementById('planos')?.scrollIntoView({ behavior: 'smooth' }), 50);
         }}
       />
     );
@@ -1073,6 +1120,18 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
               >
                 Confira nossos planos
                 <ArrowRight size={14} />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setShowLongectaMethod(true);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className="mt-4 inline-flex w-full items-center justify-center gap-1.5 text-[12px] font-semibold text-[#1d1d1f] underline decoration-black/20 underline-offset-4 hover:text-[#0071e3] hover:decoration-[#0071e3]/40"
+              >
+                Conheça nosso método
+                <ArrowRight size={13} />
               </button>
             </div>
 
