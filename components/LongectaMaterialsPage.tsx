@@ -29,100 +29,135 @@ interface LongectaMaterialsPageProps {
 type MaterialService = {
   icon: React.ComponentType<{ size?: number; className?: string; strokeWidth?: number }>;
   title: string;
-  promise: string;
+  role: string;
   description: string;
   examples: string[];
-  deliverables: string[];
+  delivery: string;
 };
 
 const materialsMailto = (subject: string) =>
   `mailto:contato@lonsuite.com.br?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent('Olá, quero entender como a Longecta pode desenvolver os materiais, artes ou projeto 3D do meu evento/estande. Pode me orientar nos próximos passos?')}`;
 
+const handleAnchor = (id: string) => {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+};
+
+const position = [
+  ['O que fazemos', 'Estratégia visual, artes finais, mockups, renders 3D, projeto visual de estande e kit técnico para fornecedor.'],
+  ['O que não fazemos', 'Não imprimimos, não montamos, não fazemos marcenaria, elétrica, locação de estrutura ou produção física no local.'],
+  ['Como entramos', 'Como camada de inteligência visual entre evento, patrocinador, gráfica, montadora e equipe de produção.'],
+];
+
+const gallery = [
+  {
+    image: '/assets/longecta-materials-system.png',
+    label: 'Sistema de peças',
+    title: 'Backdrops, totens, púlpito, sinalização e fundos.',
+    body: 'Um conjunto visual padronizado para o evento parecer organizado em todos os pontos físicos.',
+    tags: ['Backdrop', 'Totem', 'Púlpito', 'Sinalização'],
+  },
+  {
+    image: '/assets/longecta-materials-stage.png',
+    label: 'Palco e plenária',
+    title: 'Volumetria e presença para o momento central.',
+    body: 'Estudos visuais para palco, painel, tela, laterais, púlpito e elementos de orientação da sessão.',
+    tags: ['Palco', 'Tela', 'Plenária', 'Sessão'],
+  },
+  {
+    image: '/assets/longecta-materials-stand.png',
+    label: 'Estande e ativação',
+    title: 'Projeto 3D para entender espaço antes da produção.',
+    body: 'Renders para visualizar paredes gráficas, balcão, telas, áreas de reunião e pontos de experiência.',
+    tags: ['Estande', 'Balcão', 'Display', '3D'],
+  },
+];
+
 const services: MaterialService[] = [
   {
     icon: Presentation,
     title: 'Artes para cenografia',
-    promise: 'O ambiente físico passa a comunicar a marca do evento.',
-    description: 'Criamos o sistema visual aplicado em superfícies reais: fundos de palco, backdrops, painéis, testeiras, telas, ambientação e peças de presença institucional.',
-    examples: ['Backdrop principal', 'Fundo de palco', 'Painéis laterais', 'Tela de plenária'],
-    deliverables: ['Direção visual', 'Arte final', 'Variações por formato', 'Guia para fornecedor'],
+    role: 'Transformar identidade em ambiente.',
+    description: 'Sistema visual aplicado em fundos de palco, backdrops, painéis, testeiras, telas, laterais e peças de presença institucional.',
+    examples: ['Backdrop', 'Fundo de palco', 'Painéis', 'Tela de plenária'],
+    delivery: 'Arte final por formato, mockups e guia para fornecedor.',
   },
   {
     icon: Monitor,
     title: 'Palco, plenária e púlpito',
-    promise: 'A apresentação ganha presença visual antes mesmo da fala começar.',
-    description: 'Desenvolvemos a linguagem gráfica para palco, púlpito, telas, laterais, vinhetas estáticas e elementos de apoio para uma plenária mais premium.',
-    examples: ['Púlpito', 'Painel LED', 'Moldura de tela', 'Identidade da sessão'],
-    deliverables: ['Layouts de palco', 'Artes de tela', 'Arquivos finais', 'Checklist técnico'],
+    role: 'Elevar a percepção do momento principal.',
+    description: 'Linguagem gráfica para palco, púlpito, telas, molduras, vinhetas estáticas, fundos de sessão e elementos de apoio.',
+    examples: ['Púlpito', 'Painel LED', 'Moldura', 'Identidade da sessão'],
+    delivery: 'Layouts de palco, artes de tela e checklist técnico.',
   },
   {
     icon: Store,
     title: 'Estandes e ativações',
-    promise: 'O estande deixa de ser espaço vazio e vira experiência de marca.',
-    description: 'Criamos a comunicação visual de estandes, balcões, paredes, displays, ativações, áreas de demonstração e pontos de relacionamento com patrocinadores.',
-    examples: ['Parede principal', 'Balcão', 'Display demo', 'Área patrocinador'],
-    deliverables: ['Conceito visual', 'Aplicações', 'Mockups', 'Arquivo para produção'],
+    role: 'Fazer o espaço trabalhar pela marca.',
+    description: 'Comunicação visual de estandes, balcões, paredes, displays, ativações, áreas de demonstração e pontos de relacionamento.',
+    examples: ['Parede principal', 'Balcão', 'Display demo', 'Área sponsor'],
+    delivery: 'Conceito visual, aplicações, mockups e arquivos finais.',
   },
   {
     icon: Building2,
     title: 'Projetos 3D de estandes',
-    promise: 'Antes de produzir, o cliente entende o espaço.',
-    description: 'Desenvolvemos estudos e renders 3D de estandes para visualizar volumetria, circulação, pontos de comunicação, balcões, telas e áreas de experiência.',
-    examples: ['Estande aberto', 'Corner booth', 'Recepção', 'Área de reunião'],
-    deliverables: ['Render 3D', 'Estudo de layout', 'Vista por ângulos', 'Briefing para montadora'],
+    role: 'Aprovar espaço, fluxo e intenção antes de produzir.',
+    description: 'Estudos e renders para visualizar volumetria, circulação, balcões, telas, paredes gráficas, reuniões e pontos de experiência.',
+    examples: ['Corner booth', 'Recepção', 'Área de reunião', 'Ilha sponsor'],
+    delivery: 'Render 3D, vistas por ângulo e briefing para montadora.',
   },
   {
     icon: Megaphone,
-    title: 'Totens, sinalização e wayfinding',
-    promise: 'O participante entende o evento sem depender de improviso.',
-    description: 'Criamos peças de orientação e presença visual: totens, placas, sinalização direcional, agenda, áreas de credenciamento, patrocinadores e fluxo de salas.',
+    title: 'Totens e sinalização',
+    role: 'Orientar sem poluir o evento.',
+    description: 'Peças de wayfinding, agenda, credenciamento, patrocinadores, salas, fluxo de público e comunicação de áreas importantes.',
     examples: ['Totem vertical', 'Direcional', 'Agenda do dia', 'Credenciamento'],
-    deliverables: ['Sistema de placas', 'Artes por medida', 'Hierarquia visual', 'Mapa de aplicação'],
+    delivery: 'Sistema de placas, artes por medida e mapa de aplicação.',
   },
   {
     icon: BadgeCheck,
     title: 'Visibilidade de patrocinadores',
-    promise: 'O patrocinador aparece com valor, não apenas com logotipo.',
-    description: 'Organizamos a presença de marcas em painéis, totens, estandes, áreas de ativação, telas, materiais físicos e pontos de experiência do congresso.',
+    role: 'Mostrar entrega de valor, não apenas logotipo.',
+    description: 'Presença de marcas em painéis, totens, estandes, áreas de ativação, telas, materiais físicos e pontos de experiência.',
     examples: ['Painel sponsor', 'Cotas visuais', 'Ativações', 'Área de relacionamento'],
-    deliverables: ['Mapa de entregas', 'Artes de aplicação', 'Mockups', 'Prova visual'],
+    delivery: 'Mapa de entregas, aplicações e prova visual.',
   },
   {
     icon: PackageCheck,
     title: 'Kit técnico para produção',
-    promise: 'A montadora e a gráfica recebem arquivos com menos ambiguidade.',
-    description: 'Preparamos arquivos finais, organização por peça, instruções de formato, checklist e pacote visual para facilitar a conversa com fornecedores.',
-    examples: ['Arquivos finais', 'Peças por medida', 'Checklist', 'Referência visual'],
-    deliverables: ['PDF de produção', 'Pacote de arquivos', 'Especificações', 'Controle de versões'],
+    role: 'Reduzir ruído com gráfica, montadora e produção.',
+    description: 'Organização de arquivos finais, medidas, referências, versões e instruções para que fornecedores executem com clareza.',
+    examples: ['Arquivos finais', 'Peças por medida', 'Checklist', 'Referências'],
+    delivery: 'Pacote de arquivos, PDF técnico e controle de versões.',
   },
   {
     icon: Layers3,
     title: 'Sistema visual do ambiente',
-    promise: 'Tudo parece pertencer à mesma edição.',
-    description: 'Criamos uma linguagem consistente para palco, estande, totens, telas e materiais físicos, conectada ao branding do congresso ou da marca patrocinadora.',
-    examples: ['Key visual', 'Grid de aplicação', 'Hierarquia', 'Padrão visual'],
-    deliverables: ['Sistema visual', 'Templates', 'Guia rápido', 'Aplicações prioritárias'],
+    role: 'Garantir unidade entre todas as peças.',
+    description: 'Padrão visual para palco, estande, totens, telas e materiais físicos conectado ao branding do congresso ou patrocinador.',
+    examples: ['Key visual', 'Grid', 'Hierarquia', 'Templates'],
+    delivery: 'Sistema visual, guia rápido e aplicações prioritárias.',
   },
 ];
 
-const processSteps = [
-  ['1. Briefing espacial', 'Entendemos evento, medidas, fornecedor, fluxo, pontos de atenção, patrocinadores, telas, palco e necessidades de produção.'],
-  ['2. Direção visual', 'Transformamos a identidade do evento em uma lógica aplicável ao espaço físico, mantendo hierarquia e unidade visual.'],
-  ['3. Arte e 3D', 'Criamos artes finais, mockups e renders 3D quando necessário para aprovar composição, volume, escala e experiência.'],
-  ['4. Kit para fornecedor', 'Entregamos arquivos e instruções para gráfica, montadora ou equipe de produção executar com menos ruído.'],
+const process = [
+  ['Briefing técnico', 'Medidas, fornecedores, superfícies, fluxo, patrocinadores, telas, prazos e contexto do evento.'],
+  ['Direção visual', 'Transformação da identidade em uma lógica de aplicação física, com hierarquia e unidade.'],
+  ['Mockups e 3D', 'Visualização de peças, escala, composição, volumetria, estande e relação com o espaço.'],
+  ['Arquivos finais', 'Pacote organizado para gráfica, montadora ou equipe técnica executar com menos ambiguidade.'],
 ];
 
-const scope = [
-  ['Fazemos', 'Estratégia visual, conceito, arte, mockup, render 3D, projeto visual de estande, arquivos finais e orientação para fornecedor.'],
-  ['Não fazemos', 'Impressão, montagem física, marcenaria, locação de estrutura, instalação elétrica, operação de gráfica ou produção no local.'],
-  ['Trabalhamos junto', 'Com montadoras, produtoras, gráficas, sociedades médicas, patrocinadores, organizadores e equipes de marketing.'],
+const valueBlocks = [
+  ['Mais valor percebido', 'O evento parece mais estruturado porque cada superfície comunica com intenção.'],
+  ['Menos improviso', 'Fornecedor recebe direção visual, medidas, hierarquia e arquivos mais organizados.'],
+  ['Mais aprovação', 'Mockups e 3D ajudam diretoria, patrocinador e produção a enxergar antes de executar.'],
+  ['Mais consistência', 'Palco, estande, sinalização e sponsor deixam de parecer peças desconectadas.'],
 ];
 
 const LongectaMaterialsPage: React.FC<LongectaMaterialsPageProps> = ({ onBack, onCongress, onSolutions, onPlans }) => {
   return (
     <div className="longecta-method-page plans-premium-page lon-soft-bg min-h-screen overflow-hidden text-[#111113]">
       <section className="relative px-5 pb-24 pt-6 sm:px-8 lg:px-12">
-        <div className="absolute inset-x-0 top-0 h-[560px] bg-white/22" />
+        <div className="absolute inset-x-0 top-0 h-[520px] bg-white/22" />
 
         <div className="relative mx-auto max-w-7xl">
           <nav className="lon-glass-panel sticky top-4 z-30 mb-10 flex items-center justify-between rounded-full px-3 py-2">
@@ -131,32 +166,32 @@ const LongectaMaterialsPage: React.FC<LongectaMaterialsPageProps> = ({ onBack, o
               Voltar
             </button>
             <div className="hidden items-center gap-6 text-[11px] font-semibold text-[#6e6e73] md:flex">
-              <a href="#servicos" className="hover:text-[#1d1d1f]">Serviços</a>
-              <a href="#escopo" className="hover:text-[#1d1d1f]">Escopo</a>
-              <a href="#processo" className="hover:text-[#1d1d1f]">Processo</a>
-              <a href="#projetos-3d" className="hover:text-[#1d1d1f]">Projetos 3D</a>
+              <button onClick={() => handleAnchor('mostruario')} className="hover:text-[#1d1d1f]">Mostruário</button>
+              <button onClick={() => handleAnchor('servicos')} className="hover:text-[#1d1d1f]">Serviços</button>
+              <button onClick={() => handleAnchor('processo')} className="hover:text-[#1d1d1f]">Processo</button>
+              <button onClick={() => handleAnchor('valor')} className="hover:text-[#1d1d1f]">Valor</button>
             </div>
             <button onClick={onPlans} className="button-nowrap rounded-full bg-[#1d1d1f] px-4 py-2 text-[12px] font-semibold text-white hover:bg-[#2d2d2f]">
               Ver planos
             </button>
           </nav>
 
-          <header className="mb-8 grid gap-8 lg:grid-cols-[0.82fr_1.18fr] lg:items-end">
+          <header className="mb-8 grid gap-8 lg:grid-cols-[0.78fr_1.22fr] lg:items-end">
             <div>
               <p className="plans-eyebrow lon-glass-panel mb-5 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[10px] font-bold uppercase text-[#6e6e73]">
                 <Box size={13} className="text-[#1d1d1f]" />
                 Materiais Longecta
               </p>
-              <h1 className="max-w-4xl text-[42px] font-light leading-[1.02] tracking-tight sm:text-[64px] lg:text-[72px]">
-                Artes e projetos visuais para ambientes científicos premium.
+              <h1 className="max-w-4xl text-[40px] font-light leading-[1.03] tracking-tight sm:text-[56px] lg:text-[62px]">
+                Mostruário visual para ambientes científicos premium.
               </h1>
             </div>
             <div className="max-w-2xl lg:justify-self-end">
               <p className="text-[17px] font-light leading-relaxed text-[#6e6e73] sm:text-[19px]">
-                Desenvolvemos a estratégia visual, as artes finais e os estudos 3D para cenografia, palco, estandes, totens, backdrops e materiais físicos de congressos e ativações médicas.
+                Desenvolvemos a camada estratégica e visual de materiais físicos: artes finais, mockups, renders 3D e arquivos para fornecedores. A produção física fica com gráfica, montadora ou produtora.
               </p>
               <div className="mt-6 flex flex-wrap gap-2">
-                {['Arte estratégica', 'Projeto 3D', 'Kit para fornecedor', 'Não imprimimos'].map(item => (
+                {['Arte final', 'Mockup', 'Projeto 3D', 'Kit técnico', 'Não imprimimos'].map(item => (
                   <span key={item} className="rounded-full border border-black/[0.06] bg-white/72 px-4 py-2 text-[12px] font-semibold text-[#424245] shadow-sm backdrop-blur-xl">
                     {item}
                   </span>
@@ -165,62 +200,78 @@ const LongectaMaterialsPage: React.FC<LongectaMaterialsPageProps> = ({ onBack, o
             </div>
           </header>
 
-          <section className="mb-12 grid gap-3 lg:grid-cols-[1.18fr_0.82fr]">
-            <div className="overflow-hidden rounded-[34px] border border-black/[0.055] bg-white/72 shadow-[0_22px_70px_rgba(0,0,0,0.07)] backdrop-blur-xl">
-              <img src="/assets/longecta-materials-system.png" alt="Sistema 3D de peças para cenografia e sinalização" className="h-[320px] w-full object-cover object-center sm:h-[460px]" />
+          <section id="mostruario" className="scroll-mt-24">
+            <div className="mb-4 grid gap-4 lg:grid-cols-[0.72fr_1.28fr] lg:items-end">
+              <div>
+                <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Mostruário</p>
+                <h2 className="text-[28px] font-light leading-tight tracking-tight sm:text-[36px]">Peças com linguagem de sistema.</h2>
+              </div>
+              <p className="max-w-3xl text-[15px] leading-relaxed text-[#6e6e73]">
+                A página mostra exemplos em branco porque o valor está no sistema: proporção, hierarquia, aplicabilidade, unidade e clareza para produção.
+              </p>
             </div>
-            <div className="grid gap-3">
-              {scope.map(([title, body], index) => (
-                <article key={title} className={`rounded-[28px] p-6 shadow-[0_16px_54px_rgba(0,0,0,0.05)] ${index === 0 ? 'bg-[#111113] text-white' : 'border border-black/[0.055] bg-white/76 text-[#111113] backdrop-blur-xl'}`}>
-                  <p className={`mb-8 text-[10px] font-bold uppercase tracking-[0.18em] ${index === 0 ? 'text-white/42' : 'text-[#86868b]'}`}>{title}</p>
-                  <p className={`text-[15px] leading-relaxed ${index === 0 ? 'text-white/66' : 'text-[#5f5f63]'}`}>{body}</p>
+            <div className="grid gap-3 lg:grid-cols-3">
+              {gallery.map(item => (
+                <article key={item.label} className="overflow-hidden rounded-[30px] border border-black/[0.055] bg-white/74 shadow-[0_18px_60px_rgba(0,0,0,0.06)] backdrop-blur-xl">
+                  <div className="aspect-[16/10] overflow-hidden bg-[#ececee]">
+                    <img src={item.image} alt="" className="h-full w-full object-cover object-center" />
+                  </div>
+                  <div className="p-5">
+                    <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">{item.label}</p>
+                    <h3 className="text-[25px] font-light leading-tight">{item.title}</h3>
+                    <p className="mt-4 text-[13px] leading-relaxed text-[#6e6e73]">{item.body}</p>
+                    <div className="mt-5 flex flex-wrap gap-2">
+                      {item.tags.map(tag => (
+                        <span key={tag} className="rounded-full bg-[#f5f5f7] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.11em] text-[#6e6e73]">{tag}</span>
+                      ))}
+                    </div>
+                  </div>
                 </article>
               ))}
             </div>
           </section>
 
-          <section id="servicos" className="scroll-mt-24">
+          <section className="mt-8 grid gap-3 lg:grid-cols-3">
+            {position.map(([title, body], index) => (
+              <article key={title} className={`rounded-[24px] border p-5 shadow-[0_12px_42px_rgba(0,0,0,0.045)] ${index === 0 ? 'border-[#111113] bg-[#111113] text-white' : 'border-black/[0.055] bg-white/76 text-[#111113] backdrop-blur-xl'}`}>
+                <p className={`mb-5 text-[10px] font-bold uppercase tracking-[0.18em] ${index === 0 ? 'text-white/42' : 'text-[#86868b]'}`}>{title}</p>
+                <p className={`text-[13px] leading-relaxed ${index === 0 ? 'text-white/66' : 'text-[#5f5f63]'}`}>{body}</p>
+              </article>
+            ))}
+          </section>
+
+          <section id="servicos" className="mt-16 scroll-mt-24">
             <div className="mb-6 grid gap-4 lg:grid-cols-[0.72fr_1.28fr] lg:items-end">
               <div>
-                <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Serviços premium</p>
+                <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Serviços</p>
                 <h2 className="text-[38px] font-light leading-tight tracking-tight sm:text-[54px]">O que desenvolvemos.</h2>
               </div>
               <p className="max-w-3xl text-[15px] leading-relaxed text-[#6e6e73]">
-                A lógica é de produto: cada peça precisa ter função, hierarquia, acabamento e viabilidade de produção. Não entregamos apenas uma arte bonita; entregamos uma comunicação aplicável ao espaço real.
+                Cada item abaixo é tratado como produto: tem função, aplicação, entrega e papel dentro da experiência física do evento.
               </p>
             </div>
 
-            <div className="grid gap-3 xl:grid-cols-2">
-              {services.map(service => {
+            <div className="overflow-hidden rounded-[30px] border border-black/[0.055] bg-white/76 shadow-[0_22px_70px_rgba(0,0,0,0.06)] backdrop-blur-xl">
+              {services.map((service, index) => {
                 const Icon = service.icon;
                 return (
-                  <article key={service.title} className="rounded-[26px] border border-black/[0.055] bg-white/78 p-5 shadow-[0_16px_54px_rgba(0,0,0,0.05)] backdrop-blur-xl transition-all hover:bg-white hover:shadow-[0_24px_70px_rgba(0,0,0,0.07)]">
-                    <div className="grid gap-4 sm:grid-cols-[48px_1fr]">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#111113] text-white">
-                        <Icon size={18} />
-                      </div>
-                      <div>
-                        <h3 className="text-[24px] font-light leading-tight tracking-tight">{service.title}</h3>
-                        <p className="mt-2 text-[12px] font-bold uppercase tracking-[0.14em] text-[#86868b]">{service.promise}</p>
-                        <p className="mt-4 text-[13px] leading-relaxed text-[#5f5f63]">{service.description}</p>
-                        <div className="mt-4 grid gap-3 md:grid-cols-2">
-                          <div className="rounded-[18px] bg-[#f5f5f7] p-4">
-                            <p className="mb-3 text-[9px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Exemplos</p>
-                            <div className="flex flex-wrap gap-2">
-                              {service.examples.map(item => (
-                                <span key={item} className="rounded-full bg-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.11em] text-[#6e6e73]">{item}</span>
-                              ))}
-                            </div>
-                          </div>
-                          <div className="rounded-[18px] bg-[#111113] p-4 text-white">
-                            <p className="mb-3 text-[9px] font-bold uppercase tracking-[0.18em] text-white/40">Entregas</p>
-                            <div className="flex flex-wrap gap-2">
-                              {service.deliverables.map(item => (
-                                <span key={item} className="rounded-full bg-white/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.11em] text-white/70">{item}</span>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
+                  <article key={service.title} className={`grid gap-5 px-5 py-5 lg:grid-cols-[52px_minmax(230px,0.72fr)_minmax(280px,1fr)_minmax(230px,0.78fr)] ${index < services.length - 1 ? 'border-b border-black/[0.055]' : ''}`}>
+                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#111113] text-white">
+                      <Icon size={17} />
+                    </div>
+                    <div>
+                      <h3 className="text-[22px] font-light leading-tight tracking-tight">{service.title}</h3>
+                      <p className="mt-2 text-[11px] font-bold uppercase tracking-[0.14em] text-[#86868b]">{service.role}</p>
+                    </div>
+                    <p className="text-[13px] leading-relaxed text-[#5f5f63]">{service.description}</p>
+                    <div>
+                      <p className="mb-3 text-[9px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Exemplos e entrega</p>
+                      <div className="flex flex-wrap gap-2">
+                        {[...service.examples.slice(0, 3), service.delivery].map(item => (
+                          <span key={item} className="rounded-full bg-[#f5f5f7] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.11em] text-[#6e6e73]">
+                            {item}
+                          </span>
+                        ))}
                       </div>
                     </div>
                   </article>
@@ -229,45 +280,50 @@ const LongectaMaterialsPage: React.FC<LongectaMaterialsPageProps> = ({ onBack, o
             </div>
           </section>
 
-          <section id="projetos-3d" className="mt-16 scroll-mt-24 grid gap-3 lg:grid-cols-2">
-            <article className="overflow-hidden rounded-[34px] border border-black/[0.055] bg-white/72 shadow-[0_22px_70px_rgba(0,0,0,0.07)] backdrop-blur-xl">
-              <img src="/assets/longecta-materials-stage.png" alt="Projeto 3D de palco, púlpito e totens" className="h-[310px] w-full object-cover object-center sm:h-[420px]" />
-              <div className="p-6">
-                <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Palco e sinalização</p>
-                <h3 className="text-[31px] font-light leading-tight">Elementos 3D para aprovar proporção, hierarquia e presença visual.</h3>
-              </div>
-            </article>
-            <article className="overflow-hidden rounded-[34px] border border-black/[0.055] bg-white/72 shadow-[0_22px_70px_rgba(0,0,0,0.07)] backdrop-blur-xl">
-              <img src="/assets/longecta-materials-stand.png" alt="Projeto 3D de estande premium" className="h-[310px] w-full object-cover object-center sm:h-[420px]" />
-              <div className="p-6">
-                <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Estandes</p>
-                <h3 className="text-[31px] font-light leading-tight">Renders de estande para visualizar espaço, fluxo, balcão, telas e paredes gráficas.</h3>
-              </div>
-            </article>
-          </section>
-
-          <section id="processo" className="mt-16 scroll-mt-24 rounded-[34px] border border-black/[0.055] bg-white/72 p-5 shadow-[0_22px_70px_rgba(0,0,0,0.06)] backdrop-blur-xl">
-            <div className="mb-6 grid gap-4 lg:grid-cols-[0.7fr_1.3fr]">
-              <div className="rounded-[26px] bg-[#111113] p-6 text-white">
-                <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.18em] text-white/38">Processo</p>
-                <h2 className="text-[34px] font-extralight leading-tight">Do briefing à entrega para fornecedor.</h2>
-              </div>
-              <div className="grid gap-px overflow-hidden rounded-[24px] border border-black/[0.045] bg-black/[0.045]">
-                {processSteps.map(([title, body]) => (
-                  <div key={title} className="grid gap-2 bg-white px-5 py-4 sm:grid-cols-[220px_1fr]">
-                    <p className="text-[13px] font-semibold text-[#111113]">{title}</p>
-                    <p className="text-[13px] leading-relaxed text-[#6e6e73]">{body}</p>
-                  </div>
-                ))}
-              </div>
+          <section id="processo" className="mt-16 scroll-mt-24 grid gap-3 lg:grid-cols-[0.76fr_1.24fr]">
+            <div className="rounded-[30px] bg-[#111113] p-7 text-white shadow-[0_24px_80px_rgba(0,0,0,0.16)]">
+              <PenTool size={20} className="mb-12 text-white/68" />
+              <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.18em] text-white/38">Processo</p>
+              <h2 className="text-[36px] font-extralight leading-tight">Da intenção visual ao pacote para fornecedor.</h2>
+              <p className="mt-5 text-[14px] leading-relaxed text-white/56">O objetivo é que o cliente aprove com clareza e que a produção execute sem depender de interpretação solta.</p>
+            </div>
+            <div className="overflow-hidden rounded-[30px] border border-black/[0.055] bg-white/76 shadow-[0_22px_70px_rgba(0,0,0,0.06)] backdrop-blur-xl">
+              {process.map(([title, body], index) => (
+                <div key={title} className={`grid gap-3 px-5 py-5 sm:grid-cols-[46px_220px_1fr] ${index < process.length - 1 ? 'border-b border-black/[0.055]' : ''}`}>
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#111113] text-[12px] font-bold text-white">{index + 1}</span>
+                  <p className="text-[14px] font-semibold text-[#111113]">{title}</p>
+                  <p className="text-[13px] leading-relaxed text-[#6e6e73]">{body}</p>
+                </div>
+              ))}
             </div>
           </section>
 
-          <section id="escopo" className="mt-16 grid gap-3 lg:grid-cols-3">
+          <section id="valor" className="mt-16 scroll-mt-24">
+            <div className="mb-6 grid gap-4 lg:grid-cols-[0.72fr_1.28fr] lg:items-end">
+              <div>
+                <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Valor agregado</p>
+                <h2 className="text-[38px] font-light leading-tight tracking-tight sm:text-[54px]">Por que isso muda a percepção.</h2>
+              </div>
+              <p className="max-w-3xl text-[15px] leading-relaxed text-[#6e6e73]">
+                Materiais físicos são pontos de prova. Quando parecem improvisados, o evento perde valor; quando têm sistema, o congresso parece maior, mais confiável e mais desejável.
+              </p>
+            </div>
+            <div className="grid gap-3 lg:grid-cols-4">
+              {valueBlocks.map(([title, body], index) => (
+                <article key={title} className={`rounded-[28px] p-6 shadow-[0_18px_60px_rgba(0,0,0,0.06)] ${index === 0 ? 'bg-[#111113] text-white' : 'border border-black/[0.055] bg-white/74 text-[#111113] backdrop-blur-xl'}`}>
+                  <Check size={18} className={`mb-10 ${index === 0 ? 'text-white/70' : 'text-[#111113]/70'}`} />
+                  <h3 className="text-[24px] font-light leading-tight">{title}</h3>
+                  <p className={`mt-4 text-[13px] leading-relaxed ${index === 0 ? 'text-white/58' : 'text-[#6e6e73]'}`}>{body}</p>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section className="mt-16 grid gap-3 lg:grid-cols-3">
             {[
-              ['Para congressos', 'Palco, plenária, sinalização, áreas de sponsor, photo opportunity, credenciamento, agenda e ambientação científica.', Presentation],
-              ['Para patrocinadores', 'Estandes, ativações, painéis, balcões, totens, displays e materiais de presença institucional dentro do evento.', Store],
-              ['Para produção', 'Arquivos finais, mockups, renders, referências e pacote organizado para gráfica, montadora ou equipe técnica.', ClipboardList],
+              ['Congressos', 'Palco, plenária, credenciamento, photo opportunity, agenda, sinalização e áreas de sponsor.', Presentation],
+              ['Patrocinadores', 'Estandes, ativações, painéis, balcões, totens, displays e presença de marca no ambiente.', Store],
+              ['Produção', 'Arquivos finais, mockups, renders, referências e pacote para gráfica, montadora ou equipe técnica.', ClipboardList],
             ].map(([title, body, Icon]) => {
               const TypedIcon = Icon as React.ComponentType<{ size?: number; className?: string; strokeWidth?: number }>;
               return (
@@ -284,8 +340,8 @@ const LongectaMaterialsPage: React.FC<LongectaMaterialsPageProps> = ({ onBack, o
             <div className="relative z-10 grid gap-7 lg:grid-cols-[1fr_auto] lg:items-center">
               <div>
                 <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white/40">Materiais com inteligência de ambiente</p>
-                <h2 className="max-w-4xl text-[36px] font-extralight leading-tight sm:text-[52px]">A arte certa ajuda o evento a parecer mais organizado, mais premium e mais valioso.</h2>
-                <p className="mt-5 max-w-2xl text-[14px] leading-relaxed text-white/58">A Longecta estrutura a comunicação visual do espaço para que montadoras, gráficas e produtores tenham uma direção clara do que precisa ser executado.</p>
+                <h2 className="max-w-4xl text-[36px] font-extralight leading-tight sm:text-[52px]">Quando o espaço parece premium, o valor do congresso sobe antes da primeira palestra.</h2>
+                <p className="mt-5 max-w-2xl text-[14px] leading-relaxed text-white/58">A Longecta organiza a linguagem visual para que cada superfície tenha função, presença e coerência com a marca científica do evento.</p>
               </div>
               <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
                 <a href={materialsMailto('Quero desenvolver materiais premium Longecta')} className="button-nowrap inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-[13px] font-semibold text-[#111113] hover:bg-white/90">
