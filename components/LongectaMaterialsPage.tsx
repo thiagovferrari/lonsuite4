@@ -153,6 +153,22 @@ const valueBlocks = [
   ['Mais consistência', 'Palco, estande, sinalização e sponsor deixam de parecer peças desconectadas.'],
 ];
 
+const packages = [
+  ['Essential Visual Kit', 'Backdrops, telas, totens prioritários e arquivos finais para evento enxuto.'],
+  ['Stage & Signage', 'Palco, plenária, púlpito, sinalização, agenda e experiência de circulação.'],
+  ['Sponsor Visibility Kit', 'Mapa de entregas, aplicações de marca, estandes, ativações e provas visuais.'],
+  ['3D Stand Preview', 'Render, volumetria, fluxo e briefing visual para aprovação antes da produção.'],
+];
+
+const technicalChecklist = [
+  'Medidas por superfície',
+  'Fornecedor responsável',
+  'Formato de arquivo',
+  'Prazo de aprovação',
+  'Versão final',
+  'Mockup ou render',
+];
+
 const LongectaMaterialsPage: React.FC<LongectaMaterialsPageProps> = ({ onBack, onCongress, onSolutions, onPlans }) => {
   return (
     <div className="longecta-method-page plans-premium-page lon-soft-bg min-h-screen overflow-hidden text-[#111113]">
@@ -240,6 +256,26 @@ const LongectaMaterialsPage: React.FC<LongectaMaterialsPageProps> = ({ onBack, o
             ))}
           </section>
 
+          <section className="mt-16 grid gap-3 rounded-[34px] border border-black/[0.055] bg-white/74 p-5 shadow-[0_22px_70px_rgba(0,0,0,0.06)] backdrop-blur-xl lg:grid-cols-[0.72fr_1.28fr]">
+            <div className="rounded-[26px] bg-[#111113] p-6 text-white">
+              <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.18em] text-white/40">Pacotes premium</p>
+              <h2 className="text-[34px] font-extralight leading-tight">Materiais deixam de ser pedidos soltos e viram sistemas de ambiente.</h2>
+              <a href={materialsMailto('Quero avaliar um pacote visual Longecta')} className="button-nowrap mt-7 inline-flex items-center justify-center gap-2 rounded-full bg-white px-5 py-3 text-[12px] font-semibold text-[#111113] hover:bg-white/90">
+                Avaliar pacote visual
+                <ArrowRight size={14} />
+              </a>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              {packages.map(([title, body], index) => (
+                <article key={title} className={`rounded-[24px] border p-5 ${index === 2 ? 'border-[#111113] bg-[#111113] text-white' : 'border-black/[0.045] bg-white text-[#111113]'}`}>
+                  <p className={`mb-7 text-[10px] font-bold uppercase tracking-[0.16em] ${index === 2 ? 'text-white/40' : 'text-[#86868b]'}`}>Produto</p>
+                  <h3 className="text-[24px] font-light leading-tight">{title}</h3>
+                  <p className={`mt-4 text-[13px] leading-relaxed ${index === 2 ? 'text-white/58' : 'text-[#6e6e73]'}`}>{body}</p>
+                </article>
+              ))}
+            </div>
+          </section>
+
           <section id="servicos" className="mt-16 scroll-mt-24">
             <div className="mb-6 grid gap-4 lg:grid-cols-[0.72fr_1.28fr] lg:items-end">
               <div>
@@ -293,6 +329,22 @@ const LongectaMaterialsPage: React.FC<LongectaMaterialsPageProps> = ({ onBack, o
                   <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#111113] text-[12px] font-bold text-white">{index + 1}</span>
                   <p className="text-[14px] font-semibold text-[#111113]">{title}</p>
                   <p className="text-[13px] leading-relaxed text-[#6e6e73]">{body}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="mt-16 grid gap-3 rounded-[34px] border border-black/[0.055] bg-white/74 p-5 shadow-[0_22px_70px_rgba(0,0,0,0.06)] backdrop-blur-xl lg:grid-cols-[0.72fr_1.28fr]">
+            <div>
+              <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Controle de produção</p>
+              <h2 className="text-[34px] font-light leading-tight sm:text-[46px]">O pacote técnico reduz ruído entre cliente, fornecedor e produção.</h2>
+              <p className="mt-5 max-w-xl text-[14px] leading-relaxed text-[#6e6e73]">Cada peça precisa sair da Longecta com contexto suficiente para aprovação, orçamento, impressão, montagem ou execução digital sem perda de intenção visual.</p>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {technicalChecklist.map(item => (
+                <div key={item} className="flex items-center gap-3 rounded-[20px] bg-white p-4 text-[12px] font-semibold text-[#424245] shadow-sm">
+                  <Check size={14} className="shrink-0 text-[#111113]" />
+                  {item}
                 </div>
               ))}
             </div>

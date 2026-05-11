@@ -11,6 +11,7 @@ import {
   Layers3,
   LayoutGrid,
   Link2,
+  Milestone,
   Mic2,
   Settings,
   Sparkles,
@@ -25,6 +26,7 @@ export type SystemLinkAction =
   | 'planDetails'
   | 'solutions'
   | 'materials'
+  | 'progress'
   | 'method'
   | 'congress'
   | 'speakerKit'
@@ -77,6 +79,13 @@ const systemLinks: LinkItem[] = [
     title: 'Materiais',
     description: 'Artes premium, cenografia visual e projetos 3D para congressos, estandes e ativações.',
     icon: Box,
+    scope: 'public',
+  },
+  {
+    action: 'progress',
+    title: 'Progress',
+    description: 'Timeline infográfica da experiência Longecta, do primeiro contato ao próximo ciclo de crescimento.',
+    icon: Milestone,
     scope: 'public',
   },
   {

@@ -238,6 +238,18 @@ const hybridLayers = [
   ['Inteligência', 'Acelera busca, análise, planejamento e reaproveitamento entre entregas.'],
 ];
 
+const diagnosticSignals = [
+  ['Quem compra', 'Médico, clínica, sociedade, comissão científica ou organização de evento.'],
+  ['Valor escondido', 'Acervo, programação, speakers, serviços, patrocinadores, aulas ou materiais antigos.'],
+  ['Resultado desejado', 'Autoridade, inscrição, patrocínio, presença institucional, campanha ou legado.'],
+];
+
+const productPaths = [
+  ['Entrada rápida', 'Speaker Kit, campanha médica pontual ou diagnóstico de acervo.', 'Quando há dor clara e ciclo curto.'],
+  ['Operação recorrente', 'Lon Authority Médico, Clinic Authority ou Communication 360.', 'Quando a presença precisa de constância.'],
+  ['Sistema proprietário', 'Lon Event Brain, acervo institucional ou memória estratégica.', 'Quando o objetivo é reaproveitar inteligência ao longo do tempo.'],
+];
+
 const handleAnchor = (id: string) => {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
 };
@@ -336,6 +348,25 @@ const LongectaSolutionsPage: React.FC<LongectaSolutionsPageProps> = ({ onBack, o
             </div>
           </section>
 
+          <section className="mb-16 grid gap-3 rounded-[34px] border border-black/[0.055] bg-white/74 p-5 shadow-[0_22px_70px_rgba(0,0,0,0.06)] backdrop-blur-xl lg:grid-cols-[0.74fr_1.26fr]">
+            <div className="rounded-[26px] bg-[#111113] p-6 text-white">
+              <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.18em] text-white/40">Diagnóstico de solução</p>
+              <h2 className="text-[34px] font-extralight leading-tight">Antes de vender uma entrega, a Longecta identifica onde o valor está parado.</h2>
+              <a href={solutionsMailto('Quero diagnosticar minha solução Longecta')} className="button-nowrap mt-7 inline-flex items-center justify-center gap-2 rounded-full bg-white px-5 py-3 text-[12px] font-semibold text-[#111113] hover:bg-white/90">
+                Diagnosticar meu contexto
+                <ArrowRight size={14} />
+              </a>
+            </div>
+            <div className="grid gap-3 md:grid-cols-3">
+              {diagnosticSignals.map(([title, body], index) => (
+                <article key={title} className={`rounded-[24px] p-5 ${index === 1 ? 'bg-[#f5f5f7]' : 'bg-white'} border border-black/[0.045]`}>
+                  <p className="mb-7 text-[10px] font-bold uppercase tracking-[0.16em] text-[#86868b]">{title}</p>
+                  <p className="text-[13px] leading-relaxed text-[#424245]">{body}</p>
+                </article>
+              ))}
+            </div>
+          </section>
+
           <div className="space-y-16">
             {segments.map(segment => (
               <section key={segment.id} id={segment.id} className="scroll-mt-24">
@@ -430,6 +461,22 @@ const LongectaSolutionsPage: React.FC<LongectaSolutionsPageProps> = ({ onBack, o
                   <p className="text-[13px] font-semibold text-[#111113]">{signal}</p>
                   <p className="text-[13px] leading-relaxed text-[#6e6e73]">{recommendation}</p>
                 </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="mt-16 rounded-[34px] border border-black/[0.055] bg-white/72 p-5 shadow-[0_22px_70px_rgba(0,0,0,0.06)] backdrop-blur-xl">
+            <div className="mb-6 max-w-3xl">
+              <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Caminhos de contratação</p>
+              <h2 className="text-[34px] font-light leading-tight sm:text-[46px]">A compra pode começar pequena, recorrente ou como sistema.</h2>
+            </div>
+            <div className="grid gap-3 lg:grid-cols-3">
+              {productPaths.map(([title, offer, fit], index) => (
+                <article key={title} className={`rounded-[26px] p-6 ${index === 1 ? 'bg-[#111113] text-white' : 'bg-white text-[#111113]'} border border-black/[0.045]`}>
+                  <p className={`mb-7 text-[10px] font-bold uppercase tracking-[0.16em] ${index === 1 ? 'text-white/40' : 'text-[#86868b]'}`}>{title}</p>
+                  <h3 className="text-[25px] font-light leading-tight">{offer}</h3>
+                  <p className={`mt-4 text-[13px] leading-relaxed ${index === 1 ? 'text-white/58' : 'text-[#6e6e73]'}`}>{fit}</p>
+                </article>
               ))}
             </div>
           </section>

@@ -135,6 +135,20 @@ const faqs = [
   ['Como começamos?', 'Começamos com um diagnóstico do congresso para entender momento atual, público, programação, patrocinadores, histórico e necessidades de comunicação.'],
 ];
 
+const briefingFields = [
+  ['Data e cidade', 'Define urgência, janela de campanha, praça e ritmo de entregas.'],
+  ['Público esperado', 'Orienta linguagem, canais, lotes, trilhas e promessa de participação.'],
+  ['Patrocinadores', 'Mostra necessidade de book, cotas, ativações, entregas e relatório.'],
+  ['Estágio atual', 'Identifica se o gargalo está em marca, lançamento, conversão, operação ou pós-evento.'],
+];
+
+const congressKpis = [
+  ['Inscrições', 'Campanhas por lote, urgência, programação e diferenciais.'],
+  ['Speaker reach', 'Kits, publicações, reposts e uso da rede de palestrantes.'],
+  ['Sponsor value', 'Entregas visuais, ativações, presença de marca e relatório pós-evento.'],
+  ['Legado', 'Banco de imagens, aprendizados, retrospectiva e base da próxima edição.'],
+];
+
 const LongectaCongressPage: React.FC<LongectaCongressPageProps> = ({ onBack, onMethod, onPlans, onSpeakerKit }) => {
   const [activeTimeline, setActiveTimeline] = useState(0);
   const activeMilestone = congressTimeline[activeTimeline];
@@ -217,6 +231,25 @@ const LongectaCongressPage: React.FC<LongectaCongressPageProps> = ({ onBack, onM
                   </div>
                 ))}
               </div>
+            </div>
+          </section>
+
+          <section className="mt-16 grid gap-3 rounded-[38px] border border-black/[0.055] bg-white/74 p-5 shadow-[0_24px_80px_rgba(0,0,0,0.07)] backdrop-blur-xl lg:grid-cols-[0.72fr_1.28fr]">
+            <div className="rounded-[30px] bg-[#111113] p-7 text-white">
+              <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.18em] text-white/38">Diagnóstico de congresso</p>
+              <h2 className="text-[36px] font-extralight leading-tight">A proposta fica melhor quando nasce do estágio real da edição.</h2>
+              <a href={congressMailto('Quero diagnosticar meu congresso médico')} className="button-nowrap mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-[12px] font-semibold text-[#111113] hover:bg-white/90">
+                Diagnosticar minha edição
+                <ArrowRight size={14} />
+              </a>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              {briefingFields.map(([title, body], index) => (
+                <article key={title} className={`rounded-[26px] border p-5 ${index === 1 ? 'border-[#111113] bg-[#111113] text-white' : 'border-black/[0.045] bg-white text-[#111113]'}`}>
+                  <p className={`mb-7 text-[10px] font-bold uppercase tracking-[0.16em] ${index === 1 ? 'text-white/40' : 'text-[#86868b]'}`}>{title}</p>
+                  <p className={`text-[13px] leading-relaxed ${index === 1 ? 'text-white/58' : 'text-[#6e6e73]'}`}>{body}</p>
+                </article>
+              ))}
             </div>
           </section>
 
@@ -400,6 +433,22 @@ const LongectaCongressPage: React.FC<LongectaCongressPageProps> = ({ onBack, onM
                   ))}
                 </div>
               </div>
+            </div>
+          </section>
+
+          <section className="mt-24 rounded-[38px] border border-black/[0.055] bg-white/74 p-5 shadow-[0_24px_80px_rgba(0,0,0,0.07)] backdrop-blur-xl">
+            <div className="mb-7 max-w-4xl">
+              <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Indicadores de valor</p>
+              <h2 className="text-[38px] font-light leading-tight sm:text-[54px]">O congresso como marca precisa ser medido por percepção, conversão e legado.</h2>
+            </div>
+            <div className="grid gap-3 lg:grid-cols-4">
+              {congressKpis.map(([title, body], index) => (
+                <article key={title} className={`rounded-[28px] p-6 ${index === 2 ? 'bg-[#111113] text-white' : 'bg-white text-[#111113]'} border border-black/[0.045]`}>
+                  <BadgeCheck size={18} className={`mb-10 ${index === 2 ? 'text-white/68' : 'text-[#111113]/70'}`} />
+                  <h3 className="text-[25px] font-light leading-tight">{title}</h3>
+                  <p className={`mt-4 text-[13px] leading-relaxed ${index === 2 ? 'text-white/58' : 'text-[#6e6e73]'}`}>{body}</p>
+                </article>
+              ))}
             </div>
           </section>
 

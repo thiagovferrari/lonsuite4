@@ -155,6 +155,19 @@ const outcomes = [
   ['Memória estratégica', 'Cada entrega fortalece um acervo que pode ser reutilizado em aulas, congressos, campanhas e materiais institucionais.'],
 ];
 
+const auditInputs = [
+  ['Repertório existente', 'Casos, aulas, imagens, artigos, vídeos, PDFs, eventos, entrevistas e materiais antigos.'],
+  ['Objetivo de autoridade', 'Presença médica, aula, campanha, clínica, congresso, patrocinador ou institucional.'],
+  ['Ritmo possível', 'Baixa carga, colaboração estratégica ou operação recorrente com aprovações organizadas.'],
+];
+
+const boundaries = [
+  ['Não é post por post', 'A Longecta constrói memória, sistema e recorrência, não apenas peças isoladas.'],
+  ['Não é IA sem direção', 'A inteligência acelera, mas a curadoria humana decide ângulo, precisão e acabamento.'],
+  ['Não é design decorativo', 'A estética existe para aumentar clareza, prestígio, confiança e valor percebido.'],
+  ['Não é pasta de arquivos', 'O acervo ganha destino: aula, conteúdo, campanha, relatório, case e legado.'],
+];
+
 const LongectaMethodPage: React.FC<LongectaMethodPageProps> = ({ onBack, onCongress, onPlans }) => {
   return (
     <div className="longecta-method-page plans-premium-page lon-soft-bg min-h-screen overflow-hidden text-[#111113]">
@@ -313,6 +326,25 @@ const LongectaMethodPage: React.FC<LongectaMethodPageProps> = ({ onBack, onCongr
             </div>
           </section>
 
+          <section className="mt-24 grid gap-3 rounded-[38px] border border-black/[0.055] bg-white/74 p-5 shadow-[0_24px_80px_rgba(0,0,0,0.07)] backdrop-blur-xl lg:grid-cols-[0.72fr_1.28fr]">
+            <div className="rounded-[30px] bg-[#111113] p-7 text-white">
+              <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.18em] text-white/38">Auditoria de repertório</p>
+              <h2 className="text-[36px] font-extralight leading-tight">O primeiro produto é descobrir o que já existe e ainda não trabalha pela sua autoridade.</h2>
+              <a href={methodMailto('Quero uma auditoria do meu repertório médico')} className="button-nowrap mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-[12px] font-semibold text-[#111113] hover:bg-white/90">
+                Auditar meu repertório
+                <ArrowRight size={14} />
+              </a>
+            </div>
+            <div className="grid gap-3 md:grid-cols-3">
+              {auditInputs.map(([title, body], index) => (
+                <article key={title} className={`rounded-[26px] border p-5 ${index === 1 ? 'border-[#111113] bg-[#111113] text-white' : 'border-black/[0.045] bg-white text-[#111113]'}`}>
+                  <p className={`mb-8 text-[10px] font-bold uppercase tracking-[0.16em] ${index === 1 ? 'text-white/40' : 'text-[#86868b]'}`}>{title}</p>
+                  <p className={`text-[13px] leading-relaxed ${index === 1 ? 'text-white/58' : 'text-[#6e6e73]'}`}>{body}</p>
+                </article>
+              ))}
+            </div>
+          </section>
+
           <section id="entregas" className="mt-24 scroll-mt-24">
             <div className="mb-8 max-w-4xl">
               <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Saídas concretas</p>
@@ -421,6 +453,16 @@ const LongectaMethodPage: React.FC<LongectaMethodPageProps> = ({ onBack, onCongr
                 </article>
               ))}
             </div>
+          </section>
+
+          <section className="mt-12 grid gap-3 rounded-[36px] border border-black/[0.055] bg-white/74 p-5 shadow-[0_22px_70px_rgba(0,0,0,0.06)] backdrop-blur-xl lg:grid-cols-4">
+            {boundaries.map(([title, body], index) => (
+              <article key={title} className={`rounded-[26px] p-5 ${index === 0 ? 'bg-[#111113] text-white' : 'bg-white text-[#111113]'} border border-black/[0.045]`}>
+                <ShieldCheck size={18} className={`mb-8 ${index === 0 ? 'text-white/68' : 'text-[#111113]/70'}`} />
+                <h3 className="text-[22px] font-light leading-tight">{title}</h3>
+                <p className={`mt-4 text-[12px] leading-relaxed ${index === 0 ? 'text-white/58' : 'text-[#6e6e73]'}`}>{body}</p>
+              </article>
+            ))}
           </section>
 
           <section className="relative mt-24 overflow-hidden rounded-[42px] bg-[#111113] px-7 py-16 text-center text-white shadow-[0_38px_130px_rgba(0,0,0,0.26)] sm:px-12 sm:py-20">

@@ -112,6 +112,20 @@ const segments = [
   ['Eventos patrocinados', 'Para agendas em que speaker, marca, trilha e patrocinador precisam aparecer com equilíbrio.'],
 ];
 
+const kitTiers = [
+  ['Até 10 speakers', 'Entrada premium para testar ativação, padronizar linguagem e provar valor rapidamente.'],
+  ['Até 30 speakers', 'Operação ideal para jornadas e congressos médios com múltiplas trilhas.'],
+  ['Até 80 speakers', 'Modelo escalável para congressos robustos, com status, aprovações e distribuição organizada.'],
+  ['Enterprise', 'Estrutura sob medida para sociedades, grandes eventos, múltiplas edições e patrocinadores.'],
+];
+
+const hubStatus = [
+  ['Recebido', 'Foto, tema, cargo e minicurrículo entram com padrão mínimo.'],
+  ['Em criação', 'Copy, card, legenda e LinkedIn são produzidos com narrativa da edição.'],
+  ['Em aprovação', 'Organização valida antes do envio ao speaker ou publicação.'],
+  ['Publicado', 'A campanha registra circulação, reposts e aprendizados para o pós-evento.'],
+];
+
 const SpeakerVisibilityKitPage: React.FC<SpeakerVisibilityKitPageProps> = ({ onBack, onCongress, onMethod, onPlans }) => {
   return (
     <div className="longecta-method-page plans-premium-page lon-soft-bg min-h-screen overflow-hidden text-[#111113]">
@@ -249,6 +263,26 @@ const SpeakerVisibilityKitPage: React.FC<SpeakerVisibilityKitPageProps> = ({ onB
             </div>
           </section>
 
+          <section className="mt-24 grid gap-3 rounded-[38px] border border-black/[0.055] bg-white/74 p-5 shadow-[0_24px_80px_rgba(0,0,0,0.07)] backdrop-blur-xl lg:grid-cols-[0.72fr_1.28fr]">
+            <div className="rounded-[30px] bg-[#111113] p-7 text-white">
+              <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.18em] text-white/38">Produto de entrada</p>
+              <h2 className="text-[36px] font-extralight leading-tight">O kit pode ser vendido por volume de speakers, com escopo claro e expansão natural.</h2>
+              <a href={speakerMailto('Quero calcular um Speaker Visibility Kit por número de palestrantes')} className="button-nowrap mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-[12px] font-semibold text-[#111113] hover:bg-white/90">
+                Calcular por speakers
+                <ArrowRight size={14} />
+              </a>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              {kitTiers.map(([title, body], index) => (
+                <article key={title} className={`rounded-[26px] border p-5 ${index === 1 ? 'border-[#111113] bg-[#111113] text-white' : 'border-black/[0.045] bg-white text-[#111113]'}`}>
+                  <p className={`mb-7 text-[10px] font-bold uppercase tracking-[0.16em] ${index === 1 ? 'text-white/40' : 'text-[#86868b]'}`}>Faixa</p>
+                  <h3 className="text-[24px] font-light leading-tight">{title}</h3>
+                  <p className={`mt-4 text-[13px] leading-relaxed ${index === 1 ? 'text-white/58' : 'text-[#6e6e73]'}`}>{body}</p>
+                </article>
+              ))}
+            </div>
+          </section>
+
           <section id="entregas" className="mt-24 scroll-mt-24 grid gap-5 lg:grid-cols-[0.88fr_1.12fr]">
             <div>
               <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Entregas</p>
@@ -297,6 +331,22 @@ const SpeakerVisibilityKitPage: React.FC<SpeakerVisibilityKitPageProps> = ({ onB
                   <p className="text-[28px] font-extralight leading-tight">A melhor divulgação é aquela que o palestrante consegue publicar sem fricção.</p>
                 </div>
               </div>
+            </div>
+          </section>
+
+          <section className="mt-24 rounded-[38px] border border-black/[0.055] bg-white/74 p-5 shadow-[0_24px_80px_rgba(0,0,0,0.07)] backdrop-blur-xl">
+            <div className="mb-7 max-w-4xl">
+              <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">Speaker hub</p>
+              <h2 className="text-[38px] font-light leading-tight sm:text-[54px]">A operação fica clara quando cada palestrante tem status, material e próximo passo.</h2>
+            </div>
+            <div className="grid gap-3 lg:grid-cols-4">
+              {hubStatus.map(([title, body], index) => (
+                <article key={title} className={`rounded-[28px] p-6 ${index === 2 ? 'bg-[#111113] text-white' : 'bg-white text-[#111113]'} border border-black/[0.045]`}>
+                  <ClipboardCheck size={18} className={`mb-10 ${index === 2 ? 'text-white/68' : 'text-[#111113]/70'}`} />
+                  <h3 className="text-[25px] font-light leading-tight">{title}</h3>
+                  <p className={`mt-4 text-[13px] leading-relaxed ${index === 2 ? 'text-white/58' : 'text-[#6e6e73]'}`}>{body}</p>
+                </article>
+              ))}
             </div>
           </section>
 

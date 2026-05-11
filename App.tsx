@@ -9,6 +9,7 @@ import LongectaCongressPage from './components/LongectaCongressPage';
 import SpeakerVisibilityKitPage from './components/SpeakerVisibilityKitPage';
 import LongectaSolutionsPage from './components/LongectaSolutionsPage';
 import LongectaMaterialsPage from './components/LongectaMaterialsPage';
+import LongectaProgressPage from './components/LongectaProgressPage';
 import SystemLinksPage, { SystemLinksButton, SystemLinkAction } from './components/SystemLinksPage';
 import { analyzeAsset, searchAssetsWithAI, searchCasesWithAI, generateCaseSemanticTags, getAIUsage, hasGeminiConfig } from './services/geminiService';
 import { saveAttachmentData, getAttachmentData, deleteAttachmentData } from './services/storageService';
@@ -32,7 +33,7 @@ type IntelligenceClipboard = {
   updatedAt: string;
 };
 
-type AppPublicPage = Extract<SystemLinkAction, 'plans' | 'planDetails' | 'solutions' | 'materials' | 'method' | 'congress' | 'speakerKit'>;
+type AppPublicPage = Extract<SystemLinkAction, 'plans' | 'planDetails' | 'solutions' | 'materials' | 'progress' | 'method' | 'congress' | 'speakerKit'>;
 
 async function withSupabaseTimeout<T>(promise: PromiseLike<T>, label: string): Promise<T> {
   let timeoutId: number | undefined;
@@ -2564,7 +2565,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
       return;
     }
 
-    if (action === 'plans' || action === 'planDetails' || action === 'solutions' || action === 'materials' || action === 'method' || action === 'congress' || action === 'speakerKit') {
+    if (action === 'plans' || action === 'planDetails' || action === 'solutions' || action === 'materials' || action === 'progress' || action === 'method' || action === 'congress' || action === 'speakerKit') {
       setSystemPublicPage(action);
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
@@ -2724,6 +2725,30 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
             }}
             onSolutions={() => {
               setSystemPublicPage('solutions');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onPlans={() => {
+              setSystemPublicPage('plans');
+              window.setTimeout(() => document.getElementById('planos')?.scrollIntoView({ behavior: 'smooth' }), 50);
+            }}
+          />
+        )}
+        {systemPublicPage === 'progress' && (
+          <LongectaProgressPage
+            onBack={() => {
+              setSystemPublicPage(null);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onMethod={() => {
+              setSystemPublicPage('method');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onSolutions={() => {
+              setSystemPublicPage('solutions');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onCongress={() => {
+              setSystemPublicPage('congress');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
             onPlans={() => {
