@@ -12,6 +12,7 @@ import {
   LayoutGrid,
   Link2,
   Milestone,
+  Megaphone,
   Mic2,
   Settings,
   Sparkles,
@@ -26,6 +27,7 @@ export type SystemLinkAction =
   | 'planDetails'
   | 'solutions'
   | 'materials'
+  | 'publicity'
   | 'progress'
   | 'method'
   | 'congress'
@@ -79,6 +81,13 @@ const systemLinks: LinkItem[] = [
     title: 'Materiais',
     description: 'Artes premium, cenografia visual e projetos 3D para congressos, estandes e ativações.',
     icon: Box,
+    scope: 'public',
+  },
+  {
+    action: 'publicity',
+    title: 'Publicity',
+    description: 'Página black da Longecta para captar médicos, clínicas, palestrantes e congressos que precisam organizar marketing e publicidade.',
+    icon: Megaphone,
     scope: 'public',
   },
   {

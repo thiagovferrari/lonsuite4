@@ -8,6 +8,7 @@ import SpeakerVisibilityKitPage from './SpeakerVisibilityKitPage';
 import LongectaSolutionsPage from './LongectaSolutionsPage';
 import LongectaMaterialsPage from './LongectaMaterialsPage';
 import LongectaProgressPage from './LongectaProgressPage';
+import LongectaPublicityPage from './LongectaPublicityPage';
 import SystemLinksPage, { SystemLinksButton, SystemLinkAction } from './SystemLinksPage';
 
 interface Props {
@@ -902,6 +903,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
   const [showPlanDetails, setShowPlanDetails] = useState(false);
   const [showSolutions, setShowSolutions] = useState(false);
   const [showMaterials, setShowMaterials] = useState(false);
+  const [showPublicity, setShowPublicity] = useState(false);
   const [showProgress, setShowProgress] = useState(false);
   const [showLongectaMethod, setShowLongectaMethod] = useState(false);
   const [showLongectaCongress, setShowLongectaCongress] = useState(false);
@@ -960,6 +962,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
     setShowPlanDetails(false);
     setShowSolutions(false);
     setShowMaterials(false);
+    setShowPublicity(false);
     setShowProgress(false);
     setShowLongectaMethod(false);
     setShowLongectaCongress(false);
@@ -970,6 +973,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
     if (action === 'planDetails') setShowPlanDetails(true);
     if (action === 'solutions') setShowSolutions(true);
     if (action === 'materials') setShowMaterials(true);
+    if (action === 'publicity') setShowPublicity(true);
     if (action === 'progress') setShowProgress(true);
     if (action === 'method') setShowLongectaMethod(true);
     if (action === 'congress') setShowLongectaCongress(true);
@@ -1087,6 +1091,35 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
             setShowMaterials(false);
             setShowPlans(true);
             window.setTimeout(() => document.getElementById('planos')?.scrollIntoView({ behavior: 'smooth' }), 50);
+          }}
+        />
+      </>
+    );
+  }
+
+  if (showPublicity) {
+    return (
+      <>
+        <SystemLinksButton onClick={() => setShowSystemLinks(true)} />
+        <LongectaPublicityPage
+          onBack={() => {
+            setShowPublicity(false);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          onProgress={() => {
+            setShowPublicity(false);
+            setShowProgress(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          onMethod={() => {
+            setShowPublicity(false);
+            setShowLongectaMethod(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          onCongress={() => {
+            setShowPublicity(false);
+            setShowLongectaCongress(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
         />
       </>
