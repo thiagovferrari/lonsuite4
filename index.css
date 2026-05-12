@@ -305,6 +305,16 @@ select:focus-visible {
   mask-image: radial-gradient(circle at 50% 18%, black, transparent 72%);
 }
 
+.longecta-luxury-sweep {
+  pointer-events: none;
+  background:
+    linear-gradient(105deg, transparent 4%, rgba(255, 255, 255, 0.035) 17%, transparent 31%),
+    linear-gradient(72deg, transparent 58%, rgba(229, 205, 166, 0.06) 68%, transparent 82%);
+  mix-blend-mode: screen;
+  opacity: 0.66;
+  animation: longecta-luxury-sweep 14s ease-in-out infinite alternate;
+}
+
 .longecta-glass-beam {
   pointer-events: none;
   z-index: 0;
@@ -319,6 +329,35 @@ select:focus-visible {
 .longecta-glass-beam-delayed {
   animation-delay: -4s;
   opacity: 0.5;
+}
+
+.longecta-premium-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.longecta-premium-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(120deg, transparent 6%, rgba(255, 255, 255, 0.16) 18%, transparent 34%),
+    radial-gradient(circle at 18% 12%, rgba(236, 214, 176, 0.14), transparent 34%);
+  opacity: 0;
+  transform: translateX(-18%);
+  transition: opacity 560ms ease, transform 760ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.longecta-premium-card:hover::before {
+  opacity: 1;
+  transform: translateX(18%);
+}
+
+.longecta-premium-card > * {
+  position: relative;
+  z-index: 1;
 }
 
 .longecta-hover-lift {
@@ -339,6 +378,12 @@ select:focus-visible {
 @keyframes longecta-black-sweep {
   0% { transform: translateX(-8%) rotate(-2deg); opacity: 0.28; }
   100% { transform: translateX(8%) rotate(2deg); opacity: 0.72; }
+}
+
+@keyframes longecta-luxury-sweep {
+  0% { transform: translate3d(-6%, -2%, 0) scale(1); opacity: 0.28; }
+  50% { transform: translate3d(2%, 1%, 0) scale(1.02); opacity: 0.68; }
+  100% { transform: translate3d(7%, -1%, 0) scale(1.01); opacity: 0.44; }
 }
 
 @keyframes longecta-glass-drift {

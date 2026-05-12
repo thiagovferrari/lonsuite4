@@ -14,6 +14,7 @@ import {
   Milestone,
   Megaphone,
   Mic2,
+  Server,
   Settings,
   Sparkles,
   Stethoscope,
@@ -28,6 +29,7 @@ export type SystemLinkAction =
   | 'solutions'
   | 'materials'
   | 'publicity'
+  | 'systems'
   | 'progress'
   | 'method'
   | 'congress'
@@ -86,8 +88,15 @@ const systemLinks: LinkItem[] = [
   {
     action: 'publicity',
     title: 'Publicity',
-    description: 'Página black da Longecta para captar médicos, clínicas, palestrantes e congressos que precisam organizar marketing e publicidade.',
+    description: 'Página black da Longecta para lideranças médicas, palestrantes, cursos, sociedades e congressos que precisam captar com autoridade.',
     icon: Megaphone,
+    scope: 'public',
+  },
+  {
+    action: 'systems',
+    title: 'Sistemas',
+    description: 'Página black da Longecta Systems para plataformas, integrações, IA e sistemas personalizados para negócios médicos.',
+    icon: Server,
     scope: 'public',
   },
   {

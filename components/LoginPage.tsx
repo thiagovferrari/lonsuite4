@@ -9,6 +9,7 @@ import LongectaSolutionsPage from './LongectaSolutionsPage';
 import LongectaMaterialsPage from './LongectaMaterialsPage';
 import LongectaProgressPage from './LongectaProgressPage';
 import LongectaPublicityPage from './LongectaPublicityPage';
+import LongectaSystemsPage from './LongectaSystemsPage';
 import SystemLinksPage, { SystemLinksButton, SystemLinkAction } from './SystemLinksPage';
 
 interface Props {
@@ -904,6 +905,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
   const [showSolutions, setShowSolutions] = useState(false);
   const [showMaterials, setShowMaterials] = useState(false);
   const [showPublicity, setShowPublicity] = useState(false);
+  const [showSystems, setShowSystems] = useState(false);
   const [showProgress, setShowProgress] = useState(false);
   const [showLongectaMethod, setShowLongectaMethod] = useState(false);
   const [showLongectaCongress, setShowLongectaCongress] = useState(false);
@@ -963,6 +965,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
     setShowSolutions(false);
     setShowMaterials(false);
     setShowPublicity(false);
+    setShowSystems(false);
     setShowProgress(false);
     setShowLongectaMethod(false);
     setShowLongectaCongress(false);
@@ -974,6 +977,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
     if (action === 'solutions') setShowSolutions(true);
     if (action === 'materials') setShowMaterials(true);
     if (action === 'publicity') setShowPublicity(true);
+    if (action === 'systems') setShowSystems(true);
     if (action === 'progress') setShowProgress(true);
     if (action === 'method') setShowLongectaMethod(true);
     if (action === 'congress') setShowLongectaCongress(true);
@@ -1119,6 +1123,30 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
           onCongress={() => {
             setShowPublicity(false);
             setShowLongectaCongress(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        />
+      </>
+    );
+  }
+
+  if (showSystems) {
+    return (
+      <>
+        <SystemLinksButton onClick={() => setShowSystemLinks(true)} />
+        <LongectaSystemsPage
+          onBack={() => {
+            setShowSystems(false);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          onPublicity={() => {
+            setShowSystems(false);
+            setShowPublicity(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          onMethod={() => {
+            setShowSystems(false);
+            setShowLongectaMethod(true);
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
         />
