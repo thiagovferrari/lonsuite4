@@ -3,14 +3,12 @@ import {
   ArrowLeft,
   ArrowRight,
   BadgeCheck,
-  Building2,
   Check,
   Crown,
   Mail,
   Mic2,
   Send,
   Sparkles,
-  Stethoscope,
   Users,
   Zap,
 } from 'lucide-react';
@@ -23,70 +21,64 @@ interface LongectaPublicityPageProps {
 }
 
 const publicityMailto = (subject: string, body?: string) =>
-  `mailto:contato@lonsuite.com.br?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body || 'Olá, quero organizar minha publicidade, design e marketing médico com a Longecta. Quero entender o melhor caminho para meu contexto.')}`;
+  `mailto:contato@lonsuite.com.br?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body || 'Olá, quero captar leads médicos qualificados para minha atuação como palestrante, congressista ou organizador de congresso. Quero entender o diagnóstico da Longecta Publicity.')}`;
 
 const segments = [
   {
-    icon: Stethoscope,
-    title: 'Médico especialista',
-    line: 'Pare de publicar como amador quando sua reputação já é de especialista.',
-    bullets: ['Posicionamento pessoal', 'Conteúdo com origem real', 'Aulas, cases e presença'],
-  },
-  {
-    icon: Building2,
-    title: 'Clínica médica',
-    line: 'Sua clínica não precisa de posts bonitos. Precisa de demanda, clareza e confiança.',
-    bullets: ['Campanhas por serviço', 'Design institucional', 'Materiais para equipe e paciente'],
-  },
-  {
     icon: Mic2,
-    title: 'Palestrante',
-    line: 'Cada aula, mesa e convite precisa virar autoridade visível antes e depois do evento.',
-    bullets: ['Speaker kit', 'LinkedIn e Instagram', 'Narrativa de prestígio'],
+    title: 'Médico palestrante',
+    line: 'Sua aula precisa gerar convite, lista, conversa e próximo palco.',
+    bullets: ['Speaker kit', 'Página de captação', 'Follow-up pós-evento'],
   },
   {
     icon: Users,
-    title: 'Congresso médico',
-    line: 'Congresso relevante não pode parecer agenda enviada em cima da hora.',
-    bullets: ['Marca da edição', 'Inscrições e patrocinadores', 'Legado pós-evento'],
+    title: 'Congressista influente',
+    line: 'Seu networking precisa virar relacionamento rastreável, não contato perdido.',
+    bullets: ['Autoridade no LinkedIn', 'Convite para reunião', 'Base de leads médicos'],
+  },
+  {
+    icon: Crown,
+    title: 'Dono de congresso',
+    line: 'Sua edição precisa atrair inscritos, patrocinadores e speakers com percepção de alto valor.',
+    bullets: ['Campanha de inscrição', 'Patrocínio e proposta', 'Legado da edição'],
   },
 ];
 
 const system = [
-  ['Diagnóstico', 'Encontramos o ponto exato onde sua comunicação está vazando valor.'],
-  ['Estratégia', 'Transformamos reputação, público e objetivo em uma direção impossível de ignorar.'],
-  ['Produção', 'Executamos copy, design, campanha, materiais e narrativa com acabamento premium.'],
-  ['Memória', 'Tudo volta para uma base que acelera a próxima campanha, aula ou edição.'],
+  ['Diagnóstico', 'Mapeamos palco, audiência, oferta, evento e gargalo de captação.'],
+  ['Posicionamento', 'Definimos uma promessa clara para médicos, patrocinadores ou inscritos.'],
+  ['Campanha', 'Criamos página, copy, criativos, abordagem e materiais de conversão.'],
+  ['Pipeline', 'Organizamos follow-up, lista e memória para a próxima edição ou palestra.'],
 ];
 
 const deliverables = [
-  'Posicionamento médico',
-  'Campanhas para clínica',
-  'Social premium',
-  'LinkedIn médico',
-  'Apresentações e aulas',
   'Speaker Visibility Kit',
-  'Landing pages',
-  'Materiais para congressos',
-  'Sponsor report',
-  'Acervo estratégico',
+  'Página de captação',
+  'Campanha para congressos',
+  'Convite para patrocinador',
+  'LinkedIn de autoridade',
+  'Criativos de inscrição',
+  'Narrativa de palco',
+  'Proposta comercial',
+  'Follow-up pós-evento',
+  'Base estratégica de leads',
 ];
 
 const visualProofs = [
   {
     image: '/assets/longecta-publicity-doctor-phone.png',
-    title: 'Presença médica que parece autoridade, não tentativa.',
-    label: 'Médicos e especialistas',
+    title: 'Networking médico que vira conversa comercial.',
+    label: 'Palestrantes e congressistas',
   },
   {
     image: '/assets/longecta-publicity-congress-stage.png',
-    title: 'Congressos que vendem valor antes da primeira palestra.',
-    label: 'Eventos e palestrantes',
+    title: 'Palco que posiciona antes da próxima chamada.',
+    label: 'Aulas, mesas e keynotes',
   },
   {
     image: '/assets/longecta-publicity-strategy-room.png',
-    title: 'Clínicas com comunicação organizada como operação comercial.',
-    label: 'Clínicas e equipes',
+    title: 'Congresso tratado como negócio, não como agenda.',
+    label: 'Organizadores e patrocinadores',
   },
 ];
 
@@ -121,21 +113,21 @@ const LongectaPublicityPage: React.FC<LongectaPublicityPageProps> = ({ onBack, o
                 Longecta Publicity
               </p>
               <h1 className="max-w-4xl text-[48px] font-light leading-[0.98] tracking-[0] sm:text-[72px] lg:text-[84px]">
-                Publicidade médica que vira autoridade e leads.
+                Leads para médicos que vivem de palco e congresso.
               </h1>
               <p className="mt-7 max-w-2xl text-[18px] font-light leading-relaxed text-white/70 sm:text-[20px]">
-                Para médicos, clínicas, palestrantes e congressos que precisam organizar marketing, design e campanha em uma operação premium de captação.
+                Publicity é a operação da Longecta para transformar palestra, networking e congresso em audiência qualificada, inscrição, patrocínio e agenda comercial.
               </p>
 
               <div className="mt-6 max-w-2xl rounded-[26px] border border-white/10 bg-black/32 p-4 shadow-[0_24px_80px_rgba(255,255,255,0.05)] backdrop-blur-xl sm:p-5">
                 <p className="text-[18px] font-extralight leading-snug text-white sm:text-[22px]">
-                  Post bonito não sustenta reputação. A Longecta cria o sistema: posicionamento, copy, visual, campanha e follow-up.
+                  Não é postagem. É captação: posicionamento, página, criativo, abordagem e follow-up para quem precisa vender confiança no ambiente médico.
                 </p>
               </div>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <a href={publicityMailto('Quero meu diagnóstico Longecta Publicity')} className="button-nowrap inline-flex items-center justify-center gap-2 rounded-full bg-white px-7 py-3 text-[13px] font-semibold text-[#050505] shadow-[0_22px_70px_rgba(255,255,255,0.18)] transition hover:-translate-y-0.5 hover:bg-white/90">
-                  Quero parar de improvisar
+                <a href={publicityMailto('Quero captar leads médicos com a Longecta Publicity')} className="button-nowrap inline-flex items-center justify-center gap-2 rounded-full bg-white px-7 py-3 text-[13px] font-semibold text-[#050505] shadow-[0_22px_70px_rgba(255,255,255,0.18)] transition hover:-translate-y-0.5 hover:bg-white/90">
+                  Quero captar leads médicos
                   <Send size={15} />
                 </a>
                 <button onClick={onProgress} className="button-nowrap inline-flex items-center justify-center gap-2 rounded-full border border-white/14 bg-white/[0.07] px-7 py-3 text-[13px] font-semibold text-white backdrop-blur-xl transition hover:bg-white hover:text-[#050505]">
@@ -146,9 +138,9 @@ const LongectaPublicityPage: React.FC<LongectaPublicityPageProps> = ({ onBack, o
 
               <div className="mt-8 grid max-w-2xl gap-2 sm:grid-cols-3">
                 {[
-                  ['Clareza', 'o paciente entende'],
-                  ['Desejo', 'a clínica parece maior'],
-                  ['Captação', 'o lead vem pronto'],
+                  ['Palco', 'mais convites certos'],
+                  ['Congresso', 'mais inscritos reais'],
+                  ['Patrocínio', 'mais interesse comercial'],
                 ].map(([title, body]) => (
                   <div key={title} className="longecta-hover-lift rounded-[22px] border border-white/10 bg-white/[0.055] p-4 backdrop-blur-xl">
                     <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/38">{title}</p>
@@ -164,15 +156,15 @@ const LongectaPublicityPage: React.FC<LongectaPublicityPageProps> = ({ onBack, o
               <div className="absolute -inset-4 rounded-[46px] bg-white/[0.08] blur-2xl transition duration-700 group-hover:bg-white/[0.15]" />
               <div className="relative overflow-hidden rounded-[42px] border border-white/12 bg-white/[0.06] p-3 shadow-[0_44px_150px_rgba(0,0,0,0.55)] backdrop-blur-xl">
                 <div className="relative min-h-[590px] overflow-hidden rounded-[34px] bg-black">
-                  <img src="/assets/longecta-publicity-product-black.png" alt="Interface premium de publicidade médica em smartphone com cards estratégicos" className="absolute inset-0 h-full w-full object-cover object-center opacity-95 transition duration-700 group-hover:scale-[1.035]" />
+                  <img src="/assets/longecta-publicity-product-black.png" alt="Dashboard premium de captação para palestrantes e congressos médicos" className="absolute inset-0 h-full w-full object-cover object-center opacity-95 transition duration-700 group-hover:scale-[1.035]" />
                   <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.74),rgba(0,0,0,0.02),rgba(0,0,0,0.48))]" />
                   <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8">
                     <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white/42">Publicity engine</p>
-                    <h2 className="max-w-sm text-[28px] font-extralight leading-tight sm:text-[34px]">Do prestígio à consulta marcada.</h2>
+                    <h2 className="max-w-sm text-[28px] font-extralight leading-tight sm:text-[34px]">Do palco ao lead certo.</h2>
                   </div>
                   <div className="absolute right-5 top-5 hidden rounded-[24px] border border-white/12 bg-black/40 p-5 backdrop-blur-xl sm:block">
                     <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/42">Sistema Longecta</p>
-                    <p className="mt-6 max-w-[210px] text-[15px] font-light leading-relaxed text-white/72">Estratégia, estética e execução para médicos de alto valor.</p>
+                    <p className="mt-6 max-w-[210px] text-[15px] font-light leading-relaxed text-white/72">Captação para palestrantes, congressistas e donos de congressos.</p>
                   </div>
                 </div>
               </div>
@@ -181,10 +173,10 @@ const LongectaPublicityPage: React.FC<LongectaPublicityPageProps> = ({ onBack, o
 
           <section id="publico" className="mt-8 scroll-mt-24">
             <div className="mb-7 max-w-4xl">
-              <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-white/36">Para quem vendemos</p>
-              <h2 className="text-[38px] font-light leading-tight sm:text-[58px]">O público julga sua autoridade antes de falar com você.</h2>
+              <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-white/36">Para quem captamos</p>
+              <h2 className="text-[38px] font-light leading-tight sm:text-[58px]">O lead médico decide antes de preencher qualquer formulário.</h2>
             </div>
-            <div className="grid gap-3 lg:grid-cols-4">
+            <div className="grid gap-3 lg:grid-cols-3">
               {segments.map(({ icon: Icon, title, line, bullets }, index) => (
                 <article key={title} className={`longecta-hover-lift group rounded-[30px] border p-6 shadow-[0_24px_90px_rgba(0,0,0,0.25)] ${index === 0 ? 'border-white bg-white text-[#050505]' : 'border-white/10 bg-white/[0.055] text-white backdrop-blur-xl hover:bg-white/[0.09]'}`}>
                   <div className={`mb-10 flex h-12 w-12 items-center justify-center rounded-full ${index === 0 ? 'bg-[#050505] text-white' : 'bg-white text-[#050505]'}`}>
@@ -224,7 +216,7 @@ const LongectaPublicityPage: React.FC<LongectaPublicityPageProps> = ({ onBack, o
             <div className="rounded-[34px] bg-white p-7 text-[#050505]">
               <Crown size={22} className="mb-12" />
               <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.18em] text-[#86868b]">O conceito</p>
-              <h2 className="text-[38px] font-light leading-tight sm:text-[52px]">Uma agência híbrida para médicos que não aceitam parecer comuns.</h2>
+              <h2 className="text-[38px] font-light leading-tight sm:text-[52px]">Uma agência híbrida para transformar autoridade médica em pipeline.</h2>
               <button onClick={onMethod} className="button-nowrap mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-[#050505] px-6 py-3 text-[13px] font-semibold text-white hover:bg-[#1d1d1f]">
                 Ver método
                 <ArrowRight size={15} />
@@ -243,8 +235,8 @@ const LongectaPublicityPage: React.FC<LongectaPublicityPageProps> = ({ onBack, o
           <section className="mt-20 grid gap-5 lg:grid-cols-[0.8fr_1.2fr]">
             <div>
               <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-white/36">O que organizamos</p>
-              <h2 className="text-[38px] font-light leading-tight sm:text-[56px]">A operação que organiza o que uma agência comum entrega solto.</h2>
-              <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-white/56">A Publicity não vende “criativo”. Ela constrói percepção: posicionamento, campanha, design, narrativa e materiais que fazem o paciente, o congresso e o patrocinador entenderem valor mais rápido.</p>
+              <h2 className="text-[38px] font-light leading-tight sm:text-[56px]">O pacote para captar antes, durante e depois do congresso.</h2>
+              <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-white/56">A Publicity organiza a jornada inteira: promessa, página, convite, criativo, abordagem, lista e follow-up. O objetivo é simples: transformar presença médica em oportunidade rastreável.</p>
             </div>
             <div className="grid gap-2 sm:grid-cols-2">
               {deliverables.map((item, index) => (
@@ -260,14 +252,14 @@ const LongectaPublicityPage: React.FC<LongectaPublicityPageProps> = ({ onBack, o
             <div className="rounded-[34px] bg-[#050505] p-7 text-white">
               <Zap size={22} className="mb-12 text-white/72" />
               <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.18em] text-white/40">Lead de alta intenção</p>
-              <h2 className="text-[38px] font-extralight leading-tight sm:text-[52px]">Em 3 respostas, sabemos onde sua publicidade está perdendo dinheiro.</h2>
-              <p className="mt-6 text-[14px] leading-relaxed text-white/62">Você manda o contexto. A Longecta devolve direção: qual problema atacar, qual frente começar e como transformar reputação em operação comercial.</p>
+              <h2 className="text-[38px] font-extralight leading-tight sm:text-[52px]">Em 3 respostas, identificamos sua melhor frente de captação.</h2>
+              <p className="mt-6 text-[14px] leading-relaxed text-white/62">Você manda o contexto. A Longecta devolve direção: qual público capturar, qual oferta apresentar e qual peça precisa existir primeiro.</p>
             </div>
             <div className="grid gap-3 p-1 sm:p-3">
               {[
-                ['1', 'Quem é você?', 'Médico, clínica, palestrante ou congresso.'],
-                ['2', 'O que está travando?', 'Design fraco, conteúdo solto, campanha sem direção, patrocinador ou rotina.'],
-                ['3', 'Qual resultado importa?', 'Mais autoridade, lead melhor, mais inscrições, mais percepção ou mais organização.'],
+                ['1', 'Qual é o seu papel?', 'Palestrante, congressista, organizador ou dono de congresso.'],
+                ['2', 'O que precisa virar lead?', 'Convite, inscrição, patrocínio, reunião, lista ou networking.'],
+                ['3', 'Qual ativo falta?', 'Página, proposta, criativo, narrativa, campanha ou follow-up.'],
               ].map(([number, title, body]) => (
                 <div key={title} className="grid gap-4 rounded-[26px] border border-black/[0.06] bg-[#f5f5f7] p-5 sm:grid-cols-[46px_1fr]">
                   <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#050505] text-[12px] font-bold text-white">{number}</span>
@@ -278,7 +270,7 @@ const LongectaPublicityPage: React.FC<LongectaPublicityPageProps> = ({ onBack, o
                 </div>
               ))}
               <div className="mt-2 flex flex-col gap-3 sm:flex-row">
-                <a href={publicityMailto('Quero meu diagnóstico Longecta Publicity')} className="button-nowrap inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-[#050505] px-7 py-4 text-[13px] font-semibold text-white hover:bg-[#1d1d1f]">
+                <a href={publicityMailto('Quero captar leads médicos com a Longecta Publicity')} className="button-nowrap inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-[#050505] px-7 py-4 text-[13px] font-semibold text-white hover:bg-[#1d1d1f]">
                   Solicitar diagnóstico
                   <Mail size={15} />
                 </a>
