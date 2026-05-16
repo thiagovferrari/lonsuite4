@@ -13,6 +13,8 @@ import LongectaProgressPage from './components/LongectaProgressPage';
 import LongectaPublicityPage from './components/LongectaPublicityPage';
 import LongectaSystemsPage from './components/LongectaSystemsPage';
 import LongectaMindsPage from './components/LongectaMindsPage';
+import LongectaSponsorsPage from './components/LongectaSponsorsPage';
+import LongectaSponsorVisibilityPage from './components/LongectaSponsorVisibilityPage';
 import SystemLinksPage, { SystemLinksButton, SystemLinkAction } from './components/SystemLinksPage';
 import { analyzeAsset, searchAssetsWithAI, searchCasesWithAI, generateCaseSemanticTags, getAIUsage, hasGeminiConfig } from './services/geminiService';
 import { saveAttachmentData, getAttachmentData, deleteAttachmentData } from './services/storageService';
@@ -36,7 +38,7 @@ type IntelligenceClipboard = {
   updatedAt: string;
 };
 
-type AppPublicPage = Extract<SystemLinkAction, 'plans' | 'planDetails' | 'solutions' | 'materials' | 'publicity' | 'systems' | 'progress' | 'method' | 'congress' | 'speakerKit' | 'minds'>;
+type AppPublicPage = Extract<SystemLinkAction, 'plans' | 'planDetails' | 'solutions' | 'materials' | 'publicity' | 'systems' | 'progress' | 'method' | 'congress' | 'speakerKit' | 'minds' | 'sponsors' | 'sponsorVisibility'>;
 
 async function withSupabaseTimeout<T>(promise: PromiseLike<T>, label: string): Promise<T> {
   let timeoutId: number | undefined;
@@ -2568,7 +2570,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
       return;
     }
 
-    if (action === 'plans' || action === 'planDetails' || action === 'solutions' || action === 'materials' || action === 'publicity' || action === 'systems' || action === 'progress' || action === 'method' || action === 'congress' || action === 'speakerKit' || action === 'minds') {
+    if (action === 'plans' || action === 'planDetails' || action === 'solutions' || action === 'materials' || action === 'publicity' || action === 'systems' || action === 'progress' || action === 'method' || action === 'congress' || action === 'speakerKit' || action === 'minds' || action === 'sponsors' || action === 'sponsorVisibility') {
       setSystemPublicPage(action);
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
@@ -2852,6 +2854,46 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
             }}
             onPublicity={() => {
               setSystemPublicPage('publicity');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          />
+        )}
+        {systemPublicPage === 'sponsors' && (
+          <LongectaSponsorsPage
+            onBack={() => {
+              setSystemPublicPage(null);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onCongress={() => {
+              setSystemPublicPage('congress');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onMaterials={() => {
+              setSystemPublicPage('materials');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onSponsorVisibility={() => {
+              setSystemPublicPage('sponsorVisibility');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          />
+        )}
+        {systemPublicPage === 'sponsorVisibility' && (
+          <LongectaSponsorVisibilityPage
+            onBack={() => {
+              setSystemPublicPage('sponsors');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onSponsors={() => {
+              setSystemPublicPage('sponsors');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onCongress={() => {
+              setSystemPublicPage('congress');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onMaterials={() => {
+              setSystemPublicPage('materials');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
           />

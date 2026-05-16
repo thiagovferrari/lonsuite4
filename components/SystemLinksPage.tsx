@@ -5,8 +5,10 @@ import {
   Box,
   Brain,
   CircleEllipsis,
+  ClipboardList,
   DoorOpen,
   FileText,
+  Handshake,
   Home,
   Layers3,
   LayoutGrid,
@@ -36,6 +38,8 @@ export type SystemLinkAction =
   | 'congress'
   | 'speakerKit'
   | 'minds'
+  | 'sponsors'
+  | 'sponsorVisibility'
   | 'home'
   | 'intelligence'
   | 'assets'
@@ -134,6 +138,20 @@ const systemLinks: LinkItem[] = [
     title: 'Palestrantes',
     description: 'Solução Longecta para posicionar, apresentar e ativar palestrantes médicos antes, durante e depois dos congressos.',
     icon: PenTool,
+    scope: 'public',
+  },
+  {
+    action: 'sponsors',
+    title: 'Patrocinadores',
+    description: 'Estratégia de percepção para apresentar patrocinadores no site, nos materiais e nas redes do congresso.',
+    icon: Handshake,
+    scope: 'public',
+  },
+  {
+    action: 'sponsorVisibility',
+    title: 'Sponsor Visibility Kit',
+    description: 'Kit de entregas para organizar presença de patrocinadores em site, materiais, redes e relatório pós-evento.',
+    icon: ClipboardList,
     scope: 'public',
   },
   {

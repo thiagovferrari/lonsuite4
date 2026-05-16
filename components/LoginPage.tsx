@@ -11,6 +11,8 @@ import LongectaProgressPage from './LongectaProgressPage';
 import LongectaPublicityPage from './LongectaPublicityPage';
 import LongectaSystemsPage from './LongectaSystemsPage';
 import LongectaMindsPage from './LongectaMindsPage';
+import LongectaSponsorsPage from './LongectaSponsorsPage';
+import LongectaSponsorVisibilityPage from './LongectaSponsorVisibilityPage';
 import SystemLinksPage, { SystemLinksButton, SystemLinkAction } from './SystemLinksPage';
 
 interface Props {
@@ -912,6 +914,8 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
   const [showLongectaCongress, setShowLongectaCongress] = useState(false);
   const [showSpeakerKit, setShowSpeakerKit] = useState(false);
   const [showMinds, setShowMinds] = useState(false);
+  const [showSponsors, setShowSponsors] = useState(false);
+  const [showSponsorVisibility, setShowSponsorVisibility] = useState(false);
   const [showSystemLinks, setShowSystemLinks] = useState(false);
 
   const stories = useMemo(() => [
@@ -973,6 +977,8 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
     setShowLongectaCongress(false);
     setShowSpeakerKit(false);
     setShowMinds(false);
+    setShowSponsors(false);
+    setShowSponsorVisibility(false);
     setShowSystemLinks(false);
 
     if (action === 'plans') setShowPlans(true);
@@ -986,6 +992,8 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
     if (action === 'congress') setShowLongectaCongress(true);
     if (action === 'speakerKit') setShowSpeakerKit(true);
     if (action === 'minds') setShowMinds(true);
+    if (action === 'sponsors') setShowSponsors(true);
+    if (action === 'sponsorVisibility') setShowSponsorVisibility(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -1294,6 +1302,65 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
           onPublicity={() => {
             setShowMinds(false);
             setShowPublicity(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        />
+      </>
+    );
+  }
+
+  if (showSponsors) {
+    return (
+      <>
+        <SystemLinksButton onClick={() => setShowSystemLinks(true)} />
+        <LongectaSponsorsPage
+          onBack={() => {
+            setShowSponsors(false);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          onCongress={() => {
+            setShowSponsors(false);
+            setShowLongectaCongress(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          onMaterials={() => {
+            setShowSponsors(false);
+            setShowMaterials(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          onSponsorVisibility={() => {
+            setShowSponsors(false);
+            setShowSponsorVisibility(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        />
+      </>
+    );
+  }
+
+  if (showSponsorVisibility) {
+    return (
+      <>
+        <SystemLinksButton onClick={() => setShowSystemLinks(true)} />
+        <LongectaSponsorVisibilityPage
+          onBack={() => {
+            setShowSponsorVisibility(false);
+            setShowSponsors(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          onSponsors={() => {
+            setShowSponsorVisibility(false);
+            setShowSponsors(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          onCongress={() => {
+            setShowSponsorVisibility(false);
+            setShowLongectaCongress(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          onMaterials={() => {
+            setShowSponsorVisibility(false);
+            setShowMaterials(true);
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
         />
