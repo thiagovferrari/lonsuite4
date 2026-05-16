@@ -131,8 +131,8 @@ const systemLinks: LinkItem[] = [
   },
   {
     action: 'minds',
-    title: 'Mentes Longecta',
-    description: 'Página editorial sobre Thiago Ferrari, estratégia, IA, produtos e a mente por trás das soluções Longecta.',
+    title: 'Palestrantes',
+    description: 'Solução Longecta para posicionar, apresentar e ativar palestrantes médicos antes, durante e depois dos congressos.',
     icon: PenTool,
     scope: 'public',
   },
