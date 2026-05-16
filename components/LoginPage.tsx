@@ -10,6 +10,7 @@ import LongectaMaterialsPage from './LongectaMaterialsPage';
 import LongectaProgressPage from './LongectaProgressPage';
 import LongectaPublicityPage from './LongectaPublicityPage';
 import LongectaSystemsPage from './LongectaSystemsPage';
+import LongectaMindsPage from './LongectaMindsPage';
 import SystemLinksPage, { SystemLinksButton, SystemLinkAction } from './SystemLinksPage';
 
 interface Props {
@@ -910,6 +911,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
   const [showLongectaMethod, setShowLongectaMethod] = useState(false);
   const [showLongectaCongress, setShowLongectaCongress] = useState(false);
   const [showSpeakerKit, setShowSpeakerKit] = useState(false);
+  const [showMinds, setShowMinds] = useState(false);
   const [showSystemLinks, setShowSystemLinks] = useState(false);
 
   const stories = useMemo(() => [
@@ -970,6 +972,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
     setShowLongectaMethod(false);
     setShowLongectaCongress(false);
     setShowSpeakerKit(false);
+    setShowMinds(false);
     setShowSystemLinks(false);
 
     if (action === 'plans') setShowPlans(true);
@@ -982,6 +985,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
     if (action === 'method') setShowLongectaMethod(true);
     if (action === 'congress') setShowLongectaCongress(true);
     if (action === 'speakerKit') setShowSpeakerKit(true);
+    if (action === 'minds') setShowMinds(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -1262,6 +1266,35 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
             setShowPlanDetails(false);
             setShowPlans(true);
             window.setTimeout(() => document.getElementById('planos')?.scrollIntoView({ behavior: 'smooth' }), 50);
+          }}
+        />
+      </>
+    );
+  }
+
+  if (showMinds) {
+    return (
+      <>
+        <SystemLinksButton onClick={() => setShowSystemLinks(true)} />
+        <LongectaMindsPage
+          onBack={() => {
+            setShowMinds(false);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          onCongress={() => {
+            setShowMinds(false);
+            setShowLongectaCongress(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          onMethod={() => {
+            setShowMinds(false);
+            setShowLongectaMethod(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          onPublicity={() => {
+            setShowMinds(false);
+            setShowPublicity(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
         />
       </>

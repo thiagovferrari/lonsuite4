@@ -14,6 +14,7 @@ import {
   Milestone,
   Megaphone,
   Mic2,
+  PenTool,
   Server,
   Settings,
   Sparkles,
@@ -34,6 +35,7 @@ export type SystemLinkAction =
   | 'method'
   | 'congress'
   | 'speakerKit'
+  | 'minds'
   | 'home'
   | 'intelligence'
   | 'assets'
@@ -125,6 +127,13 @@ const systemLinks: LinkItem[] = [
     title: 'Speaker Visibility Kit',
     description: 'Kit estratégico para transformar palestrantes em ativos de alcance, prestígio e inscrição.',
     icon: Mic2,
+    scope: 'public',
+  },
+  {
+    action: 'minds',
+    title: 'Mentes Longecta',
+    description: 'Página editorial sobre Thiago Ferrari, estratégia, IA, produtos e a mente por trás das soluções Longecta.',
+    icon: PenTool,
     scope: 'public',
   },
   {
