@@ -58,9 +58,14 @@ const publicPageByPath: Record<string, AppPublicPage> = {
   '/doctor-next-level': 'doctorNextLevel',
 };
 
+const normalizePublicPath = (pathname: string) => {
+  const normalized = pathname.replace(/\/+$/, '') || '/';
+  return normalized.toLowerCase();
+};
+
 const getInitialPublicPage = (): AppPublicPage | null => {
   if (typeof window === 'undefined') return null;
-  return publicPageByPath[window.location.pathname] || null;
+  return publicPageByPath[normalizePublicPath(window.location.pathname)] || null;
 };
 
 async function withSupabaseTimeout<T>(promise: PromiseLike<T>, label: string): Promise<T> {

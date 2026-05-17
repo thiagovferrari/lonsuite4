@@ -13,6 +13,7 @@ import LongectaSystemsPage from './LongectaSystemsPage';
 import LongectaMindsPage from './LongectaMindsPage';
 import LongectaSponsorsPage from './LongectaSponsorsPage';
 import LongectaSponsorVisibilityPage from './LongectaSponsorVisibilityPage';
+import DoctorNextLevelPage from './DoctorNextLevelPage';
 import SystemLinksPage, { SystemLinksButton, SystemLinkAction } from './SystemLinksPage';
 
 interface Props {
@@ -916,6 +917,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
   const [showMinds, setShowMinds] = useState(false);
   const [showSponsors, setShowSponsors] = useState(false);
   const [showSponsorVisibility, setShowSponsorVisibility] = useState(false);
+  const [showDoctorNextLevel, setShowDoctorNextLevel] = useState(false);
   const [showSystemLinks, setShowSystemLinks] = useState(false);
 
   const stories = useMemo(() => [
@@ -979,6 +981,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
     setShowMinds(false);
     setShowSponsors(false);
     setShowSponsorVisibility(false);
+    setShowDoctorNextLevel(false);
     setShowSystemLinks(false);
 
     if (action === 'plans') setShowPlans(true);
@@ -994,6 +997,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
     if (action === 'minds') setShowMinds(true);
     if (action === 'sponsors') setShowSponsors(true);
     if (action === 'sponsorVisibility') setShowSponsorVisibility(true);
+    if (action === 'doctorNextLevel') setShowDoctorNextLevel(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -1361,6 +1365,35 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
           onMaterials={() => {
             setShowSponsorVisibility(false);
             setShowMaterials(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        />
+      </>
+    );
+  }
+
+  if (showDoctorNextLevel) {
+    return (
+      <>
+        <SystemLinksButton onClick={() => setShowSystemLinks(true)} />
+        <DoctorNextLevelPage
+          onBack={() => {
+            setShowDoctorNextLevel(false);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          onCongress={() => {
+            setShowDoctorNextLevel(false);
+            setShowLongectaCongress(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          onMethod={() => {
+            setShowDoctorNextLevel(false);
+            setShowLongectaMethod(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          onPublicity={() => {
+            setShowDoctorNextLevel(false);
+            setShowPublicity(true);
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
         />
