@@ -1,0 +1,1167 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Documentação Completa Longecta</title>
+  <style>
+    @page { size: A4; margin: 15mm 13mm; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, Arial, Helvetica, sans-serif;
+      color: #141416;
+      background: #fff;
+      font-size: 10.7px;
+      line-height: 1.48;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 {
+      max-width: 760px;
+      font-size: 40px;
+      line-height: 0.98;
+      font-weight: 300;
+      letter-spacing: 0;
+    }
+    h2 {
+      font-size: 25px;
+      line-height: 1.04;
+      font-weight: 500;
+      letter-spacing: 0;
+      margin-bottom: 9px;
+    }
+    h3 {
+      font-size: 12.4px;
+      line-height: 1.2;
+      font-weight: 760;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin: 15px 0 6px;
+    }
+    p { margin-bottom: 8px; }
+    ul { margin: 6px 0 0 17px; padding: 0; }
+    li { margin-bottom: 4px; }
+    table { border-collapse: collapse; width: 100%; }
+    th {
+      text-align: left;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-size: 8.6px;
+      color: #696970;
+      border-bottom: 1px solid #d9d9df;
+      padding: 6px;
+    }
+    td {
+      vertical-align: top;
+      border-bottom: 1px solid #ececf0;
+      padding: 7px 6px;
+    }
+    .cover {
+      min-height: 267mm;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      break-after: page;
+    }
+    .eyebrow, .page-kicker {
+      color: #8a7563;
+      text-transform: uppercase;
+      letter-spacing: .18em;
+      font-weight: 800;
+      font-size: 8.5px;
+      margin-bottom: 13px;
+    }
+    .subtitle {
+      max-width: 670px;
+      margin-top: 20px;
+      color: #56565c;
+      font-size: 14.5px;
+      line-height: 1.45;
+    }
+    .date {
+      margin-top: 28px;
+      color: #74747b;
+    }
+    .overview {
+      break-after: page;
+    }
+    .overview h2 {
+      margin-bottom: 14px;
+    }
+    .page-section {
+      break-before: page;
+      padding-top: 1mm;
+    }
+    .lead {
+      max-width: 760px;
+      color: #4b4b52;
+      font-size: 12.8px;
+      line-height: 1.45;
+      margin-bottom: 12px;
+    }
+    .screenshot {
+      width: 100%;
+      height: 86mm;
+      object-fit: cover;
+      object-position: top;
+      border: 1px solid #dedee4;
+      border-radius: 7px;
+      margin: 7px 0 12px;
+    }
+    .placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: #6d6258;
+      background: #f4efe8;
+      padding: 12px;
+    }
+    .metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin: 8px 0 9px;
+    }
+    .metric {
+      border: 1px solid #e6e2dc;
+      border-radius: 7px;
+      background: #fbfaf8;
+      padding: 9px;
+      min-height: 55px;
+    }
+    .metric b {
+      display: block;
+      color: #8a7563;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      font-size: 8.4px;
+      margin-bottom: 4px;
+    }
+    .metric span {
+      color: #29292d;
+    }
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .sample {
+      color: #58585f;
+      border-top: 1px solid #e7e7ec;
+      padding-top: 8px;
+      font-size: 9.5px;
+      max-height: 32mm;
+      overflow: hidden;
+    }
+    .callout {
+      border-left: 3px solid #111113;
+      padding-left: 12px;
+      color: #44444a;
+      max-width: 780px;
+      margin: 18px 0;
+      font-size: 12.5px;
+    }
+  </style>
+</head>
+<body>
+  <section class="cover">
+    <div class="eyebrow">Longecta · documentação de preservação</div>
+    <h1>Documentação completa das páginas Longecta e Lon Suite</h1>
+    <p class="subtitle">Inventário estratégico para reconstrução: propósito, copy, estrutura, público, imagens, CTAs, estratégia de negócio e amostra textual de cada página pública criada no site.</p>
+    <p class="date">Gerado em 17 de maio de 2026 · Fonte local: http://127.0.0.1:5173</p>
+  </section>
+
+  <section class="overview">
+    <h2>Visão geral do ecossistema</h2>
+    <p class="callout">O site funciona como um sistema comercial em camadas. A Lon Suite vende a plataforma de acervo científico. A Longecta vende método, autoridade, congressos, publicidade, sistemas, materiais, palestrantes, patrocinadores e agora educação escalável com o Doctor Next Level.</p>
+    <table>
+      <thead>
+        <tr><th style="width:8%">#</th><th style="width:22%">Página</th><th style="width:16%">Família</th><th>Função</th></tr>
+      </thead>
+      <tbody>
+  <tr>
+    <td>1</td>
+    <td>Planos Lon Suite</td>
+    <td>Lon Suite</td>
+    <td>Página comercial de conversão para a plataforma Lon Suite, apresentando planos, valor percebido, segurança e proposta de assinatura.</td>
+  </tr>
+
+  <tr>
+    <td>2</td>
+    <td>Detalhes dos Planos</td>
+    <td>Lon Suite</td>
+    <td>Página de aprofundamento para explicar o que está por trás dos planos e reduzir objeções antes da assinatura.</td>
+  </tr>
+
+  <tr>
+    <td>3</td>
+    <td>Nossas Soluções</td>
+    <td>Longecta</td>
+    <td>Hub comercial da Longecta. Organiza o portfólio por contexto de compra: médico, clínica e congresso.</td>
+  </tr>
+
+  <tr>
+    <td>4</td>
+    <td>Materiais Longecta</td>
+    <td>Longecta</td>
+    <td>Mostruário visual e prova de execução para materiais físicos, cenografia, palco, estandes, sinalização e kit técnico.</td>
+  </tr>
+
+  <tr>
+    <td>5</td>
+    <td>Longecta Publicity</td>
+    <td>Longecta</td>
+    <td>Página premium para captação, autoridade pública e posicionamento de líderes médicos, cursos, congressos e sociedades.</td>
+  </tr>
+
+  <tr>
+    <td>6</td>
+    <td>Longecta Systems</td>
+    <td>Longecta</td>
+    <td>Página para vender sistemas, plataformas, integrações e IA aplicada a operações médicas premium.</td>
+  </tr>
+
+  <tr>
+    <td>7</td>
+    <td>Longecta Progress</td>
+    <td>Longecta</td>
+    <td>Página de timeline para explicar a experiência Longecta do diagnóstico ao próximo ciclo de crescimento.</td>
+  </tr>
+
+  <tr>
+    <td>8</td>
+    <td>Método Longecta</td>
+    <td>Longecta</td>
+    <td>Página-mãe de posicionamento da Longecta como estrutura híbrida de autoridade médica.</td>
+  </tr>
+
+  <tr>
+    <td>9</td>
+    <td>Longecta Congressos</td>
+    <td>Longecta</td>
+    <td>Landing vertical para transformar congressos médicos em marcas científicas de valor.</td>
+  </tr>
+
+  <tr>
+    <td>10</td>
+    <td>Speaker Visibility Kit</td>
+    <td>Longecta</td>
+    <td>Produto de entrada para ativar palestrantes como ativos de alcance e prestígio em congressos.</td>
+  </tr>
+
+  <tr>
+    <td>11</td>
+    <td>Longecta para Palestrantes</td>
+    <td>Longecta</td>
+    <td>Página para posicionar médicos palestrantes como marcas científicas de alto valor.</td>
+  </tr>
+
+  <tr>
+    <td>12</td>
+    <td>Longecta para Patrocinadores</td>
+    <td>Longecta</td>
+    <td>Página para elevar a percepção de patrocinadores em sites, materiais, redes e pós-evento.</td>
+  </tr>
+
+  <tr>
+    <td>13</td>
+    <td>Sponsor Visibility Kit</td>
+    <td>Longecta</td>
+    <td>Página de pacote operacional para organizar entregas de visibilidade de patrocinadores antes, durante e depois do evento.</td>
+  </tr>
+
+  <tr>
+    <td>14</td>
+    <td>Doctor Next Level</td>
+    <td>Longecta Academy</td>
+    <td>Página de lançamento do curso e plataforma para médicos aprenderem o mercado de congressos, cursos, palestras, autoridade e receita educacional.</td>
+  </tr>
+</tbody>
+    </table>
+  </section>
+
+  
+    <section class="page-section">
+      <div class="page-kicker">01 · Lon Suite</div>
+      <h2>Planos Lon Suite</h2>
+      <p class="lead">Página comercial de conversão para a plataforma Lon Suite, apresentando planos, valor percebido, segurança e proposta de assinatura.</p>
+      <div class="screenshot placeholder">Preview visual omitido nesta versão rápida. A seção abaixo documenta imagens, copy, estrutura e estratégia para reconstrução.</div>
+
+      <div class="metrics">
+        
+  <div class="metric">
+    <b>Público</b>
+    <span>Médicos, clínicas e equipes que precisam organizar acervo científico, imagens, PDFs, casos e materiais com IA e governança.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Copy central</b>
+    <span>A memória científica da prática vira patrimônio organizado, pesquisável e pronto para produzir casos, aulas e materiais.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Papel de negócio</b>
+    <span>Converter interesse em assinatura ou conversa comercial, além de separar o produto Lon Suite das frentes de serviço Longecta.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Altura capturada</b>
+    <span>captura ao vivo ignoradapx de página renderizada</span>
+  </div>
+
+      </div>
+
+      <h3>Estratégia da página</h3>
+      <p>Funciona como página de monetização da plataforma. Ela traduz tecnologia em valor médico: organização, segurança, inteligência, produtividade e continuidade.</p>
+
+      <h3>Estrutura para reconstrução</h3>
+      <ul><li>Hero com promessa de patrimônio científico e CTA para planos.</li><li>Blocos de benefícios ligados a acervo, busca, casos e segurança.</li><li>Tabela ou cards de planos com hierarquia de valor.</li><li>Seções de confiança, uso médico e diferenciação contra arquivos soltos.</li><li>Fechamento com chamada para entrada na plataforma.</li></ul>
+
+      <h3>Imagens e linguagem visual</h3>
+      <ul><li>Imagens editoriais de médicos usando laptop, celular e acervo científico.</li><li>Mockups visuais de plataforma e contexto clínico premium.</li></ul>
+
+      <h3>Como reconstruir se o site for perdido</h3>
+      <ul><li>Manter uma promessa simples: acervo médico organizado com IA.</li><li>Preservar comparação entre planos e diferenciais por perfil de uso.</li><li>Conectar sempre com segurança, busca e produção científica.</li></ul>
+
+      <div class="two-col">
+        <div>
+          <h3>Headings encontrados</h3>
+          <ul><li>H1: Hero com promessa de patrimônio científico e CTA para planos.</li><li>H2: Blocos de benefícios ligados a acervo, busca, casos e segurança.</li><li>H2: Tabela ou cards de planos com hierarquia de valor.</li><li>H2: Seções de confiança, uso médico e diferenciação contra arquivos soltos.</li><li>H2: Fechamento com chamada para entrada na plataforma.</li></ul>
+        </div>
+        <div>
+          <h3>CTAs e navegação</h3>
+          <ul><li>Diagnóstico</li><li>Entrar em contato</li><li>Ver solução relacionada</li></ul>
+        </div>
+      </div>
+
+      <h3>Arquivos de imagem usados na página</h3>
+      <ul><li>Imagens editoriais de médicos usando laptop, celular e acervo científico.</li><li>Mockups visuais de plataforma e contexto clínico premium.</li></ul>
+
+      <h3>Amostra textual extraída</h3>
+      <p class="sample">A memória científica da prática vira patrimônio organizado, pesquisável e pronto para produzir casos, aulas e materiais. Página comercial de conversão para a plataforma Lon Suite, apresentando planos, valor percebido, segurança e proposta de assinatura. Funciona como página de monetização da plataforma. Ela traduz tecnologia em valor médico: organização, segurança, inteligência, produtividade e continuidade.</p>
+    </section>
+  
+    <section class="page-section">
+      <div class="page-kicker">02 · Lon Suite</div>
+      <h2>Detalhes dos Planos</h2>
+      <p class="lead">Página de aprofundamento para explicar o que está por trás dos planos e reduzir objeções antes da assinatura.</p>
+      <div class="screenshot placeholder">Preview visual omitido nesta versão rápida. A seção abaixo documenta imagens, copy, estrutura e estratégia para reconstrução.</div>
+
+      <div class="metrics">
+        
+  <div class="metric">
+    <b>Público</b>
+    <span>Usuários que já entenderam o produto, mas precisam justificar valor, segurança, escopo e benefícios antes de contratar.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Copy central</b>
+    <span>Não é armazenamento de arquivos: é uma estrutura para transformar acervo em inteligência, produção e memória científica.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Papel de negócio</b>
+    <span>Reduzir fricção no fechamento, apoiar vendas consultivas e servir como material explicativo para leads mais racionais.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Altura capturada</b>
+    <span>captura ao vivo ignoradapx de página renderizada</span>
+  </div>
+
+      </div>
+
+      <h3>Estratégia da página</h3>
+      <p>Educar a decisão. A página aumenta confiança, explica camadas do produto e prepara o usuário para escolher plano com menos dúvida.</p>
+
+      <h3>Estrutura para reconstrução</h3>
+      <ul><li>Explicação ampliada sobre acervo, segurança e inteligência.</li><li>Detalhamento de recursos e casos de uso.</li><li>Blocos de comparação contra processos manuais.</li><li>Perguntas e objeções frequentes.</li><li>CTA de retorno aos planos.</li></ul>
+
+      <h3>Imagens e linguagem visual</h3>
+      <ul><li>Imagens de médicos, tecnologia e organização científica.</li><li>Elementos visuais de confiança, segurança e produtividade.</li></ul>
+
+      <h3>Como reconstruir se o site for perdido</h3>
+      <ul><li>Explicar recursos em linguagem de resultado, não de feature.</li><li>Repetir o vínculo entre acervo organizado e produção científica.</li><li>Manter ponte clara para a página de planos.</li></ul>
+
+      <div class="two-col">
+        <div>
+          <h3>Headings encontrados</h3>
+          <ul><li>H1: Explicação ampliada sobre acervo, segurança e inteligência.</li><li>H2: Detalhamento de recursos e casos de uso.</li><li>H2: Blocos de comparação contra processos manuais.</li><li>H2: Perguntas e objeções frequentes.</li><li>H2: CTA de retorno aos planos.</li></ul>
+        </div>
+        <div>
+          <h3>CTAs e navegação</h3>
+          <ul><li>Diagnóstico</li><li>Entrar em contato</li><li>Ver solução relacionada</li></ul>
+        </div>
+      </div>
+
+      <h3>Arquivos de imagem usados na página</h3>
+      <ul><li>Imagens de médicos, tecnologia e organização científica.</li><li>Elementos visuais de confiança, segurança e produtividade.</li></ul>
+
+      <h3>Amostra textual extraída</h3>
+      <p class="sample">Não é armazenamento de arquivos: é uma estrutura para transformar acervo em inteligência, produção e memória científica. Página de aprofundamento para explicar o que está por trás dos planos e reduzir objeções antes da assinatura. Educar a decisão. A página aumenta confiança, explica camadas do produto e prepara o usuário para escolher plano com menos dúvida.</p>
+    </section>
+  
+    <section class="page-section">
+      <div class="page-kicker">03 · Longecta</div>
+      <h2>Nossas Soluções</h2>
+      <p class="lead">Hub comercial da Longecta. Organiza o portfólio por contexto de compra: médico, clínica e congresso.</p>
+      <div class="screenshot placeholder">Preview visual omitido nesta versão rápida. A seção abaixo documenta imagens, copy, estrutura e estratégia para reconstrução.</div>
+
+      <div class="metrics">
+        
+  <div class="metric">
+    <b>Público</b>
+    <span>Médicos especialistas, clínicas, coordenadores científicos, sociedades e organizadores que ainda não sabem qual frente contratar.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Copy central</b>
+    <span>Um portfólio para cada forma de autoridade médica.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Papel de negócio</b>
+    <span>Roteador de demanda e qualificação. Deve levar o visitante para Método, Congressos, Speaker Kit, Materiais ou planos conforme o objetivo.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Altura capturada</b>
+    <span>captura ao vivo ignoradapx de página renderizada</span>
+  </div>
+
+      </div>
+
+      <h3>Estratégia da página</h3>
+      <p>A página não vende uma peça isolada. Ela apresenta a Longecta como operação híbrida de plataforma, serviço, curadoria, design e inteligência.</p>
+
+      <h3>Estrutura para reconstrução</h3>
+      <ul><li>Hero de portfólio com promessa de autoridade médica.</li><li>Três entradas principais: Para você, Para sua clínica e Para seu congresso.</li><li>Explicação do modelo híbrido por camadas.</li><li>Cards de soluções por segmento e CTAs específicos.</li><li>Bloco final de escolha do ponto de partida.</li></ul>
+
+      <h3>Imagens e linguagem visual</h3>
+      <ul><li>longecta-solutions-you.png</li><li>longecta-solutions-clinic.png</li><li>longecta-solutions-congress.png</li></ul>
+
+      <h3>Como reconstruir se o site for perdido</h3>
+      <ul><li>Recriar os três caminhos comerciais.</li><li>Listar produtos como módulos com objetivo e melhor uso.</li><li>Preservar a tese de plataforma + serviço + inteligência.</li></ul>
+
+      <div class="two-col">
+        <div>
+          <h3>Headings encontrados</h3>
+          <ul><li>H1: Hero de portfólio com promessa de autoridade médica.</li><li>H2: Três entradas principais: Para você, Para sua clínica e Para seu congresso.</li><li>H2: Explicação do modelo híbrido por camadas.</li><li>H2: Cards de soluções por segmento e CTAs específicos.</li><li>H2: Bloco final de escolha do ponto de partida.</li></ul>
+        </div>
+        <div>
+          <h3>CTAs e navegação</h3>
+          <ul><li>Diagnóstico</li><li>Entrar em contato</li><li>Ver solução relacionada</li></ul>
+        </div>
+      </div>
+
+      <h3>Arquivos de imagem usados na página</h3>
+      <ul><li>longecta-solutions-you.png</li><li>longecta-solutions-clinic.png</li><li>longecta-solutions-congress.png</li></ul>
+
+      <h3>Amostra textual extraída</h3>
+      <p class="sample">Um portfólio para cada forma de autoridade médica. Hub comercial da Longecta. Organiza o portfólio por contexto de compra: médico, clínica e congresso. A página não vende uma peça isolada. Ela apresenta a Longecta como operação híbrida de plataforma, serviço, curadoria, design e inteligência.</p>
+    </section>
+  
+    <section class="page-section">
+      <div class="page-kicker">04 · Longecta</div>
+      <h2>Materiais Longecta</h2>
+      <p class="lead">Mostruário visual e prova de execução para materiais físicos, cenografia, palco, estandes, sinalização e kit técnico.</p>
+      <div class="screenshot placeholder">Preview visual omitido nesta versão rápida. A seção abaixo documenta imagens, copy, estrutura e estratégia para reconstrução.</div>
+
+      <div class="metrics">
+        
+  <div class="metric">
+    <b>Público</b>
+    <span>Organizadores de eventos, sociedades médicas, patrocinadores, produtoras e decisores que precisam visualizar padrão premium.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Copy central</b>
+    <span>Mostruário visual para ambientes científicos premium.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Papel de negócio</b>
+    <span>Reduzir risco percebido e vender pacotes visuais de evento, sponsor e palco sem assumir impressão, montagem ou marcenaria.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Altura capturada</b>
+    <span>captura ao vivo ignoradapx de página renderizada</span>
+  </div>
+
+      </div>
+
+      <h3>Estratégia da página</h3>
+      <p>Reposicionar “artes” como sistema visual de ambiente científico. Isso protege margem e mostra que a Longecta atua entre estratégia, design e produção.</p>
+
+      <h3>Estrutura para reconstrução</h3>
+      <ul><li>Hero focado em materiais e ambientes premium.</li><li>Mostruário com exemplos de sistema de peças, palco e estande.</li><li>Lista de serviços: cenografia, 3D, totens, patrocinadores e kit técnico.</li><li>Processo do briefing técnico aos arquivos finais.</li><li>Valor agregado: percepção, aprovação, consistência e redução de improviso.</li></ul>
+
+      <h3>Imagens e linguagem visual</h3>
+      <ul><li>longecta-materials-stage.png</li><li>longecta-materials-stand.png</li><li>longecta-materials-system.png</li></ul>
+
+      <h3>Como reconstruir se o site for perdido</h3>
+      <ul><li>Declarar o que a Longecta faz e o que não faz.</li><li>Mostrar processo técnico para fornecedores.</li><li>Usar imagens grandes para prova visual.</li></ul>
+
+      <div class="two-col">
+        <div>
+          <h3>Headings encontrados</h3>
+          <ul><li>H1: Hero focado em materiais e ambientes premium.</li><li>H2: Mostruário com exemplos de sistema de peças, palco e estande.</li><li>H2: Lista de serviços: cenografia, 3D, totens, patrocinadores e kit técnico.</li><li>H2: Processo do briefing técnico aos arquivos finais.</li><li>H2: Valor agregado: percepção, aprovação, consistência e redução de improviso.</li></ul>
+        </div>
+        <div>
+          <h3>CTAs e navegação</h3>
+          <ul><li>Diagnóstico</li><li>Entrar em contato</li><li>Ver solução relacionada</li></ul>
+        </div>
+      </div>
+
+      <h3>Arquivos de imagem usados na página</h3>
+      <ul><li>longecta-materials-stage.png</li><li>longecta-materials-stand.png</li><li>longecta-materials-system.png</li></ul>
+
+      <h3>Amostra textual extraída</h3>
+      <p class="sample">Mostruário visual para ambientes científicos premium. Mostruário visual e prova de execução para materiais físicos, cenografia, palco, estandes, sinalização e kit técnico. Reposicionar “artes” como sistema visual de ambiente científico. Isso protege margem e mostra que a Longecta atua entre estratégia, design e produção.</p>
+    </section>
+  
+    <section class="page-section">
+      <div class="page-kicker">05 · Longecta</div>
+      <h2>Longecta Publicity</h2>
+      <p class="lead">Página premium para captação, autoridade pública e posicionamento de líderes médicos, cursos, congressos e sociedades.</p>
+      <div class="screenshot placeholder">Preview visual omitido nesta versão rápida. A seção abaixo documenta imagens, copy, estrutura e estratégia para reconstrução.</div>
+
+      <div class="metrics">
+        
+  <div class="metric">
+    <b>Público</b>
+    <span>Médicos palestrantes, donos de cursos, donos de congressos, sociedades médicas e lideranças que precisam captar com autoridade.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Copy central</b>
+    <span>A estrutura premium para líderes médicos captarem com autoridade.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Papel de negócio</b>
+    <span>Abrir conversas consultivas de alto valor para cursos, congressos, palestrantes e sociedades médicas.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Altura capturada</b>
+    <span>captura ao vivo ignoradapx de página renderizada</span>
+  </div>
+
+      </div>
+
+      <h3>Estratégia da página</h3>
+      <p>Criar uma categoria acima de marketing: publicity médico estratégico. A página vende sistema de percepção e captação, não posts.</p>
+
+      <h3>Estrutura para reconstrução</h3>
+      <ul><li>Hero black premium com promessa de captação e autoridade.</li><li>Públicos-alvo: palestrantes, cursos, congressos e sociedades.</li><li>Sistema em quatro camadas: estratégia, plataforma, design e execução.</li><li>Lista de entregáveis executivos.</li><li>Diagnóstico e download de dossiê executivo.</li></ul>
+
+      <h3>Imagens e linguagem visual</h3>
+      <ul><li>longecta-publicity-product-black.png</li><li>longecta-publicity-doctor-phone.png</li><li>longecta-publicity-congress-stage.png</li><li>longecta-publicity-strategy-room.png</li></ul>
+
+      <h3>Como reconstruir se o site for perdido</h3>
+      <ul><li>Manter estética black premium.</li><li>Preservar frase “não vendemos posts”.</li><li>Conectar captação com produto, serviço, consultoria e plataforma.</li></ul>
+
+      <div class="two-col">
+        <div>
+          <h3>Headings encontrados</h3>
+          <ul><li>H1: Hero black premium com promessa de captação e autoridade.</li><li>H2: Públicos-alvo: palestrantes, cursos, congressos e sociedades.</li><li>H2: Sistema em quatro camadas: estratégia, plataforma, design e execução.</li><li>H2: Lista de entregáveis executivos.</li><li>H2: Diagnóstico e download de dossiê executivo.</li></ul>
+        </div>
+        <div>
+          <h3>CTAs e navegação</h3>
+          <ul><li>Diagnóstico</li><li>Entrar em contato</li><li>Ver solução relacionada</li></ul>
+        </div>
+      </div>
+
+      <h3>Arquivos de imagem usados na página</h3>
+      <ul><li>longecta-publicity-product-black.png</li><li>longecta-publicity-doctor-phone.png</li><li>longecta-publicity-congress-stage.png</li><li>longecta-publicity-strategy-room.png</li></ul>
+
+      <h3>Amostra textual extraída</h3>
+      <p class="sample">A estrutura premium para líderes médicos captarem com autoridade. Página premium para captação, autoridade pública e posicionamento de líderes médicos, cursos, congressos e sociedades. Criar uma categoria acima de marketing: publicity médico estratégico. A página vende sistema de percepção e captação, não posts.</p>
+    </section>
+  
+    <section class="page-section">
+      <div class="page-kicker">06 · Longecta</div>
+      <h2>Longecta Systems</h2>
+      <p class="lead">Página para vender sistemas, plataformas, integrações e IA aplicada a operações médicas premium.</p>
+      <div class="screenshot placeholder">Preview visual omitido nesta versão rápida. A seção abaixo documenta imagens, copy, estrutura e estratégia para reconstrução.</div>
+
+      <div class="metrics">
+        
+  <div class="metric">
+    <b>Público</b>
+    <span>Congressos, cursos, comunidades, sociedades médicas e operações que precisam de tecnologia sob medida ou módulos prontos.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Copy central</b>
+    <span>Sistemas sob medida para negócios médicos de alto valor.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Papel de negócio</b>
+    <span>Captar projetos de plataforma, portal, área de membros, CRM, dashboard, IA e integração.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Altura capturada</b>
+    <span>captura ao vivo ignoradapx de página renderizada</span>
+  </div>
+
+      </div>
+
+      <h3>Estratégia da página</h3>
+      <p>Mostrar que a Longecta começa pelo negócio, não pelo código. A tecnologia aparece como consequência de arquitetura, diagnóstico e operação real.</p>
+
+      <h3>Estrutura para reconstrução</h3>
+      <ul><li>Hero black premium com promessa de sistemas para negócios médicos.</li><li>Públicos e necessidades: congressos, cursos, sociedades e operações premium.</li><li>Modos de solução: produto pronto, sob medida, integrações e IA aplicada.</li><li>Processo de diagnóstico, arquitetura, protótipo, desenvolvimento e implantação.</li><li>CTA para diagnóstico Longecta Systems.</li></ul>
+
+      <h3>Imagens e linguagem visual</h3>
+      <ul><li>longecta-systems-hero.png</li><li>longecta-systems-command.png</li><li>longecta-systems-workshop.png</li></ul>
+
+      <h3>Como reconstruir se o site for perdido</h3>
+      <ul><li>Preservar tese “não começamos pelo código”.</li><li>Explicar modalidades de produto pronto e sistema sob medida.</li><li>Usar visual escuro para tecnologia premium.</li></ul>
+
+      <div class="two-col">
+        <div>
+          <h3>Headings encontrados</h3>
+          <ul><li>H1: Hero black premium com promessa de sistemas para negócios médicos.</li><li>H2: Públicos e necessidades: congressos, cursos, sociedades e operações premium.</li><li>H2: Modos de solução: produto pronto, sob medida, integrações e IA aplicada.</li><li>H2: Processo de diagnóstico, arquitetura, protótipo, desenvolvimento e implantação.</li><li>H2: CTA para diagnóstico Longecta Systems.</li></ul>
+        </div>
+        <div>
+          <h3>CTAs e navegação</h3>
+          <ul><li>Diagnóstico</li><li>Entrar em contato</li><li>Ver solução relacionada</li></ul>
+        </div>
+      </div>
+
+      <h3>Arquivos de imagem usados na página</h3>
+      <ul><li>longecta-systems-hero.png</li><li>longecta-systems-command.png</li><li>longecta-systems-workshop.png</li></ul>
+
+      <h3>Amostra textual extraída</h3>
+      <p class="sample">Sistemas sob medida para negócios médicos de alto valor. Página para vender sistemas, plataformas, integrações e IA aplicada a operações médicas premium. Mostrar que a Longecta começa pelo negócio, não pelo código. A tecnologia aparece como consequência de arquitetura, diagnóstico e operação real.</p>
+    </section>
+  
+    <section class="page-section">
+      <div class="page-kicker">07 · Longecta</div>
+      <h2>Longecta Progress</h2>
+      <p class="lead">Página de timeline para explicar a experiência Longecta do diagnóstico ao próximo ciclo de crescimento.</p>
+      <div class="screenshot placeholder">Preview visual omitido nesta versão rápida. A seção abaixo documenta imagens, copy, estrutura e estratégia para reconstrução.</div>
+
+      <div class="metrics">
+        
+  <div class="metric">
+    <b>Público</b>
+    <span>Leads que precisam entender processo, sequência, etapas e como a Longecta acompanha evolução de projetos.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Copy central</b>
+    <span>A experiência Longecta organizada como progresso estratégico.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Papel de negócio</b>
+    <span>Apoiar vendas consultivas, onboarding e entendimento do método de trabalho.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Altura capturada</b>
+    <span>captura ao vivo ignoradapx de página renderizada</span>
+  </div>
+
+      </div>
+
+      <h3>Estratégia da página</h3>
+      <p>Transformar serviço consultivo em jornada visual. A página reduz incerteza sobre “como funciona” e reforça continuidade.</p>
+
+      <h3>Estrutura para reconstrução</h3>
+      <ul><li>Hero com promessa de evolução.</li><li>Linha do tempo da entrada ao próximo ciclo.</li><li>Etapas de diagnóstico, estratégia, execução, aprovação e memória.</li><li>Blocos de valor para o cliente entender cadência.</li><li>CTAs para Método, Soluções, Congressos e Planos.</li></ul>
+
+      <h3>Imagens e linguagem visual</h3>
+      <ul><li>Elementos infográficos, timeline e cards de progresso.</li></ul>
+
+      <h3>Como reconstruir se o site for perdido</h3>
+      <ul><li>Recriar uma timeline clara.</li><li>Mostrar entregas por fase.</li><li>Conectar jornada com Método Longecta.</li></ul>
+
+      <div class="two-col">
+        <div>
+          <h3>Headings encontrados</h3>
+          <ul><li>H1: Hero com promessa de evolução.</li><li>H2: Linha do tempo da entrada ao próximo ciclo.</li><li>H2: Etapas de diagnóstico, estratégia, execução, aprovação e memória.</li><li>H2: Blocos de valor para o cliente entender cadência.</li><li>H2: CTAs para Método, Soluções, Congressos e Planos.</li></ul>
+        </div>
+        <div>
+          <h3>CTAs e navegação</h3>
+          <ul><li>Diagnóstico</li><li>Entrar em contato</li><li>Ver solução relacionada</li></ul>
+        </div>
+      </div>
+
+      <h3>Arquivos de imagem usados na página</h3>
+      <ul><li>Elementos infográficos, timeline e cards de progresso.</li></ul>
+
+      <h3>Amostra textual extraída</h3>
+      <p class="sample">A experiência Longecta organizada como progresso estratégico. Página de timeline para explicar a experiência Longecta do diagnóstico ao próximo ciclo de crescimento. Transformar serviço consultivo em jornada visual. A página reduz incerteza sobre “como funciona” e reforça continuidade.</p>
+    </section>
+  
+    <section class="page-section">
+      <div class="page-kicker">08 · Longecta</div>
+      <h2>Método Longecta</h2>
+      <p class="lead">Página-mãe de posicionamento da Longecta como estrutura híbrida de autoridade médica.</p>
+      <div class="screenshot placeholder">Preview visual omitido nesta versão rápida. A seção abaixo documenta imagens, copy, estrutura e estratégia para reconstrução.</div>
+
+      <div class="metrics">
+        
+  <div class="metric">
+    <b>Público</b>
+    <span>Médicos, clínicas, professores, palestrantes, instituições e eventos com repertório disperso e pouco reaproveitado.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Copy central</b>
+    <span>Transformamos conhecimento médico em autoridade pública, presença e crescimento.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Papel de negócio</b>
+    <span>Elevar preço percebido, justificar recorrência e educar o mercado para produtos modulares.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Altura capturada</b>
+    <span>captura ao vivo ignoradapx de página renderizada</span>
+  </div>
+
+      </div>
+
+      <h3>Estratégia da página</h3>
+      <p>Criar categoria. A Longecta não é apenas software, agência ou IA: é uma operação de acervo, curadoria, design, serviço e inteligência.</p>
+
+      <h3>Estrutura para reconstrução</h3>
+      <ul><li>Hero conceitual com promessa de autoridade.</li><li>Problema: repertório disperso e valor invisível.</li><li>Pilares: plataforma, serviço e inteligência contextual.</li><li>Método em etapas: envio, organização, IA, acabamento, aprovação e memória.</li><li>Diferenciação contra IA avulsa, Drive e agência tradicional.</li></ul>
+
+      <h3>Imagens e linguagem visual</h3>
+      <ul><li>Imagens editoriais de acervo, médico, tecnologia e bastidores.</li></ul>
+
+      <h3>Como reconstruir se o site for perdido</h3>
+      <ul><li>Preservar a tese de categoria híbrida.</li><li>Explicar claramente as camadas do método.</li><li>Usar como ponte para Congressos e Planos.</li></ul>
+
+      <div class="two-col">
+        <div>
+          <h3>Headings encontrados</h3>
+          <ul><li>H1: Hero conceitual com promessa de autoridade.</li><li>H2: Problema: repertório disperso e valor invisível.</li><li>H2: Pilares: plataforma, serviço e inteligência contextual.</li><li>H2: Método em etapas: envio, organização, IA, acabamento, aprovação e memória.</li><li>H2: Diferenciação contra IA avulsa, Drive e agência tradicional.</li></ul>
+        </div>
+        <div>
+          <h3>CTAs e navegação</h3>
+          <ul><li>Diagnóstico</li><li>Entrar em contato</li><li>Ver solução relacionada</li></ul>
+        </div>
+      </div>
+
+      <h3>Arquivos de imagem usados na página</h3>
+      <ul><li>Imagens editoriais de acervo, médico, tecnologia e bastidores.</li></ul>
+
+      <h3>Amostra textual extraída</h3>
+      <p class="sample">Transformamos conhecimento médico em autoridade pública, presença e crescimento. Página-mãe de posicionamento da Longecta como estrutura híbrida de autoridade médica. Criar categoria. A Longecta não é apenas software, agência ou IA: é uma operação de acervo, curadoria, design, serviço e inteligência.</p>
+    </section>
+  
+    <section class="page-section">
+      <div class="page-kicker">09 · Longecta</div>
+      <h2>Longecta Congressos</h2>
+      <p class="lead">Landing vertical para transformar congressos médicos em marcas científicas de valor.</p>
+      <div class="screenshot placeholder">Preview visual omitido nesta versão rápida. A seção abaixo documenta imagens, copy, estrutura e estratégia para reconstrução.</div>
+
+      <div class="metrics">
+        
+  <div class="metric">
+    <b>Público</b>
+    <span>Organizadores, sociedades, coordenadores científicos, patrocinadores e comissões de congressos médicos.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Copy central</b>
+    <span>Transformamos congressos médicos em marcas científicas que vendem valor.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Papel de negócio</b>
+    <span>Captar tickets maiores e recorrência anual por evento: pré-evento, campanha, operação, relatório e próxima edição.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Altura capturada</b>
+    <span>captura ao vivo ignoradapx de página renderizada</span>
+  </div>
+
+      </div>
+
+      <h3>Estratégia da página</h3>
+      <p>Defender a tese “congresso como marca científica”. A página vende planejamento, campanha, patrocinador, experiência e legado.</p>
+
+      <h3>Estrutura para reconstrução</h3>
+      <ul><li>Hero com imagem de palco e promessa de marca científica.</li><li>Dor: congresso relevante, comunicação abaixo do potencial.</li><li>Linha do tempo T-180 a D+45.</li><li>Pilares: posicionamento, sistema visual, campanha, programa científico, patrocinadores e legado.</li><li>Portfólio de produtos e FAQ.</li></ul>
+
+      <h3>Imagens e linguagem visual</h3>
+      <ul><li>longecta-congress-stage.png</li><li>longecta-congress-speaker.png</li><li>longecta-congress-networking.png</li><li>longecta-congress-expo.png</li></ul>
+
+      <h3>Como reconstruir se o site for perdido</h3>
+      <ul><li>Recriar timeline T-180 a D+45.</li><li>Manter portfólio de produtos para congressos.</li><li>Vincular patrocinadores, speakers e legado.</li></ul>
+
+      <div class="two-col">
+        <div>
+          <h3>Headings encontrados</h3>
+          <ul><li>H1: Hero com imagem de palco e promessa de marca científica.</li><li>H2: Dor: congresso relevante, comunicação abaixo do potencial.</li><li>H2: Linha do tempo T-180 a D+45.</li><li>H2: Pilares: posicionamento, sistema visual, campanha, programa científico, patrocinadores e legado.</li><li>H2: Portfólio de produtos e FAQ.</li></ul>
+        </div>
+        <div>
+          <h3>CTAs e navegação</h3>
+          <ul><li>Diagnóstico</li><li>Entrar em contato</li><li>Ver solução relacionada</li></ul>
+        </div>
+      </div>
+
+      <h3>Arquivos de imagem usados na página</h3>
+      <ul><li>longecta-congress-stage.png</li><li>longecta-congress-speaker.png</li><li>longecta-congress-networking.png</li><li>longecta-congress-expo.png</li></ul>
+
+      <h3>Amostra textual extraída</h3>
+      <p class="sample">Transformamos congressos médicos em marcas científicas que vendem valor. Landing vertical para transformar congressos médicos em marcas científicas de valor. Defender a tese “congresso como marca científica”. A página vende planejamento, campanha, patrocinador, experiência e legado.</p>
+    </section>
+  
+    <section class="page-section">
+      <div class="page-kicker">10 · Longecta</div>
+      <h2>Speaker Visibility Kit</h2>
+      <p class="lead">Produto de entrada para ativar palestrantes como ativos de alcance e prestígio em congressos.</p>
+      <div class="screenshot placeholder">Preview visual omitido nesta versão rápida. A seção abaixo documenta imagens, copy, estrutura e estratégia para reconstrução.</div>
+
+      <div class="metrics">
+        
+  <div class="metric">
+    <b>Público</b>
+    <span>Organizadores, sociedades, eventos patrocinados e equipes de comunicação com corpo docente forte e pouco ativado.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Copy central</b>
+    <span>Transforme palestrantes em ativos de divulgação, autoridade e inscrição.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Papel de negócio</b>
+    <span>Entrada comercial para vender Longecta Congressos, Communication 360, Sponsor Report e Event Brain.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Altura capturada</b>
+    <span>captura ao vivo ignoradapx de página renderizada</span>
+  </div>
+
+      </div>
+
+      <h3>Estratégia da página</h3>
+      <p>Produto simples de entender, fácil de aprovar e com impacto visível. Resolve uma dor clara: palestrantes subutilizados.</p>
+
+      <h3>Estrutura para reconstrução</h3>
+      <ul><li>Hero com promessa direta para palestrantes.</li><li>Benefícios para speaker, congresso e audiência.</li><li>Workflow de coleta, kit, aprovação, publicação e legado.</li><li>Entregáveis: cards, mini bio, legendas, LinkedIn, stories e hub.</li><li>Comparação antes/depois e CTA para diagnóstico.</li></ul>
+
+      <h3>Imagens e linguagem visual</h3>
+      <ul><li>longecta-speakers-hero.jpg</li><li>longecta-speakers-audience.jpg</li><li>longecta-speakers-backstage.jpg</li></ul>
+
+      <h3>Como reconstruir se o site for perdido</h3>
+      <ul><li>Manter foco em kit por palestrante.</li><li>Listar entregáveis compartilháveis.</li><li>Mostrar workflow operacional por status.</li></ul>
+
+      <div class="two-col">
+        <div>
+          <h3>Headings encontrados</h3>
+          <ul><li>H1: Hero com promessa direta para palestrantes.</li><li>H2: Benefícios para speaker, congresso e audiência.</li><li>H2: Workflow de coleta, kit, aprovação, publicação e legado.</li><li>H2: Entregáveis: cards, mini bio, legendas, LinkedIn, stories e hub.</li><li>H2: Comparação antes/depois e CTA para diagnóstico.</li></ul>
+        </div>
+        <div>
+          <h3>CTAs e navegação</h3>
+          <ul><li>Diagnóstico</li><li>Entrar em contato</li><li>Ver solução relacionada</li></ul>
+        </div>
+      </div>
+
+      <h3>Arquivos de imagem usados na página</h3>
+      <ul><li>longecta-speakers-hero.jpg</li><li>longecta-speakers-audience.jpg</li><li>longecta-speakers-backstage.jpg</li></ul>
+
+      <h3>Amostra textual extraída</h3>
+      <p class="sample">Transforme palestrantes em ativos de divulgação, autoridade e inscrição. Produto de entrada para ativar palestrantes como ativos de alcance e prestígio em congressos. Produto simples de entender, fácil de aprovar e com impacto visível. Resolve uma dor clara: palestrantes subutilizados.</p>
+    </section>
+  
+    <section class="page-section">
+      <div class="page-kicker">11 · Longecta</div>
+      <h2>Longecta para Palestrantes</h2>
+      <p class="lead">Página para posicionar médicos palestrantes como marcas científicas de alto valor.</p>
+      <div class="screenshot placeholder">Preview visual omitido nesta versão rápida. A seção abaixo documenta imagens, copy, estrutura e estratégia para reconstrução.</div>
+
+      <div class="metrics">
+        
+  <div class="metric">
+    <b>Público</b>
+    <span>Speakers médicos, professores, moderadores e especialistas que desejam mais convites, presença e materiais profissionais.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Copy central</b>
+    <span>Transforme palestrantes médicos em marcas científicas de alto valor.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Papel de negócio</b>
+    <span>Captar médicos individuais e também vender solução para congressos que precisam valorizar corpo docente.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Altura capturada</b>
+    <span>captura ao vivo ignoradapx de página renderizada</span>
+  </div>
+
+      </div>
+
+      <h3>Estratégia da página</h3>
+      <p>A página amplia o Speaker Kit para uma solução de posicionamento pessoal, ativos comerciais e presença antes/depois do palco.</p>
+
+      <h3>Estrutura para reconstrução</h3>
+      <ul><li>Hero com imagem de palestrante e promessa de marca científica.</li><li>Problemas de apresentação pública fraca.</li><li>Sistema: posicionamento, perfil executivo, kit de congresso e ativos comerciais.</li><li>Fluxo de diagnóstico, território, ativos e distribuição.</li><li>Entregáveis e CTA para diagnóstico.</li></ul>
+
+      <h3>Imagens e linguagem visual</h3>
+      <ul><li>longecta-speakers-hero.jpg</li><li>longecta-speakers-backstage.jpg</li><li>longecta-speakers-audience.jpg</li></ul>
+
+      <h3>Como reconstruir se o site for perdido</h3>
+      <ul><li>Preservar tese de speaker como ativo.</li><li>Explicar diferença entre nome forte e apresentação forte.</li><li>Conectar com Publicity e Congressos.</li></ul>
+
+      <div class="two-col">
+        <div>
+          <h3>Headings encontrados</h3>
+          <ul><li>H1: Hero com imagem de palestrante e promessa de marca científica.</li><li>H2: Problemas de apresentação pública fraca.</li><li>H2: Sistema: posicionamento, perfil executivo, kit de congresso e ativos comerciais.</li><li>H2: Fluxo de diagnóstico, território, ativos e distribuição.</li><li>H2: Entregáveis e CTA para diagnóstico.</li></ul>
+        </div>
+        <div>
+          <h3>CTAs e navegação</h3>
+          <ul><li>Diagnóstico</li><li>Entrar em contato</li><li>Ver solução relacionada</li></ul>
+        </div>
+      </div>
+
+      <h3>Arquivos de imagem usados na página</h3>
+      <ul><li>longecta-speakers-hero.jpg</li><li>longecta-speakers-backstage.jpg</li><li>longecta-speakers-audience.jpg</li></ul>
+
+      <h3>Amostra textual extraída</h3>
+      <p class="sample">Transforme palestrantes médicos em marcas científicas de alto valor. Página para posicionar médicos palestrantes como marcas científicas de alto valor. A página amplia o Speaker Kit para uma solução de posicionamento pessoal, ativos comerciais e presença antes/depois do palco.</p>
+    </section>
+  
+    <section class="page-section">
+      <div class="page-kicker">12 · Longecta</div>
+      <h2>Longecta para Patrocinadores</h2>
+      <p class="lead">Página para elevar a percepção de patrocinadores em sites, materiais, redes e pós-evento.</p>
+      <div class="screenshot placeholder">Preview visual omitido nesta versão rápida. A seção abaixo documenta imagens, copy, estrutura e estratégia para reconstrução.</div>
+
+      <div class="metrics">
+        
+  <div class="metric">
+    <b>Público</b>
+    <span>Organizadores de congressos e equipes comerciais que precisam vender, valorizar e renovar patrocínios.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Copy central</b>
+    <span>Patrocinador precisa ser percebido como parte do valor científico.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Papel de negócio</b>
+    <span>Gerar demanda para Sponsor Visibility Kit, Materiais, Sponsor Report e Congress Communication.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Altura capturada</b>
+    <span>captura ao vivo ignoradapx de página renderizada</span>
+  </div>
+
+      </div>
+
+      <h3>Estratégia da página</h3>
+      <p>Mostrar que patrocínio bom é contexto, não poluição visual. A marca aparece melhor quando conectada à programação, palestrantes e legado.</p>
+
+      <h3>Estrutura para reconstrução</h3>
+      <ul><li>Hero com promessa de patrocinador como valor científico.</li><li>Tese: patrocinador sustenta o congresso, speaker sustenta atenção.</li><li>Sistema de percepção para site, materiais, redes e relatório.</li><li>Mapa de presença por ponto de contato.</li><li>CTA para diagnóstico e kit de visibilidade.</li></ul>
+
+      <h3>Imagens e linguagem visual</h3>
+      <ul><li>longecta-sponsors-hero.jpg</li><li>longecta-sponsors-materials.jpg</li></ul>
+
+      <h3>Como reconstruir se o site for perdido</h3>
+      <ul><li>Preservar tese de contexto científico.</li><li>Listar pontos de presença.</li><li>Conectar com Materials e Sponsor Visibility Kit.</li></ul>
+
+      <div class="two-col">
+        <div>
+          <h3>Headings encontrados</h3>
+          <ul><li>H1: Hero com promessa de patrocinador como valor científico.</li><li>H2: Tese: patrocinador sustenta o congresso, speaker sustenta atenção.</li><li>H2: Sistema de percepção para site, materiais, redes e relatório.</li><li>H2: Mapa de presença por ponto de contato.</li><li>H2: CTA para diagnóstico e kit de visibilidade.</li></ul>
+        </div>
+        <div>
+          <h3>CTAs e navegação</h3>
+          <ul><li>Diagnóstico</li><li>Entrar em contato</li><li>Ver solução relacionada</li></ul>
+        </div>
+      </div>
+
+      <h3>Arquivos de imagem usados na página</h3>
+      <ul><li>longecta-sponsors-hero.jpg</li><li>longecta-sponsors-materials.jpg</li></ul>
+
+      <h3>Amostra textual extraída</h3>
+      <p class="sample">Patrocinador precisa ser percebido como parte do valor científico. Página para elevar a percepção de patrocinadores em sites, materiais, redes e pós-evento. Mostrar que patrocínio bom é contexto, não poluição visual. A marca aparece melhor quando conectada à programação, palestrantes e legado.</p>
+    </section>
+  
+    <section class="page-section">
+      <div class="page-kicker">13 · Longecta</div>
+      <h2>Sponsor Visibility Kit</h2>
+      <p class="lead">Página de pacote operacional para organizar entregas de visibilidade de patrocinadores antes, durante e depois do evento.</p>
+      <div class="screenshot placeholder">Preview visual omitido nesta versão rápida. A seção abaixo documenta imagens, copy, estrutura e estratégia para reconstrução.</div>
+
+      <div class="metrics">
+        
+  <div class="metric">
+    <b>Público</b>
+    <span>Organizadores e equipes comerciais que precisam demonstrar valor entregue a patrocinadores.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Copy central</b>
+    <span>Um kit para transformar presença de patrocinador em percepção, entrega e prova.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Papel de negócio</b>
+    <span>Produto vendável de escopo claro, com upsell natural para Materiais, Sponsor Report e Congressos.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Altura capturada</b>
+    <span>captura ao vivo ignoradapx de página renderizada</span>
+  </div>
+
+      </div>
+
+      <h3>Estratégia da página</h3>
+      <p>Tangibilizar o valor do patrocinador em entregáveis concretos: site, materiais, redes, ativações e relatório.</p>
+
+      <h3>Estrutura para reconstrução</h3>
+      <ul><li>Hero com promessa de kit de visibilidade.</li><li>Descrição de entregas por canal.</li><li>Antes/durante/depois do evento.</li><li>Checklist de peças e relatório.</li><li>CTA para diagnóstico de patrocinadores.</li></ul>
+
+      <h3>Imagens e linguagem visual</h3>
+      <ul><li>longecta-sponsors-hero.jpg</li><li>longecta-sponsors-materials.jpg</li></ul>
+
+      <h3>Como reconstruir se o site for perdido</h3>
+      <ul><li>Manter formato de kit com entregáveis.</li><li>Explicar canais e momentos.</li><li>Evidenciar relatório pós-evento.</li></ul>
+
+      <div class="two-col">
+        <div>
+          <h3>Headings encontrados</h3>
+          <ul><li>H1: Hero com promessa de kit de visibilidade.</li><li>H2: Descrição de entregas por canal.</li><li>H2: Antes/durante/depois do evento.</li><li>H2: Checklist de peças e relatório.</li><li>H2: CTA para diagnóstico de patrocinadores.</li></ul>
+        </div>
+        <div>
+          <h3>CTAs e navegação</h3>
+          <ul><li>Diagnóstico</li><li>Entrar em contato</li><li>Ver solução relacionada</li></ul>
+        </div>
+      </div>
+
+      <h3>Arquivos de imagem usados na página</h3>
+      <ul><li>longecta-sponsors-hero.jpg</li><li>longecta-sponsors-materials.jpg</li></ul>
+
+      <h3>Amostra textual extraída</h3>
+      <p class="sample">Um kit para transformar presença de patrocinador em percepção, entrega e prova. Página de pacote operacional para organizar entregas de visibilidade de patrocinadores antes, durante e depois do evento. Tangibilizar o valor do patrocinador em entregáveis concretos: site, materiais, redes, ativações e relatório.</p>
+    </section>
+  
+    <section class="page-section">
+      <div class="page-kicker">14 · Longecta Academy</div>
+      <h2>Doctor Next Level</h2>
+      <p class="lead">Página de lançamento do curso e plataforma para médicos aprenderem o mercado de congressos, cursos, palestras, autoridade e receita educacional.</p>
+      <div class="screenshot placeholder">Preview visual omitido nesta versão rápida. A seção abaixo documenta imagens, copy, estrutura e estratégia para reconstrução.</div>
+
+      <div class="metrics">
+        
+  <div class="metric">
+    <b>Público</b>
+    <span>Médicos especialistas, professores, preceptores, palestrantes e donos de cursos que querem fazer nome e gerar novas oportunidades.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Copy central</b>
+    <span>O curso para médicos que querem dominar congressos, cursos e autoridade científica.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Papel de negócio</b>
+    <span>Produto escalável de curso/plataforma, capaz de gerar receita direta, educar o mercado e nutrir leads para Publicity, Congressos e Systems.</span>
+  </div>
+
+        
+  <div class="metric">
+    <b>Altura capturada</b>
+    <span>captura ao vivo ignoradapx de página renderizada</span>
+  </div>
+
+      </div>
+
+      <h3>Estratégia da página</h3>
+      <p>Criar uma nova frente educacional da Longecta. Em vez de vender apenas serviço, a marca ensina médicos a enxergar e atuar no mercado de educação médica.</p>
+
+      <h3>Estrutura para reconstrução</h3>
+      <ul><li>Hero com médico em palco e promessa de próximo nível.</li><li>Seção de mercado invisível da educação médica.</li><li>Oportunidades: congressos, cursos, palestras e marca médica.</li><li>Currículo com 8 módulos.</li><li>Plataforma com aulas, templates, playbooks e exemplos.</li><li>Mapa de valor, perfis de aluno, diferenciais e lista de interesse.</li></ul>
+
+      <h3>Imagens e linguagem visual</h3>
+      <ul><li>doctor-next-level-hero.png</li><li>doctor-next-level-platform.png</li></ul>
+
+      <h3>Como reconstruir se o site for perdido</h3>
+      <ul><li>Preservar os 8 módulos do curso.</li><li>Explicar que é curso + plataforma.</li><li>Conectar com Longecta Publicity, Congressos e Método.</li></ul>
+
+      <div class="two-col">
+        <div>
+          <h3>Headings encontrados</h3>
+          <ul><li>H1: Hero com médico em palco e promessa de próximo nível.</li><li>H2: Seção de mercado invisível da educação médica.</li><li>H2: Oportunidades: congressos, cursos, palestras e marca médica.</li><li>H2: Currículo com 8 módulos.</li><li>H2: Plataforma com aulas, templates, playbooks e exemplos.</li><li>H2: Mapa de valor, perfis de aluno, diferenciais e lista de interesse.</li></ul>
+        </div>
+        <div>
+          <h3>CTAs e navegação</h3>
+          <ul><li>Diagnóstico</li><li>Entrar em contato</li><li>Ver solução relacionada</li></ul>
+        </div>
+      </div>
+
+      <h3>Arquivos de imagem usados na página</h3>
+      <ul><li>doctor-next-level-hero.png</li><li>doctor-next-level-platform.png</li></ul>
+
+      <h3>Amostra textual extraída</h3>
+      <p class="sample">O curso para médicos que querem dominar congressos, cursos e autoridade científica. Página de lançamento do curso e plataforma para médicos aprenderem o mercado de congressos, cursos, palestras, autoridade e receita educacional. Criar uma nova frente educacional da Longecta. Em vez de vender apenas serviço, a marca ensina médicos a enxergar e atuar no mercado de educação médica.</p>
+    </section>
+  
+</body>
+</html>

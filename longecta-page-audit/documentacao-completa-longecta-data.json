@@ -1,0 +1,994 @@
+[
+  {
+    "id": "planos",
+    "path": "/planos",
+    "name": "Planos Lon Suite",
+    "family": "Lon Suite",
+    "purpose": "Página comercial de conversão para a plataforma Lon Suite, apresentando planos, valor percebido, segurança e proposta de assinatura.",
+    "audience": "Médicos, clínicas e equipes que precisam organizar acervo científico, imagens, PDFs, casos e materiais com IA e governança.",
+    "centralCopy": "A memória científica da prática vira patrimônio organizado, pesquisável e pronto para produzir casos, aulas e materiais.",
+    "strategy": "Funciona como página de monetização da plataforma. Ela traduz tecnologia em valor médico: organização, segurança, inteligência, produtividade e continuidade.",
+    "businessRole": "Converter interesse em assinatura ou conversa comercial, além de separar o produto Lon Suite das frentes de serviço Longecta.",
+    "structure": [
+      "Hero com promessa de patrimônio científico e CTA para planos.",
+      "Blocos de benefícios ligados a acervo, busca, casos e segurança.",
+      "Tabela ou cards de planos com hierarquia de valor.",
+      "Seções de confiança, uso médico e diferenciação contra arquivos soltos.",
+      "Fechamento com chamada para entrada na plataforma."
+    ],
+    "assets": [
+      "Imagens editoriais de médicos usando laptop, celular e acervo científico.",
+      "Mockups visuais de plataforma e contexto clínico premium."
+    ],
+    "rebuild": [
+      "Manter uma promessa simples: acervo médico organizado com IA.",
+      "Preservar comparação entre planos e diferenciais por perfil de uso.",
+      "Conectar sempre com segurança, busca e produção científica."
+    ],
+    "title": "Planos Lon Suite",
+    "height": "captura ao vivo ignorada",
+    "headings": [
+      {
+        "level": "H1",
+        "text": "Hero com promessa de patrimônio científico e CTA para planos."
+      },
+      {
+        "level": "H2",
+        "text": "Blocos de benefícios ligados a acervo, busca, casos e segurança."
+      },
+      {
+        "level": "H2",
+        "text": "Tabela ou cards de planos com hierarquia de valor."
+      },
+      {
+        "level": "H2",
+        "text": "Seções de confiança, uso médico e diferenciação contra arquivos soltos."
+      },
+      {
+        "level": "H2",
+        "text": "Fechamento com chamada para entrada na plataforma."
+      }
+    ],
+    "ctas": [
+      "Diagnóstico",
+      "Entrar em contato",
+      "Ver solução relacionada"
+    ],
+    "images": [
+      {
+        "src": "Imagens editoriais de médicos usando laptop, celular e acervo científico.",
+        "alt": ""
+      },
+      {
+        "src": "Mockups visuais de plataforma e contexto clínico premium.",
+        "alt": ""
+      }
+    ],
+    "bodySample": "A memória científica da prática vira patrimônio organizado, pesquisável e pronto para produzir casos, aulas e materiais. Página comercial de conversão para a plataforma Lon Suite, apresentando planos, valor percebido, segurança e proposta de assinatura. Funciona como página de monetização da plataforma. Ela traduz tecnologia em valor médico: organização, segurança, inteligência, produtividade e continuidade.",
+    "screenshotPath": ""
+  },
+  {
+    "id": "detalhes-planos",
+    "path": "/detalhes-dos-planos",
+    "name": "Detalhes dos Planos",
+    "family": "Lon Suite",
+    "purpose": "Página de aprofundamento para explicar o que está por trás dos planos e reduzir objeções antes da assinatura.",
+    "audience": "Usuários que já entenderam o produto, mas precisam justificar valor, segurança, escopo e benefícios antes de contratar.",
+    "centralCopy": "Não é armazenamento de arquivos: é uma estrutura para transformar acervo em inteligência, produção e memória científica.",
+    "strategy": "Educar a decisão. A página aumenta confiança, explica camadas do produto e prepara o usuário para escolher plano com menos dúvida.",
+    "businessRole": "Reduzir fricção no fechamento, apoiar vendas consultivas e servir como material explicativo para leads mais racionais.",
+    "structure": [
+      "Explicação ampliada sobre acervo, segurança e inteligência.",
+      "Detalhamento de recursos e casos de uso.",
+      "Blocos de comparação contra processos manuais.",
+      "Perguntas e objeções frequentes.",
+      "CTA de retorno aos planos."
+    ],
+    "assets": [
+      "Imagens de médicos, tecnologia e organização científica.",
+      "Elementos visuais de confiança, segurança e produtividade."
+    ],
+    "rebuild": [
+      "Explicar recursos em linguagem de resultado, não de feature.",
+      "Repetir o vínculo entre acervo organizado e produção científica.",
+      "Manter ponte clara para a página de planos."
+    ],
+    "title": "Detalhes dos Planos",
+    "height": "captura ao vivo ignorada",
+    "headings": [
+      {
+        "level": "H1",
+        "text": "Explicação ampliada sobre acervo, segurança e inteligência."
+      },
+      {
+        "level": "H2",
+        "text": "Detalhamento de recursos e casos de uso."
+      },
+      {
+        "level": "H2",
+        "text": "Blocos de comparação contra processos manuais."
+      },
+      {
+        "level": "H2",
+        "text": "Perguntas e objeções frequentes."
+      },
+      {
+        "level": "H2",
+        "text": "CTA de retorno aos planos."
+      }
+    ],
+    "ctas": [
+      "Diagnóstico",
+      "Entrar em contato",
+      "Ver solução relacionada"
+    ],
+    "images": [
+      {
+        "src": "Imagens de médicos, tecnologia e organização científica.",
+        "alt": ""
+      },
+      {
+        "src": "Elementos visuais de confiança, segurança e produtividade.",
+        "alt": ""
+      }
+    ],
+    "bodySample": "Não é armazenamento de arquivos: é uma estrutura para transformar acervo em inteligência, produção e memória científica. Página de aprofundamento para explicar o que está por trás dos planos e reduzir objeções antes da assinatura. Educar a decisão. A página aumenta confiança, explica camadas do produto e prepara o usuário para escolher plano com menos dúvida.",
+    "screenshotPath": ""
+  },
+  {
+    "id": "solucoes",
+    "path": "/solucoes",
+    "name": "Nossas Soluções",
+    "family": "Longecta",
+    "purpose": "Hub comercial da Longecta. Organiza o portfólio por contexto de compra: médico, clínica e congresso.",
+    "audience": "Médicos especialistas, clínicas, coordenadores científicos, sociedades e organizadores que ainda não sabem qual frente contratar.",
+    "centralCopy": "Um portfólio para cada forma de autoridade médica.",
+    "strategy": "A página não vende uma peça isolada. Ela apresenta a Longecta como operação híbrida de plataforma, serviço, curadoria, design e inteligência.",
+    "businessRole": "Roteador de demanda e qualificação. Deve levar o visitante para Método, Congressos, Speaker Kit, Materiais ou planos conforme o objetivo.",
+    "structure": [
+      "Hero de portfólio com promessa de autoridade médica.",
+      "Três entradas principais: Para você, Para sua clínica e Para seu congresso.",
+      "Explicação do modelo híbrido por camadas.",
+      "Cards de soluções por segmento e CTAs específicos.",
+      "Bloco final de escolha do ponto de partida."
+    ],
+    "assets": [
+      "longecta-solutions-you.png",
+      "longecta-solutions-clinic.png",
+      "longecta-solutions-congress.png"
+    ],
+    "rebuild": [
+      "Recriar os três caminhos comerciais.",
+      "Listar produtos como módulos com objetivo e melhor uso.",
+      "Preservar a tese de plataforma + serviço + inteligência."
+    ],
+    "title": "Nossas Soluções",
+    "height": "captura ao vivo ignorada",
+    "headings": [
+      {
+        "level": "H1",
+        "text": "Hero de portfólio com promessa de autoridade médica."
+      },
+      {
+        "level": "H2",
+        "text": "Três entradas principais: Para você, Para sua clínica e Para seu congresso."
+      },
+      {
+        "level": "H2",
+        "text": "Explicação do modelo híbrido por camadas."
+      },
+      {
+        "level": "H2",
+        "text": "Cards de soluções por segmento e CTAs específicos."
+      },
+      {
+        "level": "H2",
+        "text": "Bloco final de escolha do ponto de partida."
+      }
+    ],
+    "ctas": [
+      "Diagnóstico",
+      "Entrar em contato",
+      "Ver solução relacionada"
+    ],
+    "images": [
+      {
+        "src": "longecta-solutions-you.png",
+        "alt": ""
+      },
+      {
+        "src": "longecta-solutions-clinic.png",
+        "alt": ""
+      },
+      {
+        "src": "longecta-solutions-congress.png",
+        "alt": ""
+      }
+    ],
+    "bodySample": "Um portfólio para cada forma de autoridade médica. Hub comercial da Longecta. Organiza o portfólio por contexto de compra: médico, clínica e congresso. A página não vende uma peça isolada. Ela apresenta a Longecta como operação híbrida de plataforma, serviço, curadoria, design e inteligência.",
+    "screenshotPath": ""
+  },
+  {
+    "id": "materiais",
+    "path": "/materiais",
+    "name": "Materiais Longecta",
+    "family": "Longecta",
+    "purpose": "Mostruário visual e prova de execução para materiais físicos, cenografia, palco, estandes, sinalização e kit técnico.",
+    "audience": "Organizadores de eventos, sociedades médicas, patrocinadores, produtoras e decisores que precisam visualizar padrão premium.",
+    "centralCopy": "Mostruário visual para ambientes científicos premium.",
+    "strategy": "Reposicionar “artes” como sistema visual de ambiente científico. Isso protege margem e mostra que a Longecta atua entre estratégia, design e produção.",
+    "businessRole": "Reduzir risco percebido e vender pacotes visuais de evento, sponsor e palco sem assumir impressão, montagem ou marcenaria.",
+    "structure": [
+      "Hero focado em materiais e ambientes premium.",
+      "Mostruário com exemplos de sistema de peças, palco e estande.",
+      "Lista de serviços: cenografia, 3D, totens, patrocinadores e kit técnico.",
+      "Processo do briefing técnico aos arquivos finais.",
+      "Valor agregado: percepção, aprovação, consistência e redução de improviso."
+    ],
+    "assets": [
+      "longecta-materials-stage.png",
+      "longecta-materials-stand.png",
+      "longecta-materials-system.png"
+    ],
+    "rebuild": [
+      "Declarar o que a Longecta faz e o que não faz.",
+      "Mostrar processo técnico para fornecedores.",
+      "Usar imagens grandes para prova visual."
+    ],
+    "title": "Materiais Longecta",
+    "height": "captura ao vivo ignorada",
+    "headings": [
+      {
+        "level": "H1",
+        "text": "Hero focado em materiais e ambientes premium."
+      },
+      {
+        "level": "H2",
+        "text": "Mostruário com exemplos de sistema de peças, palco e estande."
+      },
+      {
+        "level": "H2",
+        "text": "Lista de serviços: cenografia, 3D, totens, patrocinadores e kit técnico."
+      },
+      {
+        "level": "H2",
+        "text": "Processo do briefing técnico aos arquivos finais."
+      },
+      {
+        "level": "H2",
+        "text": "Valor agregado: percepção, aprovação, consistência e redução de improviso."
+      }
+    ],
+    "ctas": [
+      "Diagnóstico",
+      "Entrar em contato",
+      "Ver solução relacionada"
+    ],
+    "images": [
+      {
+        "src": "longecta-materials-stage.png",
+        "alt": ""
+      },
+      {
+        "src": "longecta-materials-stand.png",
+        "alt": ""
+      },
+      {
+        "src": "longecta-materials-system.png",
+        "alt": ""
+      }
+    ],
+    "bodySample": "Mostruário visual para ambientes científicos premium. Mostruário visual e prova de execução para materiais físicos, cenografia, palco, estandes, sinalização e kit técnico. Reposicionar “artes” como sistema visual de ambiente científico. Isso protege margem e mostra que a Longecta atua entre estratégia, design e produção.",
+    "screenshotPath": ""
+  },
+  {
+    "id": "publicity",
+    "path": "/publicity",
+    "name": "Longecta Publicity",
+    "family": "Longecta",
+    "purpose": "Página premium para captação, autoridade pública e posicionamento de líderes médicos, cursos, congressos e sociedades.",
+    "audience": "Médicos palestrantes, donos de cursos, donos de congressos, sociedades médicas e lideranças que precisam captar com autoridade.",
+    "centralCopy": "A estrutura premium para líderes médicos captarem com autoridade.",
+    "strategy": "Criar uma categoria acima de marketing: publicity médico estratégico. A página vende sistema de percepção e captação, não posts.",
+    "businessRole": "Abrir conversas consultivas de alto valor para cursos, congressos, palestrantes e sociedades médicas.",
+    "structure": [
+      "Hero black premium com promessa de captação e autoridade.",
+      "Públicos-alvo: palestrantes, cursos, congressos e sociedades.",
+      "Sistema em quatro camadas: estratégia, plataforma, design e execução.",
+      "Lista de entregáveis executivos.",
+      "Diagnóstico e download de dossiê executivo."
+    ],
+    "assets": [
+      "longecta-publicity-product-black.png",
+      "longecta-publicity-doctor-phone.png",
+      "longecta-publicity-congress-stage.png",
+      "longecta-publicity-strategy-room.png"
+    ],
+    "rebuild": [
+      "Manter estética black premium.",
+      "Preservar frase “não vendemos posts”.",
+      "Conectar captação com produto, serviço, consultoria e plataforma."
+    ],
+    "title": "Longecta Publicity",
+    "height": "captura ao vivo ignorada",
+    "headings": [
+      {
+        "level": "H1",
+        "text": "Hero black premium com promessa de captação e autoridade."
+      },
+      {
+        "level": "H2",
+        "text": "Públicos-alvo: palestrantes, cursos, congressos e sociedades."
+      },
+      {
+        "level": "H2",
+        "text": "Sistema em quatro camadas: estratégia, plataforma, design e execução."
+      },
+      {
+        "level": "H2",
+        "text": "Lista de entregáveis executivos."
+      },
+      {
+        "level": "H2",
+        "text": "Diagnóstico e download de dossiê executivo."
+      }
+    ],
+    "ctas": [
+      "Diagnóstico",
+      "Entrar em contato",
+      "Ver solução relacionada"
+    ],
+    "images": [
+      {
+        "src": "longecta-publicity-product-black.png",
+        "alt": ""
+      },
+      {
+        "src": "longecta-publicity-doctor-phone.png",
+        "alt": ""
+      },
+      {
+        "src": "longecta-publicity-congress-stage.png",
+        "alt": ""
+      },
+      {
+        "src": "longecta-publicity-strategy-room.png",
+        "alt": ""
+      }
+    ],
+    "bodySample": "A estrutura premium para líderes médicos captarem com autoridade. Página premium para captação, autoridade pública e posicionamento de líderes médicos, cursos, congressos e sociedades. Criar uma categoria acima de marketing: publicity médico estratégico. A página vende sistema de percepção e captação, não posts.",
+    "screenshotPath": ""
+  },
+  {
+    "id": "systems",
+    "path": "/systems",
+    "name": "Longecta Systems",
+    "family": "Longecta",
+    "purpose": "Página para vender sistemas, plataformas, integrações e IA aplicada a operações médicas premium.",
+    "audience": "Congressos, cursos, comunidades, sociedades médicas e operações que precisam de tecnologia sob medida ou módulos prontos.",
+    "centralCopy": "Sistemas sob medida para negócios médicos de alto valor.",
+    "strategy": "Mostrar que a Longecta começa pelo negócio, não pelo código. A tecnologia aparece como consequência de arquitetura, diagnóstico e operação real.",
+    "businessRole": "Captar projetos de plataforma, portal, área de membros, CRM, dashboard, IA e integração.",
+    "structure": [
+      "Hero black premium com promessa de sistemas para negócios médicos.",
+      "Públicos e necessidades: congressos, cursos, sociedades e operações premium.",
+      "Modos de solução: produto pronto, sob medida, integrações e IA aplicada.",
+      "Processo de diagnóstico, arquitetura, protótipo, desenvolvimento e implantação.",
+      "CTA para diagnóstico Longecta Systems."
+    ],
+    "assets": [
+      "longecta-systems-hero.png",
+      "longecta-systems-command.png",
+      "longecta-systems-workshop.png"
+    ],
+    "rebuild": [
+      "Preservar tese “não começamos pelo código”.",
+      "Explicar modalidades de produto pronto e sistema sob medida.",
+      "Usar visual escuro para tecnologia premium."
+    ],
+    "title": "Longecta Systems",
+    "height": "captura ao vivo ignorada",
+    "headings": [
+      {
+        "level": "H1",
+        "text": "Hero black premium com promessa de sistemas para negócios médicos."
+      },
+      {
+        "level": "H2",
+        "text": "Públicos e necessidades: congressos, cursos, sociedades e operações premium."
+      },
+      {
+        "level": "H2",
+        "text": "Modos de solução: produto pronto, sob medida, integrações e IA aplicada."
+      },
+      {
+        "level": "H2",
+        "text": "Processo de diagnóstico, arquitetura, protótipo, desenvolvimento e implantação."
+      },
+      {
+        "level": "H2",
+        "text": "CTA para diagnóstico Longecta Systems."
+      }
+    ],
+    "ctas": [
+      "Diagnóstico",
+      "Entrar em contato",
+      "Ver solução relacionada"
+    ],
+    "images": [
+      {
+        "src": "longecta-systems-hero.png",
+        "alt": ""
+      },
+      {
+        "src": "longecta-systems-command.png",
+        "alt": ""
+      },
+      {
+        "src": "longecta-systems-workshop.png",
+        "alt": ""
+      }
+    ],
+    "bodySample": "Sistemas sob medida para negócios médicos de alto valor. Página para vender sistemas, plataformas, integrações e IA aplicada a operações médicas premium. Mostrar que a Longecta começa pelo negócio, não pelo código. A tecnologia aparece como consequência de arquitetura, diagnóstico e operação real.",
+    "screenshotPath": ""
+  },
+  {
+    "id": "progress",
+    "path": "/progress",
+    "name": "Longecta Progress",
+    "family": "Longecta",
+    "purpose": "Página de timeline para explicar a experiência Longecta do diagnóstico ao próximo ciclo de crescimento.",
+    "audience": "Leads que precisam entender processo, sequência, etapas e como a Longecta acompanha evolução de projetos.",
+    "centralCopy": "A experiência Longecta organizada como progresso estratégico.",
+    "strategy": "Transformar serviço consultivo em jornada visual. A página reduz incerteza sobre “como funciona” e reforça continuidade.",
+    "businessRole": "Apoiar vendas consultivas, onboarding e entendimento do método de trabalho.",
+    "structure": [
+      "Hero com promessa de evolução.",
+      "Linha do tempo da entrada ao próximo ciclo.",
+      "Etapas de diagnóstico, estratégia, execução, aprovação e memória.",
+      "Blocos de valor para o cliente entender cadência.",
+      "CTAs para Método, Soluções, Congressos e Planos."
+    ],
+    "assets": [
+      "Elementos infográficos, timeline e cards de progresso."
+    ],
+    "rebuild": [
+      "Recriar uma timeline clara.",
+      "Mostrar entregas por fase.",
+      "Conectar jornada com Método Longecta."
+    ],
+    "title": "Longecta Progress",
+    "height": "captura ao vivo ignorada",
+    "headings": [
+      {
+        "level": "H1",
+        "text": "Hero com promessa de evolução."
+      },
+      {
+        "level": "H2",
+        "text": "Linha do tempo da entrada ao próximo ciclo."
+      },
+      {
+        "level": "H2",
+        "text": "Etapas de diagnóstico, estratégia, execução, aprovação e memória."
+      },
+      {
+        "level": "H2",
+        "text": "Blocos de valor para o cliente entender cadência."
+      },
+      {
+        "level": "H2",
+        "text": "CTAs para Método, Soluções, Congressos e Planos."
+      }
+    ],
+    "ctas": [
+      "Diagnóstico",
+      "Entrar em contato",
+      "Ver solução relacionada"
+    ],
+    "images": [
+      {
+        "src": "Elementos infográficos, timeline e cards de progresso.",
+        "alt": ""
+      }
+    ],
+    "bodySample": "A experiência Longecta organizada como progresso estratégico. Página de timeline para explicar a experiência Longecta do diagnóstico ao próximo ciclo de crescimento. Transformar serviço consultivo em jornada visual. A página reduz incerteza sobre “como funciona” e reforça continuidade.",
+    "screenshotPath": ""
+  },
+  {
+    "id": "metodo",
+    "path": "/metodo",
+    "name": "Método Longecta",
+    "family": "Longecta",
+    "purpose": "Página-mãe de posicionamento da Longecta como estrutura híbrida de autoridade médica.",
+    "audience": "Médicos, clínicas, professores, palestrantes, instituições e eventos com repertório disperso e pouco reaproveitado.",
+    "centralCopy": "Transformamos conhecimento médico em autoridade pública, presença e crescimento.",
+    "strategy": "Criar categoria. A Longecta não é apenas software, agência ou IA: é uma operação de acervo, curadoria, design, serviço e inteligência.",
+    "businessRole": "Elevar preço percebido, justificar recorrência e educar o mercado para produtos modulares.",
+    "structure": [
+      "Hero conceitual com promessa de autoridade.",
+      "Problema: repertório disperso e valor invisível.",
+      "Pilares: plataforma, serviço e inteligência contextual.",
+      "Método em etapas: envio, organização, IA, acabamento, aprovação e memória.",
+      "Diferenciação contra IA avulsa, Drive e agência tradicional."
+    ],
+    "assets": [
+      "Imagens editoriais de acervo, médico, tecnologia e bastidores."
+    ],
+    "rebuild": [
+      "Preservar a tese de categoria híbrida.",
+      "Explicar claramente as camadas do método.",
+      "Usar como ponte para Congressos e Planos."
+    ],
+    "title": "Método Longecta",
+    "height": "captura ao vivo ignorada",
+    "headings": [
+      {
+        "level": "H1",
+        "text": "Hero conceitual com promessa de autoridade."
+      },
+      {
+        "level": "H2",
+        "text": "Problema: repertório disperso e valor invisível."
+      },
+      {
+        "level": "H2",
+        "text": "Pilares: plataforma, serviço e inteligência contextual."
+      },
+      {
+        "level": "H2",
+        "text": "Método em etapas: envio, organização, IA, acabamento, aprovação e memória."
+      },
+      {
+        "level": "H2",
+        "text": "Diferenciação contra IA avulsa, Drive e agência tradicional."
+      }
+    ],
+    "ctas": [
+      "Diagnóstico",
+      "Entrar em contato",
+      "Ver solução relacionada"
+    ],
+    "images": [
+      {
+        "src": "Imagens editoriais de acervo, médico, tecnologia e bastidores.",
+        "alt": ""
+      }
+    ],
+    "bodySample": "Transformamos conhecimento médico em autoridade pública, presença e crescimento. Página-mãe de posicionamento da Longecta como estrutura híbrida de autoridade médica. Criar categoria. A Longecta não é apenas software, agência ou IA: é uma operação de acervo, curadoria, design, serviço e inteligência.",
+    "screenshotPath": ""
+  },
+  {
+    "id": "congressos",
+    "path": "/congressos",
+    "name": "Longecta Congressos",
+    "family": "Longecta",
+    "purpose": "Landing vertical para transformar congressos médicos em marcas científicas de valor.",
+    "audience": "Organizadores, sociedades, coordenadores científicos, patrocinadores e comissões de congressos médicos.",
+    "centralCopy": "Transformamos congressos médicos em marcas científicas que vendem valor.",
+    "strategy": "Defender a tese “congresso como marca científica”. A página vende planejamento, campanha, patrocinador, experiência e legado.",
+    "businessRole": "Captar tickets maiores e recorrência anual por evento: pré-evento, campanha, operação, relatório e próxima edição.",
+    "structure": [
+      "Hero com imagem de palco e promessa de marca científica.",
+      "Dor: congresso relevante, comunicação abaixo do potencial.",
+      "Linha do tempo T-180 a D+45.",
+      "Pilares: posicionamento, sistema visual, campanha, programa científico, patrocinadores e legado.",
+      "Portfólio de produtos e FAQ."
+    ],
+    "assets": [
+      "longecta-congress-stage.png",
+      "longecta-congress-speaker.png",
+      "longecta-congress-networking.png",
+      "longecta-congress-expo.png"
+    ],
+    "rebuild": [
+      "Recriar timeline T-180 a D+45.",
+      "Manter portfólio de produtos para congressos.",
+      "Vincular patrocinadores, speakers e legado."
+    ],
+    "title": "Longecta Congressos",
+    "height": "captura ao vivo ignorada",
+    "headings": [
+      {
+        "level": "H1",
+        "text": "Hero com imagem de palco e promessa de marca científica."
+      },
+      {
+        "level": "H2",
+        "text": "Dor: congresso relevante, comunicação abaixo do potencial."
+      },
+      {
+        "level": "H2",
+        "text": "Linha do tempo T-180 a D+45."
+      },
+      {
+        "level": "H2",
+        "text": "Pilares: posicionamento, sistema visual, campanha, programa científico, patrocinadores e legado."
+      },
+      {
+        "level": "H2",
+        "text": "Portfólio de produtos e FAQ."
+      }
+    ],
+    "ctas": [
+      "Diagnóstico",
+      "Entrar em contato",
+      "Ver solução relacionada"
+    ],
+    "images": [
+      {
+        "src": "longecta-congress-stage.png",
+        "alt": ""
+      },
+      {
+        "src": "longecta-congress-speaker.png",
+        "alt": ""
+      },
+      {
+        "src": "longecta-congress-networking.png",
+        "alt": ""
+      },
+      {
+        "src": "longecta-congress-expo.png",
+        "alt": ""
+      }
+    ],
+    "bodySample": "Transformamos congressos médicos em marcas científicas que vendem valor. Landing vertical para transformar congressos médicos em marcas científicas de valor. Defender a tese “congresso como marca científica”. A página vende planejamento, campanha, patrocinador, experiência e legado.",
+    "screenshotPath": ""
+  },
+  {
+    "id": "speaker-kit",
+    "path": "/speaker-visibility-kit",
+    "name": "Speaker Visibility Kit",
+    "family": "Longecta",
+    "purpose": "Produto de entrada para ativar palestrantes como ativos de alcance e prestígio em congressos.",
+    "audience": "Organizadores, sociedades, eventos patrocinados e equipes de comunicação com corpo docente forte e pouco ativado.",
+    "centralCopy": "Transforme palestrantes em ativos de divulgação, autoridade e inscrição.",
+    "strategy": "Produto simples de entender, fácil de aprovar e com impacto visível. Resolve uma dor clara: palestrantes subutilizados.",
+    "businessRole": "Entrada comercial para vender Longecta Congressos, Communication 360, Sponsor Report e Event Brain.",
+    "structure": [
+      "Hero com promessa direta para palestrantes.",
+      "Benefícios para speaker, congresso e audiência.",
+      "Workflow de coleta, kit, aprovação, publicação e legado.",
+      "Entregáveis: cards, mini bio, legendas, LinkedIn, stories e hub.",
+      "Comparação antes/depois e CTA para diagnóstico."
+    ],
+    "assets": [
+      "longecta-speakers-hero.jpg",
+      "longecta-speakers-audience.jpg",
+      "longecta-speakers-backstage.jpg"
+    ],
+    "rebuild": [
+      "Manter foco em kit por palestrante.",
+      "Listar entregáveis compartilháveis.",
+      "Mostrar workflow operacional por status."
+    ],
+    "title": "Speaker Visibility Kit",
+    "height": "captura ao vivo ignorada",
+    "headings": [
+      {
+        "level": "H1",
+        "text": "Hero com promessa direta para palestrantes."
+      },
+      {
+        "level": "H2",
+        "text": "Benefícios para speaker, congresso e audiência."
+      },
+      {
+        "level": "H2",
+        "text": "Workflow de coleta, kit, aprovação, publicação e legado."
+      },
+      {
+        "level": "H2",
+        "text": "Entregáveis: cards, mini bio, legendas, LinkedIn, stories e hub."
+      },
+      {
+        "level": "H2",
+        "text": "Comparação antes/depois e CTA para diagnóstico."
+      }
+    ],
+    "ctas": [
+      "Diagnóstico",
+      "Entrar em contato",
+      "Ver solução relacionada"
+    ],
+    "images": [
+      {
+        "src": "longecta-speakers-hero.jpg",
+        "alt": ""
+      },
+      {
+        "src": "longecta-speakers-audience.jpg",
+        "alt": ""
+      },
+      {
+        "src": "longecta-speakers-backstage.jpg",
+        "alt": ""
+      }
+    ],
+    "bodySample": "Transforme palestrantes em ativos de divulgação, autoridade e inscrição. Produto de entrada para ativar palestrantes como ativos de alcance e prestígio em congressos. Produto simples de entender, fácil de aprovar e com impacto visível. Resolve uma dor clara: palestrantes subutilizados.",
+    "screenshotPath": ""
+  },
+  {
+    "id": "palestrantes",
+    "path": "/palestrantes",
+    "name": "Longecta para Palestrantes",
+    "family": "Longecta",
+    "purpose": "Página para posicionar médicos palestrantes como marcas científicas de alto valor.",
+    "audience": "Speakers médicos, professores, moderadores e especialistas que desejam mais convites, presença e materiais profissionais.",
+    "centralCopy": "Transforme palestrantes médicos em marcas científicas de alto valor.",
+    "strategy": "A página amplia o Speaker Kit para uma solução de posicionamento pessoal, ativos comerciais e presença antes/depois do palco.",
+    "businessRole": "Captar médicos individuais e também vender solução para congressos que precisam valorizar corpo docente.",
+    "structure": [
+      "Hero com imagem de palestrante e promessa de marca científica.",
+      "Problemas de apresentação pública fraca.",
+      "Sistema: posicionamento, perfil executivo, kit de congresso e ativos comerciais.",
+      "Fluxo de diagnóstico, território, ativos e distribuição.",
+      "Entregáveis e CTA para diagnóstico."
+    ],
+    "assets": [
+      "longecta-speakers-hero.jpg",
+      "longecta-speakers-backstage.jpg",
+      "longecta-speakers-audience.jpg"
+    ],
+    "rebuild": [
+      "Preservar tese de speaker como ativo.",
+      "Explicar diferença entre nome forte e apresentação forte.",
+      "Conectar com Publicity e Congressos."
+    ],
+    "title": "Longecta para Palestrantes",
+    "height": "captura ao vivo ignorada",
+    "headings": [
+      {
+        "level": "H1",
+        "text": "Hero com imagem de palestrante e promessa de marca científica."
+      },
+      {
+        "level": "H2",
+        "text": "Problemas de apresentação pública fraca."
+      },
+      {
+        "level": "H2",
+        "text": "Sistema: posicionamento, perfil executivo, kit de congresso e ativos comerciais."
+      },
+      {
+        "level": "H2",
+        "text": "Fluxo de diagnóstico, território, ativos e distribuição."
+      },
+      {
+        "level": "H2",
+        "text": "Entregáveis e CTA para diagnóstico."
+      }
+    ],
+    "ctas": [
+      "Diagnóstico",
+      "Entrar em contato",
+      "Ver solução relacionada"
+    ],
+    "images": [
+      {
+        "src": "longecta-speakers-hero.jpg",
+        "alt": ""
+      },
+      {
+        "src": "longecta-speakers-backstage.jpg",
+        "alt": ""
+      },
+      {
+        "src": "longecta-speakers-audience.jpg",
+        "alt": ""
+      }
+    ],
+    "bodySample": "Transforme palestrantes médicos em marcas científicas de alto valor. Página para posicionar médicos palestrantes como marcas científicas de alto valor. A página amplia o Speaker Kit para uma solução de posicionamento pessoal, ativos comerciais e presença antes/depois do palco.",
+    "screenshotPath": ""
+  },
+  {
+    "id": "patrocinadores",
+    "path": "/patrocinadores",
+    "name": "Longecta para Patrocinadores",
+    "family": "Longecta",
+    "purpose": "Página para elevar a percepção de patrocinadores em sites, materiais, redes e pós-evento.",
+    "audience": "Organizadores de congressos e equipes comerciais que precisam vender, valorizar e renovar patrocínios.",
+    "centralCopy": "Patrocinador precisa ser percebido como parte do valor científico.",
+    "strategy": "Mostrar que patrocínio bom é contexto, não poluição visual. A marca aparece melhor quando conectada à programação, palestrantes e legado.",
+    "businessRole": "Gerar demanda para Sponsor Visibility Kit, Materiais, Sponsor Report e Congress Communication.",
+    "structure": [
+      "Hero com promessa de patrocinador como valor científico.",
+      "Tese: patrocinador sustenta o congresso, speaker sustenta atenção.",
+      "Sistema de percepção para site, materiais, redes e relatório.",
+      "Mapa de presença por ponto de contato.",
+      "CTA para diagnóstico e kit de visibilidade."
+    ],
+    "assets": [
+      "longecta-sponsors-hero.jpg",
+      "longecta-sponsors-materials.jpg"
+    ],
+    "rebuild": [
+      "Preservar tese de contexto científico.",
+      "Listar pontos de presença.",
+      "Conectar com Materials e Sponsor Visibility Kit."
+    ],
+    "title": "Longecta para Patrocinadores",
+    "height": "captura ao vivo ignorada",
+    "headings": [
+      {
+        "level": "H1",
+        "text": "Hero com promessa de patrocinador como valor científico."
+      },
+      {
+        "level": "H2",
+        "text": "Tese: patrocinador sustenta o congresso, speaker sustenta atenção."
+      },
+      {
+        "level": "H2",
+        "text": "Sistema de percepção para site, materiais, redes e relatório."
+      },
+      {
+        "level": "H2",
+        "text": "Mapa de presença por ponto de contato."
+      },
+      {
+        "level": "H2",
+        "text": "CTA para diagnóstico e kit de visibilidade."
+      }
+    ],
+    "ctas": [
+      "Diagnóstico",
+      "Entrar em contato",
+      "Ver solução relacionada"
+    ],
+    "images": [
+      {
+        "src": "longecta-sponsors-hero.jpg",
+        "alt": ""
+      },
+      {
+        "src": "longecta-sponsors-materials.jpg",
+        "alt": ""
+      }
+    ],
+    "bodySample": "Patrocinador precisa ser percebido como parte do valor científico. Página para elevar a percepção de patrocinadores em sites, materiais, redes e pós-evento. Mostrar que patrocínio bom é contexto, não poluição visual. A marca aparece melhor quando conectada à programação, palestrantes e legado.",
+    "screenshotPath": ""
+  },
+  {
+    "id": "sponsor-visibility",
+    "path": "/sponsor-visibility-kit",
+    "name": "Sponsor Visibility Kit",
+    "family": "Longecta",
+    "purpose": "Página de pacote operacional para organizar entregas de visibilidade de patrocinadores antes, durante e depois do evento.",
+    "audience": "Organizadores e equipes comerciais que precisam demonstrar valor entregue a patrocinadores.",
+    "centralCopy": "Um kit para transformar presença de patrocinador em percepção, entrega e prova.",
+    "strategy": "Tangibilizar o valor do patrocinador em entregáveis concretos: site, materiais, redes, ativações e relatório.",
+    "businessRole": "Produto vendável de escopo claro, com upsell natural para Materiais, Sponsor Report e Congressos.",
+    "structure": [
+      "Hero com promessa de kit de visibilidade.",
+      "Descrição de entregas por canal.",
+      "Antes/durante/depois do evento.",
+      "Checklist de peças e relatório.",
+      "CTA para diagnóstico de patrocinadores."
+    ],
+    "assets": [
+      "longecta-sponsors-hero.jpg",
+      "longecta-sponsors-materials.jpg"
+    ],
+    "rebuild": [
+      "Manter formato de kit com entregáveis.",
+      "Explicar canais e momentos.",
+      "Evidenciar relatório pós-evento."
+    ],
+    "title": "Sponsor Visibility Kit",
+    "height": "captura ao vivo ignorada",
+    "headings": [
+      {
+        "level": "H1",
+        "text": "Hero com promessa de kit de visibilidade."
+      },
+      {
+        "level": "H2",
+        "text": "Descrição de entregas por canal."
+      },
+      {
+        "level": "H2",
+        "text": "Antes/durante/depois do evento."
+      },
+      {
+        "level": "H2",
+        "text": "Checklist de peças e relatório."
+      },
+      {
+        "level": "H2",
+        "text": "CTA para diagnóstico de patrocinadores."
+      }
+    ],
+    "ctas": [
+      "Diagnóstico",
+      "Entrar em contato",
+      "Ver solução relacionada"
+    ],
+    "images": [
+      {
+        "src": "longecta-sponsors-hero.jpg",
+        "alt": ""
+      },
+      {
+        "src": "longecta-sponsors-materials.jpg",
+        "alt": ""
+      }
+    ],
+    "bodySample": "Um kit para transformar presença de patrocinador em percepção, entrega e prova. Página de pacote operacional para organizar entregas de visibilidade de patrocinadores antes, durante e depois do evento. Tangibilizar o valor do patrocinador em entregáveis concretos: site, materiais, redes, ativações e relatório.",
+    "screenshotPath": ""
+  },
+  {
+    "id": "doctor-next-level",
+    "path": "/doctor-next-level",
+    "name": "Doctor Next Level",
+    "family": "Longecta Academy",
+    "purpose": "Página de lançamento do curso e plataforma para médicos aprenderem o mercado de congressos, cursos, palestras, autoridade e receita educacional.",
+    "audience": "Médicos especialistas, professores, preceptores, palestrantes e donos de cursos que querem fazer nome e gerar novas oportunidades.",
+    "centralCopy": "O curso para médicos que querem dominar congressos, cursos e autoridade científica.",
+    "strategy": "Criar uma nova frente educacional da Longecta. Em vez de vender apenas serviço, a marca ensina médicos a enxergar e atuar no mercado de educação médica.",
+    "businessRole": "Produto escalável de curso/plataforma, capaz de gerar receita direta, educar o mercado e nutrir leads para Publicity, Congressos e Systems.",
+    "structure": [
+      "Hero com médico em palco e promessa de próximo nível.",
+      "Seção de mercado invisível da educação médica.",
+      "Oportunidades: congressos, cursos, palestras e marca médica.",
+      "Currículo com 8 módulos.",
+      "Plataforma com aulas, templates, playbooks e exemplos.",
+      "Mapa de valor, perfis de aluno, diferenciais e lista de interesse."
+    ],
+    "assets": [
+      "doctor-next-level-hero.png",
+      "doctor-next-level-platform.png"
+    ],
+    "rebuild": [
+      "Preservar os 8 módulos do curso.",
+      "Explicar que é curso + plataforma.",
+      "Conectar com Longecta Publicity, Congressos e Método."
+    ],
+    "title": "Doctor Next Level",
+    "height": "captura ao vivo ignorada",
+    "headings": [
+      {
+        "level": "H1",
+        "text": "Hero com médico em palco e promessa de próximo nível."
+      },
+      {
+        "level": "H2",
+        "text": "Seção de mercado invisível da educação médica."
+      },
+      {
+        "level": "H2",
+        "text": "Oportunidades: congressos, cursos, palestras e marca médica."
+      },
+      {
+        "level": "H2",
+        "text": "Currículo com 8 módulos."
+      },
+      {
+        "level": "H2",
+        "text": "Plataforma com aulas, templates, playbooks e exemplos."
+      },
+      {
+        "level": "H2",
+        "text": "Mapa de valor, perfis de aluno, diferenciais e lista de interesse."
+      }
+    ],
+    "ctas": [
+      "Diagnóstico",
+      "Entrar em contato",
+      "Ver solução relacionada"
+    ],
+    "images": [
+      {
+        "src": "doctor-next-level-hero.png",
+        "alt": ""
+      },
+      {
+        "src": "doctor-next-level-platform.png",
+        "alt": ""
+      }
+    ],
+    "bodySample": "O curso para médicos que querem dominar congressos, cursos e autoridade científica. Página de lançamento do curso e plataforma para médicos aprenderem o mercado de congressos, cursos, palestras, autoridade e receita educacional. Criar uma nova frente educacional da Longecta. Em vez de vender apenas serviço, a marca ensina médicos a enxergar e atuar no mercado de educação médica.",
+    "screenshotPath": ""
+  }
+]

@@ -15,6 +15,7 @@ import LongectaSystemsPage from './components/LongectaSystemsPage';
 import LongectaMindsPage from './components/LongectaMindsPage';
 import LongectaSponsorsPage from './components/LongectaSponsorsPage';
 import LongectaSponsorVisibilityPage from './components/LongectaSponsorVisibilityPage';
+import DoctorNextLevelPage from './components/DoctorNextLevelPage';
 import SystemLinksPage, { SystemLinksButton, SystemLinkAction } from './components/SystemLinksPage';
 import { analyzeAsset, searchAssetsWithAI, searchCasesWithAI, generateCaseSemanticTags, getAIUsage, hasGeminiConfig } from './services/geminiService';
 import { saveAttachmentData, getAttachmentData, deleteAttachmentData } from './services/storageService';
@@ -38,7 +39,29 @@ type IntelligenceClipboard = {
   updatedAt: string;
 };
 
-type AppPublicPage = Extract<SystemLinkAction, 'plans' | 'planDetails' | 'solutions' | 'materials' | 'publicity' | 'systems' | 'progress' | 'method' | 'congress' | 'speakerKit' | 'minds' | 'sponsors' | 'sponsorVisibility'>;
+type AppPublicPage = Extract<SystemLinkAction, 'plans' | 'planDetails' | 'solutions' | 'materials' | 'publicity' | 'systems' | 'progress' | 'method' | 'congress' | 'speakerKit' | 'minds' | 'sponsors' | 'sponsorVisibility' | 'doctorNextLevel'>;
+
+const publicPageByPath: Record<string, AppPublicPage> = {
+  '/planos': 'plans',
+  '/detalhes-dos-planos': 'planDetails',
+  '/solucoes': 'solutions',
+  '/materiais': 'materials',
+  '/publicity': 'publicity',
+  '/systems': 'systems',
+  '/progress': 'progress',
+  '/metodo': 'method',
+  '/congressos': 'congress',
+  '/speaker-visibility-kit': 'speakerKit',
+  '/palestrantes': 'minds',
+  '/patrocinadores': 'sponsors',
+  '/sponsor-visibility-kit': 'sponsorVisibility',
+  '/doctor-next-level': 'doctorNextLevel',
+};
+
+const getInitialPublicPage = (): AppPublicPage | null => {
+  if (typeof window === 'undefined') return null;
+  return publicPageByPath[window.location.pathname] || null;
+};
 
 async function withSupabaseTimeout<T>(promise: PromiseLike<T>, label: string): Promise<T> {
   let timeoutId: number | undefined;
@@ -265,7 +288,7 @@ const App: React.FC = () => {
     hasMore: false,
     isLoadingMore: false,
   });
-  const [systemPublicPage, setSystemPublicPage] = useState<AppPublicPage | null>(null);
+  const [systemPublicPage, setSystemPublicPage] = useState<AppPublicPage | null>(() => getInitialPublicPage());
   const geminiReady = hasGeminiConfig();
 
   // Confirmation Dialog State
@@ -2532,16 +2555,6 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
     setConfirmDialog({ isOpen: true, ...opts });
   };
 
-  // Auth gate — show login if not authenticated
-  if (!currentUser) {
-    return (
-      <LoginPage onLogin={(user) => {
-        storeUser(user);
-        setCurrentUser(user);
-      }} />
-    );
-  }
-
   const handleLogout = () => {
     authSignOut();
     setCurrentUser(null);
@@ -2570,7 +2583,7 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
       return;
     }
 
-    if (action === 'plans' || action === 'planDetails' || action === 'solutions' || action === 'materials' || action === 'publicity' || action === 'systems' || action === 'progress' || action === 'method' || action === 'congress' || action === 'speakerKit' || action === 'minds' || action === 'sponsors' || action === 'sponsorVisibility') {
+    if (action === 'plans' || action === 'planDetails' || action === 'solutions' || action === 'materials' || action === 'publicity' || action === 'systems' || action === 'progress' || action === 'method' || action === 'congress' || action === 'speakerKit' || action === 'minds' || action === 'sponsors' || action === 'sponsorVisibility' || action === 'doctorNextLevel') {
       setSystemPublicPage(action);
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
@@ -2898,7 +2911,37 @@ Esta série de ${n} casos demonstra [inserir conclusão específica]. Estudos pr
             }}
           />
         )}
+        {systemPublicPage === 'doctorNextLevel' && (
+          <DoctorNextLevelPage
+            onBack={() => {
+              setSystemPublicPage(null);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onCongress={() => {
+              setSystemPublicPage('congress');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onMethod={() => {
+              setSystemPublicPage('method');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onPublicity={() => {
+              setSystemPublicPage('publicity');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          />
+        )}
       </>
+    );
+  }
+
+  // Auth gate — show login if not authenticated after public pages are handled.
+  if (!currentUser) {
+    return (
+      <LoginPage onLogin={(user) => {
+        storeUser(user);
+        setCurrentUser(user);
+      }} />
     );
   }
 

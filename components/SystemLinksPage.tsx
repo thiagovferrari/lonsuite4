@@ -8,6 +8,7 @@ import {
   ClipboardList,
   DoorOpen,
   FileText,
+  GraduationCap,
   Handshake,
   Home,
   Layers3,
@@ -40,6 +41,7 @@ export type SystemLinkAction =
   | 'minds'
   | 'sponsors'
   | 'sponsorVisibility'
+  | 'doctorNextLevel'
   | 'home'
   | 'intelligence'
   | 'assets'
@@ -152,6 +154,13 @@ const systemLinks: LinkItem[] = [
     title: 'Sponsor Visibility Kit',
     description: 'Kit de entregas para organizar presença de patrocinadores em site, materiais, redes e relatório pós-evento.',
     icon: ClipboardList,
+    scope: 'public',
+  },
+  {
+    action: 'doctorNextLevel',
+    title: 'Doctor Next Level',
+    description: 'Curso e plataforma Longecta para médicos entenderem congressos, cursos, palestras e novas receitas em educação médica.',
+    icon: GraduationCap,
     scope: 'public',
   },
   {

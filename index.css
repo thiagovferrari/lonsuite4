@@ -260,6 +260,12 @@ select:focus-visible {
     0 18px 56px rgba(29, 29, 31, 0.11);
 }
 
+.doctor-next-level-page :where(h1, h2, h3) {
+  letter-spacing: 0;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
 .longecta-method-page :where(h1, h2, h3) {
   letter-spacing: 0;
 }
